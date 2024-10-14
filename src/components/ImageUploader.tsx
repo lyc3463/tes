@@ -1,0 +1,71 @@
+import React, { useState } from 'react';
+import { Upload, Button, message } from 'antd';
+import { UploadFile } from 'antd/lib/upload';
+import Icon from "antd/es/icon";
+import * as PostImgServer from "@/services/postImg";
+import {getBase64} from '@/utils/OpenTool'
+
+interface ImageUploadProps {
+    onImageUpload?: (base64: string) => void; // 回调函数，用于上传成功时获取base64
+    oldBase64?: (base64: string) => void; // 回调函数，用于上传成功时获取base64
+}
+
+const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUpload,oldBase64 }) => {
+    // 获取base64 方法
+    // const getBase64 = file =>
+    //     new Promise((resolve, reject) => {
+    //         const reader = new FileReader();
+    //         reader.readAsDataURL(file);
+    //         reader.onload = e => resolve(e.target.result);
+    //         reader.onerror = error => reject(error);
+    //     });
+    const beforeUpload = async file => {
+        const fileType = file.type;
+        const isImage = fileType.startsWith('image/');
+        if (!isImage) {
+            message.error('只能上传图片！');
+            return  false;
+        }
+        // 转换为 Base64
+        try {
+            const base64:any = await getBase64(file);
+            if (typeof oldBase64 === 'function') {
+                console.log('oldBase64 is a function');
+                oldBase64(base64); // 调用 oldBase64 回调函数
+            } else {
+                console.log('oldBase64 is not a function', oldBase64);
+            }
+            // 返回图片地址
+            PostImgServer.fetch(base64).then((res)=>{
+                if (res?.ErrorCode==0){
+                    onImageUpload(res?.Data);
+                }else {
+                    onImageUpload('');
+                }
+            })
+
+        } catch (error) {
+            message.error('Failed to convert file to Base64.');
+        }
+        // 阻止文件上传
+        return false;
+    };
+
+    return (
+        <Upload
+            name="file"
+            listType="picture-card"
+            className="avatar-uploader"
+            showUploadList={false}
+            beforeUpload={beforeUpload}
+        >
+            {/* 添加一个提示或占位图 */}
+            <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#ccc' }}>
+                <Icon type="plus" style={{ fontSize: 24 }} />
+                <div style={{ marginTop: 8 }}>点击上传</div>
+            </div>
+        </Upload>
+    );
+};
+
+export default ImageUpload;

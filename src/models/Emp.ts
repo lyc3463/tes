@@ -1,0 +1,158 @@
+import {
+    Effect,
+    Reducer,
+    Subscription,
+    history as UmiHistorty,
+} from 'umi';
+import * as EmpService from '@/services/emp';
+import { message } from 'antd';
+import _ from 'lodash';
+import { StaticInfo } from '@/StaticInfo';
+import EmpType from '@/ModelTypes/TypeEmp';
+import { fixPathname } from '@/utils/common';
+import * as CollectorService from "@/services/collector";
+let pl={
+    page:1,
+    cname:'',
+    nickname:'',
+    phone:'',
+    stutes:2
+}
+
+export interface CustomState {
+    count: number;
+    ScoreSum: number;
+    pageTotal: number;
+}
+
+export interface EmpInterface {
+    namespace: 'Emp';
+    state: Object;
+    effects: {
+        fetch: Effect;
+        fetchOne: Effect;
+        add: Effect;
+        edit: Effect;
+        remove: Effect;
+        fenye: Effect;
+    };
+    reducers: {
+        list: Reducer<EmpType[]>;
+        one: Reducer<EmpType>;
+        count: Reducer<CustomState>;
+    };
+    subscriptions: { setup: Subscription };
+}
+const EmpModels: EmpInterface = {
+    namespace: 'Emp',
+    state: {},
+    effects: {
+        *fetch({ type, payload }, { put, call, select }): any {
+            const res = yield call(EmpService.fetch,payload?payload:pl);
+
+            if (res.ErrorCode == 0) {
+                yield put({
+                    type: 'list',
+                    payload: { list: res.Data },
+                });
+            } else {
+                message.error(res.ErrorCode + res.Data);
+            }
+        },
+        *fetchOne({ type, payload }, { put, call, select }): any {
+            const list = yield select((state: any) => state.Emp.list);
+            let one = _.find(list, { Id: payload });
+            // const data = yield request(`/api/user/${payload.id}`);
+            yield put({
+                type: 'one',
+                payload: { one },
+            });
+        },
+        *add({ payload }, { call, put,take }): any {
+            const result = yield call(EmpService.add, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *edit({ payload, callback }, { call, put, take }): any {
+            const result = yield call(EmpService.edit, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *remove({ payload }, { call, put }): any {
+            const result = yield call(EmpService.remove, payload);
+            if (result.status !== 'ok') {
+                alert('cuowu');
+            }
+            yield put({ type: 'fetch', payload: { page: 1 } });
+            UmiHistorty.replace({
+                pathname: '../user/list',
+            });
+        },
+        *fenye({ type, payload }, { put, call, select }): any {
+            const res = yield call(EmpService.fenye,payload?payload:pl);
+            if (res.ErrorCode == 0) {
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
+                });
+            } else {
+                message.error(res.ErrorCode + res.Data);
+            }
+        },
+    },
+    reducers: {
+        list(state, action) {
+            return {
+                ...state,
+                ...action.payload,
+            };
+        },
+        one(state, action) {
+            return {
+                ...state,
+                ...action.payload,
+            };
+        },
+        count(state, action) {
+            return {
+                ...state,
+                ...action.payload,
+            };
+        },
+    },
+    subscriptions: {
+        setup({ dispatch, history }, done) {
+            return history.listen(({ location, action }) => {
+                const pathname = fixPathname(location.pathname);
+                if (StaticInfo.userId > 0 && pathname === '/enter/yuangonglData/') {
+                    dispatch({
+                        type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/enter/yuangonglData/') {
+                    dispatch({
+                        type: 'fenye',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/check/checkStaff/') {
+                    dispatch({
+                        type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/check/checkStaff/') {
+                    dispatch({
+                        type: 'fenye',
+                        payload: location.state,
+                    });
+                }
+            });
+        },
+    },
+};
+
+export default EmpModels;

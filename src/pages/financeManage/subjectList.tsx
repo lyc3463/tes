@@ -1,0 +1,101 @@
+import {Button, Form, Input, List, message, Modal, Select, Space, Table} from "antd";
+import {history,connect} from "umi";
+import {useState} from "react";
+
+const SubjectList=(props:any)=>{
+    const [uid,setUid]=useState(0);
+    const [isDeleteOpen,setIsDeleteOpen]=useState(false);
+    const columns =[
+        {
+            title: '科目名称',
+            dataIndex: 'subject_name',
+            key: 'subject_name',
+        },
+        {
+            title: '项目名称',
+            dataIndex: 'project_name',
+            key: 'project_name',
+        },
+        {
+            title: '所属公司',
+            dataIndex: 'company_name',
+            key: 'company_name',
+        },
+        {
+            title: '操作',
+            dataIndex: 'cao',
+            key: 'cao',
+            render:(text:any,record:any)=>{
+                return(
+                    <Space>
+                        <Button type='primary' onClick={()=>{toedit(record.id)}}>编辑</Button>
+                        <Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>
+                    </Space>
+                )
+            }
+        }
+    ];
+    const toadd=()=>{
+        history.push('/financeManage/addSubjectList')
+    };
+    const toedit=(e:number)=>{
+        history.push(`/financeManage/editSubjectList?id=${e}`)
+    };
+    // 删除的弹窗
+    const isDelete=async (e:number)=>{
+        setUid(e);
+        setIsDeleteOpen(true);
+    };
+    // 确定删除
+    const determineDelete=()=>{
+        props.dispatch({
+            type:'Subject/remove',
+            payload:uid
+        }).then((res)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setIsDeleteOpen(false);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    }
+    return(
+        <div>
+            <List>
+                <List.Item>
+                    <div>
+                        <Button type="primary"  onClick={toadd}>
+                            添加科目
+                        </Button>
+                    </div>
+                    <Space>
+                        <Input
+                            addonBefore="科目名称:"
+                        />
+                        <Button type="primary">
+                            搜索
+                        </Button>
+                    </Space>
+                </List.Item>
+            </List>
+            <Table
+                rowKey={(columns) => columns.id}
+                columns={columns}
+                style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                dataSource={props.SubjectList} pagination={false}
+                size='small'
+            />
+            {/*删除的弹窗*/}
+            <Modal open={isDeleteOpen} onOk={determineDelete} onCancel={()=>setIsDeleteOpen(false)}>
+                <div>确定要删除吗？</div>
+            </Modal>
+        </div>
+    )
+}
+const mapStateToProps = (state: any) => {
+    return {
+        SubjectList: state.Subject.list
+    }
+};
+export default connect(mapStateToProps) (SubjectList)

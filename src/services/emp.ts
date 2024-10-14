@@ -1,0 +1,30 @@
+import { getData,postData} from '@/network/http';
+
+export function fetch(vals:any) {
+    return getData(1173, [vals.page,vals.cname,vals.nickname,vals.phone,vals.stutes]);
+}
+
+export function add(vals:any) {
+    return getData(1169, [vals.name,vals.nickname,vals.sex,vals.idCard,vals.phone,vals.wiegandno,vals.custom,vals.estarttime,vals.eendtime,vals.companyName,vals.house_id,vals.oldImgName]);
+}
+
+export function edit(vals:any) {
+    return getData(1170, [vals.uid,vals.name,vals.nickname,vals.sex,vals.idCard,vals.phone,vals.wiegandno,vals.custom,vals.estarttime,vals.eendtime,vals.companyName,vals.house_id,vals.oldImgName]);
+}
+
+export function remove(vals:any) {
+    // return getData(1013, []);
+}
+
+export function one(vals:any) {
+    return getData(1172, [vals]);
+}
+
+export function check(id:number,stutes:number,house_id:number) {
+    return getData(1193, [id,stutes,house_id]);
+}
+export function fenye(vals:any) {
+    return getData(1174, [vals.cname,vals.nickname,vals.phone,vals.stutes]);
+}
+
+

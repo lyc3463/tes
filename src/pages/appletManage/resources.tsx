@@ -1,0 +1,139 @@
+import {Button, Image, List, message, Modal, Pagination, Radio, Space, Spin, Table} from "antd";
+import {useEffect, useState} from "react";
+import {connect,history} from "umi";
+import * as ResourcesService from "@/services/resources";
+
+const Resources=(props)=>{
+    const [loading, setLoading] = useState(false);
+    // 当前页数
+    const [page,setPage]=useState(1)
+    // 房源类型  0办公 1商业 2全部
+    const [houingType,setHouingType]=useState(2)
+    //  房源状态  0上架 1下架 2全部
+    const [houingStatus,setHouingStatus]=useState(2)
+    // 最小租金
+    const [minzujin,setMinzujin]=useState(0)
+    //  最大租金
+    const [maxzujin,setMaxzujin]=useState(9999999)
+    // 最小平方
+    const [minPingfang,setMinPingfang]=useState(0)
+    // 最大平方
+    const [maxPingfang,setMaxPingfang]=useState(9999999)
+    // 删除的弹窗
+    const [isDeleteOpen,setIsDeleteOpen]=useState(false)
+
+    // 删除的id
+    const [did,setDid]=useState(0);
+
+    const columns=[
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            render: (text: any, record: any) => (
+                <Button type="link" onClick={()=>history.push(`/appletManage/editResources?id=${record.id}`)}>{text}</Button>
+            ),
+        },
+        {
+            title: '房源名称',
+            dataIndex: 'housing_name',
+        },
+        {
+            title: '图片',
+            dataIndex: 'housing_image',
+            render: (text: any, record: any) => (
+                <Image src={record.housing_image} style={{width:'50px',height:'50px'}}/>
+            ),
+        },
+        {
+            title: '房源状态',
+            dataIndex: 'housing_status',
+            render: (text: any, record: any) => (
+                <div>
+                    {text?<span style={{color:'green'}}>上架</span>:<span style={{color:'red'}}>下架</span>}
+                </div>
+            ),
+        },
+        {
+            title: '房源类型',
+            dataIndex: 'housing_type',
+            render: (text: any, record: any) => (
+                <div>
+                    {text?<span style={{color:'green'}}>商业</span>:<span style={{color:'red'}}>办公</span>}
+                </div>
+            ),
+        },
+        {
+            title: '排序',
+            dataIndex: 'sort',
+        },
+        {
+            title: '操作',//简单常用操作放这里，复杂放详情
+            dataIndex: 'operation',
+            render: (_: any, record: any) => (
+                <Space>
+                    <Button type='primary' danger onClick={()=>deleteOpen(record.id)}>删除</Button>
+                </Space>
+            ),
+        },
+    ];
+    // 确定删除
+    const onOk=async ()=>{
+        let res=await ResourcesService.remove(did)
+        if (res?.ErrorCode==0){
+            message.success('删除成功')
+            setIsDeleteOpen(false)
+            props.dispatch({
+                type:'Resources/fetch'
+            })
+        }
+    };
+    // 删除的弹窗
+    const deleteOpen=(e:number)=>{
+        setDid(e);
+        setIsDeleteOpen(true)
+
+    };
+    const toadd=()=>{
+        history.push('/appletManage/addResources')
+    };
+    useEffect(() => {
+        console.log(props)
+    }, [page]);
+    const onChange=(e)=>{
+        setPage(e);
+    };
+    return(
+        <Spin spinning={loading}>
+            <List>
+                <List.Item>
+                    <div>
+                        <Button type="primary" onClick={toadd}>
+                            新增房源
+                        </Button>
+                    </div>
+                </List.Item>
+            </List>
+            <Table
+                columns={columns}
+                rowKey={(columns) => columns.id}
+                pagination={false}
+                rowClassName={(record, index) =>
+                    index % 2 === 1 ? 'tbodd' : 'tbeven'
+                }
+                dataSource={props.ResourcesList}
+            />
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {/*删除的弹窗*/}
+            <Modal open={isDeleteOpen} onCancel={()=>setIsDeleteOpen(false)} onOk={onOk}>
+                是否要删除此数据
+            </Modal>
+        </Spin>
+    )
+}
+const mapStateToProps = (state: any) => {
+    return {
+        ResourcesList: state.Resources.list,
+        count:state.Resources.count
+    }
+};
+export default connect(mapStateToProps) (Resources)
