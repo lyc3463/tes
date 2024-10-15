@@ -299,5 +299,8 @@ export const qxTree: TypeMenu[] = [
     { id: 293, name: '编辑角色', parentId: 295, authId: 293},
     { id: 294, name: '删除角色', parentId: 295, authId: 294},
     { id: 295, name: '角色列表', parentId: 113, authId: 295},
+    { id: 296, name: '短信充值', parentId: 101, authId: 296},
+    { id: 297, name: '分配跟进人', parentId: 52, authId: 297},
+    { id: 298, name: '修改小程序权限', parentId: 12, authId: 298},
 
 ]

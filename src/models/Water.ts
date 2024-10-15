@@ -11,8 +11,8 @@ import { StaticInfo } from '@/StaticInfo';
 import WatertType from '@/ModelTypes/TypeWatert';
 import { fixPathname } from '@/utils/common';
 let pl={
-    name:'',
-    account_type:2
+    page:1,
+    name:''
 }
 
 export interface WatertCountState {
@@ -114,18 +114,30 @@ const WatertModels: WatertInterface = {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
 
-                // if (StaticInfo.userId > 0 && pathname === '/financeManage/list/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                // if (StaticInfo.userId > 0 && pathname === '/financeManage/accountList/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
+                if (StaticInfo.userId > 0 && pathname === '/financeManage/list/') {
+                    dispatch({
+                        type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/financeManage/accountList/') {
+                    dispatch({
+                        type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/kehu/byzhuhu/') {
+                    dispatch({
+                        type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/kehu/editByzhuhu/') {
+                    dispatch({
+                        type: 'fetch',
+                        payload: location.state,
+                    });
+                }
 
             });
         },

@@ -1,5 +1,5 @@
 import {Button, DatePicker, Input, List, Select, Space, Spin, Table} from "antd";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 
 const TenantInfo=(props:any)=>{
@@ -36,7 +36,10 @@ const TenantInfo=(props:any)=>{
     ]
     const toadd=()=>{
         history.push('/propertyServerManage/addTenantInfo')
-    }
+    };
+    useEffect(() => {
+        console.log(props)
+    }, []);
     return(
         <Spin spinning={loading}>
             <List>
@@ -85,4 +88,9 @@ const TenantInfo=(props:any)=>{
         </Spin>
     )
 }
-export default connect() (TenantInfo)
+const mapStateToProps = (state: any) => {
+    return {
+        TenantInfoList: state.TenantInfo.list
+    }
+};
+export default connect(mapStateToProps) (TenantInfo)

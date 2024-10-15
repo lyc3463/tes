@@ -66,13 +66,16 @@ const Banner=(props:any)=>{
         }else {
             message.error(res.Data)
         }
-    }
+    };
     const toadd=()=>{
         history.push('/appletManage/addBanner')
-    }
+    };
     const toEdit=(e:BannerType)=>{
         history.push(`/appletManage/editBanner?id=${e.id}`)
-    }
+    };
+    useEffect(() => {
+        console.log(props)
+    }, []);
     return(
         <Spin spinning={loading}>
             <List>

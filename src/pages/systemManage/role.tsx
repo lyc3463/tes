@@ -29,9 +29,7 @@ const Role=(props)=>{
     const toedit=(e)=>{
         history.push(`/systemManage/editRole?id=${e}`)
     };
-    useEffect(() => {
-        console.log(props)
-    }, []);
+
     return(
         <div>
             <List>

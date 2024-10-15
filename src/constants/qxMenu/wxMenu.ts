@@ -1,0 +1,43 @@
+//permission 1显示 0隐藏/禁用
+
+import TypeMenu from "@/ModelTypes/TypeMenu";
+
+export const wxTree: TypeMenu[] = [
+    { id: 41, name: '员工登记', authId: 41},
+    { id: 44, name: '售后录入', authId: 44},
+    { id: 50, name: '园区公告', parentId: 49, authId: 50},
+    { id: 52, name: '报修记录', parentId: 49, authId: 52},
+    { id: 53, name: '投诉建议', parentId: 49, authId: 53},
+    { id: 63, name: '充值记录', parentId: 57, authId: 63},
+    { id: 66, name: '当月账单', parentId: 65, authId: 66},
+    { id: 108, name: '小程序管理', authId: 108},
+    { id: 109, name: '轮播图管理', parentId: 108, authId: 109},
+    { id: 110, name: '楼盘管理', parentId: 108, authId: 110},
+    { id: 111, name: '房源管理', parentId: 108, authId: 111},
+    { id: 112, name: '楼盘描述管理', parentId: 108, authId: 112},
+    { id: 115, name: '问题列表', parentId: 108, authId: 115},
+    { id: 117, name: '友情链接', parentId: 108, authId: 117},
+    { id: 210, name: '区域列表', parentId: 112, authId: 210},
+    { id: 186, name: '新增员工', parentId: 41, authId: 186},
+    { id: 211, name: '特色列表', parentId: 112, authId: 211},
+    { id: 212, name: '装修列表', parentId: 112, authId: 212},
+    { id: 219, name: '更名列表', parentId: 44, authId: 219},
+    { id: 220, name: '转让列表', parentId: 44, authId: 220},
+    { id: 221, name: '续租列表', parentId: 44, authId: 221},
+    { id: 222, name: '退租列表', parentId: 44, authId: 222},
+    { id: 223, name: '优惠列表', parentId: 44, authId: 223},
+    { id: 224, name: '分期列表', parentId: 44, authId: 224},
+    { id: 225, name: '更名录入', parentId: 219, authId: 225},
+    { id: 227, name: '转让录入', parentId: 220, authId: 227},
+    { id: 230, name: '续租录入', parentId: 221, authId: 230},
+    { id: 233, name: '退租录入', parentId: 222, authId: 233},
+    { id: 236, name: '优惠录入', parentId: 223, authId: 236},
+    { id: 239, name: '分期录入', parentId: 224, authId: 239},
+    { id: 242, name: '更名审批', parentId: 76, authId: 242},
+    { id: 49, name: '物业服务', authId: 49},
+    { id: 268, name: '添加报修记录',parentId:49,authId: 268},
+    { id: 271, name: '报修记录列表', parentId: 268, authId: 271},
+    { id: 272, name: '添加投诉建议',parentId:275, authId: 272},
+    { id: 275, name: '投诉建议列表', parentId: 49, authId: 275},
+
+]

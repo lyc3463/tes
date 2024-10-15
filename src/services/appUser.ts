@@ -6,3 +6,6 @@ export function fenye(vals:any) {
     return getData(1161, [vals.name,vals.phone]);
 }
 
+export function edit(vals:any) {
+    return getData(1292, [vals.openID,vals.joinqx]);
+}

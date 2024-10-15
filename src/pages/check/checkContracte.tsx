@@ -87,7 +87,7 @@ const CheckContracte=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {record.contractStatus==0?<Tag color='red'>未审核</Tag>:<Tag color='green'>已审核</Tag>}
+                        {record.contractStatus==1?<Tag color='red'>未审核</Tag>:<Tag color='green'>已审核</Tag>}
                     </div>
                 )
             }
@@ -113,7 +113,7 @@ const CheckContracte=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        {record.contractStatus==0?
+                        {record.contractStatus==1?
                             <>
                                 <Button type='link'>编辑</Button>
                                 <Button type='link' onClick={()=>isCheck(record.id)}>审核</Button>

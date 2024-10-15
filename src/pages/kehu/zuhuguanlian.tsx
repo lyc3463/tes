@@ -1,58 +1,84 @@
-import {Button, Form, Input, Table} from "antd";
+import {Button, Form, Input, Space, Table} from "antd";
+import {connect,history} from "umi";
+import {useEffect} from "react";
 
-const Zuhuguanlian=()=>{
+const Zuhuguanlian=(props:any)=>{
     const columns =[
         {
-            title: '用户ID',
-            dataIndex: 'ID',
-            key: 'ID',
+            title: '租户姓名',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
         },
         {
-            title: '姓名',
-            dataIndex: 'name',
-            key: 'name',
+            title: '联系方式',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
         },
         {
             title: '身份证号',
-            dataIndex: 'accedit',
-            key: 'accedit',
+            dataIndex: 'tenant_card',
+            key: 'tenant_card',
         },
         {
-            title: '手机号',
-            dataIndex: 'phone',
-            key: 'phone',
+            title: '余额',
+            dataIndex: 'yue',
+            key: 'yue',
         },
         {
-            title: '安装地址',
-            dataIndex: 'adddizhi',
-            key: 'adddizhi',
+            title: '积分',
+            dataIndex: 'jifen',
+            key: 'jifen',
         },
         {
-            title: '通讯地址',
-            dataIndex: 'tongxu',
-            key: 'tongxu',
+            title: '账单金额',
+            dataIndex: 'zhangdan',
+            key: 'zhangdan',
         },
         {
-            title: '关联信息',
-            dataIndex: 'bianbiao',
-            key: 'bianbiao',
+            title: '分期',
+            dataIndex: 'feniq',
+            key: 'feniq',
         },
         {
-            title: '创建时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
+            title: '优惠',
+            dataIndex: 'youhui',
+            key: 'youhui',
         },
         {
-            title: '在线支付',
-            dataIndex: 'zhifu',
-            key: 'zhifu',
+            title: '房屋面积(m²)',
+            dataIndex: 'mianji',
+            key: 'mianji',
+        },
+        {
+            title: '租金(元)',
+            dataIndex: 'zujin',
+            key: 'zujin',
+        },
+        {
+            title: '押金',
+            dataIndex: 'yajin',
+            key: 'yajin',
         },
         {
             title: '操作',
-            dataIndex: 'caozuo',
-            key: 'caozuo',
+            dataIndex: 'caoz',
+            key: 'caoz',
+            render: (text:any, record:any) => {
+                return(
+                    <Space>
+                        <Button type='link' onClick={()=>toguanlian(record.id)}>关联</Button>
+                    </Space>
+                )
+            }
         }
-    ]
+    ];
+    // 去关联页面
+    const toguanlian=(e:number)=>{
+        history.push(`/kehu/byzhuhu?id=${e}`)
+    };
+    useEffect(() => {
+        console.log(props)
+    }, []);
     return(
         <div>
             <Form style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
@@ -73,8 +99,21 @@ const Zuhuguanlian=()=>{
                     </Form.Item>
                 </div>
             </Form>
-            <Table columns={columns} style={{border:'1px solid #ddd',borderRadius:'4px'}} pagination={false}/>
+            <Table
+                style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                columns={columns}
+                size='small'
+                rowKey={(columns) => columns.id}
+                dataSource={props.ZuhuList}
+                scroll={{x:1500}}
+                pagination={false}
+            />
         </div>
     )
 }
-export default Zuhuguanlian
+const mapStateToProps = (state: any) => {
+    return {
+        ZuhuList: state.Zuhu.list
+    }
+};
+export default connect(mapStateToProps) (Zuhuguanlian)

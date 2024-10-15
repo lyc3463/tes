@@ -5,19 +5,14 @@ import {useEffect} from "react";
 const Zuhulist=(props:any)=>{
     const columns =[
         {
-            title: '标签名称',
-            dataIndex: 'pjname',
-            key: 'pjname',
-        },
-        {
             title: '租户姓名',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
         },
         {
             title: '联系方式',
-            dataIndex: 'phone',
-            key: 'phone',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
         },
         {
             title: '余额',
@@ -59,6 +54,7 @@ const Zuhulist=(props:any)=>{
             dataIndex: 'yajin',
             key: 'yajin',
         },
+
     ];
     useEffect(() => {
         console.log(props)
@@ -76,7 +72,15 @@ const Zuhulist=(props:any)=>{
                     <Button type='primary'>查询</Button>
                 </Form.Item>
             </Form>
-            <Table columns={columns} style={{border:'1px solid #ddd',borderRadius:'4px'}}  scroll={{x:1500}} pagination={false}/>
+            <Table
+                style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                columns={columns}
+                size='small'
+                rowKey={(columns) => columns.id}
+                dataSource={props.ZuhuList}
+                scroll={{x:1500}}
+                pagination={false}
+            />
         </div>
     )
 }

@@ -10,6 +10,7 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import ZuhuType from '@/ModelTypes/TypeZuhu';
 import { fixPathname } from '@/utils/common';
+import {byzhuhu} from "@/services/zuhu";
 let pl={
     page:1,
     name:'',
@@ -31,6 +32,7 @@ export interface ZuhuInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
+        byzhuhu: Effect;
     };
     reducers: {
         list: Reducer<ZuhuType[]>;
@@ -69,13 +71,13 @@ const WatertModels: ZuhuInterface = {
         },
         *add({ payload }, { call, put,take }): any {
             const result = yield call(ZuhuService.add, payload);
-            // yield put({ type: 'fetch', payload: pl });
-            // yield take('fetch/@@end');
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(ZuhuService.edit, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
@@ -88,6 +90,12 @@ const WatertModels: ZuhuInterface = {
             UmiHistorty.replace({
                 pathname: '../user/list',
             });
+        },
+        *byzhuhu({ payload, callback }, { call, put, take }): any {
+            const result = yield call(ZuhuService.byzhuhu, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
     },
     reducers: {
@@ -115,6 +123,12 @@ const WatertModels: ZuhuInterface = {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
                 if (StaticInfo.userId > 0 && pathname === '/kehu/zuhulist/') {
+                    dispatch({
+                        type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/kehu/zuhuguanlian/') {
                     dispatch({
                         type: 'fetch',
                         payload: location.state,

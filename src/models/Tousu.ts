@@ -10,6 +10,7 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import TousuType from '@/ModelTypes/TypeTousu';
 import { fixPathname } from '@/utils/common';
+import * as TenantInfoService from "@/services/tenantInfo";
 let pl={
     page:1,
     name:'',
@@ -34,6 +35,7 @@ export interface TousuInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
+        fenye: Effect;
     };
     reducers: {
         list: Reducer<TousuType[]>;
@@ -52,7 +54,6 @@ const TousuModel: TousuInterface = {
             //   GongsiService.fetchcount,
             //   _.omit(pl, ['page']),
             // );
-            console.log(res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -90,6 +91,17 @@ const TousuModel: TousuInterface = {
             yield take('fetch/@@end');
             return result
         },
+        *fenye({ type, payload }, { put, call, select }): any {
+            const res = yield call(TousuService.fenye,payload?payload:pl);
+            if (res.ErrorCode == 0) {
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
+                });
+            } else {
+                message.error(res.ErrorCode + res.Data);
+            }
+        },
     },
     reducers: {
         list(state, action) {
@@ -119,6 +131,12 @@ const TousuModel: TousuInterface = {
                 if (StaticInfo.userId > 0 && pathname === '/propertyServerManage/complaint/') {
                     dispatch({
                         type: 'fetch',
+                        payload: location.state,
+                    });
+                } 
+                if (StaticInfo.userId > 0 && pathname === '/propertyServerManage/complaint/') {
+                    dispatch({
+                        type: 'fenye',
                         payload: location.state,
                     });
                 }

@@ -27,7 +27,7 @@ export function getSendStr(ActionId: number, canshus: any[]) {
     else signstr = [ActionId, UserId, cmdInfo, t, d].join('&');
     // console.log(signstr);
     let sign = StaticInfo.rsaEncrypt(signstr);
-    // console.log(sign);
+    console.log('sign',sign);
     let sendobj = {
         ActionId,
         UserId,

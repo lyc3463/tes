@@ -11,14 +11,6 @@ interface ImageUploadProps {
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUpload,oldBase64 }) => {
-    // 获取base64 方法
-    // const getBase64 = file =>
-    //     new Promise((resolve, reject) => {
-    //         const reader = new FileReader();
-    //         reader.readAsDataURL(file);
-    //         reader.onload = e => resolve(e.target.result);
-    //         reader.onerror = error => reject(error);
-    //     });
     const beforeUpload = async file => {
         const fileType = file.type;
         const isImage = fileType.startsWith('image/');

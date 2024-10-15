@@ -1,10 +1,22 @@
-import {Button, Form, Image, Input, List, message, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, Form, Image, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
 import {connect} from 'umi'
 import {useEffect, useState} from "react";
+import {wxTree} from '@/constants/qxMenu/wxMenu'
+import {buildTree} from "@/utils/OpenTool";
+import {StaticInfo} from "@/StaticInfo";
+import {val} from "@umijs/utils/compiled/cheerio/lib/api/attributes";
+
+let qxList=StaticInfo.uqx;
+let authArr =qxList.split('').map(Number);
 const Wcxuserlist=(props:any)=>{
+    const treeData = buildTree(wxTree);
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
+    // 弹窗
+    const [isOpen,setIsOpen]=useState(false);
+    const [selected, setSelected] = useState<string[]>(Array(299).fill('0'));
+    const [openID,setOpenID]=useState('');
     const columns =[
         {
             title: '用户头像',
@@ -79,7 +91,7 @@ const Wcxuserlist=(props:any)=>{
             key: 'qx',
             render:(text:any,record:any,)=>{
                 return(
-                    <Button type='link'>详情</Button>
+                    <Button type='link' onClick={()=>editInfo(record)}>详情</Button>
                 )
             }
         },
@@ -114,6 +126,54 @@ const Wcxuserlist=(props:any)=>{
     };
     useEffect(() => {
     }, [page]);
+    // 弹窗信息
+    const editInfo=(vla:any)=>{
+        setOpenID(vla.openId);
+        setIsOpen(true);
+    };
+    // 确定编辑权限
+    const onOk=()=>{
+        let joinqx=selected.join('');
+        props.dispatch({
+            type:'AppUser/edit',
+            payload:{openID,joinqx}
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('修改成功');
+                setIsOpen(false);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
+    const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: wxTree[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void })=> {
+        return (
+            <ul>
+                {tree.map(node => (
+                    <li key={node.id}>
+                        <input
+                            type="checkbox"
+                            disabled={disabled[node.id]==0}
+                            checked={selected[node.id] === '1'}
+                            onChange={e => handleCheckboxChange(node.id, e.target.checked)}
+                        />
+                        {node.name}
+                        {node.children && node.children.length > 0 && (
+                            <TreeMenu tree={node.children} selected={selected} disabled={disabled} setSelected={setSelected} />
+                        )}
+                    </li>
+                ))}
+            </ul>
+        );
+    };
+    const handleCheckboxChange=(id: number, isChecked: boolean) =>{
+        // 创建一个新的数组来存储新的选中状态
+        let newSelected = [...selected];
+        // 更新指定 ID 的节点的选中状态
+        newSelected[id] = isChecked ? '1' : '0';
+        // 设置新的选中状态
+        setSelected(newSelected);
+    };
     return(
         <div>
             <List style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
@@ -144,6 +204,10 @@ const Wcxuserlist=(props:any)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {/*编辑权限弹窗*/}
+            <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk}>
+                <TreeMenu tree={treeData} selected={selected} disabled={authArr}  setSelected={setSelected} />
+            </Modal>
         </div>
     )
 }

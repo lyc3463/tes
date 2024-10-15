@@ -1,6 +1,6 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    // return getData(1012, [vals.name='',vals.account_type=2]);
+    return getData(1121, [vals.page,vals.name]);
 }
 export function add(vals:any) {
     return getData(1117, [vals.collector_id,vals.water_type,vals.remark,vals.waterAddress,]);

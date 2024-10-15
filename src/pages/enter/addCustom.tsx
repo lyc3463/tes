@@ -14,10 +14,13 @@ const AddCustom=(props:any)=>{
         let res=await props.dispatch({
             type:'Custom/add',
             payload:{...values,custom_date}
-        })
+        });
+        console.log(res)
         if (res.ErrorCode==0){
             message.success('添加成功')
             history.push('/enter/custom')
+        }else {
+            message.error(res.Data)
         }
     }
     const getDataInfo=(_,value)=>{

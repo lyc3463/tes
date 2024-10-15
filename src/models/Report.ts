@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import ReportType from '@/ModelTypes/TypeReport';
 import { fixPathname } from '@/utils/common';
-import * as UnitService from "@/services/unit";
 let pl={
     page:1,
     name:'',

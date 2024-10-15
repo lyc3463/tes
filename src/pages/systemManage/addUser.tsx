@@ -16,23 +16,22 @@ const AddUser=(props:any)=>{
     const [form] = Form.useForm();
     const treeData = buildTree(qxTree);
     const [roleList,setRoleList]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(296).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(299).fill('1'));
     const onFinish= (values)=>{
         let mm =CryptoUtils.md5(values.passWord);
         values.passWord=mm;
         let joinqx=selected.join('');
-        console.log(joinqx);
-        //  props.dispatch({
-        //     type:'Users/add',
-        //     payload:{...values,joinqx}
-        // }).then((res)=>{
-        //     if (res.ErrorCode==0){
-        //         message.success('添加成功');
-        //         history.push('/systemManage/userManage')
-        //     }else {
-        //         message.error(res.Data)
-        //     }
-        //  })
+         props.dispatch({
+            type:'Users/add',
+            payload:{...values,joinqx}
+        }).then((res)=>{
+            if (res.ErrorCode==0){
+                message.success('添加成功');
+                history.push('/systemManage/userManage');
+            }else {
+                message.error(res.Data);
+            }
+         })
     };
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: TypeMenu[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void }) =>{
         return (

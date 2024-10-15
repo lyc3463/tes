@@ -48,9 +48,10 @@ const EditBanner=(props:any)=>{
         setSingle(val);
     };
     // base64 用来显示在页面
-    const oldBase64=(val:string)=>{
+    const getImgBase64=(val:string)=>{
+        console.log(val)
         setImgBase64(val);
-    }
+    };
     useEffect(()=>{
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
@@ -75,7 +76,7 @@ const EditBanner=(props:any)=>{
                     <Input placeholder="例如:001"/>
                 </Form.Item>
                 <Form.Item label='缩略图'>
-                    <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={oldBase64}/>
+                    <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={getImgBase64}/>
                     {imgBase64?<Image src={imgBase64} style={{width:'80px',height:"80px"}}/>:''}
                 </Form.Item>
                 <Form.Item label="是否显示在小程序" name='carouselStatus'>

@@ -14,6 +14,8 @@ const AddBanner=(props:any)=>{
     const [single, setSingle] = useState<string | undefined>(undefined);
     // 不上传轮播图不能点击添加
     const [upImg, setUpImg] = useState<string | undefined>(undefined);
+    // 图片64
+    const [imgBase64,setImgBase64]=useState('');
     const onFinish=async (values)=>{
         let res=await props.dispatch({
             type:'Banner/add',
@@ -32,6 +34,10 @@ const AddBanner=(props:any)=>{
         setSingle(val); // 将base64字符串保存到状态中
         setUpImg(val);
     };
+    // base64 用来显示在页面
+    const getImgBase64=(val:string)=>{
+        setImgBase64(val);
+    };
     return(
         <Spin spinning={isLoading}>
             <Form
@@ -47,8 +53,8 @@ const AddBanner=(props:any)=>{
                     <Input placeholder="例如:001"/>
                 </Form.Item>
                 <Form.Item label='缩略图'>
-                   <CmpImageUploader onImageUpload={handleImageUpload}/>
-                    <Image/>
+                    <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={getImgBase64}/>
+                    {imgBase64?<Image src={imgBase64} style={{width:'80px',height:"80px"}}/>:''}
                 </Form.Item>
                 <Form.Item label="是否显示在小程序" name='isxianshi'>
                     <Radio.Group >

@@ -42,12 +42,15 @@ const Properties=(props:any)=>{
                 </Space>
             ),
         },
-    ]
+    ];
+    useEffect(() => {
+        console.log(props)
+    }, []);
     const isDelete=async (e:number)=>{
         setDeleteID(e)
-        let res=await PropertiesService.getHouse(e)
-        if (res?.ErrorCode==0){
-            setFangyuanList(res?.Data)
+        let res:any=await PropertiesService.getHouse(e)
+        if (res.ErrorCode==0){
+            setFangyuanList(res.Data)
         }
         setIsopen(true)
     }

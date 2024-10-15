@@ -18,5 +18,8 @@ export function remove(vals:any) {
 export function one(vals:any) {
     // return getData(1090, [vals]);
 }
+export function fenye(vals:any) {
+    return getData(1213, [vals.name,vals.phone,vals.state,vals.startDate,vals.endDate]);
+}
 
 

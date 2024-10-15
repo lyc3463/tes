@@ -82,7 +82,8 @@ const Complaint=(props:any)=>{
 }
 const mapStateToProps = (state: any) => {
     return {
-        TousuList: state.Tousu.list
+        TousuList: state.Tousu.list,
+        count: state.Tousu.count,
     }
 };
 export default connect(mapStateToProps) (Complaint)

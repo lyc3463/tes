@@ -15,5 +15,8 @@ export function remove(vals:any) {
     // return getData(1050, [vals]);
 }
 export function one(vals:any) {
-    // return getData(1013, [vals]);
+    return getData(1153, [vals]);
+}
+export function byzhuhu(vals:any) {
+    return getData(1151, [vals.uid,vals.unit_id,vals.electricity_id,vals.water_id,vals.open_id,vals.item_id,vals.label_id=1,vals.reserved_amount,vals.warn_amount,vals.minimum_recharge,vals.is_deduction,vals.reamrk]);
 }

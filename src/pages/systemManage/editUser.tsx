@@ -11,13 +11,13 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 let qxList=StaticInfo.uqx;
-let authArr =qxList.split('').map(Number)
+let authArr =qxList.split('').map(Number);
 const EditUser=(props:any)=>{
     const treeData = buildTree(qxTree);
     const location=useLocation();
     const [roleList,setRoleList]=useState([]);
     const formRef =useRef();
-    const [selected, setSelected] = useState<string[]>(Array(296).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(299).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -29,6 +29,7 @@ const EditUser=(props:any)=>{
     let getOneUserInfo=(id:string)=>{
         UsersService.one(id).then((res:any)=>{
             if (res?.ErrorCode==0){
+                console.log(res)
                 formRef.current?.setFieldsValue(res.Data);
                 setSelected(res.Data.authority.split(''));
             }else {
@@ -66,17 +67,18 @@ const EditUser=(props:any)=>{
     };
     const onFinish=(value:any)=>{
         let joinqx=selected.join('');
-        props.dispatch({
-            type:'Users/edit',
-            payload:{...value,uid,joinqx}
-        }).then((res)=>{
-            if (res.ErrorCode==0){
-                message.success('修改成功');
-                history.push('/systemManage/userManage');
-            }else {
-                message.error(res.Data);
-            }
-        });
+        console.log(joinqx)
+        // props.dispatch({
+        //     type:'Users/edit',
+        //     payload:{...value,uid,joinqx}
+        // }).then((res)=>{
+        //     if (res.ErrorCode==0){
+        //         message.success('修改成功');
+        //         history.push('/systemManage/userManage');
+        //     }else {
+        //         message.error(res.Data);
+        //     }
+        // });
     };
     useEffect(() => {
         filterAndUpdateList(props.RoleList, 'role_name', 'id', setRoleList);

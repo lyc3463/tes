@@ -74,13 +74,13 @@ const AccountModels: AccountInterface = {
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(AccountService.edit, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
         *remove({ payload }, { call, put,take }): any {
             const result = yield call(AccountService.remove, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
