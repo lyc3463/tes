@@ -1,10 +1,11 @@
-import {Button, Input, List, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, Input, List, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {connect} from "umi";
 import dayjs from "dayjs";
 
 const Complaint=(props:any)=>{
     const [loading, setLoading] = useState(false);
+    const [page,setPage]=useState(1);
     const columns=[
 
         {
@@ -18,36 +19,20 @@ const Complaint=(props:any)=>{
             ),
         },
         {
-            title: '租户名称',
-            dataIndex: 'tenant_name',
+            title: '昵称',
+            dataIndex: 'appUserName',
         },
         {
             title: '租户手机号',
-            dataIndex: 'tenant_phone',
+            dataIndex: 'appUserPhone',
         },
         {
             title: '投诉内容',
             dataIndex: 'complaint_content',
-        },
-        {
-            title: '状态',
-            dataIndex: 'complaintStatus',
             render: (_: any, record: any) => (
-                <Space>
-                    {
-                        record.complaintStatus==0?<Tag color='red'>未处理</Tag>:<Tag color='green'>已处理</Tag>
-                    }
-                </Space>
+                <Input.TextArea value={record.complaint_content}>
 
-            ),
-        },
-        {
-            title: '操作',//简单常用操作放这里，复杂放详情
-            dataIndex: 'operation',
-            render: (_: any, record: any) => (
-                <Space>
-                    <Button type='link' onClick={()=>isOK(record.id)}>处理完成</Button>
-                </Space>
+                </Input.TextArea>
 
             ),
         },
@@ -71,10 +56,12 @@ const Complaint=(props:any)=>{
                     rowKey={(columns) => columns.id}
                     pagination={false}
                     dataSource={props.TousuList}
+                    size='small'
                     // rowClassName={(record, index) =>
                     //     index % 2 === 1 ? 'tbodd' : 'tbeven'
                     // }
                 />
+                {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             </Spin>
 
         </div>
