@@ -11,13 +11,13 @@ class StaticInfoClass {
 
   //用户数据
   public deviceId: string = '';
-  public userState: boolean = false;
-  public userId: number = 0;
-  public username: string = '';
-  public token: string = '';
-  public park_id: number = 0;
-  public uqx: string = '';
-  public park_name: string = '';
+  public userState: boolean = sessionStorage.getItem('userState')==='true'?true:false;
+  public userId: number = parseInt(sessionStorage.getItem('userId'))>0?parseInt(sessionStorage.getItem('userId')):0;
+  public username: string = sessionStorage.getItem('username');
+  public token: string = sessionStorage.getItem('token');
+  public park_id: number = parseInt(sessionStorage.getItem('park_id'))>0?parseInt(sessionStorage.getItem('park_id')):0;
+  public uqx: string = sessionStorage.getItem('uqx');
+  public park_name: string =sessionStorage.getItem('park_name');
   //根据情况添加
   //用户数据结束
 

@@ -1,4 +1,4 @@
-import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
@@ -7,7 +7,7 @@ import * as EmpService from '@/services/emp';
 const YuangonglData=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
-    // 审核状态 0全部  1未审核 2已审核
+    // 审核状态 2全部  0未审核 1已审核
     const [stutes,setStutes]=useState(2);
     // 姓名
     const [cname,setCname]=useState('');
@@ -15,6 +15,12 @@ const YuangonglData=(props:any)=>{
     const [nickname,setNickname]=useState('');
     // 手机号
     const [phone,setPhone]=useState('');
+    // 唯一ID
+    const [uid,setUid]=useState(0);
+    // 删除的名称
+    const [uname,setUname]=useState('');
+
+    const [isOpen,setIsOpen]=useState(false);
     const columns =[
         {
             title: '登记日期',
@@ -104,6 +110,7 @@ const YuangonglData=(props:any)=>{
                                 <Space>
                                     <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
                                     <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
+                                    <Button type='link' onClick={()=>isDelete(record)}>删除</Button>
                                 </Space>:
                                 <>
                                     <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
@@ -122,6 +129,12 @@ const YuangonglData=(props:any)=>{
     };
     const toedit=(e:number)=>{
         history.push(`/enter/editYuangong?id=${e}`)
+    };
+    // 删除弹窗
+    const isDelete=(e:any)=>{
+        setUid(e.id);
+        setUname(e.name);
+        setIsOpen(true);
     };
     // 搜索
     const sousuo=()=>{
@@ -162,6 +175,20 @@ const YuangonglData=(props:any)=>{
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
+    };
+    // 删除的确定按钮
+    const onOk=()=>{
+        props.dispatch({
+            type:'Emp/delete',
+            payload:uid
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setIsOpen(false)
+            }else {
+                message.error(res.Data);
+            }
+        })
     };
     return(
         <div>
@@ -217,15 +244,22 @@ const YuangonglData=(props:any)=>{
                     </Space>
                 </List.Item>
             </List>
-            <Table
-                columns={columns}
-                style={{border:'1px solid #ddd',borderRadius:'4px'}}
-                pagination={false}
-                dataSource={props.EmpList}
-                rowKey={(columns) => columns.id}
-                size='small'
-            />
+            <div style={{maxHeight:'60vh',overflow:'auto',border:'1px solid #ddd'}}>
+                <Table
+                    columns={columns}
+                    style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                    pagination={false}
+                    dataSource={props.EmpList}
+                    rowKey={(columns) => columns.id}
+                    size='small'
+                />
+            </div>
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            <Modal onOk={onOk} open={isOpen} title={'删除人脸'} onCancel={()=>setIsOpen(false)}>
+                <div>
+                    <span>是否要删除：<span style={{color:"red"}}>{uname}</span></span>
+                </div>
+            </Modal>
         </div>
     )
 }

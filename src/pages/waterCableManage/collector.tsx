@@ -13,16 +13,7 @@ const Collector=(props:any)=>{
         history.push(`/waterCableManage/editCollector?id=${e}`)
     };
     const columns =[
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            render:(text:any,record:any)=>{
-                return(
-                    <Button type='link' onClick={()=>toedit(record.id)}>{text}</Button>
-                )
-            }
-        },
+
         {
             title: '采集器ID',
             dataIndex: 'collectorid',
@@ -97,6 +88,16 @@ const Collector=(props:any)=>{
             ),
 
         },
+        {
+            title: '操作',
+            dataIndex: 'cao',
+            key: 'cao',
+            render:(text:any,record:any)=>{
+                return(
+                    <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
+                )
+            }
+        },
     ]
     const toadd=()=>{
         history.push('/waterCableManage/addCollector')
@@ -165,8 +166,8 @@ const Collector=(props:any)=>{
                                 style={{ width: 120 }}
                                 options={[
                                     { value: 2, label: '全部' },
-                                    { value: 0, label: '未连接' },
-                                    { value: 1, label: '已连接' },
+                                    { value: 1, label: '未连接' },
+                                    { value: 0, label: '已连接' },
                                 ]}
                             />
                         </Space.Compact>

@@ -36,6 +36,7 @@ export interface TransferenceInterface {
         edit: Effect;
         remove: Effect;
         fenye: Effect;
+        check: Effect;
     };
     reducers: {
         list: Reducer<TransferenceType[]>;
@@ -101,6 +102,12 @@ const TransferenceModel: TransferenceInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+        },
+        *check({ payload, callback }, { call, put, take }): any {
+            const result = yield call(TransferenceService.check, payload);
+            yield put({ type: 'fetch', payload:pl });
+            yield take('fetch/@@end');
+            return result
         },
     },
     reducers: {

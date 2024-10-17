@@ -274,7 +274,9 @@ const CheckCustom=(props)=>{
             <Table
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
-                scroll={{x:2000}} pagination={false}
+                scroll={{x:2000,y:'70vh'}}
+
+                pagination={false}
                 rowKey={(columns) => columns.id}
                 dataSource={props.CustomList}
             />

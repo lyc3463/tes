@@ -66,6 +66,18 @@ const FinancialData=(props:any)=>{
             }
         },
         {
+            title: '收入/支出金额',
+            dataIndex: 'billMoney',
+            key: 'billMoney',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        <span style={{fontSize:'14px',color:'red'}}>{record.billMoney}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
+                    </div>
+                )
+            }
+        },
+        {
             title: '余额',
             dataIndex: 'balance',
             key: 'balance',
@@ -256,14 +268,16 @@ const FinancialData=(props:any)=>{
                     </Space>
                 </List.Item>
             </List>
-            <Table
-                columns={columns}
-                style={{border:'1px solid #ddd',borderRadius:'4px'}}
-                pagination={false}
-                rowKey={(columns) => columns.id}
-                dataSource={props.BillList}
-                size='small'
-            />
+            <div style={{maxHeight:'60vh',overflow:'auto',border:'1px solid #ddd'}}>
+                <Table
+                    columns={columns}
+                    style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                    pagination={false}
+                    rowKey={(columns) => columns.id}
+                    dataSource={props.BillList}
+                    size='small'
+                />
+            </div>
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )

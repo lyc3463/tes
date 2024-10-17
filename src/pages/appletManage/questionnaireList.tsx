@@ -56,6 +56,7 @@ const QuestionnaireList=()=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 size='small'
+                scroll={{y:'70vh'}}
             />
         </div>
     )

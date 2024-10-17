@@ -290,15 +290,17 @@ const Staff=(props:any)=>{
                     </Space>
                 </List.Item>
             </List>
-            <Table
-                style={{border:'1px solid #ddd',borderRadius:'4px'}}
-                columns={columns}
-                size='small'
-                pagination={false}
-                rowKey={(columns) => columns.id}
-                dataSource={props.StaffList}
-            />
-            {props.count?<Pagination total={props.count.count} pageSize={1} current={page}  onChange={onChange} pageSizeOptions={[1]}/>:''}
+            <div style={{maxHeight:'60vh',overflow:'auto',border:'1px solid #ddd'}}>
+                <Table
+                    style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                    columns={columns}
+                    size='small'
+                    pagination={false}
+                    rowKey={(columns) => columns.id}
+                    dataSource={props.StaffList}
+                />
+            </div>
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             <Modal open={isDeltOpen} onCancel={()=>setIsDeleteOpen(false)} title='删除合同' onOk={onOk}>
                 <div>确定要删除吗？</div>
             </Modal>

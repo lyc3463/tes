@@ -60,19 +60,6 @@ const Rename=(props)=>{
                 )
             }
         },
-        {
-            title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
-            render:(text:any,record:any,)=>{
-                return(
-                    <Space>
-                        <Button type='link'>详情</Button>
-                        {record.renameStatus==2?'':<Button type='link'>编辑</Button>}
-                    </Space>
-                )
-            }
-        }
     ];
     const toadd=()=>{
       history.push('/enter/addRename')

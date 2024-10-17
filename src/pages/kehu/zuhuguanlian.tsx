@@ -1,8 +1,11 @@
-import {Button, Form, Input, Space, Table} from "antd";
+import {Button, Form, Input, List, Pagination, Space, Table} from "antd";
 import {connect,history} from "umi";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 
 const Zuhuguanlian=(props:any)=>{
+    const [name,setName]=useState('');
+    const [phone,setPhone]=useState('');
+    const [page,setPage]=useState(1);
     const columns =[
         {
             title: '租户姓名',
@@ -77,28 +80,48 @@ const Zuhuguanlian=(props:any)=>{
         history.push(`/kehu/byzhuhu?id=${e}`)
     };
     useEffect(() => {
-        console.log(props)
+        logFenye();
     }, []);
+    useEffect(() => {
+    }, [page]);
+    // 分页
+    const logFenye=()=>{
+        props.dispatch({
+            type:"Zuhu/fetch",
+            payload:{page,name,phone}
+        })
+    };
+    // 搜索按钮
+    const shousuo=()=>{
+        setPage(1);
+        props.dispatch({
+            type:'Zuhu/fetch',
+            payload:{page,name,phone}
+        });
+        logFenye()
+    };
+    const onChange=(val:number)=>{
+        setPage(val)
+    };
     return(
         <div>
-            <Form style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
-                <div style={{display:'flex'}}>
-                    <Form.Item label='手机号' style={{width:'20vw'}}>
-                        <Input/>
-                    </Form.Item>
-                    <Form.Item label='姓名' style={{width:'20vw',margin:'0 10px'}}>
-                        <Input/>
-                    </Form.Item>
-                </div>
-                <div style={{display:'flex'}}>
-                    <Form.Item>
-                        <Button type='primary'>查询</Button>
-                    </Form.Item>
-                    <Form.Item style={{margin:'0 10px'}}>
-                        <Button type='primary'>重置</Button>
-                    </Form.Item>
-                </div>
-            </Form>
+            <List>
+                <List.Item>
+                    <Space>
+                        <Input
+                            addonBefore="姓名:"
+                            onChange={(e)=>setName(e.target.value)}
+                        />
+                        <Input
+                            addonBefore="手机号:"
+                            onChange={(e)=>setPhone(e.target.value)}
+                        />
+                        <Button type="primary" onClick={shousuo}>
+                            搜索
+                        </Button>
+                    </Space>
+                </List.Item>
+            </List>
             <Table
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 columns={columns}
@@ -108,12 +131,15 @@ const Zuhuguanlian=(props:any)=>{
                 scroll={{x:1500}}
                 pagination={false}
             />
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+
         </div>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
-        ZuhuList: state.Zuhu.list
+        ZuhuList: state.Zuhu.list,
+        count: state.Zuhu.count,
     }
 };
 export default connect(mapStateToProps) (Zuhuguanlian)

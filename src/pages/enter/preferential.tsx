@@ -63,19 +63,7 @@ const Preferential=(props)=>{
                 )
             }
         },
-        {
-            title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
-            render:(text:any,record:any,)=>{
-                return(
-                    <Space>
-                        <Button type='link'>详情</Button>
-                        {record.sturs==2?'':<Button type='link'>编辑</Button>}
-                    </Space>
-                )
-            }
-        }
+
     ];
     const toadd=()=>{
         history.push('/enter/addPreferential')
@@ -194,7 +182,7 @@ const Preferential=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={1} current={page}  onChange={onChange} pageSizeOptions={[1]}/>:''}
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )
 }

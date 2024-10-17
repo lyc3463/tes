@@ -117,11 +117,13 @@ class MainPage extends Component<any> {
     UmiHistory.push(e.key);
   }
   tuichu() {
-    LoginService.outLogin(StaticInfo.userId).then((res)=>{
+    LoginService.outLogin(StaticInfo.userId).then((res:any)=>{
       if (res.ErrorCode==0){
         message.success('退出成功');
+        sessionStorage.clear();
         location.pathname = '/login';
       }else {
+        sessionStorage.clear();
         message.error(res.Data+',关闭页面重新登录')
       }
     })

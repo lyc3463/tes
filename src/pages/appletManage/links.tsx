@@ -71,7 +71,14 @@ const Links=(props:any)=>{
                     <Button type='primary' onClick={toadd}>添加友情链接</Button>
                 </Form.Item>
             </Form>
-            <Table columns={columns} style={{border:'1px solid #ddd',borderRadius:'4px'}}  pagination={false} dataSource={props.LinksList}/>
+            <Table
+                columns={columns}
+                style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                pagination={false}
+                rowKey={(columns) => columns.id}
+                dataSource={props.LinksList}
+                scroll={{y:'70vh'}}
+            />
             <Modal open={isDeleteOpen} onOk={onDelete} onCancel={()=>setisDeleteOpen(false)}>
                 确定要删除吗?
             </Modal>

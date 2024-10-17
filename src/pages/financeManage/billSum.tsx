@@ -56,6 +56,18 @@ const BillSum=(props:any)=>{
             }
         },
         {
+            title: '收入/支出金额',
+            dataIndex: 'billMoney',
+            key: 'billMoney',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        <span style={{fontSize:'14px',color:'red'}}>{record.billMoney}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
+                    </div>
+                )
+            }
+        },
+        {
             title: '余额',
             dataIndex: 'balance',
             key: 'balance',

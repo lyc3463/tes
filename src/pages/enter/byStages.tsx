@@ -102,19 +102,6 @@ const ByStages=(props)=>{
                 )
             }
         },
-        {
-            title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
-            render:(text:any,record:any,)=>{
-                return(
-                    <Space>
-                        <Button type='link'>详情</Button>
-                        {record.sturs==2?'':<Button type='link'>编辑</Button>}
-                    </Space>
-                )
-            }
-        }
     ];
     // 监听页数
     const onChange=(page)=>{
@@ -225,12 +212,13 @@ const ByStages=(props)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 size='small'
+                scroll={{y:'70vh'}}
                 dataSource={props.ByStagesList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={1} current={page}  onChange={onChange} pageSizeOptions={[1]}/>:''}
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )
 }

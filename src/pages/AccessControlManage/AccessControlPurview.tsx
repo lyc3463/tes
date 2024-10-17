@@ -1,46 +1,192 @@
-import {Button, Form, Input, Select, Upload, DatePicker, List, Space, Table} from "antd";
+import {
+    Button,
+    Form,
+    Input,
+    Select,
+    Upload,
+    DatePicker,
+    List,
+    Space,
+    Table,
+    Image,
+    Tag,
+    Pagination,
+    Modal,
+    message
+} from "antd";
 import {UploadOutlined} from "@ant-design/icons";
+import {useEffect, useState} from "react";
+import dayjs from "dayjs";
+import {connect} from "umi";
 
-const AccessControlPurview=()=>{
-    const columns=[
+const AccessControlPurview=(props:any)=>{
+    // 当前页数
+    const [page,setPage]=useState(1);
+    const [stutes,setStutes]=useState(1);
+    // 姓名
+    const [cname,setCname]=useState('');
+    // 昵称
+    const [nickname,setNickname]=useState('');
+    // 手机号
+    const [phone,setPhone]=useState('');
+    // 弹窗状态
+    const [isOpen,setOpen]=useState(false);
+    // 删除的名字
+    const [uname,setUname]=useState('');
+    // 删除的ID
+    const [uid,setUid]=useState(0);
+    const columns =[
         {
-            title: 'ID',
-            dataIndex: 'id',
-        },
-        {
-            title: '创建时间',
-            dataIndex: 'id',
+            title: '登记日期',
+            dataIndex: 'estarttime',
+            key: 'estarttime',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {dayjs(record.estarttime).format('YYYY-MM-DD')}
+                    </div>
+                )
+            }
         },
         {
             title: '到期时间',
-            dataIndex: 'id',
+            dataIndex: 'eendtime',
+            key: 'eendtime',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {dayjs(record.eendtime).format('YYYY-MM-DD')}
+                    </div>
+                )
+            }
         },
         {
             title: '姓名',
-            dataIndex: 'id',
+            dataIndex: 'name',
+            key: 'name',
         },
         {
-            title: '呢称',
-            dataIndex: 'id',
+            title: '头像',
+            dataIndex: 'images',
+            key: 'images',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        <Image src={record.avatarBase64} style={{width:"50px",height:'50px'}}/>
+                    </div>
+                )
+            }
         },
         {
-            title: '人脸',
-            dataIndex: 'id',
+            title: '员工联系方式',
+            dataIndex: 'phone',
+            key: 'phone',
+        },
+        {
+            title: '性别',
+            dataIndex: 'sex',
+            key: 'sex',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.sex==1?<Tag color='gold'>男</Tag>:<Tag color='orange'>女</Tag>}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '公司名称',
+            dataIndex: 'companyName',
+            key: 'companyName',
         },
         {
             title: '操作',
-            dataIndex: 'id',
+            dataIndex: 'cao',
+            key: 'cao',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        <Button type='primary' onClick={()=>isDelete(record)}>删除</Button>
+                    </div>
+                )
+            }
         },
-    ]
+    ];
+    // 搜索
+    const sousuo=()=>{
+        setPage(1);
+        props.dispatch({
+            type:'Emp/fenye',
+            payload:{cname,nickname,phone,stutes}
+        });
+        logFenye();
+    };
+    // 分页
+    const logFenye=()=>{
+        props.dispatch({
+            type:"Emp/fetch",
+            payload:{page,cname,nickname,phone,stutes}
+        })
+    };
+    // 监听页数
+    const onChange=(e:number)=>{
+        setPage(e);
+    };
+    useEffect(() => {
+        logFenye();
+    }, [page]);
+    // 监听员工姓名
+    const changeName=(e)=>{
+        setCname(e.target.value);
+    };
+    // 监听员工昵称
+    const changeNickname=(e)=>{
+        setNickname(e.target.value);
+    };
+    // 监听手机号
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+    };
+    // 删除弹窗
+    const isDelete=(e:any)=>{
+        setOpen(true);
+        setUid(e.id);
+        setUname(e.name);
+    };
+    // 确定删除
+    const onOk=()=>{
+      props.dispatch({
+          type:'Emp/remove',
+          payload:uid
+      }).then((res:any)=>{
+          if (res.ErrorCode==0){
+              message.success('删除成功');
+              setOpen(false);
+              logFenye()
+          }else {
+              message.error(res.Data)
+          }
+      })
+    };
     return(
         <div>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            addonBefore="员工名称:"
+                            onChange={changeName}
+                            addonBefore="员工姓名:"
                         />
-                        <Button type="primary" >
+                        <Input
+                            onChange={changeNickname}
+                            addonBefore="员工昵称:"
+                        />
+                        <Input
+                            onChange={changePhone}
+                            addonBefore="手机号:"
+                        />
+
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -48,43 +194,24 @@ const AccessControlPurview=()=>{
             </List>
             <Table
                 columns={columns}
-                rowKey={(columns) => columns.id}
+                style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
-
-                rowClassName={(record, index) =>
-                    index % 2 === 1 ? 'tbodd' : 'tbeven'
-                }
+                dataSource={props.EmpList}
+                rowKey={(columns) => columns.id}
+                size='small'
+                scroll={{y:'70vh'}}
             />
-            {/*<Form>*/}
-            {/*    <Form.Item label='登记日期'>*/}
-            {/*        <DatePicker.RangePicker/>*/}
-            {/*    </Form.Item>*/}
-            {/*    <Form.Item label='员工名称'>*/}
-            {/*        <Input placeholder='访客职位'/>*/}
-            {/*    </Form.Item>*/}
-            {/*    <Form.Item label='头像'>*/}
-            {/*        <Upload*/}
-            {/*            name="file"*/}
-            {/*            listType="picture-card"*/}
-            {/*            className="avatar-uploader"*/}
-            {/*            showUploadList={false}*/}
-            {/*            beforeUpload={beforeUpload}*/}
-            {/*        >*/}
-            {/*            <Button>上传头像</Button>*/}
-            {/*        </Upload>*/}
-            {/*    </Form.Item>*/}
-            {/*    <Form.Item label='选择单元'>*/}
-            {/*        <Select/>*/}
-            {/*    </Form.Item>*/}
-            {/*    <Form.Item label='选择房屋'>*/}
-            {/*        <Select/>*/}
-            {/*    </Form.Item>*/}
-            {/*    <Form.Item label='员工联系方式'>*/}
-            {/*        <Input placeholder='员工联系方式'/>*/}
-            {/*    </Form.Item>*/}
-            {/*</Form>*/}
-
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            <Modal onOk={onOk} title='删除员工' open={isOpen} onCancel={()=>setOpen(false)}>
+                <div>{`是否要删除${uname}`}</div>
+            </Modal>
         </div>
     )
 }
-export default AccessControlPurview
+const mapStateToProps = (state: any) => {
+    return {
+        EmpList: state.Emp.list,
+        count: state.Emp.count,
+    }
+};
+export default connect(mapStateToProps) (AccessControlPurview)

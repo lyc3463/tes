@@ -14,9 +14,11 @@ export async function getData(ActionId: number, canshus: any[]) {
         if (res.ErrorCode != 0) {
             if (res.ErrorCode == -6666) {
                 StaticInfo.userState = false;
+                sessionStorage.removeItem('userState')
                 EventMgr.event(info_event.ExitHttpLogin, res.Data);
             } else if (res.ErrorCode == -9999) {
                 StaticInfo.userState = false;
+                sessionStorage.removeItem('userState')
                 EventMgr.event(info_event.cuowu9999, res.Data);
             }
             else {

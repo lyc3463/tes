@@ -78,16 +78,15 @@ const SendingLog=(props:any)=>{
                     </Space>
                 </List.Item>
             </List>
-            <div style={{maxHeight:'60vh',overflow:'auto',border:'1px solid #ddd'}}>
-                <Table
-                    columns={columns}
-                    rowKey={(columns) => columns.smsId}
-                    style={{border:'1px solid #ddd',borderRadius:'4px'}}
-                    size='small'
-                    dataSource={props.SendingLogList}
-                    pagination={false}
-                />
-            </div>
+            <Table
+                columns={columns}
+                rowKey={(columns) => columns.smsId}
+                style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                size='small'
+                scroll={{y:'70vh'}}
+                dataSource={props.SendingLogList}
+                pagination={false}
+            />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={current}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )

@@ -17,4 +17,7 @@ export function remove(vals:any) {
 export function fenye(vals:any) {
     return getData(1255, [vals.phone,vals.stutes,vals.startDate,vals.endDate]);
 }
+export function check(vals:any) {
+    return getData(1273, [vals]);
+}
 

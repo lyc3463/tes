@@ -117,6 +117,7 @@ const Resources=(props)=>{
                 columns={columns}
                 rowKey={(columns) => columns.id}
                 pagination={false}
+                scroll={{y:'70vh'}}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }

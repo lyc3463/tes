@@ -1,4 +1,4 @@
-import {Button, Input, List, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, Space, Table} from "antd";
 import {connect} from "umi";
 import {useEffect} from "react";
 
@@ -52,22 +52,31 @@ const MonthlyBill=(props:any)=>{
             }
         },
     ];
-    useEffect(() => {
-        console.log(props)
-    }, []);
     return(
         <div>
             <List>
                 <List.Item>
-                    <div>
-                        <Button type="primary">
-                            创建电表参数
-                        </Button>
-                    </div>
                     <Space>
                         <Input
-                            addonBefore="电表参数名称:"
+                            addonBefore="租户姓名:"
                         />
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                日期:
+                            </div>
+                            <DatePicker.RangePicker />
+                        </Space.Compact>
                         <Button type="primary">
                             搜索
                         </Button>

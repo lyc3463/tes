@@ -36,6 +36,7 @@ export interface RenameInterface {
         edit: Effect;
         remove: Effect;
         fenye:Effect;
+        check:Effect;
     };
     reducers: {
         list: Reducer<RenameType[]>;
@@ -82,6 +83,12 @@ const RenameModel: RenameInterface = {
         },
         *remove({ payload }, { call, put,take}): any {
             const result = yield call(RenameService.remove, payload);
+            yield put({ type: 'fetch', payload:pl});
+            yield take('fetch/@@end');
+            return result
+        },
+        *check({ payload }, { call, put,take}): any {
+            const result = yield call(RenameService.check, payload);
             yield put({ type: 'fetch', payload:pl});
             yield take('fetch/@@end');
             return result

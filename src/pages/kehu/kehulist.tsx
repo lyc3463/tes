@@ -227,7 +227,6 @@ const Kehulist=(props:any)=>{
                 size='small'
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-
         </div>
     );
 }

@@ -43,6 +43,9 @@ const Complaint=(props:any)=>{
     useEffect(() => {
         console.log(props)
     }, []);
+    const onChange=(e)=>{
+
+    };
     return(
         <div>
             <Spin spinning={loading}>

@@ -85,6 +85,7 @@ const Properties=(props:any)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 dataSource={props.PropertiesList}
+                scroll={{y:'70vh'}}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }

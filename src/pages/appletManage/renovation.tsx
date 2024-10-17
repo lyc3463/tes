@@ -111,6 +111,7 @@ const Renovation=(props:any)=>{
                     columns={columns}
                     rowKey={(columns) => columns.id}
                     pagination={false}
+                    scroll={{y:'70vh'}}
                     dataSource={props.RenovationList}
                     rowClassName={(record, index) =>
                         index % 2 === 1 ? 'tbodd' : 'tbeven'

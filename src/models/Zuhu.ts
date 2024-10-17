@@ -33,6 +33,7 @@ export interface ZuhuInterface {
         edit: Effect;
         remove: Effect;
         byzhuhu: Effect;
+        fenye: Effect;
     };
     reducers: {
         list: Reducer<ZuhuType[]>;
@@ -97,6 +98,18 @@ const WatertModels: ZuhuInterface = {
             yield take('fetch/@@end');
             return result
         },
+        *fenye({ payload }, { call, put,take }): any {
+            const res = yield call(ZuhuService.fenye, payload?payload:pl);
+
+            if (res.ErrorCode == 0) {
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
+                });
+            } else {
+                message.error(res.ErrorCode + res.Data);
+            }
+        },
     },
     reducers: {
         list(state, action) {
@@ -128,9 +141,21 @@ const WatertModels: ZuhuInterface = {
                         payload: location.state,
                     });
                 }
+                if (StaticInfo.userId > 0 && pathname === '/kehu/zuhulist/') {
+                    dispatch({
+                        type: 'fenye',
+                        payload: location.state,
+                    });
+                }
                 if (StaticInfo.userId > 0 && pathname === '/kehu/zuhuguanlian/') {
                     dispatch({
                         type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/kehu/zuhuguanlian/') {
+                    dispatch({
+                        type: 'fenye',
                         payload: location.state,
                     });
                 }

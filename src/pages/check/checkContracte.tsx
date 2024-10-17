@@ -281,6 +281,7 @@ const CheckContracte=(props:any)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 columns={columns}
                 size='small'
+                scroll={{y:'70vh'}}
                 pagination={false}
                 rowKey={(columns) => columns.id}
                 dataSource={props.StaffList}

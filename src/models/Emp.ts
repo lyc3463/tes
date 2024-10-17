@@ -35,6 +35,7 @@ export interface EmpInterface {
         edit: Effect;
         remove: Effect;
         fenye: Effect;
+        delete: Effect;
     };
     reducers: {
         list: Reducer<EmpType[]>;
@@ -80,15 +81,17 @@ const EmpModels: EmpInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload }, { call, put }): any {
+        *delete({ payload }, { call, put,take }): any {
             const result = yield call(EmpService.remove, payload);
-            if (result.status !== 'ok') {
-                alert('cuowu');
-            }
-            yield put({ type: 'fetch', payload: { page: 1 } });
-            UmiHistorty.replace({
-                pathname: '../user/list',
-            });
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *remove({ payload }, { call, put,take }): any {
+            const result = yield call(EmpService.remove, payload);
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
+            return result
         },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(EmpService.fenye,payload?payload:pl);
@@ -145,6 +148,12 @@ const EmpModels: EmpInterface = {
                     });
                 }
                 if (StaticInfo.userId > 0 && pathname === '/check/checkStaff/') {
+                    dispatch({
+                        type: 'fenye',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/AccessControlManage/AccessControlPurview/') {
                     dispatch({
                         type: 'fenye',
                         payload: location.state,

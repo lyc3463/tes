@@ -1,8 +1,9 @@
 import {useEffect, useRef, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 import * as StaffServer from "@/services/staff";
-import {connect} from "umi";
-import {Button, DatePicker, Form, Input, InputNumber, Select} from "antd";
+import {connect,history} from "umi";
+import {Button, DatePicker, Form, Input, InputNumber, message, Select} from "antd";
+import dayjs from "dayjs";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -12,6 +13,10 @@ const EditStaff=(props:any)=>{
     const [kehuList,setKehuList]=useState([]);
     // 单元列表
     const [unitList,setUnitList]=useState([]);
+    // 开始时间
+    const [startDate,setStartDate]=useState('');
+    // 结束时间
+    const [endDate,setEndDate]=useState('');
     // 路由参数
     const [uid,setUid]=useState('');
     useEffect(() => {
@@ -23,11 +28,27 @@ const EditStaff=(props:any)=>{
         filterAndUpdateList(props.UnitList, 'unit_name', 'id', setUnitList);
     }, []);
     const getOneStaff= (id:string)=>{
-        StaffServer.one(id).then((res)=>{
+        StaffServer.one(id).then((res:any)=>{
             if (res.ErrorCode==0){
                 formRef.current.setFieldsValue(res.Data);
+                setEndDate(dayjs(res.Data.eendtime).format('YYYY-MM-DD'));
+                setStartDate(dayjs(res.Data.estarttime).format('YYYY-MM-DD'));
+            }else {
+                message.error(res.Data);
             }
         });
+    };
+    const onFinish=(val:any)=>{
+        props.dispatch({
+            type:'Staff/edit',
+            payload:{...val,uid,endDate,startDate}
+        }).then((res:any)=>{
+            console.log(res)
+            if (res.ErrorCode==0){
+                message.success('修改成功');
+                history.push('/enter/staff')
+            }
+        })
     };
     return(
         <div>
@@ -35,6 +56,7 @@ const EditStaff=(props:any)=>{
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
                 ref={formRef}
+                onFinish={onFinish}
                 layout="horizontal"
                 size={'large'}
                 style={{ marginTop:'1rem'}}
@@ -77,7 +99,7 @@ const EditStaff=(props:any)=>{
                     <InputNumber/>
                 </Form.Item>
                 <Form.Item label='日期'>
-                    <DatePicker.RangePicker/>
+                    {startDate&&endDate? <DatePicker.RangePicker defaultValue={[dayjs(startDate), dayjs(endDate)]}/>:''}
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">

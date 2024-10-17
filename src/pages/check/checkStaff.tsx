@@ -240,6 +240,7 @@ const CheckStaff=(props:any)=>{
                 size='small'
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
+                scroll={{y:'70vh'}}
                 dataSource={props.EmpList}
                 rowKey={(columns) => columns.id}
             />

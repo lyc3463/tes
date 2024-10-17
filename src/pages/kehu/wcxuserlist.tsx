@@ -4,7 +4,8 @@ import {useEffect, useState} from "react";
 import {wxTree} from '@/constants/qxMenu/wxMenu'
 import {buildTree} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
-import {val} from "@umijs/utils/compiled/cheerio/lib/api/attributes";
+import * as AppUserService from '@/services/appUser';
+
 
 let qxList=StaticInfo.uqx;
 let authArr =qxList.split('').map(Number);
@@ -107,10 +108,12 @@ const Wcxuserlist=(props:any)=>{
     };
     // 搜索按钮
     const shousuo=()=>{
+        setPage(1);
         props.dispatch({
             type:'AppUser/fetch',
             payload:{page,name,phone}
-        })
+        });
+        logFenye()
     };
     // 分页
     const logFenye=()=>{
@@ -128,8 +131,12 @@ const Wcxuserlist=(props:any)=>{
     }, [page]);
     // 弹窗信息
     const editInfo=(vla:any)=>{
-        setOpenID(vla.openId);
-        setIsOpen(true);
+        console.log(vla)
+        AppUserService.one(vla.id).then((res:any)=>{
+            console.log(res)
+        })
+        // setOpenID(vla.openId);
+        // setIsOpen(true);
     };
     // 确定编辑权限
     const onOk=()=>{
@@ -146,20 +153,19 @@ const Wcxuserlist=(props:any)=>{
             }
         })
     };
-    const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: wxTree[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void })=> {
+    const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: wxTree[]; selected: string[]; setSelected: (newSelected: string[]) => void })=> {
         return (
             <ul>
                 {tree.map(node => (
                     <li key={node.id}>
                         <input
                             type="checkbox"
-                            disabled={disabled[node.id]==0}
                             checked={selected[node.id] === '1'}
                             onChange={e => handleCheckboxChange(node.id, e.target.checked)}
                         />
                         {node.name}
                         {node.children && node.children.length > 0 && (
-                            <TreeMenu tree={node.children} selected={selected} disabled={disabled} setSelected={setSelected} />
+                            <TreeMenu tree={node.children} selected={selected} setSelected={setSelected} />
                         )}
                     </li>
                 ))}
@@ -206,7 +212,7 @@ const Wcxuserlist=(props:any)=>{
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             {/*编辑权限弹窗*/}
             <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk}>
-                <TreeMenu tree={treeData} selected={selected} disabled={authArr}  setSelected={setSelected} />
+                <TreeMenu tree={treeData} selected={selected} setSelected={setSelected} />
             </Modal>
         </div>
     )

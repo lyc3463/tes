@@ -44,7 +44,8 @@ const HouseModel: HouseInterface = {
     state: {},
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
-            const res = yield call(HouseService.fetch, pl);
+            const res = yield call(HouseService.fetch, payload?payload:pl);
+            console.log(res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -116,19 +117,13 @@ const HouseModel: HouseInterface = {
                         payload: location.state,
                     });
                 }
-                if (StaticInfo.userId > 0 && pathname === '/houseManage/house/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
                 if (StaticInfo.userId > 0 && pathname === '/houseManage/addUnit') {
                     dispatch({
                         type: 'fetch',
                         payload: location.state,
                     });
                 }
-                if (StaticInfo.userId > 0 && pathname === '/houseManage/editUnit') {
+                if (StaticInfo.userId > 0 && pathname === '/houseManage/editUnit/') {
                     dispatch({
                         type: 'fetch',
                         payload: location.state,

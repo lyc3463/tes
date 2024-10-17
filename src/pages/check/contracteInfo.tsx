@@ -3,6 +3,7 @@ import {connect} from "umi";
 import {useEffect, useRef, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 import * as StaffServer from "@/services/staff";
+import dayjs from "dayjs";
 
 const ContracteInfo=(props:any)=>{
     const formRef=useRef();
@@ -10,10 +11,10 @@ const ContracteInfo=(props:any)=>{
     const [kehuList,setKehuList]=useState([]);
     // 单元列表
     const [unitList,setUnitList]=useState([]);
-    // 结束时间
-    const [endTime,setEndTime]=useState('');
     // 开始时间
-    const [beginTime,setBeginTime]=useState('');
+    const [startDate,setStartDate]=useState('');
+    // 结束时间
+    const [endDate,setEndDate]=useState('');
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
@@ -22,9 +23,10 @@ const ContracteInfo=(props:any)=>{
         filterAndUpdateList(props.UnitList, 'unit_name', 'id', setUnitList);
     }, []);
     const getOneStaff= (id:string)=>{
-        StaffServer.one(id).then((res)=>{
+        StaffServer.one(id).then((res:any)=>{
             if (res.ErrorCode==0){
-                console.log("res",res);
+                setEndDate(dayjs(res.Data.eendtime).format('YYYY-MM-DD'));
+                setStartDate(dayjs(res.Data.estarttime).format('YYYY-MM-DD'));
                 formRef.current.setFieldsValue(res.Data);
             }
         });
@@ -77,7 +79,7 @@ const ContracteInfo=(props:any)=>{
                     <InputNumber/>
                 </Form.Item>
                 <Form.Item label='日期'>
-                    <DatePicker.RangePicker/>
+                    {startDate&&endDate? <DatePicker.RangePicker defaultValue={[dayjs(startDate), dayjs(endDate)]}/>:''}
                 </Form.Item>
 
             </Form>

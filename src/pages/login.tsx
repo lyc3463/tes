@@ -211,13 +211,15 @@ export default function Login() {
       EventMgr.event(info_event.Error, '请填写密码');
       return;
     }
-
+    if (yzm === '') {
+      message.error('请填写验证码')
+      return;
+    }
     EventMgr.event(info_event.showWait);
     // let yjzmm = false;
     // if (!jzpwdcg && localStorage.getItem('pwd')) {
     //   yjzmm = true;
     // }
-    let yzm='888888'
     let mm =/* yjzmm ? values.password : */CryptoUtils.md5(values.password);
     LoginService.login(
         values.username,
@@ -235,6 +237,13 @@ export default function Login() {
         StaticInfo.username= data.uname;
         StaticInfo.uqx= data.authority;
         StaticInfo.park_name= data.park_name;
+        sessionStorage.setItem('userId',data.id);
+        sessionStorage.setItem('userState','true');
+        sessionStorage.setItem('token',data.token);
+        sessionStorage.setItem('park_id',data.park_id);
+        sessionStorage.setItem('username',data.uname);
+        sessionStorage.setItem('uqx',data.authority);
+        sessionStorage.setItem('park_name',data.park_name);
         // if (values.jizhu) {
         //   let md5pwd = values.password;
         //   if (!yjzmm) {
@@ -414,8 +423,8 @@ export default function Login() {
               <Form.Item name="password" rules={[{ required: true, message: '请输入密码'}]}>
                 <Input.Password placeholder='请输入密码'/>
               </Form.Item>
-              <Form.Item name='yzm'>
-                <Input placeholder='验证码' style={{width:'10vw',marginRight:'5px'}}/>
+              <Form.Item>
+                <Input placeholder='验证码' style={{width:'10vw',marginRight:'5px'}} onChange={(e)=>setYzm(e.target.value)}/>
                 <a
                     href="#"
                     className={styles.yzmBtn}

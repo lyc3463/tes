@@ -108,6 +108,7 @@ const Region=(props:any)=>{
                     rowKey={(columns) => columns.id}
                     pagination={false}
                     dataSource={props.RegionList}
+                    scroll={{y:'70vh'}}
                     rowClassName={(record, index) =>
                         index % 2 === 1 ? 'tbodd' : 'tbeven'
                     }

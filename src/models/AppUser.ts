@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import TypeAppUser from '@/ModelTypes/TypeAppUser';
 import { fixPathname } from '@/utils/common';
-import * as AccountService from "@/services/account";
 let pl={
     page:1,
     name:'',

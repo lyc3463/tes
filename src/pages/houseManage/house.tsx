@@ -1,9 +1,11 @@
-import {Button, Input, List, Select, Space, Table} from "antd";
+import {Button, Input, InputNumber, List, Select, Space, Table} from "antd";
 import {history,connect} from "umi";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 
 const House=(props:any)=>{
-
+    const [name,setName]=useState('');
+    const [beginRents,setBeginRents]=useState(0);
+    const [endRents,setEndRents]=useState(9999999999);
     const columns =[
         {
             title: 'ID',
@@ -99,13 +101,44 @@ const House=(props:any)=>{
                 )
             }
         },
-    ]
+    ];
+    const changeBeginRents=(e)=>{
+        if (e){
+            setBeginRents(e);
+        }else {
+            setBeginRents(0);
+        }
+    };
+    const changeEndRents=(e)=>{
+        if (e<beginRents){
+            setEndRents(beginRents);
+        }else if(e>0){
+            setEndRents(e);
+        }else {
+            setEndRents(999999);
+        }
+    };
     const toadd=()=>{
         history.push('/houseManage/addHouse')
-    }
+    };
     const toedit=(e:number)=>{
         history.push(`/houseManage/editHouse?id=${e}`)
-    }
+    };
+    useEffect(() => {
+        getList();
+    }, []);
+    const getList=()=>{
+        props.dispatch({
+            type:'House/fetch',
+            payload:{name,beginRents,endRents}
+        })
+    };
+    const changeName=(e:any)=>{
+        setName(e.target.value)
+    };
+    const sousuo=()=>{
+        getList();
+    };
     return(
         <div>
             <List>
@@ -117,9 +150,19 @@ const House=(props:any)=>{
                     </div>
                     <Space>
                         <Input
+                            onChange={changeName}
                             addonBefore="房屋名称:"
                         />
-                        <Button type="primary">
+                        <InputNumber
+                            min={0}
+                            onChange={changeBeginRents}
+                            addonBefore="最小租金:"
+                        />
+                        <InputNumber min={beginRents}
+                                     onChange={changeEndRents}
+                                     addonBefore="最大租金:"
+                        />
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
