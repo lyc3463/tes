@@ -134,6 +134,7 @@ const ByStages=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log(props)
     }, [page]);
     // 搜索
     const suosou=()=>{

@@ -135,7 +135,6 @@ const Yinghangka=(props:any)=>{
         })
     };
     useEffect(() => {
-        console.log(props);
         logFenye();
     }, [page]);
     const changeName=(e)=>{
@@ -150,7 +149,7 @@ const Yinghangka=(props:any)=>{
                     </div>
                     <Space>
                         <Input
-                            addonBefore="账户:"
+                            addonBefore="账户名称:"
                             onChange={changeName}
                         />
                         <Space.Compact>
@@ -183,7 +182,7 @@ const Yinghangka=(props:any)=>{
                 dataSource={props.DuizhangList}
                 rowKey={(columns) => columns.id}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={1} current={page}  onChange={onChange} pageSizeOptions={[1]}/>:''}
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             {/*添加对账弹窗*/}
             <Modal onCancel={()=>setOpen(false)} open={isOpen}  title={'对账金额'} footer={null}>
                 <Form

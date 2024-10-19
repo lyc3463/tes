@@ -4,7 +4,6 @@ import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {history} from "@@/core/history";
 import {Simulate} from "react-dom/test-utils";
-import change = Simulate.change;
 
 const Kehulist=(props:any)=>{
     const [name,setName]=useState('');

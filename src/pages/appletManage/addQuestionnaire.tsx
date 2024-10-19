@@ -8,17 +8,29 @@ const tailLayout = {
 const AddQuestionnaire=(props:any)=>{
     const [form] = Form.useForm();
     // 切换问题类型的弹窗
-    const [value,setValue]=useState(0);
+    const [problem_type,setProblem_type]=useState(0);
     // 初始化状态，包含一个初始条目
     const [formData, setFormData] = useState([{ id: 1, name: '选项',item:''}]);
     const onFinish=async (values)=>{
-        let str=JSON.stringify(formData);
-        props.dispatch({
-            type:'Questionnaire/add',
-            payload:{...values,str}
-        }).then((res)=>{
-            console.log(res)
-        });
+        if (problem_type==0){
+            let strs=formData.map((item:any)=>{
+                return item.item
+            });
+            let str=strs.join(",");
+            props.dispatch({
+                type:'Questionnaire/add',
+                payload:{...values,problem_type,str}
+            }).then((res)=>{
+                console.log(res)
+            });
+        }else if (problem_type==1){
+            props.dispatch({
+                type:'Questionnaire/add',
+                payload:{...values,problem_type}
+            }).then((res)=>{
+                console.log(res)
+            });
+        }
     };
     const handleAdd = () => {
         // 生成新的唯一ID（这里简化为使用数组长度加1，实际应用中可能需要更复杂的策略）
@@ -52,15 +64,15 @@ const AddQuestionnaire=(props:any)=>{
                 <Form.Item label='问题名称' name='problem_name'>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='问题类型' name='problem_type'>
-                    <Radio.Group onChange={(e)=>{setValue(e.target.value)}} defaultValue={value}>
+                <Form.Item label='问题类型' >
+                    <Radio.Group onChange={(e)=>{setProblem_type(e.target.value)}} defaultValue={problem_type}>
                         <Radio value={0}>选项题</Radio>
                         <Radio value={1}>简答题</Radio>
                     </Radio.Group>
                 </Form.Item>
                 <div>
                     {
-                        value==0?(formData.map(item => (
+                        problem_type==0?(formData.map(item => (
                             <Form.Item label={item.name} key={item.id}>
                                 <Input style={{width:'200px',marginRight:'5px'}} onChange={(e) => handleInputChange(item.id, e)}
                                 />

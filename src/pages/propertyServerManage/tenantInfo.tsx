@@ -1,6 +1,7 @@
-import {Button, DatePicker, Input, List, Select, Space, Spin, Table} from "antd";
+import {Button, DatePicker, Input, List, Select, Space, Spin, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
+import dayjs from "dayjs";
 
 const TenantInfo=(props:any)=>{
     const [loading,setLoading]=useState(false)
@@ -8,30 +9,49 @@ const TenantInfo=(props:any)=>{
     const columns =[
         {
             title: '日期',
-            dataIndex: 'data',
-            key: 'data',
+            dataIndex: 'messageTime',
+            key: 'messageTime',
+            render:(text:any,record:any)=>(
+                <div>
+                    {dayjs(text).format('YYYY-MM-DD')}
+                </div>
+            )
         },
         {
             title: '租户名称',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
         },
         {
             title: '消息内容',
-            dataIndex: 'conten',
-            key: 'conten',
+            dataIndex: 'message_content',
+            key: 'message_content',
+            render:(text:any,record:any)=>(
+                <Input.TextArea value={text}>
+
+                </Input.TextArea>
+            )
+        },
+        {
+            title: '状态',
+            dataIndex: 'messageStatus',
+            key: 'messageStatus',
+            render:(text:any,record:any)=>(
+                <>
+                    {record.messageStatus==0?<Tag color='red'>未读</Tag>:<Tag color='green'>已读</Tag>}
+                </>
+            )
         },
         {
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',
-            // render:(text:any,record:any)=>(
-            //     <div>
-            //         <a style={{marginRight:'10px'}} onClick={()=>setEdit(true)}>编辑</a>
-            //         <a onClick={()=>setdel(true)} style={{color:'red'}}>删除
-            //         </a>
-            //     </div>
-            // )
+            render:(text:any,record:any)=>(
+                <Space>
+                   <Button type='primary' danger>删除</Button>
+                   <Button type='primary'>编辑</Button>
+                </Space>
+            )
         }
     ]
     const toadd=()=>{
@@ -81,6 +101,7 @@ const TenantInfo=(props:any)=>{
                 columns={columns}
                 rowKey={(columns) => columns.id}
                 pagination={false}
+                dataSource={props.TenantInfoList}
                 // rowClassName={(record, index) =>
                 //     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 // }

@@ -27,13 +27,6 @@ const Resources=(props)=>{
 
     const columns=[
         {
-            title: 'ID',
-            dataIndex: 'id',
-            render: (text: any, record: any) => (
-                <Button type="link" onClick={()=>history.push(`/appletManage/editResources?id=${record.id}`)}>{text}</Button>
-            ),
-        },
-        {
             title: '房源名称',
             dataIndex: 'housing_name',
         },
@@ -72,6 +65,7 @@ const Resources=(props)=>{
             render: (_: any, record: any) => (
                 <Space>
                     <Button type='primary' danger onClick={()=>deleteOpen(record.id)}>删除</Button>
+                    <Button type="primary" onClick={()=>history.push(`/appletManage/editResources?id=${record.id}`)}>编辑</Button>
                 </Space>
             ),
         },

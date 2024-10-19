@@ -15,7 +15,8 @@ let pl={
     content:'',
     phone:'',
     startDate:'2000-01-01',
-    endDate:'2099-01-01'
+    endDate:'2099-01-01',
+    stutes:0
 }
 
 export interface TenantInfoState {

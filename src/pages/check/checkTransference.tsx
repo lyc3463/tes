@@ -142,6 +142,7 @@ const CheckTransference=(props)=>{
             }
         })
     };
+
     return(
         <div>
             <List>

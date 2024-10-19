@@ -131,12 +131,12 @@ const Wcxuserlist=(props:any)=>{
     }, [page]);
     // 弹窗信息
     const editInfo=(vla:any)=>{
-        console.log(vla)
-        AppUserService.one(vla.id).then((res:any)=>{
-            console.log(res)
-        })
-        // setOpenID(vla.openId);
-        // setIsOpen(true);
+        // console.log(vla)
+        // AppUserService.one(vla.id).then((res:any)=>{
+        //     console.log(res)
+        // })
+        setOpenID(vla.openId);
+        setIsOpen(true);
     };
     // 确定编辑权限
     const onOk=()=>{

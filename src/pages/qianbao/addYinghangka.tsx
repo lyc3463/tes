@@ -19,25 +19,24 @@ const AddYinghangka=()=>{
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                <Form.Item label='户名'>
+                <Form.Item label='户名' name='name'>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='银行卡号'>
+                <Form.Item label='银行卡号' name='cardNum'>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='预留手机号'>
+                <Form.Item label='预留手机号' name='phone'>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='银行名称'>
+                <Form.Item label='银行名称' name='bankName'>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='是否为默认卡'>
-                    <Radio.Group defaultValue={1}>
+                <Form.Item label='是否为默认卡' name='isDefault'>
+                    <Radio.Group>
                         <Radio value={1}>是</Radio>
                         <Radio value={2}>否</Radio>
                     </Radio.Group>
                 </Form.Item>
-
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
                         添加

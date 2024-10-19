@@ -134,7 +134,7 @@ const Device=(props)=>{
                                 return value === undefined ? '' : value.toString();
                             }}
                             onChange={(e:number)=>setTimes(e)}
-                        />
+                        /><span style={{color:'#555',fontSize:"12px"}}>注:(最大次数5次)</span>
                     </Form.Item>
                     <Form.Item label='有效时间'>
                        <DatePicker  showTime onChange={changeDate}></DatePicker>

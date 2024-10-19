@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Table} from "antd";
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
@@ -13,6 +13,12 @@ const CheckOutRent=(props)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
+    // 审核弹窗
+    const [isOpen,setOpen]=useState(false);
+    // 更名的手机号
+    const [uphone,setUphone]=useState('');
+    // id
+    const [uid,setUid]=useState(0);
     const columns =[
         {
             title: '日期',
@@ -76,8 +82,7 @@ const CheckOutRent=(props)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <Space>
-                        <Button type='link'>详情</Button>
-                        {record.renameStatus==2?'':<Button type='link'>编辑</Button>}
+                        {record.renameStatus==2?'':<Space><Button type='link' onClick={()=>{isCheck(record)}}>确定审核</Button></Space>}
                     </Space>
                 )
             }
@@ -123,6 +128,25 @@ const CheckOutRent=(props)=>{
             payload:{phone,stutes,startDate,endDate}
         })
         logFenye();
+    };
+    // 审核弹窗
+    const isCheck=(e:any)=>{
+        setOpen(true);
+        setUid(e.id);
+        setUphone(e.tenant_phone)
+    };
+    const onOk=()=>{
+        props.dispatch({
+            type:'OutRent/check',
+            payload:uid
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('审核通过');
+                setOpen(false);
+            }else {
+                message.error(res.Data)
+            }
+        })
     };
     return(
         <div>
@@ -194,6 +218,10 @@ const CheckOutRent=(props)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {/*    审核弹窗*/}
+            <Modal open={isOpen} onOk={onOk} onCancel={()=>setOpen(false)} title='审核更名'>
+                <span>是否审核通过手机号:<span style={{color:'red'}}>{uphone}</span>的用户吗?</span>
+            </Modal>
         </div>
     )
 }

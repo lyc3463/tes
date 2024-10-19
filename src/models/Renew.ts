@@ -36,6 +36,7 @@ export interface RenewInterface {
         edit: Effect;
         remove: Effect;
         fenye: Effect;
+        check: Effect;
     };
     reducers: {
         list: Reducer<RenewType[]>;
@@ -81,6 +82,12 @@ const RenewModel: RenewInterface = {
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(RenewService.edit, payload);
+            yield put({ type: 'fetch', payload:pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *check({ payload, callback }, { call, put, take }): any {
+            const result = yield call(RenewService.check, payload);
             yield put({ type: 'fetch', payload:pl });
             yield take('fetch/@@end');
             return result

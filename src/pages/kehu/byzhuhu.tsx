@@ -23,23 +23,23 @@ const Byzhuhu=(props:any)=>{
     const [cableList,setCableList]=useState([]);
     const getOneCustom=async (id:string)=>{
         let res:any=await  ZuhuServer.one(id);
-        if (res?.ErrorCode==0){
+        if (res.ErrorCode==0){
             let data=res.Data;
-            console.log(data)
+            console.log('data',data);
         }
     };
     useEffect(()=>{
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
-        setUid(id)
-        getOneCustom(id)
+        setUid(id);
+        getOneCustom(id);
     },[]);
     const onFinish=(valus:any)=>{
+        valus.water_id=0;
         props.dispatch({
             type:'Zuhu/byzhuhu',
             payload:{...valus,uid}
         }).then((res:any)=>{
-            console.log(res)
             if (res.ErrorCode==0){
                 message.success('绑定成功');
                 history.push('/kehu/zuhuguanlian')
@@ -50,7 +50,7 @@ const Byzhuhu=(props:any)=>{
     };
     useEffect(() => {
         console.log(props)
-        filterAndUpdateList(props.AppUserList, 'appUser_phone', 'open', setAppUserList);
+        filterAndUpdateList(props.AppUserList, 'appUser_phone', 'openId', setAppUserList);
         filterAndUpdateList(props.UnitList, 'unit_name', 'id', setUnitList);
         filterAndUpdateList(props.GongsiList, 'item_name', 'id', setItemList);
         filterAndUpdateList(props.CableList, 'remark', 'id', setCableList);

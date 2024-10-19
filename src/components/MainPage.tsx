@@ -113,9 +113,8 @@ class MainPage extends Component<any> {
   }
   shouqicaidan() { }
   dianjicaidan = (e:any) => {
-    console.log(e.key);
     UmiHistory.push(e.key);
-  }
+  };
   tuichu() {
     LoginService.outLogin(StaticInfo.userId).then((res:any)=>{
       if (res.ErrorCode==0){
@@ -124,7 +123,7 @@ class MainPage extends Component<any> {
         location.pathname = '/login';
       }else {
         sessionStorage.clear();
-        message.error(res.Data+',关闭页面重新登录')
+        location.pathname = '/login';
       }
     })
   };
