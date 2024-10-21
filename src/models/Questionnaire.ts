@@ -10,8 +10,8 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import QuestionnaireType from '@/ModelTypes/TypeQuestionnaire';
 import { fixPathname } from '@/utils/common';
-import * as BannerService from "@/services/banner";
 let pl={
+    page:1,
     name:''
 }
 
@@ -30,6 +30,7 @@ export interface QuestionnaireInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
+        fenye: Effect;
     };
     reducers: {
         list: Reducer<QuestionnaireType[]>;
@@ -44,10 +45,7 @@ const QuestionnaireModel: QuestionnaireInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(QuestionnaireService.fetch, payload?payload:pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
+
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -74,18 +72,25 @@ const QuestionnaireModel: QuestionnaireInterface = {
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(QuestionnaireService.edit, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload ,callback}, { call, put }): any {
+        *remove({ payload, callback }, { call, put, take }): any {
             const result = yield call(QuestionnaireService.remove, payload);
-            if (result.ErrorCode==0){
-                yield put({ type: 'fetch', payload: { name:'' } });
-                message.success('删除成功')
-                return result
-            }else {
-                yield put({ type: 'fetch', payload: { name:'' } });
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *fenye({ type, payload }, { put, call, select }): any {
+            const res = yield call(QuestionnaireService.fenye,payload?payload:pl);
+            if (res.ErrorCode == 0) {
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
+                });
+            } else {
+                message.error(res.ErrorCode + res.Data);
             }
         },
     },
@@ -113,30 +118,18 @@ const QuestionnaireModel: QuestionnaireInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-
-                // 楼盘列表
-                if (StaticInfo.userId > 0 && pathname === '/appletManage/properties/') {
+                if (StaticInfo.userId > 0 && pathname === '/appletManage/questionnaireList/') {
                     dispatch({
                         type: 'fetch',
                         payload: location.state,
                     });
                 }
-
-                // 添加房源获取楼盘列表
-                if (StaticInfo.userId > 0 && pathname === '/appletManage/addResources/') {
+                if (StaticInfo.userId > 0 && pathname === '/appletManage/questionnaireList/') {
                     dispatch({
-                        type: 'fetch',
+                        type: 'fenye',
                         payload: location.state,
                     });
                 }
-                // 修改房源获取楼盘列表
-                if (StaticInfo.userId > 0 && pathname === '/appletManage/editResources/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-
             });
         },
     },

@@ -11,9 +11,7 @@ import { StaticInfo } from '@/StaticInfo';
 import GroupingType from '@/ModelTypes/TypeGrouping';
 import { fixPathname } from '@/utils/common';
 let pl = {
-    page:1,
-    cname:'',
-    feetype:0
+    name:''
 };
 
 export interface GroupingCountState {
@@ -31,7 +29,6 @@ export interface GroupingInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
-        shousuo: Effect;
     };
     reducers: {
         list: Reducer<GroupingType[]>;
@@ -45,11 +42,8 @@ const GroupingModel: GroupingInterface = {
     state: {},
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
-            const res = yield call(GroupingService.fetch, pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
+            const res = yield call(GroupingService.fetch,payload?payload: pl);
+
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -70,40 +64,21 @@ const GroupingModel: GroupingInterface = {
         },
         *add({ payload, callback }, { call, put, take }): any {
             const result = yield call(GroupingService.add, payload);
-            yield put({ type: 'fetch', payload: {} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result;
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(GroupingService.edit, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result;
         },
-        *remove({ payload }, { call, put }): any {
+        *remove({ payload }, { call, put,take }): any {
             const result = yield call(GroupingService.remove, payload);
-            if (result.status !== 'ok') {
-                alert('cuowu');
-            }
-            yield put({ type: 'fetch', payload: { page: 1 } });
-            UmiHistorty.replace({
-                pathname: '../user/list',
-            });
-        },
-        *shousuo({ type, payload }, { put, call, select }): any {
-            const res = yield call(GroupingService.fetch, payload);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
-            if (res.ErrorCode == 0) {
-                yield put({
-                    type: 'list',
-                    payload: { list: res.Data },
-                });
-            } else {
-                message.error(res.ErrorCode + res.Data);
-            }
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result;
         },
     },
     reducers: {

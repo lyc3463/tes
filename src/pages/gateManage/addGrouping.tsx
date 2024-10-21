@@ -11,9 +11,10 @@ const AddGrouping=(props:any)=>{
     // 房屋列表
     const [gateList,setGateList]=useState([]);
     const [joinGateList,setJoinGateList]=useState('');
+    // 添加分组按钮
     const onFinish=async (values)=>{
         props.dispatch({
-            type:'Gate/add',
+            type:'Grouping/add',
             payload:{...values,joinGateList}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
@@ -32,9 +33,9 @@ const AddGrouping=(props:any)=>{
     };
     useEffect(() => {
         getGate();
-        console.log(props);
         setGateList(props.GateList)
     }, []);
+    // 监听闸机列表  把["xx","xx"]转换成xx,xx
     const changeSelectg=(e)=>{
         setJoinGateList(e.join(","))
     };

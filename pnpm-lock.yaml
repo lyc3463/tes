@@ -29,6 +29,9 @@ importers:
       moment:
         specifier: 2.30.1
         version: 2.30.1
+      qrcode.react:
+        specifier: ^4.0.1
+        version: 4.0.1(react@18.3.1)
       react-captcha-code:
         specifier: 1.0.7
         version: 1.0.7(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)
@@ -4255,6 +4258,11 @@ packages:
 
   qiankun@2.10.16:
     resolution: {integrity: sha512-Q3tSVUrPnzx8ckEOKIoPnhb5LE28FPKyan/r6jEuGJGqTbIy+3rp6E2/KfU82ZI4yZpef9LFTrnxdj49jAEsmw==}
+
+  qrcode.react@4.0.1:
+    resolution: {integrity: sha512-Lpj0tPBn561WiQ3QQWXbkx8xTtB8BZkJeMZWLJIL8iaPBCoWzW1IpCeU3gY5MDqsb0+efCvEGkl9O0naP64crA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
   qs@6.11.0:
     resolution: {integrity: sha512-MvjoMCJwEarSbUYk5O+nmoSzSutSsTwF85zcHPQ9OrlFoZOYIjaqBAJIqIXjptyD5vThxGq52Xu/MaJzRkIk4Q==}
@@ -10655,6 +10663,10 @@ snapshots:
       import-html-entry: 1.17.0
       lodash: 4.17.21
       single-spa: 5.9.5
+
+  qrcode.react@4.0.1(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   qs@6.11.0:
     dependencies:

@@ -17,7 +17,7 @@ const EditUser=(props:any)=>{
     const location=useLocation();
     const [roleList,setRoleList]=useState([]);
     const formRef =useRef();
-    const [selected, setSelected] = useState<string[]>(Array(299).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(313).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -67,18 +67,17 @@ const EditUser=(props:any)=>{
     };
     const onFinish=(value:any)=>{
         let joinqx=selected.join('');
-        console.log(joinqx)
-        // props.dispatch({
-        //     type:'Users/edit',
-        //     payload:{...value,uid,joinqx}
-        // }).then((res)=>{
-        //     if (res.ErrorCode==0){
-        //         message.success('修改成功');
-        //         history.push('/systemManage/userManage');
-        //     }else {
-        //         message.error(res.Data);
-        //     }
-        // });
+        props.dispatch({
+            type:'Users/edit',
+            payload:{...value,uid,joinqx}
+        }).then((res)=>{
+            if (res.ErrorCode==0){
+                message.success('修改成功');
+                history.push('/systemManage/userManage');
+            }else {
+                message.error(res.Data);
+            }
+        });
     };
     useEffect(() => {
         filterAndUpdateList(props.RoleList, 'role_name', 'id', setRoleList);

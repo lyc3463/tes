@@ -1,22 +1,22 @@
-import { getData } from '@/network/http';
+import {getData, postData} from '@/network/http';
 
 export function fetch(vals:any) {
     return getData(1183, [vals.name]);
 }
 
 export function add(vals:any) {
-    return getData(1181, [vals.parentId,vals.groupName,vals.level]);
+    return postData(1181, [vals.name],vals.joinGateList);
 }
 
 export function edit(vals:any) {
-    // return getData(1146, [vals.uid,vals.item_name,vals.itemType,vals.item_interval,vals.deduction_method,vals.monthly_amount,vals.count_method,vals.price,vals.remark,vals.prepaidAmount]);
+    return postData(1184, [vals.uid,vals.name],vals.joinGateList);
 }
 
 export function remove(vals:any) {
-    // return getData(1013, []);
+    return getData(1182, [vals]);
 }
 
 export function one(vals:any) {
-    // return getData(1148, [vals]);
+    return getData(1300, [vals]);
 }
 

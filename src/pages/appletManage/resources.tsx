@@ -72,13 +72,15 @@ const Resources=(props)=>{
     ];
     // 确定删除
     const onOk=async ()=>{
-        let res=await ResourcesService.remove(did)
+        let res:any=await ResourcesService.remove(did)
         if (res?.ErrorCode==0){
             message.success('删除成功')
             setIsDeleteOpen(false)
             props.dispatch({
                 type:'Resources/fetch'
             })
+        }else {
+            message.error(res.Data)
         }
     };
     // 删除的弹窗
@@ -91,7 +93,7 @@ const Resources=(props)=>{
         history.push('/appletManage/addResources')
     };
     useEffect(() => {
-        console.log(props)
+
     }, [page]);
     const onChange=(e)=>{
         setPage(e);

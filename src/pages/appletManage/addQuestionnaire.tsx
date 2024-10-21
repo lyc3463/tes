@@ -1,4 +1,4 @@
-import {Button, Form, Input, InputNumber, Radio} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio} from "antd";
 import {useEffect, useState} from "react";
 import {connect,history} from "umi";
 
@@ -21,14 +21,24 @@ const AddQuestionnaire=(props:any)=>{
                 type:'Questionnaire/add',
                 payload:{...values,problem_type,str}
             }).then((res)=>{
-                console.log(res)
+                if (res.ErrorCode==0){
+                    message.success('添加成功');
+                    history.push('/appletManage/questionnaireList')
+                }else {
+                    message.error(res.Data)
+                }
             });
         }else if (problem_type==1){
             props.dispatch({
                 type:'Questionnaire/add',
                 payload:{...values,problem_type}
             }).then((res)=>{
-                console.log(res)
+                if (res.ErrorCode==0){
+                    message.success('添加成功');
+                    history.push('/appletManage/questionnaireList')
+                }else {
+                    message.error(res.Data)
+                }
             });
         }
     };

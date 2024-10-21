@@ -10,6 +10,7 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import GateType from '@/ModelTypes/TypeGate';
 import { fixPathname } from '@/utils/common';
+import {fenye} from "@/services/gate";
 let pl={
     page:1,
     deviceSn:''
@@ -30,6 +31,7 @@ export interface GateInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
+        fenye: Effect;
     };
     reducers: {
         list: Reducer<GateType[]>;
@@ -44,10 +46,6 @@ const GateModels: GateInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(GateService.fetch, payload?payload:pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -68,8 +66,8 @@ const GateModels: GateInterface = {
         },
         *add({ payload }, { call, put,take }): any {
             const result = yield call(GateService.add, payload);
-            // yield put({ type: 'fetch', payload: pl });
-            // yield take('fetch/@@end');
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
@@ -87,6 +85,17 @@ const GateModels: GateInterface = {
             UmiHistorty.replace({
                 pathname: '../user/list',
             });
+        },
+        *fenye({ type, payload }, { put, call, select }): any {
+            const res = yield call(GateService.fenye, payload?payload:pl);
+            if (res.ErrorCode == 0) {
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
+                });
+            } else {
+                message.error(res.ErrorCode + res.Data);
+            }
         },
     },
     reducers: {
@@ -116,6 +125,12 @@ const GateModels: GateInterface = {
                 if (StaticInfo.userId > 0 && pathname === '/gateManage/device/') {
                     dispatch({
                         type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/gateManage/device/') {
+                    dispatch({
+                        type: 'fenye',
                         payload: location.state,
                     });
                 }

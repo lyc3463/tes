@@ -19,4 +19,8 @@ export function remove(vals:any) {
 export function one(vals:any) {
     // return getData(1148, [vals]);
 }
+export function fenye(vals:any) {
+    return getData(1180, [vals.deviceSn]);
+}
+
 
