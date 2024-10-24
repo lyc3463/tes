@@ -11,6 +11,7 @@ import { StaticInfo } from '@/StaticInfo';
 import EmpType from '@/ModelTypes/TypeEmp';
 import { fixPathname } from '@/utils/common';
 import * as CollectorService from "@/services/collector";
+import {check} from "@/services/emp";
 let pl={
     page:1,
     cname:'',
@@ -36,6 +37,8 @@ export interface EmpInterface {
         remove: Effect;
         fenye: Effect;
         delete: Effect;
+        checkRemove: Effect;
+        checkOK: Effect;
     };
     reducers: {
         list: Reducer<EmpType[]>;
@@ -89,8 +92,8 @@ const EmpModels: EmpInterface = {
         },
         *remove({ payload }, { call, put,take }): any {
             const result = yield call(EmpService.remove, payload);
-            // yield put({ type: 'fetch', payload: pl });
-            // yield take('fetch/@@end');
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
             return result
         },
         *fenye({ type, payload }, { put, call, select }): any {
@@ -103,6 +106,16 @@ const EmpModels: EmpInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+        },
+        *checkRemove({ payload }, { call, put,take }): any {
+            const result = yield call(EmpService.checkRemove, payload);
+            return result
+        },
+        *checkOK({ payload }, { call, put,take }): any {
+            const result = yield call(EmpService.check, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
     },
     reducers: {

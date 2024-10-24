@@ -4,6 +4,5 @@ window.ServerConfig = {
     // apiServer: 'http://192.168.1.168:9991/',
     // 线上接口
     // apiServer: 'https://test.qhwy6.com:9006/',
-
     socketServer: 'ws://127.0.0.1:8000/'
 };

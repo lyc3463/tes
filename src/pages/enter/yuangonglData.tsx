@@ -69,18 +69,6 @@ const YuangonglData=(props:any)=>{
             key: 'phone',
         },
         {
-            title: '性别',
-            dataIndex: 'sex',
-            key: 'sex',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.sex==1?<Tag color='gold'>男</Tag>:<Tag color='orange'>女</Tag>}
-                    </div>
-                )
-            }
-        },
-        {
             title: '公司名称',
             dataIndex: 'companyName',
             key: 'companyName',
@@ -244,16 +232,15 @@ const YuangonglData=(props:any)=>{
                     </Space>
                 </List.Item>
             </List>
-            <div style={{maxHeight:'60vh',overflow:'auto',border:'1px solid #ddd'}}>
                 <Table
                     columns={columns}
                     style={{border:'1px solid #ddd',borderRadius:'4px'}}
                     pagination={false}
                     dataSource={props.EmpList}
+                    scroll={{y:'70vh'}}
                     rowKey={(columns) => columns.id}
                     size='small'
                 />
-            </div>
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             <Modal onOk={onOk} open={isOpen} title={'删除人脸'} onCancel={()=>setIsOpen(false)}>
                 <div>

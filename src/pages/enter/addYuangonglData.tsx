@@ -15,8 +15,6 @@ const AddYuangonglData=(props:any)=>{
     const [eendtime,seteendtime]=useState('');
     // base64 用来显示图片
     const [fileBase64,setFileBase64]=useState('');
-    // 房屋列表
-    const [house,setHouse]=useState([]);
     // 图片原本的名字
     const [oldImgName,setOldImgName]=useState('');
     const onFinish= (values)=>{
@@ -33,8 +31,8 @@ const AddYuangonglData=(props:any)=>{
         });
     };
     const changeData=(_,item)=>{
-        setEstarttime(item[0])
-        seteendtime(item[1])
+        setEstarttime(item[0]);
+        seteendtime(item[1]);
     };
 
     // 获取图片名字
@@ -45,9 +43,7 @@ const AddYuangonglData=(props:any)=>{
     const getImgBase64=(item:any)=>{
         setFileBase64(item);
     };
-    useEffect(() => {
-        filterAndUpdateList(props.HouseList, 'house_name', 'id', setHouse);
-    }, []);
+
     return(
         <div>
             <Form
@@ -68,33 +64,21 @@ const AddYuangonglData=(props:any)=>{
                 <Form.Item label='员工昵称' name='nickname'>
                     <Input placeholder='员工昵称'/>
                 </Form.Item>
-                <Form.Item label='性别' name='sex'>
-                   <Radio.Group>
-                       <Radio value={1}>男</Radio>
-                       <Radio value={0}>女</Radio>
-                   </Radio.Group>
-                </Form.Item>
                 <Form.Item label='员工联系方式' name='phone'>
                     <Input placeholder='员工联系方式'/>
-                </Form.Item>
-                <Form.Item label='员工身份证' name='idCard'>
-                    <Input placeholder='身份证'/>
-                </Form.Item>
-                <Form.Item label='门禁卡号' name='wiegandno'>
-                    <Input placeholder='门禁卡号'/>
                 </Form.Item>
                 <Form.Item label='所在公司' name='companyName'>
                     <Input placeholder='员工所在公司'/>
                 </Form.Item>
-                <Form.Item label='所在房屋' name='house_id'>
+                <Form.Item label='闸机分组' name='groupId'>
                     <Select>
-                        {house.map((item:any,index:any)=>{
+                        {props.GroupingList&&props.GroupingList.length>0?props.GroupingList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.groupName}
                                 </Select.Option>
                             )
-                        })}
+                        }):''}
                     </Select>
                 </Form.Item>
                 <Form.Item label='员工人脸'>
@@ -119,7 +103,7 @@ const AddYuangonglData=(props:any)=>{
 }
 const mapStateToProps = (state: any) => {
     return {
-        HouseList:state.House.list,
+        GroupingList:state.Grouping.list,
     }
 };
 export default connect(mapStateToProps) (AddYuangonglData)

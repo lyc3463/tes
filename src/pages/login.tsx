@@ -341,7 +341,8 @@ export default function Login() {
     }
     let type=1;
     let shebei='设备'
-    let res=await LoginService.loginYzm(editpwdPhone,type,shebei);
+    let res:any=await LoginService.loginYzm(editpwdPhone,type,shebei);
+    console.log(res)
     if (res.ErrorCode==0){
       message.success('验证码已发送，请留意');
     }else {

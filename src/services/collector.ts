@@ -8,11 +8,11 @@ export function add(vals:any) {
     return getData(1100, [vals.collector_number,vals.remark]);
 }
 export function edit(vals:any) {
-    return getData(1101, [vals.uid,vals.collector_number,vals.remark]);
+    return getData(1101, [vals.uid,vals.collectorid,vals.remark]);
 }
 
 export function remove(vals:any) {
-    // return getData(1050, [vals]);
+    return getData(1050, [vals]);
 }
 export function one(vals:any) {
     return getData(1103, [vals]);

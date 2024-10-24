@@ -268,16 +268,15 @@ const FinancialData=(props:any)=>{
                     </Space>
                 </List.Item>
             </List>
-            <div style={{maxHeight:'60vh',overflow:'auto',border:'1px solid #ddd'}}>
                 <Table
                     columns={columns}
                     style={{border:'1px solid #ddd',borderRadius:'4px'}}
                     pagination={false}
+                    scroll={{y:'70vh'}}
                     rowKey={(columns) => columns.id}
                     dataSource={props.BillList}
                     size='small'
                 />
-            </div>
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )

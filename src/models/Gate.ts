@@ -134,6 +134,18 @@ const GateModels: GateInterface = {
                         payload: location.state,
                     });
                 }
+                if (StaticInfo.userId > 0 && pathname === '/gateManage/addGrouping/') {
+                    dispatch({
+                        type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/gateManage/editGrouping/') {
+                    dispatch({
+                        type: 'fetch',
+                        payload: location.state,
+                    });
+                }
             });
         },
     },

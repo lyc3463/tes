@@ -68,19 +68,14 @@ const AccountModels: CollectorInterface = {
         },
         *add({ payload }, { call, put,take }): any {
             const result = yield call(CollectorService.add, payload);
-            // yield put({ type: 'fetch', payload: pl });
-            // yield take('fetch/@@end');
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
-            let p2={
-                page:1,
-                collector_number:'',
-                stutes:2,
-            }
             const result = yield call(CollectorService.edit, payload);
-            // yield put({ type: 'fetch', payload: {p2} });
-            // yield take('fetch/@@end');
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
             return result
         },
         *remove({ payload }, { call, put }): any {

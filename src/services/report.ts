@@ -21,5 +21,7 @@ export function one(vals:any) {
 export function fenye(vals:any) {
     return getData(1207, [vals.name,vals.phone,vals.state,vals.openID,vals.startDate,vals.endDate]);
 }
-
+export function fenpei(vals:any) {
+    return getData(1288, [vals.uid,vals.userID]);
+}
 

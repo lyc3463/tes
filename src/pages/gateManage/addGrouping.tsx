@@ -8,8 +8,6 @@ const tailLayout = {
 const AddGrouping=(props:any)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [form] = Form.useForm();
-    // 房屋列表
-    const [gateList,setGateList]=useState([]);
     const [joinGateList,setJoinGateList]=useState('');
     // 添加分组按钮
     const onFinish=async (values)=>{
@@ -33,7 +31,6 @@ const AddGrouping=(props:any)=>{
     };
     useEffect(() => {
         getGate();
-        setGateList(props.GateList)
     }, []);
     // 监听闸机列表  把["xx","xx"]转换成xx,xx
     const changeSelectg=(e)=>{
@@ -57,7 +54,7 @@ const AddGrouping=(props:any)=>{
                     <Form.Item label='选择闸机'>
                         <Select  mode="multiple" onChange={changeSelectg}>
                             {
-                                gateList.length>0? gateList.map((item:any,index:any)=>{
+                                props.GateList&&props.GateList.length>0?props.GateList.map((item:any,index:any)=>{
                                     return(
                                         <Select.Option value={item.deviceSn} key={index}>
                                             {item.position}

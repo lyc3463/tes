@@ -9,7 +9,7 @@ export function add(vals:any) {
 }
 
 export function edit(vals:any) {
-    return postData(1184, [vals.uid,vals.name],vals.joinGateList);
+    return postData(1184, [vals.uid,vals.defaultName],vals.joinGateList);
 }
 
 export function remove(vals:any) {

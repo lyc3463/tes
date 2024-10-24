@@ -14,7 +14,7 @@ export function edit(vals:any) {
 export function remove(vals:number) {
     return getData(1217, [vals]);
 }
-export function one(vals:number) {
+export function one(vals:string) {
     return getData(1218, [vals]);
 }
 export function fenye(vals:any) {

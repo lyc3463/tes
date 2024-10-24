@@ -1,6 +1,6 @@
 import {useLocation,connect,history} from "umi";
 import CmpImageUploader from "@/components/ImageUploader";
-import {Button, Form, Input, InputNumber, message, Radio, Select} from "antd";
+import {Button, Form, Image, Input, InputNumber, message, Radio, Select, Space} from "antd";
 import {useEffect, useRef, useState} from "react";
 import * as resourcesServer from "@/services/resources";
 
@@ -14,56 +14,60 @@ const EditResources=(props:any)=>{
     const [single, setSingle] = useState<string | undefined>(undefined);
     // 多图
     const [singles, setSingles] = useState<string | undefined>(undefined);
+    // 显示的单图
+    const [housing_image,setHousing_image]=useState('');
+    // 显示的多图
+    const [fileData,setFileData]=useState([]);
     // 需要修改的id
     const [uid,setUid]=useState('')
-    // 楼盘列表
-    const [loupanList,setLoupanList]=useState([])
 
     useEffect(()=>{
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
-        setUid(id)
-        if (props.PropertiesList.length>0){
-            let list=props.PropertiesList.map((item:any)=>{
-                return{
-                    label:item.properties_title,
-                    value:item.id
-                }
-            })
-            setLoupanList(list)
-        }
-        getOneProperties(id)
-    },[])
+        setUid(id);
+        getOneProperties(id);
+    },[]);
     // 修改的详情
     const getOneProperties=async (id:string)=>{
-        let res=await resourcesServer.one(id)
+        let res:any=await resourcesServer.one(id);
         if (res?.ErrorCode==0){
-            console.log(res)
             formRef.current.setFieldsValue(res?.Data)
-            setSingle(res?.Data.housing_image)
-            setSingles(res?.Data.housing_images)
+            setSingle(res?.Data.fileName);
+            setSingles(res?.Data.fileNames);
+            setFileData(res.Data.fileData);
+            setHousing_image(res.Data.housing_image);
+        }else {
+            message.error(res.Data)
         }
     }
-    // 单图
+    // 单图名字
     const handleImageUpload = (val: string) => {
-        setSingle(val); // 将base64字符串保存到状态中
+        setSingle(val);
     };
-    // 多图
+    // 多图名字
     const handleImageUploads=(val:string)=>{
-        setSingles(val)
-    }
+        setSingles(val);
+    };
     const onFinish=async (values:any)=>{
-        let res=await props.dispatch({
+        let res:any=await props.dispatch({
             type:'Resources/edit',
             payload:{...values,uid,single,singles}
-        })
-        if (res?.ErrorCode==0){
+        });
+        if (res.ErrorCode==0){
             message.success('修改成功');
             history.push('/appletManage/resources');
         }else {
-            message.error(res?.Data);
+            message.error(res.Data);
         }
-    }
+    };
+    // 单图base64
+    const handBase64=(vals:string)=>{
+        setHousing_image(vals);
+    };
+    // 多图base64
+    const handBase64s=(vals:string)=>{
+
+    };
     return(
         <div>
             <Form
@@ -77,13 +81,13 @@ const EditResources=(props:any)=>{
             >
                 <Form.Item label="所属楼盘" name="properties_id">
                     <Select>
-                        {loupanList.map((item:any,index:any)=>{
+                        {props.PropertiesList&&props.PropertiesList.length>0?props.PropertiesList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.properties_title}
                                 </Select.Option>
                             )
-                        })}
+                        }):''}
                     </Select>
                 </Form.Item>
                 <Form.Item label="房源编号" name="housing_name">
@@ -133,10 +137,13 @@ const EditResources=(props:any)=>{
                     <InputNumber min={0}/>
                 </Form.Item>
                 <Form.Item label="封面图" >
-                    <CmpImageUploader onImageUpload={handleImageUpload}/>
+                    <Space>
+                        <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={handBase64}/>
+                        {housing_image?<Image src={housing_image} style={{width:'80px',height:'80px'}}/>:''}
+                    </Space>
                 </Form.Item>
                 <Form.Item label="多图">
-                    <CmpImageUploader onImageUpload={handleImageUploads}/>
+                    <CmpImageUploader onImageUpload={handleImageUploads} oldBase64={handBase64s}/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">

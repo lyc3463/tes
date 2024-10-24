@@ -14,7 +14,6 @@ const EditCollector=(props:any)=>{
     // 获取单个采集器详情
     const getOneCollerctor=async (id:string)=>{
         let res=await  CollectorServer.one(id);
-        console.log(res)
         if (res?.ErrorCode==0){
             formRef.current.setFieldsValue(res?.Data)
         }

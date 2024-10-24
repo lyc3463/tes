@@ -4,8 +4,8 @@ import {QRCodeCanvas} from 'qrcode.react';
 const MyQRCodeComponent = ({ value }) => {
     return (
         <div>
-            <h1>My QR Code</h1>
             <QRCodeCanvas value={value}/>
+            <div style={{fontSize:"15px",color:'#555'}}>请拍照或者截图保留</div>
         </div>
     );
 };

@@ -15,21 +15,18 @@ const AddResources=(props:any)=>{
     const [single, setSingle] = useState<string | undefined>(undefined);
     // 多图
     const [singles, setSingles] = useState<string | undefined>(undefined);
-    // 楼盘列表
-    const [loupanList,setLoupanList]=useState([])
     // 添加提交
     const onFinish=async (values)=>{
-        console.log('single',single+"|"+singles)
-        // let res=await props.dispatch({
-        //     type:'Resources/add',
-        //     payload:{...values,single,singles}
-        // })
-        // if (res.ErrorCode==0){
-        //     message.success('添加成功')
-        //     history.push('/appletManage/resources')
-        // }else {
-        //     message.error(res.Data)
-        // }
+        let res=await props.dispatch({
+            type:'Resources/add',
+            payload:{...values,single,singles}
+        })
+        if (res.ErrorCode==0){
+            message.success('添加成功')
+            history.push('/appletManage/resources')
+        }else {
+            message.error(res.Data)
+        }
     }
     // 单图
     const handleImageUpload = (val: string) => {
@@ -37,19 +34,8 @@ const AddResources=(props:any)=>{
     };
     // 多图
     const handleImageUploads=(val:string)=>{
-        setSingles(val)
-    }
-    useEffect(()=>{
-        if (props.PropertiesList.length>0){
-            let list=props.PropertiesList.map((item:any)=>{
-                return{
-                    label:item.properties_title,
-                    value:item.id
-                }
-            })
-            setLoupanList(list)
-        }
-    },[])
+        setSingles(val);
+    };
     return(
         <Spin spinning={isLoading}>
             <Form
@@ -63,13 +49,13 @@ const AddResources=(props:any)=>{
             >
                 <Form.Item label="所属楼盘" name="properties_id">
                     <Select>
-                        {loupanList.map((item:any,index:any)=>{
+                        {props.PropertiesList&&props.PropertiesList.length>0?props.PropertiesList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.properties_title}
                                 </Select.Option>
                             )
-                        })}
+                        }):''}
                     </Select>
                 </Form.Item>
                 <Form.Item label="房源编号" name="housing_name">
@@ -113,12 +99,11 @@ const AddResources=(props:any)=>{
                        <Radio value={0}>上架</Radio>
                        <Radio value={1}>下架</Radio>
                    </Radio.Group>
-
                 </Form.Item>
                 <Form.Item label="排序" name="sort">
                     <InputNumber min={0}/>
                 </Form.Item>
-                <Form.Item label="封面图" >
+                <Form.Item label="封面图">
                     <CmpImageUploader onImageUpload={handleImageUpload}/>
                 </Form.Item>
                 <Form.Item label="多图">

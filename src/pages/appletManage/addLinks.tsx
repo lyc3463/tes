@@ -15,6 +15,7 @@ const AddLinks=(props:any)=>{
     const handleImageUpload = (val: string) => {
         setSingle(val); // 将base64字符串保存到状态中
     };
+    // 确定按钮
     const onFinish=async (values)=>{
         let res=await props.dispatch({
             type:'Links/add',
@@ -24,7 +25,10 @@ const AddLinks=(props:any)=>{
             message.success('添加成功')
             history.push('/appletManage/links')
         }
-    }
+    };
+    const handBase64=(val:string)=>{
+
+    };
     return(
         <div>
             <Spin spinning={isLoading}>
@@ -44,7 +48,7 @@ const AddLinks=(props:any)=>{
                         <Input/>
                     </Form.Item>
                     <Form.Item label="封面图" >
-                        <CmpImageUploader onImageUpload={handleImageUpload}/>
+                        <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={handBase64}/>
                     </Form.Item>
                     <Form.Item {...tailLayout}>
                         <Button type="primary" htmlType="submit">

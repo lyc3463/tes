@@ -1,7 +1,8 @@
 import {Button, Input, List, Select, Space, Table} from "antd";
-import {history} from "umi";
+import {history,connect} from "umi";
+import {useEffect} from "react";
 
-const Yinghangka=()=>{
+const Yinghangka=(props:any)=>{
     const columns =[
         {
             title: '序号',
@@ -59,7 +60,10 @@ const Yinghangka=()=>{
     ]
     const toadd=()=>{
         history.push('/qianbao/addYinghangka')
-    }
+    };
+    useEffect(() => {
+        console.log(props)
+    }, []);
     return(
         <div>
             <List>
@@ -80,9 +84,22 @@ const Yinghangka=()=>{
                     </Space>
                 </List.Item>
             </List>
-            <Table columns={columns} style={{border:'1px solid #ddd',borderRadius:'4px'}} pagination={false}/>
-
+            <Table
+                columns={columns}
+                rowKey={(columns) => columns.id}
+                dataSource={props.YinghangkaList}
+                pagination={false}
+                size='small'
+                rowClassName={(record, index) =>
+                    index % 2 === 1 ? 'tbodd' : 'tbeven'
+                }
+            />
         </div>
     )
 }
-export default Yinghangka
+const mapStateToProps = (state: any) => {
+    return {
+        YinghangkaList: state.Yinghangka.list
+    }
+};
+export default connect(mapStateToProps) (Yinghangka)

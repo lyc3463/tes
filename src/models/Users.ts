@@ -47,10 +47,6 @@ const UsersModel: SubjectInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(UsersService.fetch, payload?payload:pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -127,6 +123,12 @@ const UsersModel: SubjectInterface = {
                 const pathname = fixPathname(location.pathname);
 
                 if (StaticInfo.userId > 0 && pathname === '/systemManage/userManage/') {
+                    dispatch({
+                        type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/propertyServerManage/reportLog/') {
                     dispatch({
                         type: 'fetch',
                         payload: location.state,

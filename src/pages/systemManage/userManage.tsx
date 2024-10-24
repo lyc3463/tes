@@ -33,9 +33,6 @@ const UserManage=(props:any)=>{
     const toEdit=(e:number)=>{
         history.push(`/systemManage/editUser?id=${e}`)
     };
-    useEffect(() => {
-        console.log(props)
-    }, []);
     return(
         <div>
             <List>

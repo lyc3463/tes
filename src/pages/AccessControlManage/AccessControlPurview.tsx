@@ -22,7 +22,7 @@ import {connect} from "umi";
 const AccessControlPurview=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
-    const [stutes,setStutes]=useState(1);
+    const [stutes,setStutes]=useState(2);
     // 姓名
     const [cname,setCname]=useState('');
     // 昵称
@@ -36,18 +36,6 @@ const AccessControlPurview=(props:any)=>{
     // 删除的ID
     const [uid,setUid]=useState(0);
     const columns =[
-        {
-            title: '登记日期',
-            dataIndex: 'estarttime',
-            key: 'estarttime',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {dayjs(record.estarttime).format('YYYY-MM-DD')}
-                    </div>
-                )
-            }
-        },
         {
             title: '到期时间',
             dataIndex: 'eendtime',
@@ -81,18 +69,6 @@ const AccessControlPurview=(props:any)=>{
             title: '员工联系方式',
             dataIndex: 'phone',
             key: 'phone',
-        },
-        {
-            title: '性别',
-            dataIndex: 'sex',
-            key: 'sex',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.sex==1?<Tag color='gold'>男</Tag>:<Tag color='orange'>女</Tag>}
-                    </div>
-                )
-            }
         },
         {
             title: '公司名称',
@@ -156,7 +132,7 @@ const AccessControlPurview=(props:any)=>{
     // 确定删除
     const onOk=()=>{
       props.dispatch({
-          type:'Emp/remove',
+          type:'Emp/checkRemove',
           payload:uid
       }).then((res:any)=>{
           if (res.ErrorCode==0){

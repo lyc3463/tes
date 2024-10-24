@@ -3,11 +3,9 @@ import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as EmpService from "@/services/emp";
 import {history,connect} from "umi";
-import {Use} from "@umijs/bundler-webpack/compiled/webpack-5-chain";
 
 const CheckStaff=(props:any)=>{
     const [uid,setUid]=useState<number>(0);
-    const [houseID,setHouseID]=useState<number>(0);
     const [isopen,setOpen]=useState(false);
     // 当前页数
     const [page,setPage]=useState(1);
@@ -20,18 +18,6 @@ const CheckStaff=(props:any)=>{
     // 手机号
     const [phone,setPhone]=useState('');
     const columns =[
-        {
-            title: '登记日期',
-            dataIndex: 'estarttime',
-            key: 'estarttime',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {dayjs(record.estarttime).format('YYYY-MM-DD')}
-                    </div>
-                )
-            }
-        },
         {
             title: '到期时间',
             dataIndex: 'eendtime',
@@ -72,18 +58,6 @@ const CheckStaff=(props:any)=>{
             key: 'phone',
         },
         {
-            title: '性别',
-            dataIndex: 'sex',
-            key: 'sex',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.sex==1?<Tag color='gold'>男</Tag>:<Tag color='orange'>女</Tag>}
-                    </div>
-                )
-            }
-        },
-        {
             title: '公司名称',
             dataIndex: 'companyName',
             key: 'companyName',
@@ -95,7 +69,7 @@ const CheckStaff=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        {record.emp_status==1?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}
+                        {record.emp_status==2?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}
                     </div>
                 )
             }
@@ -107,12 +81,11 @@ const CheckStaff=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
                         {
-                            record.emp_status==1?
-                                <>
-                                </>:
+                            record.emp_status==2?<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
+                                :
                                 <Space>
+                                    <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
                                     <Button type='link' onClick={()=>check(record)}>审核通过</Button>
                                     <Button type='link' color='red'>删除</Button>
                                 </Space>
@@ -130,12 +103,14 @@ const CheckStaff=(props:any)=>{
     // 审核弹窗
     const check=(e)=>{
         setUid(e.id);
-        setHouseID(e.house_id)
         setOpen(true)
     };
     // 弹窗确定
     const OK=()=>{
-        EmpService.check(uid,2,houseID).then((res:any)=>{
+        props.dispatch({
+            type:'Emp/checkOK',
+            payload:{uid}
+        }).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('已通过,等待闸机服务器响应(可能稍微有点久~~~~)');
                 setOpen(false);
@@ -170,7 +145,6 @@ const CheckStaff=(props:any)=>{
         setStutes(e);
     };
     useEffect(() => {
-        console.log(props)
         logFenye();
     }, [page]);
     // 监听员工姓名

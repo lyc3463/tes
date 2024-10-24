@@ -1,9 +1,12 @@
-import {Button, Input, List, message, Select, Space, Table} from "antd";
+import {Button, Input, List, message, Pagination, Select, Space, Table} from "antd";
 import {connect} from "umi";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 
 const MovementCable=(props:any)=>{
+    const [page,setPage]=useState(1);
+    const [collector_id,setCollector_id]=useState('');
+    const [name,setName]=useState('');
     const columns =[
         {
             title: '抄表时间',
@@ -55,27 +58,8 @@ const MovementCable=(props:any)=>{
                     </div>
                 )
             },
-        },
-        {
-            title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
-            fixed: 'right',
-            width: 200,
-            render: (text:any, record:any) => {
-                return(
-                    <div>
-                        {/*<a onClick={()=>{setDel(true)}}>删除</a>*/}
-                        {/*<a onClick={()=>{setrz(true)}} style={{marginLeft:'5px'}}>抄表日志</a>*/}
-                    </div>
-                )
-            },
         }
     ];
-
-    useEffect(() => {
-        console.log(props)
-    }, []);
     // 手动抄表
     const shoudong=()=>{
         props.dispatch({
@@ -88,6 +72,29 @@ const MovementCable=(props:any)=>{
             }
         })
     };
+    // 搜索
+    const sousuo=()=>{
+        setPage(1);
+        props.dispatch({
+            type:'MovementCable/fenye',
+            payload:{collector_id,name}
+        });
+        logFenye()
+    };
+    // 分页
+    const logFenye=()=>{
+        props.dispatch({
+            type:"MovementCable/fetch",
+            payload:{page,collector_id,name}
+        })
+    };
+    useEffect(() => {
+        logFenye();
+    }, [page]);
+    // 监听页数
+    const onChange=(e:number)=>{
+      setPage(e)
+    };
     return(
         <div>
             <List>
@@ -99,10 +106,14 @@ const MovementCable=(props:any)=>{
                     </div>
                     <Space>
                         <Input
-                            addonBefore="收费项目名称:"
+                            addonBefore="采集器编号:"
+                            onChange={(e)=>setCollector_id(e.target.value)}
                         />
-
-                        <Button type="primary">
+                        <Input
+                            addonBefore="租户姓名:"
+                            onChange={(e)=>setName(e.target.value)}
+                        />
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -118,12 +129,14 @@ const MovementCable=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
-        MovementCableList: state.MovementCable.list
+        MovementCableList: state.MovementCable.list,
+        count: state.MovementCable.count,
     }
 };
 export default connect(mapStateToProps) (MovementCable)

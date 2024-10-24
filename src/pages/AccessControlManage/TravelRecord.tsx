@@ -64,7 +64,7 @@ const TravelRecord=(props:any)=>{
         })
     };
     useEffect(() => {
-        logFenye()
+        logFenye();
     }, [page]);
     return(
         <div>

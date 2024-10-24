@@ -10,6 +10,7 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import ReportType from '@/ModelTypes/TypeReport';
 import { fixPathname } from '@/utils/common';
+import {fenpei} from "@/services/report";
 let pl={
     page:1,
     name:'',
@@ -36,6 +37,7 @@ export interface ReportInterface {
         edit: Effect;
         remove: Effect;
         fenye: Effect;
+        fenpei: Effect;
     };
     reducers: {
         list: Reducer<ReportType[]>;
@@ -77,7 +79,7 @@ const ReportModels: ReportInterface = {
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(ReportService.edit, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
@@ -101,6 +103,12 @@ const ReportModels: ReportInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+        },
+        *fenpei({ payload, callback }, { call, put, take }): any {
+            const result = yield call(ReportService.fenpei, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
     },
     reducers: {

@@ -1,27 +1,40 @@
 import {connect,history} from "umi";
 import {Button, Input, List, Space, Table} from "antd";
+import {useEffect, useState} from "react";
 
 const Grouping=(props)=>{
+    const [name,setName]=useState('');
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'id',
-            render: (text: any, record: any) => (
-                <Button type="link">{text}</Button>
-            ),
-        },
-        {
             title: '分组名称',
-            dataIndex: 'deviceSn',
+            dataIndex: 'groupName',
         },
         {
             title: '操作',//简单常用操作放这里，复杂放详情
             dataIndex: 'operation',
+            render: (text: any, record: any) => (
+                <Space>
+                    <Button type="primary" onClick={()=>toEdit(record.id)}>编辑</Button>
+                    <Button type="primary" danger>删除</Button>
+                </Space>
+            ),
         },
     ];
     const toadd=()=>{
         history.push('/gateManage/addGrouping')
-    }
+    };
+    const toEdit=(e:any)=>{
+        history.push(`/gateManage/editGrouping?id=${e}`)
+    };
+    const sousuo=()=>{
+        props.dispatch({
+            type:'Grouping/fetch',
+            payload:{name}
+        })
+    };
+    useEffect(() => {
+        sousuo();
+    }, []);
     return(
         <div>
             <List>
@@ -34,8 +47,9 @@ const Grouping=(props)=>{
                     <Space>
                         <Input
                             addonBefore="分组名称:"
+                            onChange={(e)=>setName(e.target.value)}
                         />
-                        <Button type="primary" >
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>

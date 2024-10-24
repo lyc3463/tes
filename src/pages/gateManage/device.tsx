@@ -16,7 +16,9 @@ import {
 import  {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import * as TestService from '@/services/test';
-import MyQRCodeComponent from '@/components/Myqrcode'
+import MyQRCodeComponent from '@/components/Myqrcode';
+import {StaticInfo} from "@/StaticInfo"
+import dayjs from "dayjs";
 const Device=(props)=>{
     // 页码
     const [page,setPage]=useState(1);
@@ -24,18 +26,11 @@ const Device=(props)=>{
     const [deviceSn,setDeviceSn]=useState('');
     // 二维码图片
     const [img,setImg]=useState('');
-    // 二维码使用次数
-    const [times,setTimes]=useState(0);
-    // 二维码到期时间
-    const [endDate,setEndDate]=useState('');
-    // 房屋ID
-    const [house_id,setHouse_id]=useState(0);
-    // 弹窗
+    // 二维码弹窗
     const [open,setOpen]=useState(false);
-    // 生成成功后的弹窗
-    const [qrOpen,setQrOpen]=useState(false);
-    // 生成二维码的闸机编号
-    const  [deviceSns,setDeviceSns]=useState('');
+    const [code,setCode]=useState('');
+    const [fenzuID,setFenzuID]=useState(0);
+    const [timestamp,setTimestamp]=useState(0)
     const columns = [
         {
             title: '闸机编号',
@@ -55,7 +50,6 @@ const Device=(props)=>{
             render: (text: any, record: any) => (
                 <Space>
                     <Button type='primary' onClick={()=>kaimen(record)}>开门</Button>
-                    <Button type='primary' onClick={()=>qrCodeOpen(record.house_id)}>生成二维码</Button>
                 </Space>
             ),
         },
@@ -64,22 +58,16 @@ const Device=(props)=>{
         history.push('/gateManage/addDevice');
     };
     // 生成二维码
-    const getQrCode=()=>{
-        TestService.testQrCode(endDate,deviceSns).then((res:any)=>{
+    const onOK=()=>{
+        let obj={id:StaticInfo.park_id,ts:timestamp}
+        TestService.testQrCode(JSON.stringify(obj)).then((res:any)=>{
+            console.log(res)
             if (res.ErrorCode==0){
-                setImg(res.Data.data);
-                setQrOpen(true);
-                setOpen(false);
-                message.success('已生成二维码，请拍照或者截图保存')
+                setCode(res.Data);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
             }
         });
-    };
-    // 生成二维码弹窗
-    const qrCodeOpen=(e:any)=>{
-        setOpen(true);
-        setDeviceSns(e.deviceSn);
     };
     // 开门
     const kaimen=(item:any)=>{
@@ -91,10 +79,7 @@ const Device=(props)=>{
             }
         });
     };
-    // 选择有效时间
-    const changeDate=(_:any,item:any)=>{
-      setEndDate(item)
-    };
+
     // 获取闸机列表
     const getGeteList=()=>{
       props.dispatch({
@@ -117,15 +102,22 @@ const Device=(props)=>{
     const onChange=(e:number)=>{
         setPage(e);
     };
+    const changeDate=(_:any,item:any)=>{
+        // 精确到秒的时间戳
+        setTimestamp(Date.parse(item)/1000);
+    };
     return(
         <div>
             <List>
                 <List.Item>
-                    <div>
+                    <Space>
                         <Button type="primary" onClick={toadd}>
                             新增闸机
                         </Button>
-                    </div>
+                        <Button type="primary" onClick={()=>setOpen(true)}>
+                            生成访客二维码
+                        </Button>
+                    </Space>
                     <Space>
                         <Input
                             addonBefore="闸机编号:"
@@ -143,37 +135,24 @@ const Device=(props)=>{
                 pagination={false}
                 dataSource={props.GateList}
                 size='small'
+                scroll={{y:'70vh'}}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            <Modal title='二维码有效范围' open={open} onCancel={()=>setOpen(false)} onOk={getQrCode}>
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            <Modal title='访客二维码' onOk={onOK} open={open} onCancel={()=>setOpen(false)}>
                 <Form>
-                    {/*<Form.Item label='次数'>*/}
-                    {/*    <InputNumber*/}
-                    {/*        min={1}*/}
-                    {/*        max={5}*/}
-                    {/*        parser={(value:number) => {*/}
-                    {/*            const parsedValue = Number(value);*/}
-                    {/*            return isNaN(parsedValue) || !Number.isInteger(parsedValue) ? undefined : parsedValue;*/}
-                    {/*        }}*/}
-                    {/*        formatter={(value) => {*/}
-                    {/*            // 自定义格式化函数，确保显示的是整数（这一步其实对输入控制没影响，但保证显示一致性）*/}
-                    {/*            return value === undefined ? '' : value.toString();*/}
-                    {/*        }}*/}
-                    {/*        onChange={(e:number)=>setTimes(e)}*/}
-                    {/*    />*/}
-                    {/*    /!*<span style={{color:'#555',fontSize:"12px"}}>注:(最大次数5次)</span>*!/*/}
-                    {/*</Form.Item>*/}
-                    <Form.Item label='有效时间'>
-                       <DatePicker  showTime onChange={changeDate}></DatePicker>
+                    <Form.Item label='选择到期时间' >
+                        <DatePicker showTime onChange={changeDate}
+                        />
                     </Form.Item>
                 </Form>
+                <div>
+                    {code?<MyQRCodeComponent value={code}/>:''}
+                </div>
             </Modal>
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-            <Modal title='请截图或拍照' open={qrOpen} onOk={()=>setQrOpen(false)}>
-                <Image src={img} style={{width:'200px',height:'200px'}}></Image>
-            </Modal>
+
         </div>
     )
 }
@@ -181,6 +160,7 @@ const mapStateToProps = (state: any) => {
     return {
         GateList: state.Gate.list,
         count: state.Gate.count,
+        GroupingList: state.Grouping.list
     }
 };
 export default connect(mapStateToProps) (Device)

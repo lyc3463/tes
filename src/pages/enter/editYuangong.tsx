@@ -22,13 +22,10 @@ const EditYuangong=(props:any)=>{
     const [eendtime,seteendtime]=useState('');
     // 图片原本的名字
     const [oldImgName,setOldImgName]=useState('');
-    // 房屋列表
-    const [house,setHouse]=useState([]);
     const location=useLocation();
     const getOneEmp=async (id:string)=>{
         let res:any=await  EmpServer.one(id);
         if (res.ErrorCode==0){
-            console.log(res)
             formRef.current.setFieldsValue(res.Data);
             setFileBase64(res.Data.avatarBase64);
             setOldImgName(res.Data.empFileName);
@@ -38,7 +35,6 @@ const EditYuangong=(props:any)=>{
         }
     };
     useEffect(()=>{
-        filterAndUpdateList(props.HouseList, 'house_name', 'id', setHouse);
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
         setUid(id)
@@ -80,7 +76,7 @@ const EditYuangong=(props:any)=>{
             >
                 <Form.Item label='授权开始/结束时间'>
                     {
-                        eendtime&&estarttime?<DatePicker.RangePicker showTime  defaultValue={[dayjs(estarttime), dayjs(eendtime)]}/>:''
+                        eendtime&&estarttime?<DatePicker showTime  defaultValue={dayjs(estarttime)}/>:''
                     }
                 </Form.Item>
                 <Form.Item label='员工姓名' name='name'>
@@ -89,33 +85,21 @@ const EditYuangong=(props:any)=>{
                 <Form.Item label='员工昵称' name='nickname'>
                     <Input placeholder='员工昵称'/>
                 </Form.Item>
-                <Form.Item label='性别' name='sex'>
-                    <Radio.Group>
-                        <Radio value={'1'}>男</Radio>
-                        <Radio value={'0'}>女</Radio>
-                    </Radio.Group>
-                </Form.Item>
                 <Form.Item label='员工联系方式' name='phone'>
                     <Input placeholder='员工联系方式'/>
-                </Form.Item>
-                <Form.Item label='员工身份证' name='idCard'>
-                    <Input placeholder='身份证'/>
-                </Form.Item>
-                <Form.Item label='门禁卡号' name='wiegandno'>
-                    <Input placeholder='门禁卡号'/>
                 </Form.Item>
                 <Form.Item label='所在公司' name='companyName'>
                     <Input placeholder='员工所在公司'/>
                 </Form.Item>
-                <Form.Item label='所在房屋' name='house_id'>
+                <Form.Item label='闸机分组' name='groupId'>
                     <Select>
-                        {house.map((item:any,index:any)=>{
+                        {props.GroupingList&&props.GroupingList.length>0?props.GroupingList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.groupName}
                                 </Select.Option>
                             )
-                        })}
+                        }):''}
                     </Select>
                 </Form.Item>
                 <Form.Item label='员工人脸'>
@@ -124,9 +108,7 @@ const EditYuangong=(props:any)=>{
                         {fileBase64?<Image src={fileBase64} style={{width:'80px',height:'80px'}}/>:''}
                     </Space>
                 </Form.Item>
-                <Form.Item label='备注' name='custom'>
-                    <Input placeholder='备注'/>
-                </Form.Item>
+
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
                         编辑
@@ -138,7 +120,7 @@ const EditYuangong=(props:any)=>{
 }
 const mapStateToProps = (state: any) => {
     return {
-        HouseList:state.House.list,
+        GroupingList:state.Grouping.list,
     }
 };
 export default  connect(mapStateToProps)(EditYuangong)

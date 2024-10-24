@@ -33,7 +33,7 @@ const QuestionnaireList=(props)=>{
             key: 'cao',
             render:(text:any,record:any)=>(
                 <Space>
-                    <Button type='primary'>编辑</Button>
+                    <Button type='primary' onClick={()=>toEdit(record.id)}>编辑</Button>
                     <Button type='primary' danger onClick={()=>deleOpen(record)}>删除</Button>
                 </Space>
             )
@@ -47,6 +47,9 @@ const QuestionnaireList=(props)=>{
     };
     const toadd=()=>{
         history.push('/appletManage/addQuestionnaire')
+    };
+    const toEdit=(e:number)=>{
+        history.push(`/appletManage/editQuestionnaireList?id=${e}`)
     };
     useEffect(() => {
         logFenye()
