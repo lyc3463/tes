@@ -1,6 +1,6 @@
 import {DatePicker, Form, Select, Table} from "antd";
 
-const Jiaouyi=()=>{
+const Jiaouyi=(props:any)=>{
     const columns =[
         {
             title: '交易单号',
@@ -49,7 +49,7 @@ const Jiaouyi=()=>{
                 )
             }
         }
-    ]
+    ];
     return(
         <div>
             <Form style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px',display:'flex'}}>

@@ -43,7 +43,7 @@ const Hire=(props:any)=>{
         logFenye();
     }, []);
     useEffect(() => {
-        console.log(props)
+        logFenye()
     }, [page]);
     // 分页
     const logFenye=()=>{

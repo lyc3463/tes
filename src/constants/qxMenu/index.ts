@@ -316,5 +316,9 @@ export const qxTree: TypeMenu[] = [
     { id: 310, name: '手动抄水表按钮', parentId: 28, authId: 310},
     { id: 311, name: '电表抄表列表', parentId: 27, authId: 311},
     { id: 312, name: '水表抄表列表', parentId: 28, authId: 312},
-
+    { id: 313, name: '删除通行记录', parentId: 93, authId: 313},
+    { id: 314, name: '日志查询列表', parentId: 107, authId: 314},
+    { id: 315, name: '修改账户配置', parentId: 3, authId: 315},
+    { id: 316, name: '修改每户输入金额', parentId: 70, authId: 316},
+    { id: 317, name: '手动提现', parentId: 3, authId: 317},
 ]

@@ -28,7 +28,6 @@ import CryptoUtils from '@/utils/Crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { sleep } from '@/utils/common';
 import {phonePattern} from "@/utils/OpenTool";
-import {editPwd} from "@/services/login";
 
 
 type Fnc = () => void;
@@ -342,7 +341,6 @@ export default function Login() {
     let type=1;
     let shebei='设备'
     let res:any=await LoginService.loginYzm(editpwdPhone,type,shebei);
-    console.log(res)
     if (res.ErrorCode==0){
       message.success('验证码已发送，请留意');
     }else {
@@ -369,7 +367,7 @@ export default function Login() {
       message.error('请输入验证码');
       return false
     }
-    LoginService.duanxinyanzhen(values.phone,editPwdYzm).then((res)=>{
+    LoginService.duanxinyanzhen(values.phone,editPwdYzm).then((res:any)=>{
       if (res.ErrorCode==0){
         message.success('验证码通过');
         setIsyzmOpen(false);
@@ -382,7 +380,7 @@ export default function Login() {
   // 确定修改密码
   const onOKmm=(values:any)=>{
     let md5Pwd= CryptoUtils.md5(values.password);
-    LoginService.editPwd(editpwdPhone,md5Pwd).then((res)=>{
+    LoginService.editPwd(editpwdPhone,md5Pwd).then((res:any)=>{
       if (res.ErrorCode==0){
         message.success('修改成功');
         setmmOpen(false);

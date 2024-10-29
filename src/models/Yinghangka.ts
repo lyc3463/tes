@@ -77,6 +77,7 @@ const YinghangkaModel: YinghangkaInterface = {
 
         },
         *remove({ payload }, { call, put,take }): any {
+            console.log("payload",payload)
             const result = yield call(YinghangkaService.remove, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');

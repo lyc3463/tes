@@ -1,4 +1,4 @@
-const Finance=()=>{
+const Finance=(props)=>{
     return(
         <div>
             财务报表

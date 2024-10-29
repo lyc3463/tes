@@ -5,7 +5,7 @@ import {
     Link,
   } from 'umi';
 import TypeGongsi from "@/ModelTypes/TypeGongsi";
-import {Button, Input, List, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 
 
@@ -16,7 +16,13 @@ function Gongsiguanli(props: any) {
     // 参数名称
     const [cname,setCname]=useState('');
     // 收费类型
-    const [feetype,setFeetype]=useState(0); 
+    const [feetype,setFeetype]=useState(0);
+    // 删除的弹窗
+    const [open,setOpen]=useState(false);
+    // ID
+    const [uid,setUid]=useState(0);
+    // 删除的名字
+    const [uname,setUname]=useState('');
     const columns = [
         {
             title: 'ID',
@@ -55,7 +61,7 @@ function Gongsiguanli(props: any) {
             dataIndex: 'operation',
             render: (_: any, record: any) => (
                 <Space>
-                    <Button type="primary" danger>
+                    <Button type="primary" danger onClick={()=>deteleOpen(record)}>
                         删除
                     </Button>
                 </Space>
@@ -98,8 +104,27 @@ function Gongsiguanli(props: any) {
         setPage(e);
     };
     useEffect(() => {
+        console.log(props)
         logFenye();
     }, [page]);
+    const deteleOpen=(e)=>{
+        setUid(e.id);
+        setUname(e.item_name);
+        setOpen(true);
+    };
+    const onOk=()=>{
+        props.dispatch({
+            type:"Gongsi/remove",
+            payload:uid
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setOpen(false)
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
     return (
         <>
             <Spin spinning={loading}>
@@ -159,6 +184,12 @@ function Gongsiguanli(props: any) {
                     }
                 />
                 {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {/*    删除的弹窗*/}
+                <Modal open={open} onCancel={()=>setOpen(false)} title='删除收费项目' onOk={onOk}>
+                    <div>
+                        <span>是否要删除：<span style={{color:'red'}}>{uname}</span></span>
+                    </div>
+                </Modal>
             </Spin>
         </>
     );

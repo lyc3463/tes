@@ -1,46 +1,43 @@
-import {Button, Input, List, Select, Space, Table} from "antd";
+import {Button, Input, List, message, Modal, Select, Space, Table, Tag} from "antd";
 import {history,connect} from "umi";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 
 const Yinghangka=(props:any)=>{
+    const [page,setPage]=useState(1);
+    const [name,setName]=useState('');
+    const [phone,setPhone]=useState('');
+    const [uid,setUid]=useState(0);
+    const [isOpen,setOpen]=useState(false);
+    const [yhk,setYhk]=useState('');
     const columns =[
         {
-            title: '序号',
-            dataIndex: 'id',
-            key: 'id',
-        },
-        {
             title: '户名',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'accountName',
+            key: 'accountName',
         },
         {
             title: '银行卡号',
-            dataIndex: 'kahao',
-            key: 'kahao',
+            dataIndex: 'cardNum',
+            key: 'cardNum',
         },
         {
             title: '预留手机号',
-            dataIndex: 'phone',
-            key: 'phone',
+            dataIndex: 'bankPhone',
+            key: 'bankPhone',
         },
         {
             title: '银行名称',
-            dataIndex: 'yinhang',
-            key: 'yinhang',
-        },
-        {
-            title: '添加时间',
-            dataIndex: 'data',
-            key: 'data',
+            dataIndex: 'bankName',
+            key: 'bankName',
         },
         {
             title: '是否为默认卡',
-            dataIndex: 'istrue',
-            key: 'istrue',
+            dataIndex: 'isDefault',
+            key: 'isDefault',
             render:(text:any,record:any)=>{
                 return(
                     <div>
+                        {record.isDefault==1?<Tag color='green'>是</Tag>:<Tag color='red'>否</Tag>}
                     </div>
                 )
             }
@@ -51,9 +48,10 @@ const Yinghangka=(props:any)=>{
             key: 'caozuo',
             render:(text:any,record:any)=>{
                 return(
-                    <div>
-
-                    </div>
+                    <Space>
+                        <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
+                        <Button type='primary' danger onClick={()=>isdelete(record)}>删除</Button>
+                    </Space>
                 )
             }
         },
@@ -61,9 +59,42 @@ const Yinghangka=(props:any)=>{
     const toadd=()=>{
         history.push('/qianbao/addYinghangka')
     };
+    const toedit=(e)=>{
+      history.push(`/qianbao/editYinghangka?id=${e}`)
+    };
+    // 分页
+    const logFenye=()=>{
+        props.dispatch({
+            type:"Yinghangka/fetch",
+            payload:{page,name,phone}
+        })
+    };
     useEffect(() => {
-        console.log(props)
-    }, []);
+        logFenye();
+    }, [page]);
+    const sousuo=()=>{
+      setPage(1);
+        logFenye();
+    };
+    // 删除的弹窗
+    const isdelete=(e:any)=>{
+        setUid(e.id);
+        setYhk(e.cardNum);
+        setOpen(true);
+    };
+    const onOk=()=>{
+        props.dispatch({
+            type:"Yinghangka/remove",
+            payload:uid
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setOpen(false)
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
     return(
         <div>
             <List>
@@ -75,10 +106,14 @@ const Yinghangka=(props:any)=>{
                     </div>
                     <Space>
                         <Input
-
-                            addonBefore="银行卡名称:"
+                            addonBefore="银行卡号:"
+                            onChange={(e)=>setName(e.target.value)}
                         />
-                        <Button type="primary" >
+                        <Input
+                            addonBefore="预留手机号:"
+                            onChange={(e)=>setPhone(e.target.value)}
+                        />
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -94,6 +129,10 @@ const Yinghangka=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
+        {/*    弹窗*/}
+            <Modal open={isOpen} onOk={onOk} title='删除' onCancel={()=>setOpen(false)}>
+                <div>是否要删除银行卡:<span style={{color:'red'}}>{yhk}</span></div>
+            </Modal>
         </div>
     )
 }

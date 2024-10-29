@@ -125,6 +125,18 @@ const AppUserModels: AppUserInterface = {
                         payload: location.state,
                     });
                 }
+                if (StaticInfo.userId > 0 && pathname === '/billLog/manualRecharge/') {
+                    dispatch({
+                        type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/billLog/manualRecharge/') {
+                    dispatch({
+                        type: 'fenye',
+                        payload: location.state,
+                    });
+                }
 
             });
         },

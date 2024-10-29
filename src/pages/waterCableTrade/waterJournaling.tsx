@@ -1,16 +1,11 @@
-import {Table} from "antd";
+import {Button, Input, List, Space, Table} from "antd";
 
-const WaterJournaling=()=>{
+const WaterJournaling=(props)=>{
     const columns =[
         {
             title: '日期',
             dataIndex: 'data',
             key: 'data',
-        },
-        {
-            title: '标签',
-            dataIndex: 'biaoqian',
-            key: 'biaoqian',
         },
         {
             title: '电表编号',
@@ -22,10 +17,31 @@ const WaterJournaling=()=>{
             dataIndex: 'dianliang',
             key: 'dianliang',
         },
-    ]
+    ];
     return(
         <div>
-            <Table columns={columns} style={{border:'1px solid #ddd',borderRadius:'4px'}} pagination={false}/>
+            <List>
+                <List.Item>
+                    <Space>
+                        <Input
+                            addonBefore="电表编号:"
+                        />
+                        <Button type="primary">
+                            搜索
+                        </Button>
+                    </Space>
+                </List.Item>
+            </List>
+            <Table
+                columns={columns}
+                rowKey={(columns) => columns.id}
+                dataSource={props.YinghangkaList}
+                pagination={false}
+                size='small'
+                rowClassName={(record, index) =>
+                    index % 2 === 1 ? 'tbodd' : 'tbeven'
+                }
+            />
         </div>
     )
 }

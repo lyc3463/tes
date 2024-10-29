@@ -67,25 +67,21 @@ const GongsiModel: GongsiInterface = {
     },
     *add({ payload, callback }, { call, put, take }): any {
       const result = yield call(GongsiService.add, payload);
-      yield put({ type: 'fetch', payload: {} });
+      yield put({ type: 'fetch', payload: pl });
       yield take('fetch/@@end');
       return result;
     },
     *edit({ payload, callback }, { call, put, take }): any {
       const result = yield call(GongsiService.edit, payload);
-      yield put({ type: 'fetch', payload: {pl} });
+      yield put({ type: 'fetch', payload: pl });
       yield take('fetch/@@end');
       return result;
     },
-    *remove({ payload }, { call, put }): any {
+    *remove({ payload }, { call, put ,take}): any {
       const result = yield call(GongsiService.remove, payload);
-      if (result.status !== 'ok') {
-        alert('cuowu');
-      }
-      yield put({ type: 'fetch', payload: { page: 1 } });
-      UmiHistorty.replace({
-        pathname: '../user/list',
-      });
+      yield put({ type: 'fetch', payload: pl });
+      yield take('fetch/@@end');
+      return result;
     },
     *shousuo({ type, payload }, { put, call, select }): any {
       const res = yield call(GongsiService.fetch, payload);

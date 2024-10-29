@@ -18,49 +18,25 @@ const Zuhuguanlian=(props:any)=>{
             key: 'tenant_phone',
         },
         {
-            title: '身份证号',
+            title: '身份证',
             dataIndex: 'tenant_card',
             key: 'tenant_card',
         },
         {
             title: '余额',
-            dataIndex: 'yue',
-            key: 'yue',
+            dataIndex: 'appUser_balance',
+            key: 'appUser_balance',
         },
         {
             title: '积分',
-            dataIndex: 'jifen',
-            key: 'jifen',
+            dataIndex: 'appUser_integral',
+            key: 'appUser_integral',
+
         },
         {
-            title: '账单金额',
-            dataIndex: 'zhangdan',
-            key: 'zhangdan',
-        },
-        {
-            title: '分期',
-            dataIndex: 'feniq',
-            key: 'feniq',
-        },
-        {
-            title: '优惠',
-            dataIndex: 'youhui',
-            key: 'youhui',
-        },
-        {
-            title: '房屋面积(m²)',
-            dataIndex: 'mianji',
-            key: 'mianji',
-        },
-        {
-            title: '租金(元)',
-            dataIndex: 'zujin',
-            key: 'zujin',
-        },
-        {
-            title: '押金',
-            dataIndex: 'yajin',
-            key: 'yajin',
+            title: '账单',
+            dataIndex: 'appUser_bill',
+            key: 'appUser_bill',
         },
         {
             title: '操作',

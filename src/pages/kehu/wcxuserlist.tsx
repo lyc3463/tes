@@ -4,7 +4,6 @@ import {useEffect, useState} from "react";
 import {wxTree} from '@/constants/qxMenu/wxMenu'
 import {buildTree} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
-import * as AppUserService from '@/services/appUser';
 
 
 let qxList=StaticInfo.uqx;
@@ -131,10 +130,6 @@ const Wcxuserlist=(props:any)=>{
     }, [page]);
     // 弹窗信息
     const editInfo=(vla:any)=>{
-        // console.log(vla)
-        // AppUserService.one(vla.id).then((res:any)=>{
-        //     console.log(res)
-        // })
         setOpenID(vla.openId);
         setIsOpen(true);
     };

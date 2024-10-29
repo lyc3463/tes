@@ -16,7 +16,7 @@ const AddUser=(props:any)=>{
     const [form] = Form.useForm();
     const treeData = buildTree(qxTree);
     const [roleList,setRoleList]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(313).fill('1'));
+    const [selected, setSelected] = useState<string[]>(Array(318).fill('1'));
     const onFinish= (values)=>{
         let mm =CryptoUtils.md5(values.passWord);
         values.passWord=mm;

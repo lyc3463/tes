@@ -1,61 +1,162 @@
-import {useState} from "react";
-import {Button, Form, Modal, Radio, Select, Slider,Input} from "antd";
+import {useEffect, useState} from "react";
+import {Button, Form, Modal, Radio, Select, Slider, Input, InputNumber, message, DatePicker} from "antd";
+import {connect} from "umi";
 
-const Zhanghupeizhi=()=>{
+const Zhanghupeizhi=(props)=>{
     const [disabled, setDisabled] = useState(false);
-    const [isopen,setopen]=useState(false)
+    const [isopen,setopen]=useState(false);
+    // 结算方式
+    const [settlement,setSettlement]=useState(0);
+    // 当前余额
+    const [balance,setBalance]=useState(0);
+    // 最大结算金额
+    const [maxAmount,setMaxAmount]=useState(0);
+    // 账户保留金额
+    const [reserveAmount,setReserveAmount]=useState(0);
+    // 指定结算日期
+    const [settlementTime,setSettlementTime]=useState(0);
+    const days = Array.from({ length: 31 }, (_, i) => i + 1);
+    const [remark,setRemark]=useState('');
+    // 手续费
+    const [commission,setCommission]=useState(0);
+    // 提现金额
+    const [withdAmount,setWithdAmount]=useState(0);
+    // 监听结算方式
+    const changeRadio=(e)=>{
+        setSettlement(e.target.value);
+    };
+    const getInfo=()=>{
+      props.dispatch({
+          type:'Zhanghupeizhi/one'
+      }).then((res)=>{
+          if (res.ErrorCode===0){
+              console.log(res)
+              setSettlement(res.Data.settlement);
+              setBalance(res.Data.balance);
+              setMaxAmount(res.Data.maxAmount);
+              setReserveAmount(res.Data.reserveAmount);
+              setSettlementTime(res.Data.settlementTime);
+              setCommission(res.Data.commission);
+          }else {
+              message.error(res.Data);
+          }
+      })
+    };
+    useEffect(() => {
+        getInfo();
+    }, []);
+    const onbaocun=()=>{
+      props.dispatch({
+          type:'Zhanghupeizhi/edit',
+          payload:{settlement,settlementTime,maxAmount,reserveAmount,commission}
+      }).then((res:any)=>{
+          if (res.ErrorCode==0){
+              message.success('保存成功');
+              getInfo()
+          }else {
+              message.error(res.Data)
+          }
+      })
+    };
+    const handleCheckChange=(e)=>{
+        setSettlementTime(e.target.value)
+    };
+    // 手动提现
+    const onOK=()=>{
+        let commissionz:number=withdAmount*(commission/1000);
+        if ((commissionz+withdAmount)>balance){
+            console.log('余额不足已扣手续费')
+        }else {
+            console.log('可以扣款')
+        }
+        // props.dispatch({
+        //     type:'Zhanghupeizhi/add',
+        //     payload:{withdAmount,remark,commissionz}
+        // }).then((res)=>{
+        //     if (res.ErrorCode==0){
+        //         message.success('提交成功，等待管理员审核');
+        //         getInfo();
+        //         setopen(false);
+        //         setRemark('');
+        //     }else {
+        //         message.error(res.Data)
+        //     }
+        // })
+    };
     return(
         <div>
             <Form>
-                <Form.Item label='账户名称'>
-                    <span>前汇物业</span>
+                <Form.Item label='所属园区'>
+                    <span>{sessionStorage.getItem('park_name')}</span>
+                    <p>提现手续费:<span style={{color:'red'}}>{(commission/1000).toFixed(3)}</span></p>
                 </Form.Item>
-                <Form.Item label='结算微信商户名'>
-                    <span style={{color:'rgb(0, 128, 0)'}}>前汇物业</span>
-                </Form.Item>
+                {/*<Form.Item label='结算微信商户名'>*/}
+                {/*    <span style={{color:'rgb(0, 128, 0)'}}>前汇物业</span>*/}
+                {/*</Form.Item>*/}
                 <Form.Item label='当前余额'>
-                    <span style={{fontSize:'25px',fontWeight:'500'}}>0.00</span>元<span style={{marginLeft:'15px'}}>可提现金额(0)元</span>
+                    <span style={{fontSize:'25px',fontWeight:'500'}}>{balance}</span>元<span style={{marginLeft:'15px'}}>可提现金额<span style={{color:'red'}}>{balance}</span>元</span>
                     <Button type='primary' onClick={()=>setopen(true)}>手动立即提现</Button>
-                    <p style={{color:'#888'}}>提现免手续费，单笔最大提现金额5万元，T+1到账</p>
+                    <p style={{color:'#888'}}>如未设置默认银行卡请到<span style={{color:'red'}}>钱包管理/银行卡管理</span>设置默认银行卡</p>
                 </Form.Item>
-                <Form.Item label='今日提现预计到账日'>
-                    <span style={{color:'#555'}}>2024年07月23日 23:59前</span>
-                </Form.Item>
-                <Form.Item label='结算钱包类型' style={{width:'20vw'}}>
-                    <Select/>
-                </Form.Item>
+                {/*<Form.Item label='今日提现预计到账日'>*/}
+                {/*    <span style={{color:'#555'}}>2024年07月23日 23:59前</span>*/}
+                {/*</Form.Item>*/}
+                {/*<Form.Item label='结算钱包类型' style={{width:'20vw'}}>*/}
+                {/*    <Select/>*/}
+                {/*</Form.Item>*/}
                 <Form.Item label='结算方式'>
-                    <Radio.Group>
+                    <Radio.Group onChange={changeRadio} value={settlement}>
                         <Radio value={1}>实时结算</Radio>
-                        <Radio value={2}>每天自动结算一次</Radio>
+                        <Radio value={2}>每天自动结算一次(如果)</Radio>
                         <Radio value={3}>指定结算日</Radio>
                         <Radio value={4}>手动结算</Radio>
                     </Radio.Group>
-                    <p style={{color:'#888'}}>每日结算：每日6时自动结算前一天收款一次性转入收款账户，(可减少银行卡方式手续费)</p>
-                    <p style={{color:'#888'}}>指定结算日：每月固定日期结算 (可减少银行卡方式手续费)</p>
+                    <p style={{color:'#888'}}>每日结算：每日6时自动结算前一天收款一次性转入收款账户</p>
+                    <p style={{color:'#888'}}>指定结算日：每月指定日期结算(如当月没有指定日期会存到下个月再提现)</p>
                     <p style={{color:'#888'}}>手动结算：手动通过后台发起转账结算</p>
-                    <p style={{color: 'rgb(255, 0, 0)'}}>注意：以上所有结算方式达到最大结算金额时无条件结算一次</p>
                 </Form.Item>
-                <Form.Item style={{width:'20vw'}} label='最大结算金额'>
-                    <Slider defaultValue={1000} disabled={disabled} />
+                {
+                    settlement==3? <Form.Item className="days-container">
+                        <Radio.Group onChange={handleCheckChange} value={settlementTime}>
+                            {days.map((item:any,index:any)=>{
+                                return (
+                                    <Radio value={item} key={index}>{item}号</Radio>
+                                )
+                            })}
+                        </Radio.Group>
+                    </Form.Item>:''
+                }
+                <Form.Item label='最大结算金额(元)'>
+                   <InputNumber min={0} value={maxAmount} onChange={(e:number)=>setMaxAmount(e)}/>
                 </Form.Item>
-                <Form.Item style={{width:'20vw'}} label='账户保留金额'>
-                    <Input/>
+                <Form.Item label='账户保留金额(元)'>
+                    <InputNumber min={0} value={reserveAmount} onChange={(e:number)=>setReserveAmount(e)}/>
                 </Form.Item>
-                <Form.Item  label='客服/报信电话'>
-                    <Input style={{width:'20vw'}}/>
-                    <p style={{color:'#888'}}>开通在线支付功能,请完善客服电话，用于故障报修,开票,退款等售后问题</p>
-                    <p style={{color:'#888'}}>长时间无法联系商家可能导致线上支付权限被关闭或支付限额</p>
-                </Form.Item>
+                {/*<Form.Item  label='客服/报信电话'>*/}
+                {/*    <Input style={{width:'20vw'}}/>*/}
+                {/*    <p style={{color:'#888'}}>开通在线支付功能,请完善客服电话，用于故障报修,开票,退款等售后问题</p>*/}
+                {/*    <p style={{color:'#888'}}>长时间无法联系商家可能导致线上支付权限被关闭或支付限额</p>*/}
+                {/*</Form.Item>*/}
                 <Form.Item style={{backgroundColor:'#f5f5f5',borderTop:'1px solid #e5e5e5',padding:'19px 20px 20px',margin:'20px 0'}}>
-                    <Button type='primary'>保存设置</Button>
+                    <Button type='primary' onClick={onbaocun}>保存设置</Button>
                     <Button style={{marginLeft:'20px'}}>返回</Button>
                 </Form.Item>
             </Form>
-            <Modal open={isopen} onOk={()=>setopen(false)} onCancel={()=>setopen(false)} title='是否要提现'>
-                <div>当前有 9045.4 元可提现,预计到账时间2024年08月05日 23:59前，立即提现？</div>
+            <Modal open={isopen} onOk={onOK} onCancel={()=>setopen(false)} title='是否要提现'>
+                {/*<div>当前有<span style={{color:'red'}}>{balance}</span>元可提现,实际到款<span style={{color:'red'}}>{(balance-(balance*(commission/1000))).toFixed(2)}元</span></div>*/}
+                <Form>
+                    <Form.Item label='输入提现金额(元)'>
+                        <InputNumber max={balance} onChange={(e:any)=>setWithdAmount(e)}/>
+                    </Form.Item>
+                </Form>
+                {/*<p style={{color:'#555',fontSize:'12px'}}>实际到款=当前余额-(当前余额*手续费)</p>*/}
+                <Form>
+                    <Form.Item label='备注'>
+                        <Input.TextArea onChange={(e)=>setRemark(e.target.value)} value={remark}/>
+                    </Form.Item>
+                </Form>
             </Modal>
         </div>
     )
 }
-export default Zhanghupeizhi
+export default connect() (Zhanghupeizhi)

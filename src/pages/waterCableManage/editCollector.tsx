@@ -32,6 +32,8 @@ const EditCollector=(props:any)=>{
         if (res.ErrorCode==0){
             message.success('修改成功')
             history.push('/waterCableManage/collector')
+        }else {
+            message.error(res.Data)
         }
     }
     return(
