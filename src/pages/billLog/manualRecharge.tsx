@@ -1,5 +1,5 @@
 import {Button, Image, Input, List, Pagination, Space, Table, Tag} from "antd";
-import {connect} from "umi";
+import {connect,history} from "umi";
 import AppUserType from '@/ModelTypes/TypeAppUser'
 import {useEffect, useState} from "react";
 const ManualRecharge=(props)=>{
@@ -8,18 +8,6 @@ const ManualRecharge=(props)=>{
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
     const columns =[
-        {
-            title: '用户头像',
-            dataIndex: 'appUser_image',
-            key: 'appUser_image',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        <Image src={text} style={{width:"50px",height:'50px'}}/>
-                    </div>
-                )
-            }
-        },
         {
             title: '微信呢称',
             dataIndex: 'appUser_name',
@@ -93,10 +81,16 @@ const ManualRecharge=(props)=>{
     };
     useEffect(() => {
     }, [page]);
+    const toadd=()=>{
+      history.push('/billLog/addChongzhi')
+    };
     return(
         <div>
             <List style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
                 <List.Item>
+                    <div>
+                        <Button type='primary' onClick={toadd}>去充值</Button>
+                    </div>
                     <Space>
                         <Input
                             addonBefore="手机号:"
@@ -116,7 +110,7 @@ const ManualRecharge=(props)=>{
                 columns={columns}
                 rowKey={(columns) => columns.id}
                 pagination={false}
-                dataSource={props.AppUserList}
+                dataSource={props.ManualRechargeList}
                 size='small'
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
@@ -128,8 +122,8 @@ const ManualRecharge=(props)=>{
 }
 const mapStateToProps = (state: any) => {
     return {
-        AppUserList: state.AppUser.list,
-        count: state.AppUser.count
+        ManualRechargeList: state.ManualRecharge.list,
+        count: state.ManualRecharge.count
     }
 };
 export default connect(mapStateToProps) (ManualRecharge)

@@ -44,10 +44,6 @@ const WatertModels: WatertInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(WatertService.fetch, payload?payload:pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -68,25 +64,21 @@ const WatertModels: WatertInterface = {
         },
         *add({ payload }, { call, put,take }): any {
             const result = yield call(WatertService.add, payload);
-            // yield put({ type: 'fetch', payload: pl });
-            // yield take('fetch/@@end');
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(WatertService.edit, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload }, { call, put }): any {
+        *remove({ payload }, { call, put,take }): any {
             const result = yield call(WatertService.remove, payload);
-            if (result.status !== 'ok') {
-                alert('cuowu');
-            }
-            yield put({ type: 'fetch', payload: { page: 1 } });
-            UmiHistorty.replace({
-                pathname: '../user/list',
-            });
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
     },
     reducers: {
@@ -114,27 +106,15 @@ const WatertModels: WatertInterface = {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
 
-                if (StaticInfo.userId > 0 && pathname === '/financeManage/list/') {
+                if (StaticInfo.userId > 0 && pathname === '/waterCableManage/water/') {
                     dispatch({
                         type: 'fetch',
                         payload: location.state,
                     });
                 }
-                if (StaticInfo.userId > 0 && pathname === '/financeManage/accountList/') {
+                if (StaticInfo.userId > 0 && pathname === '/waterCableManage/water/') {
                     dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/kehu/byzhuhu/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/kehu/editByzhuhu/') {
-                    dispatch({
-                        type: 'fetch',
+                        type: 'fenye',
                         payload: location.state,
                     });
                 }

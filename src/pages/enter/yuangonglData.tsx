@@ -8,7 +8,7 @@ const YuangonglData=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     // 审核状态 2全部  0未审核 1已审核
-    const [stutes,setStutes]=useState(2);
+    const [stutes,setStutes]=useState(0);
     // 姓名
     const [cname,setCname]=useState('');
     // 昵称
@@ -81,7 +81,7 @@ const YuangonglData=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        {record.emp_status==0?<Tag color='red'>未审核</Tag>:<Tag color='green'>已审核</Tag>}
+                        {record.emp_status==1?<Tag color='red'>未审核</Tag>:<Tag color='green'>已审核</Tag>}
                     </div>
                 )
             }
@@ -94,7 +94,7 @@ const YuangonglData=(props:any)=>{
                 return(
                     <div>
                         {
-                            record.emp_status==0?
+                            record.emp_status==1?
                                 <Space>
                                     <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
                                     <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
@@ -220,9 +220,9 @@ const YuangonglData=(props:any)=>{
                                 defaultValue={stutes}
                                 style={{ width: 120 }}
                                 options={[
-                                    { value:2, label: '全部' },
-                                    { value:0, label: '未审核' },
-                                    { value:1, label: '已审核' },
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '未审核' },
+                                    { value:2, label: '已审核' },
                                 ]}
                             />
                         </Space.Compact>

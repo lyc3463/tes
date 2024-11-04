@@ -1,4 +1,4 @@
-import {Button, Image, List, message, Modal, Pagination, Radio, Space, Spin, Table} from "antd";
+import {Button, Image, Input, List, message, Modal, Pagination, Radio, Select, Space, Spin, Table} from "antd";
 import {useEffect, useState} from "react";
 import {connect,history} from "umi";
 import * as ResourcesService from "@/services/resources";
@@ -6,21 +6,22 @@ import * as ResourcesService from "@/services/resources";
 const Resources=(props)=>{
     const [loading, setLoading] = useState(false);
     // 当前页数
-    const [page,setPage]=useState(1)
+    const [page,setPage]=useState(1);
     // 房源类型  0办公 1商业 2全部
-    const [houingType,setHouingType]=useState(2)
+    const [houingType,setHouingType]=useState(2);
     //  房源状态  0上架 1下架 2全部
-    const [houingStatus,setHouingStatus]=useState(2)
+    const [houingStatus,setHouingStatus]=useState(2);
     // 最小租金
-    const [minzujin,setMinzujin]=useState(0)
+    const [beginRentHousing,setBeginRentHousing]=useState(0);
     //  最大租金
-    const [maxzujin,setMaxzujin]=useState(9999999)
+    const [endRentHousing,setEndRentHousing]=useState(9999999);
     // 最小平方
-    const [minPingfang,setMinPingfang]=useState(0)
+    const [beginPriceHousing,setBeginPriceHousing]=useState(0);
     // 最大平方
-    const [maxPingfang,setMaxPingfang]=useState(9999999)
+    const [endPriceHousing,setEndPriceHousing]=useState(9999999);
     // 删除的弹窗
-    const [isDeleteOpen,setIsDeleteOpen]=useState(false)
+    const [isDeleteOpen,setIsDeleteOpen]=useState(false);
+    const [houesID,setHouesID]=useState(0)
 
     // 删除的id
     const [did,setDid]=useState(0);
@@ -93,10 +94,31 @@ const Resources=(props)=>{
         history.push('/appletManage/addResources')
     };
     useEffect(() => {
-
+        logFenye();
     }, [page]);
     const onChange=(e)=>{
         setPage(e);
+    };
+    // 分页
+    const logFenye=()=>{
+        props.dispatch({
+            type:"Resources/fetch",
+            payload:{page,houingType,houingStatus,beginRentHousing,endRentHousing,beginPriceHousing,endPriceHousing,houesID}
+        })
+    };
+    const changeType=(e)=>{
+      setHouingType(e);
+    };
+    const changeStutes=(e)=>{
+      setHouingStatus(e)
+    };
+    const sousuo=()=>{
+      setPage(1);
+        props.dispatch({
+            type:"Resources/fetchFenye",
+            payload:{page,houingType,houingStatus,beginRentHousing,endRentHousing,beginPriceHousing,endPriceHousing,houesID}
+        })
+      logFenye();
     };
     return(
         <Spin spinning={loading}>
@@ -107,6 +129,63 @@ const Resources=(props)=>{
                             新增房源
                         </Button>
                     </div>
+                    <Space>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                房源类型:
+                            </div>
+                            <Select
+                                onChange={changeType}
+                                defaultValue={houingType}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:2, label: '全部' },
+                                    { value:0, label: '办公' },
+                                    { value:1, label: '商业' },
+                                ]}
+                            />
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                房源状态:
+                            </div>
+                            <Select
+                                onChange={changeStutes}
+                                defaultValue={houingStatus}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:2, label: '全部' },
+                                    { value:1, label: '上架' },
+                                    { value:0, label: '下架' },
+                                ]}
+                            />
+                        </Space.Compact>
+                        <Button type="primary" onClick={sousuo}>
+                            搜索
+                        </Button>
+                    </Space>
                 </List.Item>
             </List>
             <Table

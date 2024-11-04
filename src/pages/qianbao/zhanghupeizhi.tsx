@@ -14,7 +14,7 @@ const Zhanghupeizhi=(props)=>{
     // 账户保留金额
     const [reserveAmount,setReserveAmount]=useState(0);
     // 指定结算日期
-    const [settlementTime,setSettlementTime]=useState(0);
+    const [settlementTime,setSettlementTime]=useState(1);
     const days = Array.from({ length: 31 }, (_, i) => i + 1);
     const [remark,setRemark]=useState('');
     // 手续费
@@ -35,8 +35,14 @@ const Zhanghupeizhi=(props)=>{
               setBalance(res.Data.balance);
               setMaxAmount(res.Data.maxAmount);
               setReserveAmount(res.Data.reserveAmount);
-              setSettlementTime(res.Data.settlementTime);
               setCommission(res.Data.commission);
+              if (res.Data.settlementTime){
+                  console.log('不等于0')
+                  setSettlementTime(res.Data.settlementTime);
+              }else {
+                  console.log('等于0')
+                  setReserveAmount(1);
+              }
           }else {
               message.error(res.Data);
           }
@@ -59,29 +65,29 @@ const Zhanghupeizhi=(props)=>{
       })
     };
     const handleCheckChange=(e)=>{
-        setSettlementTime(e.target.value)
+        setSettlementTime(e)
     };
     // 手动提现
     const onOK=()=>{
         let commissionz:number=withdAmount*(commission/1000);
         if ((commissionz+withdAmount)>balance){
-            console.log('余额不足已扣手续费')
+            message.error('账户不足扣手续费')
         }else {
-            console.log('可以扣款')
+            props.dispatch({
+                type:'Zhanghupeizhi/add',
+                payload:{withdAmount,remark,commissionz}
+            }).then((res)=>{
+                if (res.ErrorCode==0){
+                    message.success('提交成功，等待管理员审核');
+                    getInfo();
+                    setopen(false);
+                    setRemark('');
+                }else {
+                    message.error(res.Data)
+                }
+            })
         }
-        // props.dispatch({
-        //     type:'Zhanghupeizhi/add',
-        //     payload:{withdAmount,remark,commissionz}
-        // }).then((res)=>{
-        //     if (res.ErrorCode==0){
-        //         message.success('提交成功，等待管理员审核');
-        //         getInfo();
-        //         setopen(false);
-        //         setRemark('');
-        //     }else {
-        //         message.error(res.Data)
-        //     }
-        // })
+
     };
     return(
         <div>
@@ -105,7 +111,7 @@ const Zhanghupeizhi=(props)=>{
                 {/*    <Select/>*/}
                 {/*</Form.Item>*/}
                 <Form.Item label='结算方式'>
-                    <Radio.Group onChange={changeRadio} value={settlement}>
+                    <Radio.Group onChange={changeRadio} value={settlement} >
                         <Radio value={1}>实时结算</Radio>
                         <Radio value={2}>每天自动结算一次(如果)</Radio>
                         <Radio value={3}>指定结算日</Radio>
@@ -117,13 +123,22 @@ const Zhanghupeizhi=(props)=>{
                 </Form.Item>
                 {
                     settlement==3? <Form.Item className="days-container">
-                        <Radio.Group onChange={handleCheckChange} value={settlementTime}>
+                        <Select  onChange={handleCheckChange} value={settlementTime} style={{width:"200px"}}>
                             {days.map((item:any,index:any)=>{
-                                return (
-                                    <Radio value={item} key={index}>{item}号</Radio>
+                                return(
+                                    <Select.Option value={item} key={index} >
+                                        每月{item}号
+                                    </Select.Option>
                                 )
                             })}
-                        </Radio.Group>
+                        </Select>
+                        {/*<Radio.Group onChange={handleCheckChange} value={settlementTime}>*/}
+                        {/*    {days.map((item:any,index:any)=>{*/}
+                        {/*        return (*/}
+                        {/*            <Radio value={item} key={index}>{item}号</Radio>*/}
+                        {/*        )*/}
+                        {/*    })}*/}
+                        {/*</Radio.Group>*/}
                     </Form.Item>:''
                 }
                 <Form.Item label='最大结算金额(元)'>

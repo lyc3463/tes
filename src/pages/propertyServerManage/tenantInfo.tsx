@@ -5,7 +5,11 @@ import dayjs from "dayjs";
 
 const TenantInfo=(props:any)=>{
     const [loading,setLoading]=useState(false)
-
+    // 开始时间
+    const [startDate,setStartDate]=useState('2000-01-01');
+    // 结束时间
+    const [endDate,setEndDate]=useState('2099-01-01');
+    const [page,setPage]=useState(1);
     const columns =[
         {
             title: '日期',
@@ -60,6 +64,20 @@ const TenantInfo=(props:any)=>{
     useEffect(() => {
         console.log(props)
     }, []);
+
+    // 监听日期
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+        }
+    };
+    const sousuo=()=>{
+
+    };
     return(
         <Spin spinning={loading}>
             <List>
@@ -89,9 +107,9 @@ const TenantInfo=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker/>
+                            <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
-                        <Button type="primary" /*onClick={sousuo}*/>
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>

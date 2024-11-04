@@ -103,6 +103,7 @@ const Tixian=(props:any)=>{
         setPage(e)
     };
     useEffect(() => {
+        console.log(props)
         logFenye();
     }, [page]);
     return(

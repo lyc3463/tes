@@ -1,5 +1,5 @@
 import {connect,history} from 'umi'
-import {Button, Form, Input, message, Select} from "antd";
+import {Button, Form, Input, InputNumber, message, Select} from "antd";
 import {useEffect, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 const tailLayout = {
@@ -16,7 +16,7 @@ const AddWater=(props:any)=>{
     const onFinish=async (values:any)=>{
         let res=await props.dispatch({
             type:'Watert/add',
-            payload:values
+            payload:{...values,collectorid}
         })
         if (res.ErrorCode==0){
             message.success('添加成功')
@@ -44,7 +44,7 @@ const AddWater=(props:any)=>{
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                <Form.Item label='水表地址/表号' name='biaohao'>
+                <Form.Item label='水表地址/表号' name='address'>
                     <Input placeholder='表号/表地址'/>
                 </Form.Item>
                 <Form.Item label='采集器id' name='cid'>
@@ -69,10 +69,15 @@ const AddWater=(props:any)=>{
                         })}
                     </Select>
                 </Form.Item>
-                <Form.Item label='水表类型' name='type'>
-                    <Select/>
+                <Form.Item label='水表类型' name='water_type'>
+                    <Select options={[
+                        {label:'无线普通预付费水表',value:'13300'}
+                    ]}/>
                 </Form.Item>
-                <Form.Item label='水表备注' name='remarks'>
+                <Form.Item label='倍率' name='rate'>
+                    <InputNumber/>
+                </Form.Item>
+                <Form.Item label='水表备注' name='remark'>
                     <Input placeholder='水表备注(不能为空)'/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>

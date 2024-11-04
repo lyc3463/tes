@@ -12,13 +12,14 @@ import ResourcesType from '@/ModelTypes/TypeResources';
 import { fixPathname } from '@/utils/common';
 import {fetchFenye} from "@/services/resources";
 let pl={
-    housingPage:1,
+    page:1,
     houingType:2,
     houingStatus:2,
     beginRentHousing:1,
     endRentHousing:80000000,
     beginPriceHousing:1,
-    endPriceHousing:8000000
+    endPriceHousing:8000000,
+    houesID:0,
 }
 
 
@@ -52,13 +53,7 @@ const ResourcesModel: RenovationInterface = {
     state: {},
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
-
             const res = yield call(ResourcesService.fetch, payload?payload:pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
-            console.log(res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -98,7 +93,7 @@ const ResourcesModel: RenovationInterface = {
             return result;
         },
         *fetchFenye({ payload }, { call, put,take}): any {
-            const result = yield call(ResourcesService.fetchFenye, pl);
+            const result = yield call(ResourcesService.fetchFenye, payload?payload:pl);
             if (result.ErrorCode == 0) {
                 yield put({
                     type: 'count',

@@ -7,6 +7,8 @@ const MovementCable=(props:any)=>{
     const [page,setPage]=useState(1);
     const [collector_id,setCollector_id]=useState('');
     const [name,setName]=useState('');
+    const [startDate,setStartDate]=useState('2000-01-01');
+    const [endDate,setEndDate]=useState('2099-01-01');
     const columns =[
         {
             title: '抄表时间',
@@ -77,7 +79,7 @@ const MovementCable=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'MovementCable/fenye',
-            payload:{collector_id,name}
+            payload:{collector_id,name,startDate,endDate}
         });
         logFenye()
     };
@@ -85,7 +87,7 @@ const MovementCable=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"MovementCable/fetch",
-            payload:{page,collector_id,name}
+            payload:{page,collector_id,name,startDate,endDate}
         })
     };
     useEffect(() => {
@@ -101,7 +103,7 @@ const MovementCable=(props:any)=>{
                 <List.Item>
                     <div>
                         <Button type="primary" onClick={shoudong}>
-                            手动抄表
+                            手动抄电表
                         </Button>
                     </div>
                     <Space>
@@ -124,6 +126,7 @@ const MovementCable=(props:any)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 size='small'
+                scroll={{y:'60vh'}}
                 dataSource={props.MovementCableList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'

@@ -126,4 +126,8 @@ export const menuData: TypeMenu[] = [
     { id: 120, route: '/billLog/consumptionLog/', name: '消费记录', parentId: 65, authId: 120},
     { id: 277, route: '/appletManage/wenjuanList', name: '问卷列表', parentId: 108, authId: 277},
     { id: 295, route: '/systemManage/role', name: '角色管理', parentId: 113, authId: 295},
+    { id: 319, route: '/message/chongzhiLog', name: '短信充值记录', parentId: 101, authId: 319},
+    { id: 321, route: '/enter/invoiceLookUp/', name: '发票抬头审批', parentId: 71, authId: 321},
+    { id: 324, route: '/check/checkReacharge/', name: '手动充值审批', parentId: 71, authId: 324},
+    { id: 330, route: '/check/checkFp/',name: '发票审核', parentId: 71, authId: 330},
 ]

@@ -1,14 +1,70 @@
 import  styles from './recharge.less'
-import {Radio} from "antd";
-const Recharge=()=>{
+import {Input, InputNumber, message, Radio} from "antd";
+import {useEffect, useState} from "react";
+import * as RechargeService from '@/services/recharge';
+import {connect} from "umi";
+
+const Recharge=(props)=>{
     const data=[
-        {id:1,title:'短信5250条',money:500,youhui:5},
-        {id:2,title:'短信11000条',money:1000,youhui:10},
-        {id:3,title:'短信57500条',money:5000,youhui:15},
-    ]
+        {id:1,title:5250,money:500,youhui:5},
+        {id:2,title:11000,money:1000,youhui:10},
+        {id:3,title:57500,money:5000,youhui:15},
+    ];
+    const [money,setMoney]=useState(0);
+    const [numberItems,setNumberItems]=useState(0);
+    const [remaining,setRemaining]=useState(0);
+    const [parkName,setParkName]=useState('');
+    const selectNuber=(item:any)=>{
+        setMoney(item.money);
+        setNumberItems(item.title);
+    };
+    const changemoney=(e:any)=>{
+        setMoney(e);
+    };
+    useEffect(() => {
+        if (money<500){
+            setNumberItems(money/0.1)
+        }else if (money>=500&&money<1000){
+            setNumberItems((money/0.1)+(money*0.5))
+        }else if (money>=1000&&money<5000){
+            setNumberItems((money/0.1)+(money*1))
+        }else if (money>=5000){
+            setNumberItems((money/0.1)+(money*1))
+        }
+    }, [money]);
+    // 获取园区短信条数
+    const getOneNuber=()=>{
+        RechargeService.one().then((res:any)=>{
+            if (res.ErrorCode==0){
+                setRemaining(res.Data.SmsNumber);
+                setParkName(res.Data.park_name);
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
+    useEffect(() => {
+        getOneNuber()
+    }, []);
+    const add=()=>{
+        if (money<0.1){
+            message.error('请输入金额')
+        }else {
+            props.dispatch({
+                type:'Recharge/add',
+                payload:{money,numberItems}
+            }).then((res:any)=>{
+                if (res.ErrorCode==0){
+                    message.success('已提交申请,请等待管理员审核')
+                }else {
+                    message.error(res.Data)
+                }
+            })
+        }
+    };
     return(
         <div>
-            <div className={styles.titleBox}><h4>短信在线充值</h4></div>
+            <div className={styles.titleBox}><h4>手动充值</h4></div>
             <div className={styles.tip}>
                 通知短信每条0.1元，暂不支持退款
                 <br/>
@@ -26,28 +82,27 @@ const Recharge=()=>{
                 <fieldset style={{border:'none'}}>
                     <div className={styles.controlGroup}>
                         <label className={styles.controlLabel}>区域名称</label>
-                        <div className={styles.controls}>钱汇物业</div>
+                        <div className={styles.controls}>{parkName}</div>
                     </div>
                     <div className={styles.controlGroup}>
                         <label className={styles.controlLabel}>当前剩余</label>
-                        <div className={styles.controls}>873条</div>
+                        <div className={styles.controls}>{remaining}条</div>
                     </div>
                     <div className={styles.controlGroup}>
-                        <label className={styles.controlLabel}>充值金额</label>
                         <div className={styles.controls}>
-                            <input type='number' className={styles.post} min='2' max='10000' name='totle_fee' placeholder='每条0.1元'/> 元
+                            <InputNumber value={money} className={styles.post} min={0.1} name='totle_fee' placeholder='每条0.1元' onChange={(e)=>changemoney(e)}/> 元
                             ( 短信数量：
-                            <span style={{color:'red'}}>0</span>条)
+                            <span style={{color:'red'}}>{numberItems}</span>条)
                             <br/>
                             <ul style={{listStyle:"none",margin:"20px 0",width:'80%',display:'flex'}}>
                                 {
                                     data.map((item:any,index:any)=>{
                                         return(
-                                            <li key={index} className={styles.lis}>
+                                            <li key={index} className={styles.lis} onClick={()=>selectNuber(item)}>
                                                 <div>
                                                     <b>￥{item.money}</b>
                                                     <br/>
-                                                    {item.title}
+                                                    <span>短信{item.title}条</span>
                                                     <br/>
                                                     <span style={{color:'red'}}>赠{item.youhui}%</span>
                                                 </div>
@@ -60,16 +115,17 @@ const Recharge=()=>{
                     </div>
                     <div className={styles.controlGroup}>
                         <label className={styles.controlLabel}>支付方式</label>
-                        <Radio.Group style={{marginLeft:'20px'}}>
+                        <Radio.Group style={{marginLeft:'20px'}} defaultValue={1}>
                             <Radio value={1}>微信支付</Radio>
                         </Radio.Group>
                     </div>
                     <div className={styles.fromActions}>
-                        <button type='button' className={styles.btn}>立即付款</button>
+                        <button type='button' className={styles.btn} onClick={add}>立即购买</button>
                     </div>
                 </fieldset>
             </form>
         </div>
     )
 }
-export default Recharge
+
+export default connect() (Recharge)

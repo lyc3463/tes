@@ -1,6 +1,5 @@
 import * as XLSX from 'xlsx';
 
-// 验证手机号
 import TypeMenu from "@/ModelTypes/TypeMenu";
 
 export  const phonePattern = /^1(3|4|5|6|7|8|9)\d{9}$/;

@@ -1,9 +1,7 @@
-import {Button, Image, List, message, Modal, Space, Spin, Table} from "antd";
+import {Button, Form, Image, Input, List, message, Modal, Space, Spin, Table} from "antd";
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
-import BannerType from '@/ModelTypes/TypeBanner'
-
-const park_id=sessionStorage.getItem('park_id')
+import BannerType from '@/ModelTypes/TypeBanner';
 const Banner=(props:any)=>{
     const [loading, setLoading] = useState(false);
     // 需要删除的id
@@ -52,8 +50,7 @@ const Banner=(props:any)=>{
     const isdelete=async (e:number)=>{
         setUid(e)
         setIsOpen(true)
-
-    }
+    };
     // 确定删除
     const determineDelete=async ()=>{
         let res=await props.dispatch({
@@ -76,6 +73,9 @@ const Banner=(props:any)=>{
     useEffect(() => {
         console.log(props)
     }, []);
+    // const onFinish=(vals:any)=>{
+    //     console.log("vals",vals);
+    // };
     return(
         <Spin spinning={loading}>
             <List>
@@ -101,6 +101,50 @@ const Banner=(props:any)=>{
             <Modal open={isOpen} onOk={determineDelete} onCancel={()=>setIsOpen(false)}>
                 确定要删除当前轮播图吗？
             </Modal>
+
+            {/*<Form*/}
+            {/*    onFinish={onFinish}*/}
+            {/*>*/}
+            {/*    <Form.Item name='Spflx' label='Spflx'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='Gmfdz' label='Gmfdz'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='Gmfkhh' label='Gmfkhh'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='Gmflxdh' label='Gmflxdh'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='Gmfmc' label='Gmfmc'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='Gmfnsrsbh' label='Gmfnsrsbh'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='Gmfyhzh' label='Gmfyhzh'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='Fpjfyx' label='Fpjfyx'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='Kprsjhm' label='Kprsjhm'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='Ly' label='Ly'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='isJyxxEwm' label='isJyxxEwm'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='Ywlsh' label='Ywlsh'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item name='isJcxxEwm' label='isJcxxEwm'>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*</Form>*/}
         </Spin>
     )
 }

@@ -18,5 +18,3 @@ export function remove(vals:any) {
 export function one(vals:any) {
     return getData(1246, [vals]);
 }
-
-

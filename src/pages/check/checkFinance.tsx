@@ -120,7 +120,6 @@ const CheckFinance=(props:any)=>{
                 )
             }
         },
-
     ];
 
     // 详情页面

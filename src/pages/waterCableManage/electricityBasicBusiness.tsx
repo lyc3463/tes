@@ -1,9 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {useLocation,connect} from 'umi'
-import {history} from "@@/core/history";
-import {Button, Form, Input, Modal, Select, Space} from "antd";
+import {Button, Form, Input, message, Modal, Select, Space} from "antd";
 import * as CableServer from "@/services/cable";
-import {off} from "@/services/cable";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -19,21 +17,35 @@ const ElectricityBasicBusiness=(props:any)=>{
 
     // 获取单个电表详情
     const getOneCable=async (id:string)=>{
-        let res=await  CableServer.one(id);
+        let res:any=await  CableServer.one(id);
         if (res?.ErrorCode==0){
             formRef.current.setFieldsValue(res?.Data)
+        }else {
+            message.error(res.Data)
         }
     };
     // 拉闸弹窗确定
-    const offlazha=async ()=>{
-        let res=await CableServer.off({uid,stutes:2})
-        console.log('拉闸触发')
+    const offlazha= ()=>{
+         CableServer.off({uid,stutes:2}).then((res:any)=>{
+             if (res.ErrorCode==0){
+                 message.success('拉闸成功');
+                 setlazha(false);
+             }else {
+                 message.error(res.Data)
+             }
+         })
     };
     // 合闸弹窗确定
-    const offhezha=async ()=>{
-        let res=await CableServer.off({uid,stutes:1})
-        console.log('合闸触发')
+    const offhezha=()=>{
+        CableServer.off({uid,stutes:1}).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('合闸成功');
+                sethezha(false);
+            }else{
+                message.error(res.Data)
 
+            }
+        })
     };
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);

@@ -1,82 +1,144 @@
-import {Table} from "antd";
+import {Button, Input, List, message, Pagination, Space, Table} from "antd";
+import {connect} from "umi";
+import {useEffect, useState} from "react";
+import dayjs from "dayjs";
 
-const WaterCable=()=>{
+const WaterCable=(props:any)=>{
+    const [page,setPage]=useState(1);
+    const [collector_id,setCollector_id]=useState('');
+    const [name,setName]=useState('');
+    const [startDate,setStartDate]=useState('2000-01-01');
+    const [endDate,setEndDate]=useState('2099-01-01')
     const columns =[
         {
-            title: '序号',
-            dataIndex: 'xuhao',
-            key: 'xuhao',
-        },
-        {
-            title: '采集器编号',
-            dataIndex: 'bianhao',
-            key: 'bianhao',
-        },
-        {
-            title: '通讯地址',
-            dataIndex: 'dizhi',
-            key: 'dizhi',
-        },
-        {
-            title: '用户',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
             title: '抄表时间',
-            dataIndex: 'caoshijian',
-            key: 'caoshijian',
-        },
-        {
-            title: '功能',
-            dataIndex: 'gongneng',
-            key: 'gongneng',
-        },
-        {
-            title: '数据',
-            dataIndex: 'shuju',
-            key: 'shuju',
-        },
-        {
-            title: '状态',
-            dataIndex: 'stutes',
-            key: 'stutes',
-            fixed: 'right',
+            dataIndex: 'recordTime',
+            key: 'recordTime',
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {record.stutes===1?<span style={{color:'green'}}>已完成</span>:<span style={{color:'red'}}>未完成</span>}
+                        {dayjs(text).format('YYYY-MM-DD HH:mm:ss')}
                     </div>
                 )
             },
         },
         {
-            title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
-            fixed: 'right',
-            width: 200,
+            title: '采集器编号',
+            dataIndex: 'collector_id',
+            key: 'collector_id',
+        },
+        {
+            title: '通讯地址',
+            dataIndex: 'address',
+            key: 'address',
+        },
+        {
+            title: '租户',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
+        },
+        {
+            title: '抄表前水量',
+            dataIndex: 'energyOld',
+            key: 'energyOld',
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {/*<a onClick={()=>{setDel(true)}}>删除</a>*/}
-                        {/*<a onClick={()=>{setrz(true)}} style={{marginLeft:'5px'}}>抄表日志</a>*/}
+                        {text}kWh
+                    </div>
+                )
+            },
+        },
+        {
+            title: '抄表后水量',
+            dataIndex: 'energyNew',
+            key: 'energyNew',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {text}kWh
                     </div>
                 )
             },
         }
-    ]
+    ];
+    // 手动抄表
+    const shoudong=()=>{
+        props.dispatch({
+            type:'WaterCable/shoudong'
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('抄表成功')
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
+    // 搜索
+    const sousuo=()=>{
+        setPage(1);
+        props.dispatch({
+            type:'WaterCable/fenye',
+            payload:{collector_id,name,startDate,endDate}
+        });
+        logFenye()
+    };
+    // 分页
+    const logFenye=()=>{
+        props.dispatch({
+            type:"WaterCable/fetch",
+            payload:{page,collector_id,name,startDate,endDate}
+        })
+    };
+    useEffect(() => {
+        logFenye();
+    }, [page]);
+    // 监听页数
+    const onChange=(e:number)=>{
+        setPage(e)
+    };
     return(
         <div>
+            <List>
+                <List.Item>
+                    <div>
+                        <Button type="primary" onClick={shoudong}>
+                            手动抄水表
+                        </Button>
+                    </div>
+                    <Space>
+                        <Input
+                            addonBefore="采集器编号:"
+                            onChange={(e)=>setCollector_id(e.target.value)}
+                        />
+                        <Input
+                            addonBefore="租户姓名:"
+                            onChange={(e)=>setName(e.target.value)}
+                        />
+                        <Button type="primary" onClick={sousuo}>
+                            搜索
+                        </Button>
+                    </Space>
+                </List.Item>
+            </List>
             <Table
                 columns={columns}
                 rowKey={(columns) => columns.id}
                 pagination={false}
+                size='small'
+                dataSource={props.WaterCableList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )
 }
-export default WaterCable
+const mapStateToProps = (state: any) => {
+    return {
+        WaterCableList: state.WaterCable.list,
+        count: state.WaterCable.count,
+    }
+};
+export default connect(mapStateToProps) (WaterCable)

@@ -26,9 +26,8 @@ interface FormItemType {
 }
 const AddStaff=(props:any)=>{
     const [form] = Form.useForm();
-    const [formItems, setFormItems] = useState<FormItemType[]>([
-        { key: '1-rental', type: 'rental', startDate: null, freePeriod: null, increment: null },
-    ]);
+    const [formItems, setFormItems] = useState([{ key: 1, startDate: null, freePeriod: null, increment: null }]); // 初始状态，可以包含默认项
+
     // 客户列表
     const [kehuList,setKehuList]=useState([]);
     // 单元列表
@@ -38,39 +37,35 @@ const AddStaff=(props:any)=>{
     // 结束时间
     const [endDate,setEndDate]=useState('');
 
-    const removeFormItemByKey = (keyToRemove: string) => {
-        setFormItems(prevItems => prevItems.filter(item => item.key !== keyToRemove));
-    };
-    const addFormItem = (props:any) => {
-        // 生成新的唯一key，这里使用简单的索引拼接方式，但实际应用中应使用UUID等策略
-        const newBaseKey = `${formItems.length}`; // 或者使用uuid()
-        const newKeys = [newBaseKey + '-rental', newBaseKey + '-freePeriod', newBaseKey + '-increment'];
 
-        // 添加一整组表单项
-        setFormItems(prevItems => [
-            ...prevItems,
-            ...newKeys.map((key, index) => ({
-                type: index === 0 ? 'rental' : index === 1 ? 'freePeriod' : 'increment',
-                key,
-            })),
-        ]);
+    // 删除表单项
+    const removeFormItemByKey = key => {
+        setFormItems(prevItems => prevItems.filter(item => item.key !== key));
     };
+
     const onFinish= (values)=>{
+      let jsonDate= JSON.stringify(formItems.map(item => ({
+            key: item.key,
+            qizuStartDate: item.startDate ? item.startDate[0].toISOString().split('T')[0] : '',
+            qizuEndDate: item.startDate ? item.startDate[1].toISOString().split('T')[0] : '',
+            mianzuStartDate: item.freePeriod ? item.freePeriod[0].toISOString().split('T')[0] : '',
+            mianzuEndDate: item.freePeriod ? item.freePeriod[1].toISOString().split('T')[0] : '',
+            dizneg: item.increment,
+        })), null, 2)
         console.log(formItems)
-        // props.dispatch({
-        //     type:'Staff/add',
-        //     payload:{...values,endDate,startDate}
-        // }).then((res:any)=>{
-        //     if (res.ErrorCode==0){
-        //         message.success('添加成功');
-        //         history.push('/enter/staff');
-        //     }else {
-        //         message.error(res.Data)
-        //     }
-        // })
+        props.dispatch({
+            type:'Staff/add',
+            payload:{...values,endDate,startDate,jsonDate}
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('添加成功');
+                history.push('/enter/staff');
+            }else {
+                message.error(res.Data)
+            }
+        })
     };
     useEffect(() => {
-        console.log(props)
         filterAndUpdateList(props.CheckCompanyList, 'custom_name', 'id', setKehuList);
         filterAndUpdateList(props.UnitList, 'unit_name', 'id', setUnitList);
     }, []);
@@ -78,10 +73,18 @@ const AddStaff=(props:any)=>{
         setStartDate(item[0]);
         setEndDate(item[1]);
     };
-    const updateFormItem = (key, field, value) => {
-        setFormItems(formItems.map(item =>
-            item.key === key ? { ...item, [field]: value } : item
-        ));
+    // 更新表单项
+    const updateFormItem = (key, fieldName, value) => {
+        setFormItems(prevItems =>
+            prevItems.map(item =>
+                item.key === key ? { ...item, [fieldName]: value } : item
+            )
+        );
+    };
+    // 添加新表单项
+    const addFormItem = () => {
+        const newKey = formItems.length ? Math.max(...formItems.map(item => item.key)) + 1 : 1;
+        setFormItems([...formItems, { key: newKey, startDate: null, freePeriod: null, increment: null }]);
     };
     return(
         <div>
@@ -141,47 +144,43 @@ const AddStaff=(props:any)=>{
                 {/*    <Select options={ops} onChange={onSelect}/>*/}
                 {/*</Form.Item>*/}
 
-                {formItems.map((item, index) => {
-                    if (item.type === 'rental') {
-                        return (
-                            <div style={{ display: 'flex' }} key={item.key}>
-                                <Form.Item label="起租日" key={`start-date-${item.key}`}>
-                                    <DatePicker.RangePicker
-                                        value={item.startDate}
-                                        onChange={(dates, dateStrings) => updateFormItem(item.key, 'startDate', dates)}
-                                    />
-                                </Form.Item>
-                                <Form.Item label="免租期" key={`free-period-${item.key}`}>
-                                    <DatePicker.RangePicker
-                                        value={item.freePeriod}
-                                        onChange={(dates, dateStrings) => updateFormItem(item.key, 'freePeriod', dates)}
-                                    />
-                                </Form.Item>
-                                <Form.Item label="递增" key={`increment-${item.key}`}>
-                                    <InputNumber
-                                        value={item.increment}
-                                        onChange={(value) => updateFormItem(item.key, 'increment', value)}
-                                    />
-                                </Form.Item>
-                                <Form.Item key={`delete-button-${item.key}`}>
-                                    <Button onClick={() => removeFormItemByKey(item.key)} type="link" style={{ marginLeft: 'auto' }}>
-                                        删除
-                                    </Button>
-                                </Form.Item>
-                            </div>
-                        );
-                    }
-                    return null;
-                })}
-                <Form.Item>
-                    <Button type="primary" onClick={addFormItem}>+</Button>
-                </Form.Item>
+                {formItems.map(item => (
+                    <div style={{ display: 'flex', marginBottom: '16px' }} key={item.key}>
+                        <Form.Item label="起租日" key={`start-date-${item.key}`}>
+                            <DatePicker.RangePicker
+                                value={item.startDate}
+                                onChange={(dates) => updateFormItem(item.key, 'startDate', dates)}
+                            />
+                        </Form.Item>
+                        <Form.Item label="免租期" key={`free-period-${item.key}`}>
+                            <DatePicker.RangePicker
+                                value={item.freePeriod}
+                                onChange={(dates) => updateFormItem(item.key, 'freePeriod', dates)}
+                            />
+                        </Form.Item>
+                        <Form.Item label="递增" key={`increment-${item.key}`}>
+                            <InputNumber
+                                value={item.increment}
+                                onChange={(value) => updateFormItem(item.key, 'increment', value)}
+                            />
+                        </Form.Item>
+                        <Form.Item key={`delete-button-${item.key}`}>
+                            <Button onClick={() => removeFormItemByKey(item.key)} type="link" style={{ marginLeft: 'auto' }}>
+                                删除
+                            </Button>
+                        </Form.Item>
+                    </div>
+                ))}
+                <Button type="primary" onClick={addFormItem} style={{ marginTop: '16px' }}>
+                    新增
+                </Button>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
                         录入合同
                     </Button>
                 </Form.Item>
             </Form>
+            <pre></pre>
         </div>
     )
 }

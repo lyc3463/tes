@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import StaffType from '@/ModelTypes/TypeStaff';
 import { fixPathname } from '@/utils/common';
-import {getData} from "@/network/http";
 let pl={
     page:1,
     identifier:'',

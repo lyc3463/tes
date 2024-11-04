@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import TousuType from '@/ModelTypes/TypeTousu';
 import { fixPathname } from '@/utils/common';
-import * as TenantInfoService from "@/services/tenantInfo";
 let pl={
     page:1,
     name:'',
@@ -18,6 +17,7 @@ let pl={
     state:0,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
+    openID:''
 };
 
 export interface ProjectCountState {

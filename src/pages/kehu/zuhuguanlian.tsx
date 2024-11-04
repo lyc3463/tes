@@ -1,4 +1,4 @@
-import {Button, Form, Input, List, Pagination, Space, Table} from "antd";
+import {Button, Form, Input, List, Pagination, Space, Table, Tag} from "antd";
 import {connect,history} from "umi";
 import {useEffect, useState} from "react";
 
@@ -31,12 +31,26 @@ const Zuhuguanlian=(props:any)=>{
             title: '积分',
             dataIndex: 'appUser_integral',
             key: 'appUser_integral',
-
         },
+
         {
             title: '账单',
             dataIndex: 'appUser_bill',
             key: 'appUser_bill',
+        },
+        {
+            title: '关联状态',
+            dataIndex: 'open_id',
+            key: 'open_id',
+            render: (text:any, record:any) => {
+                return(
+                    <Space>
+                        {
+                            record.open_id?<Tag color='green'>已关联</Tag>:<Tag color='red'>未关联</Tag>
+                        }
+                    </Space>
+                )
+            }
         },
         {
             title: '操作',
@@ -59,6 +73,7 @@ const Zuhuguanlian=(props:any)=>{
         logFenye();
     }, []);
     useEffect(() => {
+        console.log(props)
     }, [page]);
     // 分页
     const logFenye=()=>{

@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import UsersType from '@/ModelTypes/TypeUsers';
 import { fixPathname } from '@/utils/common';
-import {fenye} from "@/services/users";
 let pl={
     page:1,
     name:'',

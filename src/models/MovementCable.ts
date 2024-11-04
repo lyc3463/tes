@@ -14,7 +14,9 @@ import * as TravelRecordService from "@/services/travelRecord";
 let pl={
     page:1,
     collector_id:'',
-    name:''
+    name:'',
+    startDate:'2000-01-01',
+    endDate:'2099-01-01',
 }
 
 export interface MovementCableState {
