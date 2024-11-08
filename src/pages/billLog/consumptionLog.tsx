@@ -9,6 +9,8 @@ const ConsumptionLog=(props:any)=>{
     const [phone,setPhone]=useState('');
     // 消费类型 0全部 1充值、2租金、3电费、4水费、5公共缴费、6违约金、7物业管理费、8积分
     const [type,setType]=useState(0);
+    const [startDate,setStartDate]=useState('2000-01-01');
+    const [endDate,setEndDate]=useState('2099-01-01');
 
     // 监听类型
     const changeType=(e)=>{
@@ -28,47 +30,68 @@ const ConsumptionLog=(props:any)=>{
             }
         },
         {
-            title: '姓名',
-            dataIndex: 'eendtime',
-            key: 'eendtime',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {dayjs(record.eendtime).format('YYYY-MM-DD')}
-                    </div>
-                )
-            }
+            title: '联系方式',
+            dataIndex: 'appUser_phone',
+            key: 'appUser_phone'
         },
         {
-            title: '手机号',
-            dataIndex: 'name',
-            key: 'name',
+            title: '姓名',
+            dataIndex: 'appUser_name',
+            key: 'appUser_name',
         },
         {
             title: '消费金额/积分',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'consumptionMoney',
+            key: 'consumptionMoney',
         },
         {
             title: '消费类型',
-            dataIndex: 'emp_status',
-            key: 'emp_status',
-            render:(text:any,record:any,)=>{
-                return(
+            dataIndex: 'consumptionType',
+            key: 'consumptionType',
+            render:(_:any,item:any)=>{
+                let consumptionTypeText;
+                switch (item.consumptionType) {
+                    case 1:
+                        consumptionTypeText = '充值';
+                        break;
+                    case 2:
+                        consumptionTypeText = '租金';
+                        break;
+                    case 3:
+                        consumptionTypeText = '电费';
+                        break;
+                    case 4:
+                        consumptionTypeText = '水费';
+                        break;
+                    case 5:
+                        consumptionTypeText = '公共缴费';
+                        break;
+                    case 6:
+                        consumptionTypeText = '违约金';
+                        break;
+                    case 7:
+                        consumptionTypeText = '物业管理费';
+                        break;
+                    case 8:
+                        consumptionTypeText = '物业管理费';
+                        break;
+                    default:
+                        consumptionTypeText = '未知类型';
+                }
+                return (
                     <div>
-                        {record.emp_status==0?<Tag color='red'>未审核</Tag>:<Tag color='green'>已审核</Tag>}
+                        {consumptionTypeText}
                     </div>
-                )
+                );
             }
         },
-
     ];
     // 搜索
     const sousuo=()=>{
         setPage(1);
         props.dispatch({
             type:'ConsumptionLog/fenye',
-            payload:{name,phone,type}
+            payload:{name,phone,type,startDate,endDate}
         });
         logFenye();
     };
@@ -76,11 +99,12 @@ const ConsumptionLog=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"ConsumptionLog/fetch",
-            payload:{page,name,phone,type}
+            payload:{page,name,phone,type,startDate,endDate}
         })
     };
     useEffect(() => {
         logFenye();
+        console.log(props)
     }, [page]);
     // 监听页数
     const onChange=(e:number)=>{

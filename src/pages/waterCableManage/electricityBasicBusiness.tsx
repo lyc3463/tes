@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
 import {useLocation,connect} from 'umi'
-import {Button, Form, Input, message, Modal, Select, Space} from "antd";
+import {Button, Form, Input, InputNumber, message, Modal, Select, Space} from "antd";
 import * as CableServer from "@/services/cable";
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -11,9 +11,13 @@ const ElectricityBasicBusiness=(props:any)=>{
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     // 拉闸弹窗
-    const [lazha,setlazha]=useState(false)
+    const [lazha,setlazha]=useState(false);
     // 合闸弹窗
-    const [hezha,sethezha]=useState(false)
+    const [hezha,sethezha]=useState(false);
+    // 充值弹窗
+    const [cz,setcz]=useState(false);
+    // 充值金额
+    const [money,setMoney]=useState(0);
 
     // 获取单个电表详情
     const getOneCable=async (id:string)=>{
@@ -53,6 +57,15 @@ const ElectricityBasicBusiness=(props:any)=>{
         setUid(id)
         getOneCable(id)
     }, []);
+    const chongzhi=()=>{
+        CableServer.addcz({uid,money}).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('充值成功');
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
     return(
         <div>
             <Form
@@ -92,8 +105,9 @@ const ElectricityBasicBusiness=(props:any)=>{
                         <Button type='primary'>远程销户</Button>
                         <Button type='primary' onClick={()=>setlazha(true)}>拉闸</Button>
                         <Button type='primary' onClick={()=>sethezha(true)}>合闸</Button>
-                        <Button type='primary'>保电</Button>
-                        <Button type='primary'>解除保电</Button>
+                        {/*<Button type='primary'>保电</Button>*/}
+                        {/*<Button type='primary'>解除保电</Button>*/}
+                        <Button type='primary' onClick={()=>setcz(true)}>充值</Button>
                     </Space>
                 </Form.Item>
                 <Form.Item label='当前总用量'>
@@ -116,6 +130,14 @@ const ElectricityBasicBusiness=(props:any)=>{
                 <div>
                     确定要合闸吗？
                 </div>
+            </Modal>
+            {/*充值弹窗*/}
+            <Modal open={cz} onCancel={()=>setcz(false)} onOk={chongzhi}>
+                <Form>
+                    <Form.Item label='充值金额'>
+                        <InputNumber min={0} onChange={(e:number)=>setMoney(e)}/>
+                    </Form.Item>
+                </Form>
             </Modal>
         </div>
     )

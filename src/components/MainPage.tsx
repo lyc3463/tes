@@ -12,7 +12,7 @@ import {
   Space,
   Spin,
   Modal,
-  message,
+  message, Table, Tag,
 } from 'antd';
 import { Link, history as UmiHistory } from 'umi';
 import BreadcrumbMap from '@/constants/BreadcrumbMap';
@@ -22,15 +22,14 @@ import { EventMgr } from '@/Event/EventMgr';
 import { info_event } from '@/Event/EventEnum';
 import { fixPathname } from '@/utils/common';
 import { StaticInfo } from '@/StaticInfo';
-import { ExclamationCircleFilled } from '@ant-design/icons';
-import { get8032 } from '@/services/common';
+import { get1166 } from '@/services/common';
 import { menuData } from '@/constants/menu/main';
 import TypeMenu from '@/ModelTypes/TypeMenu';
 import * as LoginService from '@/services/login';
 import type { MenuProps } from 'antd';
 import 'dayjs/locale/zh-cn'
-import { MenuItemType } from 'antd/es/menu/interface';
-console.log(UmiHistory.location.pathname);
+import {AlertFilled} from "@ant-design/icons";
+import dayjs from "dayjs";
 const { Header, Content, Footer, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -49,6 +48,8 @@ class MainPage extends Component<any> {
     collapsed: false,
     menus: new Array<any>(),
     loading: false,
+    list:[],
+    open:false
   };
   errorBoundary: React.RefObject<ComponentErrorBoundary> = React.createRef();
   
@@ -90,6 +91,7 @@ class MainPage extends Component<any> {
     this.setState({
       menus: buildTree(md),
     });
+    this.getList();
   }
   componentWillUnmount(): void {
     EventMgr.off(info_event.showWait, this, this.shhowWait);
@@ -129,6 +131,27 @@ class MainPage extends Component<any> {
   // editPawword=()=>{
   //   UmiHistory.push('/EditPassword')
   // };
+  getList=()=>{
+    get1166(1,'','',1,'').then((res:any)=>{
+      if (res.ErrorCode==0){
+        this.setState({list:res.Data});
+      }
+    })
+  };
+  columns=[
+    {
+      title: '日期',
+      dataIndex: 'estarttime',
+      key: 'estarttime',
+      render:(text:any,record:any)=>{
+        return(
+            <div>
+              {dayjs(record.estarttime).format('YYYY-MM-DD')}
+            </div>
+        )
+      }
+    }
+  ];
   render() {
     // const ContentPage = loadable(() => import(`@/pages${this.props.contentPage}`));
 
@@ -170,10 +193,26 @@ class MainPage extends Component<any> {
                       .map((o: any) => ({ title: BreadcrumbMap[o] }))}
                   />
                 </Space>
+                <Modal open={this.state.open} onOk={()=>this.setState({open:false})} onCancel={()=>this.setState({open:false})} title='消息'>
+                  {
+                    this.state.list.length>0&&this.state.list?this.state.list.map((item:any)=>{
+                      return(
+                          <Table columns={this.columns}/>
+                      )
+                    }):'暂无消息'
+                  }
+                </Modal>
                 <Space size="large">
-                  {/*<Button type="link" onClick={this.editPawword}>*/}
-                  {/*  修改密码*/}
+                  {/*<Button type="link" onClick={()=>this.setState({open:true})}>*/}
+                  {/*  {this.state.list.length}*/}
+                  {/*  <AlertFilled />*/}
                   {/*</Button>*/}
+                  <span>
+                    用户姓名:{StaticInfo.username}
+                  </span>
+                  <span>
+                    园区:{StaticInfo.park_name}
+                  </span>
                   <Button type="link" onClick={this.tuichu}>
                     退出
                   </Button>

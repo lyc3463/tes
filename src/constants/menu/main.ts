@@ -129,5 +129,5 @@ export const menuData: TypeMenu[] = [
     { id: 319, route: '/message/chongzhiLog', name: '短信充值记录', parentId: 101, authId: 319},
     { id: 321, route: '/enter/invoiceLookUp/', name: '发票抬头审批', parentId: 71, authId: 321},
     { id: 324, route: '/check/checkReacharge/', name: '手动充值审批', parentId: 71, authId: 324},
-    { id: 330, route: '/check/checkFp/',name: '发票审核', parentId: 71, authId: 330},
+    { id: 330, route: '/check/checkFp/',name: '发票审批', parentId: 71, authId: 330},
 ]

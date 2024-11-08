@@ -333,5 +333,6 @@ export const qxTree: TypeMenu[] = [
     { id: 327, name: '删除', parentId: 324, authId: 327},
     { id: 328, name: '添加', parentId: 324, authId: 328},
     // { id: 329, name: '短信充值按钮', parentId: 319, authId: 329},
+    { id: 330, name: '发票审批', parentId: 71, authId: 330},
     { id: 331, name: '开阀/关阀' , parentId: 19, authId: 331},
 ]

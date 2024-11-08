@@ -27,7 +27,6 @@ interface FormItemType {
 const AddStaff=(props:any)=>{
     const [form] = Form.useForm();
     const [formItems, setFormItems] = useState([{ key: 1, startDate: null, freePeriod: null, increment: null }]); // 初始状态，可以包含默认项
-
     // 客户列表
     const [kehuList,setKehuList]=useState([]);
     // 单元列表
@@ -37,7 +36,6 @@ const AddStaff=(props:any)=>{
     // 结束时间
     const [endDate,setEndDate]=useState('');
 
-
     // 删除表单项
     const removeFormItemByKey = key => {
         setFormItems(prevItems => prevItems.filter(item => item.key !== key));
@@ -45,7 +43,7 @@ const AddStaff=(props:any)=>{
 
     const onFinish= (values)=>{
       let jsonDate= JSON.stringify(formItems.map(item => ({
-            key: item.key,
+            // key: item.key,
             qizuStartDate: item.startDate ? item.startDate[0].toISOString().split('T')[0] : '',
             qizuEndDate: item.startDate ? item.startDate[1].toISOString().split('T')[0] : '',
             mianzuStartDate: item.freePeriod ? item.freePeriod[0].toISOString().split('T')[0] : '',
@@ -86,6 +84,8 @@ const AddStaff=(props:any)=>{
         const newKey = formItems.length ? Math.max(...formItems.map(item => item.key)) + 1 : 1;
         setFormItems([...formItems, { key: newKey, startDate: null, freePeriod: null, increment: null }]);
     };
+
+
     return(
         <div>
             <Form
@@ -124,6 +124,9 @@ const AddStaff=(props:any)=>{
                             )
                         })}
                     </Select>
+                </Form.Item>
+                <Form.Item label='起租日'>
+                    <DatePicker.RangePicker onChange={changeData}/>
                 </Form.Item>
                 <Form.Item label='租金' name='zuMoney'>
                     <InputNumber/>

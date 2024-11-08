@@ -1,64 +1,105 @@
 import {connect} from "umi";
 import {useState,useEffect} from "react";
 import {Button, DatePicker, Form, Input, InputNumber, List, Modal, Pagination, Select, Space, Table} from "antd";
+import dayjs from "dayjs";
 
 const PayReportForms=(props)=>{
     const [page,setPage]=useState(1);
     const [phone,setPhone]=useState('');
     const [name,setName]=useState('');
     const [type,setType]=useState(0);
+    const [startDate,setStartDate]=useState('2000-01-01');
+    const [endDate,setEndDate]=useState('2099-01-01');
     const columns =[
         {
-            title: '小程序姓名',
-            dataIndex: 'tenant_name',
-            key: 'tenant_name',
+            title: '日期',
+            dataIndex: 'consumptionDate',
+            key: 'consumptionDate',
+            render: (text:any, record:any) => {
+                return(
+                    <div>{dayjs(record.consumptionDate).format('YYYY-MM-DD')}</div>
+                )
+            }
+        },
+        {
+            title: '姓名',
+            dataIndex: 'appUser_name',
+            key: 'appUser_name',
         },
         {
             title: '联系方式',
-            dataIndex: 'item_name',
-            key: 'item_name',
+            dataIndex: 'appUser_phone',
+            key: 'appUser_phone',
         },
         {
-            title: '缴费类型',
-            dataIndex: 'item_name',
-            key: 'item_name',
-        },
-        {
-            title: '缴费金额',
-            dataIndex: 'item_name',
-            key: 'item_name',
-        },
-        {
-            title: '小程序用户金钱余额',
-            dataIndex: 'item_name',
-            key: 'item_name',
-        },
-        {
-            title: '小程序用户积分余额',
-            dataIndex: 'item_name',
-            key: 'item_name',
-        },
-        {
-            title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
-            render: (text:any, record:any) => {
-
+            title: '类型',
+            dataIndex: 'consumptionType',
+            key: 'consumptionType',
+            render:(_:any,item:any)=>{
+                let consumptionTypeText;
+                switch (item.consumptionType) {
+                    case 1:
+                        consumptionTypeText = '充值';
+                        break;
+                    case 2:
+                        consumptionTypeText = '租金';
+                        break;
+                    case 3:
+                        consumptionTypeText = '电费';
+                        break;
+                    case 4:
+                        consumptionTypeText = '水费';
+                        break;
+                    case 5:
+                        consumptionTypeText = '公共缴费';
+                        break;
+                    case 6:
+                        consumptionTypeText = '违约金';
+                        break;
+                    case 7:
+                        consumptionTypeText = '物业管理费';
+                        break;
+                    case 8:
+                        consumptionTypeText = '物业管理费';
+                        break;
+                    default:
+                        consumptionTypeText = '未知类型';
+                }
+                return (
+                    <div>
+                        {consumptionTypeText}
+                    </div>
+                );
             }
+        },
+        {
+            title: '金额(元)/积分(分)',
+            dataIndex: 'consumptionMoney',
+            key: 'consumptionMoney',
+        },
+        {
+            title: '小程序用户金钱余额(元)',
+            dataIndex: 'appUser_balance',
+            key: 'appUser_balance',
+        },
+        {
+            title: '小程序用户积分余额(分)',
+            dataIndex: 'appUser_integral',
+            key: 'appUser_integral',
         },
     ];
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"PayReportForms/fetch",
-            payload:{page,name,phone,type}
+            payload:{page,name,phone,type,startDate,endDate}
         })
     };
     const sousuo=()=>{
         setPage(1);
         props.dispatch({
             type:'PayReportForms/fenye',
-            dispatch:{name,phone,type}
+            dispatch:{name,phone,type,startDate,endDate}
         });
         logFenye();
     };
@@ -66,8 +107,19 @@ const PayReportForms=(props)=>{
         setPage(e)
     };
     useEffect(() => {
-        logFenye()
+        logFenye();
+        console.log(props)
     }, [page]);
+    // 监听日期
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+        }
+    };
     return(
         <div>
             <List>
@@ -97,7 +149,7 @@ const PayReportForms=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker/>
+                            <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
                         <Space.Compact>
                             <div

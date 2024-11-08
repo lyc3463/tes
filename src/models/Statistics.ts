@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import StatisticsType from '@/ModelTypes/TypeStatistics';
 import { fixPathname } from '@/utils/common';
-import {hourfetch} from "@/services/statistics";
 import dayjs from "dayjs";
 const today = new Date();
 const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0);
@@ -68,11 +67,11 @@ const StatisticsModel: StatisticsInterface = {
             }
         },
         *dayfetch({ type, payload }, { put, call, select }): any {
-            const res = yield call(StatisticsService.dayfetch, payload?payload:pl);
+            const res = yield call(StatisticsService.dayfetch, payload);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'daylist',
-                    payload: { daylist: res.Data },
+                    payload: { daylist: res.Data.list },
                 });
                 yield put({
                     type: 'daycount',
@@ -83,11 +82,12 @@ const StatisticsModel: StatisticsInterface = {
             }
         },
         *moonfetch({ type, payload }, { put, call, select }): any {
-            const res = yield call(StatisticsService.moonfetch, payload?payload:pl);
+            const res = yield call(StatisticsService.moonfetch, payload);
+            console.log(res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'moonlist',
-                    payload: { moonlist: res.Data },
+                    payload: { moonlist: res.Data.list},
                 });
                 yield put({
                     type: 'mooncount',
@@ -98,11 +98,11 @@ const StatisticsModel: StatisticsInterface = {
             }
         },
         *yearfetch({ type, payload }, { put, call, select }): any {
-            const res = yield call(StatisticsService.yearfetch, payload?payload:pl);
+            const res = yield call(StatisticsService.yearfetch, payload);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'yearlist',
-                    payload: { yearfetch: res.Data },
+                    payload: { yearlist: res.Data.list },
                 });
                 yield put({
                     type: 'yearcount',

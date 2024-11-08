@@ -67,13 +67,13 @@ const UnitModel: UnitInterface = {
         },
         *add({ payload, callback }, { call, put, take }): any {
             const result = yield call(UnitService.add, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(UnitService.edit, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
@@ -82,7 +82,7 @@ const UnitModel: UnitInterface = {
             if (result.status !== 'ok') {
                 alert('cuowu');
             }
-            yield put({ type: 'fetch', payload: { page: 1 } });
+            yield put({ type: 'fetch', payload: pl });
             UmiHistorty.replace({
                 pathname: '../user/list',
             });
@@ -91,7 +91,7 @@ const UnitModel: UnitInterface = {
             const res = yield call(UnitService.fetchFenye, payload?payload:pl);
             if (res.ErrorCode == 0) {
                 yield put({
-                    type: 'list',
+                    type: 'count',
                     payload: { count: res.Data },
                 });
             } else {

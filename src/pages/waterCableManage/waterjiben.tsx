@@ -3,6 +3,7 @@ import {useLocation} from "@@/exports";
 import {useEffect, useRef, useState} from "react";
 import {Button, Form, Input, InputNumber, message, Modal, Select, Space} from "antd";
 import * as WatertService from '@/services/watert';
+import {addkh} from "@/services/watert";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -15,6 +16,11 @@ const Waterjiben=(props)=>{
     const [lazha,setlazha]=useState(false);
     // 开阀弹窗
     const [hezha,sethezha]=useState(false);
+    // 充值弹窗
+    const [cz,setCz]=useState(false);
+    // 充值金额
+    const [q,changeQ]=useState(0);
+    const [kh,setkh]=useState(false);
     const offlazha=()=>{
         WatertService.off({uid,stutes:0}).then((res:any)=>{
             if (res.ErrorCode==0){
@@ -29,9 +35,9 @@ const Waterjiben=(props)=>{
         WatertService.off({uid,stutes:1}).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('开阀成功');
-                setlazha(false)
+                setlazha(false);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
             }
         })
     };
@@ -39,7 +45,7 @@ const Waterjiben=(props)=>{
     const getOneWater=async (id:string)=>{
         let res:any=await  WatertService.one(id);
         if (res?.ErrorCode==0){
-            formRef.current.setFieldsValue(res?.Data)
+            formRef.current.setFieldsValue(res?.Data);
         }else {
             message.error(res.Data)
         }
@@ -50,6 +56,24 @@ const Waterjiben=(props)=>{
         setUid(id)
         getOneWater(id)
     }, []);
+    const chongzhi=()=>{
+        WatertService.addcz({uid,q}).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('充值成功');
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
+    const iskh=()=>{
+        WatertService.addkh({uid}).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('开户成功');
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
     return(
         <div>
             <Form
@@ -85,8 +109,8 @@ const Waterjiben=(props)=>{
                         <Button type='primary'>远程销户</Button>
                         <Button type='primary' onClick={()=>setlazha(true)}>关阀</Button>
                         <Button type='primary' onClick={()=>sethezha(true)}>开阀</Button>
-                        {/*<Button type='primary'>保电</Button>*/}
-                        {/*<Button type='primary'>解除保电</Button>*/}
+                        <Button type='primary' onClick={()=>setCz(true)}>充值</Button>
+                        <Button type='primary' onClick={()=>setkh(true)}>开户</Button>
                     </Space>
                 </Form.Item>
                 <Form.Item label='当前总用量' name='total_used_amount'>
@@ -108,6 +132,22 @@ const Waterjiben=(props)=>{
             <Modal open={hezha} onCancel={()=>sethezha(false)} onOk={offhezha}>
                 <div>
                     确定要开阀吗？
+                </div>
+            </Modal>
+            {/*充值弹窗*/}
+            <Modal open={cz} onCancel={()=>setCz(false)} onOk={chongzhi}>
+                <div>
+                    <Form>
+                        <Form.Item label='充值金额'>
+                            <InputNumber min={0} onChange={(e:number)=>changeQ(e)}/>
+                        </Form.Item>
+                    </Form>
+                </div>
+            </Modal>
+            {/*开户弹窗*/}
+            <Modal open={kh} onCancel={()=>setkh(false)} onOk={iskh} title='是否开户'>
+                <div>
+
                 </div>
             </Modal>
         </div>

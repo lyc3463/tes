@@ -16,7 +16,8 @@ let pl={
     phone:'',
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    stutes:0
+    stutes:0,
+    openid:''
 }
 
 export interface TenantInfoState {
@@ -75,7 +76,7 @@ const TenantInfoModels: TenantInfoInterface = {
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(TenantInfoService.edit, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },

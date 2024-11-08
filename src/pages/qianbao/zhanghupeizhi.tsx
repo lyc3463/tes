@@ -72,7 +72,9 @@ const Zhanghupeizhi=(props)=>{
         let commissionz:number=withdAmount*(commission/1000);
         if ((commissionz+withdAmount)>balance){
             message.error('账户不足扣手续费')
-        }else {
+        }else if(withdAmount<=0){
+            message.error('提现金额为0')
+        } else {
             props.dispatch({
                 type:'Zhanghupeizhi/add',
                 payload:{withdAmount,remark,commissionz}
@@ -161,7 +163,7 @@ const Zhanghupeizhi=(props)=>{
                 {/*<div>当前有<span style={{color:'red'}}>{balance}</span>元可提现,实际到款<span style={{color:'red'}}>{(balance-(balance*(commission/1000))).toFixed(2)}元</span></div>*/}
                 <Form>
                     <Form.Item label='输入提现金额(元)'>
-                        <InputNumber max={balance} onChange={(e:any)=>setWithdAmount(e)}/>
+                        <InputNumber max={balance} onChange={(e:any)=>setWithdAmount(e)} min={0}/>
                     </Form.Item>
                 </Form>
                 {/*<p style={{color:'#555',fontSize:'12px'}}>实际到款=当前余额-(当前余额*手续费)</p>*/}

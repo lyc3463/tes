@@ -45,7 +45,6 @@ const HouseModel: HouseInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(HouseService.fetch, payload?payload:pl);
-            console.log(res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -66,13 +65,13 @@ const HouseModel: HouseInterface = {
         },
         *add({ payload, callback }, { call, put, take }): any {
             const result = yield call(HouseService.add, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(HouseService.edit, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
@@ -81,7 +80,7 @@ const HouseModel: HouseInterface = {
             if (result.status !== 'ok') {
                 alert('cuowu');
             }
-            yield put({ type: 'fetch', payload: { page: 1 } });
+            yield put({ type: 'fetch', payload: pl });
             UmiHistorty.replace({
                 pathname: '../user/list',
             });
@@ -111,18 +110,6 @@ const HouseModel: HouseInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/houseManage/houseList/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/houseManage/addUnit') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
                 if (StaticInfo.userId > 0 && pathname === '/houseManage/editUnit/') {
                     dispatch({
                         type: 'fetch',
@@ -147,24 +134,6 @@ const HouseModel: HouseInterface = {
                         payload: location.state,
                     });
                 }
-                // if (StaticInfo.userId > 0 && pathname === '/enter/addYuangonglData/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                // if (StaticInfo.userId > 0 && pathname === '/enter/editYuangong/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                // if (StaticInfo.userId > 0 && pathname === '/enter/yuangongInfo/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
             });
         },
     },

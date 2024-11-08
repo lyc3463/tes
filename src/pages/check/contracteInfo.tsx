@@ -1,4 +1,4 @@
-import {Button, DatePicker, Form, Input, InputNumber, Select} from "antd";
+import {Button, DatePicker, Form, Input, InputNumber, message, Select} from "antd";
 import {connect} from "umi";
 import {useEffect, useRef, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
@@ -25,9 +25,12 @@ const ContracteInfo=(props:any)=>{
     const getOneStaff= (id:string)=>{
         StaffServer.one(id).then((res:any)=>{
             if (res.ErrorCode==0){
+                console.log(res)
                 setEndDate(dayjs(res.Data.eendtime).format('YYYY-MM-DD'));
                 setStartDate(dayjs(res.Data.estarttime).format('YYYY-MM-DD'));
                 formRef.current.setFieldsValue(res.Data);
+            }else {
+                message.error(res.Data)
             }
         });
     };

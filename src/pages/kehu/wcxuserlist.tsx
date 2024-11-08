@@ -15,7 +15,7 @@ const Wcxuserlist=(props:any)=>{
     const [phone,setPhone]=useState('');
     // 弹窗
     const [isOpen,setIsOpen]=useState(false);
-    const [selected, setSelected] = useState<string[]>(Array(313).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(332).fill('0'));
     const [openID,setOpenID]=useState('');
     const columns =[
         {

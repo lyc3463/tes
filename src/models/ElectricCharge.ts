@@ -14,6 +14,8 @@ let pl = {
     page:1,
     name:'',
     collectorID:'',
+    startDate:'2000-01-01',
+    endDate:'2099-01-01',
 };
 
 export interface ElectricChargeCountState {

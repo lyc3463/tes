@@ -25,13 +25,6 @@ function Gongsiguanli(props: any) {
     const [uname,setUname]=useState('');
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'id',
-            render: (text: any, record: any) => (
-                <Button type="link" onClick={()=>toedit(record.id)}>{text}</Button>
-            ),
-        },
-        {
             title: '名称',
             dataIndex: 'item_name',
         },
@@ -64,6 +57,7 @@ function Gongsiguanli(props: any) {
                     <Button type="primary" danger onClick={()=>deteleOpen(record)}>
                         删除
                     </Button>
+                    <Button type="link"  type="primary" onClick={()=>toedit(record.id)}>编辑</Button>
                 </Space>
 
             ),

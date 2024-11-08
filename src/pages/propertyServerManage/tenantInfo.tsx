@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, List, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import dayjs from "dayjs";
@@ -10,6 +10,11 @@ const TenantInfo=(props:any)=>{
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
     const [page,setPage]=useState(1);
+    const [stutes,setStutes]=useState(0);
+    const [openid,setOpenid]=useState('');
+    const [phone,setPhone]=useState('');
+    const [content,setContent]=useState('');
+
     const columns =[
         {
             title: '日期',
@@ -62,8 +67,8 @@ const TenantInfo=(props:any)=>{
         history.push('/propertyServerManage/addTenantInfo')
     };
     useEffect(() => {
-        console.log(props)
-    }, []);
+        logFenye();
+    }, [page]);
 
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -75,8 +80,22 @@ const TenantInfo=(props:any)=>{
             setEndDate(data[1]);
         }
     };
+    const logFenye=()=>{
+        props.dispatch({
+            type:"TenantInfo/fetch",
+            payload:{page,content,phone,startDate,endDate,stutes,openid}
+        })
+    };
     const sousuo=()=>{
-
+        setPage(1);
+        props.dispatch({
+            type:"TenantInfo/fenye",
+            payload:{content,phone,startDate,endDate,stutes,openid}
+        });
+        logFenye();
+    };
+    const onChange=(e:any)=>{
+      setPage(e)
     };
     return(
         <Spin spinning={loading}>
@@ -88,10 +107,6 @@ const TenantInfo=(props:any)=>{
                         </Button>
                     </div>
                     <Space>
-                        <Input
-                            // onChange={cggsname}
-                            addonBefore="租户名称:"
-                        />
                         <Space.Compact>
                             <div
                                 style={{
@@ -109,6 +124,32 @@ const TenantInfo=(props:any)=>{
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={(e)=>setStutes(e)}
+                                defaultValue={stutes}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '未读' },
+                                    { value:2, label: '已读' },
+                                ]}
+                            />
+                        </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -124,12 +165,14 @@ const TenantInfo=(props:any)=>{
                 //     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 // }
             />
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </Spin>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
-        TenantInfoList: state.TenantInfo.list
+        TenantInfoList: state.TenantInfo.list,
+        count: state.TenantInfo.count
     }
 };
 export default connect(mapStateToProps) (TenantInfo)

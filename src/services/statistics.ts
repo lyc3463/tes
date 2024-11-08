@@ -16,5 +16,12 @@ export function moonfetch(vals:any) {
 export function yearfetch(vals:any) {
     return getData(1362, [vals.startDate,vals.endDate]);
 }
-
+// 用电详情列表
+export function fetch(page:number,cid:string,name:string,startDate:string,endDate:string) {
+    return getData(1355, [page,cid,name,startDate,endDate]);
+}
+// 用电详情分页
+export function fenye(cid:string,name:string,startDate:string,endDate:string) {
+    return getData(1356, [cid,name,startDate,endDate]);
+}
 

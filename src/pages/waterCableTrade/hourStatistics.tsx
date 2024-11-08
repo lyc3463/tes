@@ -2,7 +2,7 @@ import {connect} from "umi";
 import {Button, Input, List, Modal, Table, Empty, Select, Space, DatePicker} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
-
+import  MyTable from '@/components/MyTable';
 const HourStatistics=(props:any)=>{
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0);
@@ -58,6 +58,19 @@ const HourStatistics=(props:any)=>{
         setInfoDate(e);
         setOpen(true);
     };
+    // 监听日期
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate(dayjs(startOfDay).format("YYYY-MM-DD HH:mm:ss"));
+            setEndDate(dayjs(endOfDay).format("YYYY-MM-DD HH:mm:ss"));
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+        }
+    };
+    const sousuo=()=>{
+        getList();
+    };
     return(
         <div>
             <List>
@@ -77,8 +90,11 @@ const HourStatistics=(props:any)=>{
                         >
                             日期:
                         </div>
-                        <DatePicker.RangePicker showTime/>
+                        <DatePicker.RangePicker showTime onChange={changeDate}/>
                     </Space.Compact>
+                    <Button type="primary" onClick={sousuo}>
+                        搜索
+                    </Button>
                 </List.Item>
             </List>
             <Table
@@ -110,8 +126,8 @@ const HourStatistics=(props:any)=>{
                 )}
 
             />
-            <Modal open={open} title={'详情'} onCancel={()=>setOpen(false)} onOk={()=>setOpen(false)}>
-                <Table/>
+            <Modal open={open} title={'详情'} onCancel={()=>setOpen(false)} onOk={()=>setOpen(false)} width={'70vw'}>
+                <MyTable startTime={infoDate} value={1}/>
             </Modal>
         </div>
     )

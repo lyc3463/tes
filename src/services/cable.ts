@@ -26,3 +26,7 @@ export function off(vals:any){
     return getData(1168,[vals.uid,vals.stutes])
 }
 
+export function addcz(vals:any){
+    return getData(1396,[vals.uid,vals.money])
+}
+

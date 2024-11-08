@@ -14,6 +14,8 @@ const AddHouse=(props:any)=>{
         if (res.ErrorCode==0){
             message.success('添加成功')
             history.push('/houseManage/houseList')
+        }else {
+            message.error(res.Data)
         }
     }
     return(

@@ -5,7 +5,7 @@ export function fetch(vals:any) {
 }
 
 export function add(vals:any) {
-    return getData(1242, [vals.name,vals.phone,vals.passWord,vals.joinqx,vals.is_zb=1,vals.role_id]);
+    return getData(1242, [vals.name,vals.phone,vals.passWord,vals.joinqx,vals.is_zb=1,vals.role_id,vals.deviceId='1']);
 }
 
 export function edit(vals:any) {

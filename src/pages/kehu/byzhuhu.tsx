@@ -25,6 +25,7 @@ const Byzhuhu=(props:any)=>{
         let res:any=await  ZuhuServer.one(id);
         if (res.ErrorCode==0){
             let data=res.Data;
+            formRef.current.setFieldsValue(data);
             console.log('data',data);
         }
     };
@@ -35,7 +36,8 @@ const Byzhuhu=(props:any)=>{
         getOneCustom(id);
     },[]);
     const onFinish=(valus:any)=>{
-        valus.water_id=0;
+        valus.water_id?valus.water_id:valus.water_id=0;
+        console.log(valus)
         props.dispatch({
             type:'Zuhu/byzhuhu',
             payload:{...valus,uid}
@@ -49,7 +51,6 @@ const Byzhuhu=(props:any)=>{
         })
     };
     useEffect(() => {
-        console.log(props)
         filterAndUpdateList(props.AppUserList, 'appUser_phone', 'openId', setAppUserList);
         filterAndUpdateList(props.UnitList, 'unit_name', 'id', setUnitList);
         filterAndUpdateList(props.GongsiList, 'item_name', 'id', setItemList);
@@ -67,9 +68,6 @@ const Byzhuhu=(props:any)=>{
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                <Form.Item label='租户姓名'>
-                    <Input placeholder='租户姓名'/>
-                </Form.Item>
                 <Form.Item label='单元' name='unit_id'>
                     <Select>
                         {unitList.map((item:any,index:any)=>{

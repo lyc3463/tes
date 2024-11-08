@@ -21,3 +21,11 @@ export function one(vals:any) {
 export function off(vals:any) {
     return getData(1363, [vals.uid,vals.stutes]);
 }
+export function addcz(vals:any) {
+    return getData(1394, [vals.uid,vals.q]);
+}
+export function addkh(vals:any) {
+    return getData(1395, [vals.uid]);
+}
+
+
