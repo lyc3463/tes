@@ -26,8 +26,18 @@ const AddSubjectList=(props:any)=>{
             message.success('添加成功')
             history.push('/financeManage/list')
         }
-    }
-
+    };
+    const getList=()=>{
+        props.dispatch({
+            type:'Compan/fetch',
+        });
+        props.dispatch({
+            type:'Project/fetch',
+        });
+    };
+    useEffect(() => {
+        getList();
+    }, []);
     return(
         <Form
             labelCol={{ span: 4 }}

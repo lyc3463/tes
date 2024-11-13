@@ -5,10 +5,16 @@ import Renew from "@/pages/enter/renew";
 import OutRent from "@/pages/enter/outRent";
 import Preferential from "@/pages/enter/preferential";
 import ByStages from "@/pages/enter/byStages";
+import {useState} from "react";
 const AfterSales=()=>{
+    const [activeKey, setActiveKey] = useState(sessionStorage.getItem('activeTabKey1') || '1');
+    const onChange = (key) => {
+        setActiveKey(key);
+        sessionStorage.setItem('activeTabKey1', key);
+    };
     return(
         <div>
-            <Tabs>
+            <Tabs  activeKey={activeKey} onChange={onChange}>
                 <Tabs.TabPane tab='更名录入' key='1'>
                     <Rename/>
                 </Tabs.TabPane>

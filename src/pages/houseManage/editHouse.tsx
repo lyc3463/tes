@@ -14,9 +14,12 @@ const EditHouse=(props:any)=>{
     const [uid,setUid]=useState<string|undefined>()
     // 获取单个房屋详情
     const getOneBanner=async (id:string)=>{
-        let res=await  HouseServer.one(id);
+        let res:any=await  HouseServer.one(id);
+        console.log("房屋详情",res)
         if (res?.ErrorCode==0){
             formRef.current.setFieldsValue(res?.Data)
+        }else {
+            message.error(res.Data)
         }
     };
     // 编辑提交
@@ -74,7 +77,7 @@ const EditHouse=(props:any)=>{
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
-                        添加
+                        修改
                     </Button>
                 </Form.Item>
             </Form>

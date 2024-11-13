@@ -1,21 +1,18 @@
 import {Button, Form, Image, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
-import {connect} from 'umi'
+import {connect} from 'umi';
+import * as AppUserService from '@/services/appUser';
 import {useEffect, useState} from "react";
-import {wxTree} from '@/constants/qxMenu/wxMenu'
-import {buildTree} from "@/utils/OpenTool";
-import {StaticInfo} from "@/StaticInfo";
+import {qxTree} from '@/constants/qxMenu/wxMenu'
+import {buildTree, ensureArrayLength} from "@/utils/OpenTool";
 
-
-let qxList=StaticInfo.uqx;
-let authArr =qxList.split('').map(Number);
 const Wcxuserlist=(props:any)=>{
-    const treeData = buildTree(wxTree);
+    const treeData = buildTree(qxTree);
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
     // 弹窗
     const [isOpen,setIsOpen]=useState(false);
-    const [selected, setSelected] = useState<string[]>(Array(332).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(343).fill('0'));
     const [openID,setOpenID]=useState('');
     const columns =[
         {
@@ -36,17 +33,12 @@ const Wcxuserlist=(props:any)=>{
             key: 'appUser_name',
         },
         {
-            title: '微信号',
-            dataIndex: 'appUser_account',
-            key: 'appUser_account',
-        },
-        {
             title: '用户手机号',
             dataIndex: 'appUser_phone',
             key: 'appUser_phone',
         },
         {
-            title: '余额',
+            title: '余额(元)',
             dataIndex: 'appUser_balance',
             key: 'appUser_balance',
         },
@@ -71,20 +63,19 @@ const Wcxuserlist=(props:any)=>{
                     </div>
                 )
             }
-
         },
-        {
-            title: '是否实名',
-            dataIndex: 'is_name',
-            key: 'is_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.is_name==1?<Tag color='green'>已实名</Tag>:<Tag color='red'>未实名</Tag>}
-                    </div>
-                )
-            }
-        },
+        // {
+        //     title: '是否实名',
+        //     dataIndex: 'is_name',
+        //     key: 'is_name',
+        //     render:(text:any,record:any,)=>{
+        //         return(
+        //             <div>
+        //                 {record.is_name==1?<Tag color='green'>已实名</Tag>:<Tag color='red'>未实名</Tag>}
+        //             </div>
+        //         )
+        //     }
+        // },
         {
             title: '权限',
             dataIndex: 'qx',
@@ -132,6 +123,20 @@ const Wcxuserlist=(props:any)=>{
     const editInfo=(vla:any)=>{
         setOpenID(vla.openId);
         setIsOpen(true);
+        getOne(vla.id);
+    };
+    // 获取小程序信息详情
+    const getOne=(id:number)=>{
+        AppUserService.one(id).then((res:any)=>{
+            if (res.ErrorCode==0){
+                const authorityString = res.Data.authority;
+                const splitArray = authorityString.split('');
+                const adjustedArray = ensureArrayLength(splitArray, selected.length, '0');
+                setSelected(adjustedArray);
+            }else{
+                message.error(res.Data)
+            }
+        })
     };
     // 确定编辑权限
     const onOk=()=>{
@@ -148,7 +153,7 @@ const Wcxuserlist=(props:any)=>{
             }
         })
     };
-    const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: wxTree[]; selected: string[]; setSelected: (newSelected: string[]) => void })=> {
+    const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: qxTree[]; selected: string[]; setSelected: (newSelected: string[]) => void })=> {
         return (
             <ul>
                 {tree.map(node => (
@@ -207,6 +212,10 @@ const Wcxuserlist=(props:any)=>{
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             {/*编辑权限弹窗*/}
             <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk}>
+                <Space>
+                    <Button type='primary' onClick={()=>setSelected(Array(343).fill('1'))}>全选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(343).fill('0'))}>反选</Button>
+                </Space>
                 <TreeMenu tree={treeData} selected={selected} setSelected={setSelected} />
             </Modal>
         </div>

@@ -10,7 +10,7 @@ const CheckStaff=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     // 审核状态 0全部  1未审核 2已审核
-    const [stutes,setStutes]=useState(2);
+    const [stutes,setStutes]=useState(0);
     // 姓名
     const [cname,setCname]=useState('');
     // 昵称

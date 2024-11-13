@@ -1,7 +1,7 @@
 import {getData, postData} from '@/network/http';
 // 查看特色列表
 export function fetch(vals:any) {
-    return getData(1012, [vals.name='',vals.account_type=2]);
+    return getData(1012, [vals.name,vals.account_type]);
 }
 // 添加特色
 export function add(vals:any) {

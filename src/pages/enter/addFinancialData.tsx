@@ -86,8 +86,8 @@ const AddFinancialData=(props:any)=>{
                 </Form.Item>
                 <Form.Item label='账户类型'>
                     <Radio.Group value={accountType}>
-                        <Radio value={0}>公账</Radio>
-                        <Radio value={1}>私账</Radio>
+                        <Radio value={1}>公账</Radio>
+                        <Radio value={0}>私账</Radio>
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item label='账户收入/支出' name='money_type'>

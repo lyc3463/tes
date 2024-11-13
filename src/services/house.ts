@@ -13,7 +13,7 @@ export function edit(vals:any) {
 }
 
 export function remove(vals:any) {
-    // return getData(1013, []);
+    return getData(1131, [vals]);
 }
 export function one(vals:any) {
     return getData(1133, [vals]);

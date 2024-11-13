@@ -10,7 +10,9 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import SubjectType from '@/ModelTypes/TypeSubject';
 import { fixPathname } from '@/utils/common';
-
+let pl={
+    name:'',
+}
 
 export interface ProjectCountState {
     count: number;
@@ -40,11 +42,7 @@ const SubjectModel: SubjectInterface = {
     state: {},
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
-            const res = yield call(SubjectService.fetch, payload?payload:{name:''});
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
+            const res = yield call(SubjectService.fetch, payload?payload:pl);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -65,20 +63,20 @@ const SubjectModel: SubjectInterface = {
         },
         *add({ payload }, { call, put,take }): any {
             const result = yield call(SubjectService.add, payload);
-            yield put({type: 'fetch', payload: {}});  // 重新加载数据
+            yield put({type: 'fetch', payload: pl});  // 重新加载数据
             yield take('fetch/@@end');
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(SubjectService.edit, payload);
-            yield put({ type: 'fetch', payload: {name:''} });  // 重新加载数据
-            // yield take('fetch/@@end');
+            yield put({ type: 'fetch', payload: pl });  // 重新加载数据
+            yield take('fetch/@@end');
             return result
 
         },
         *remove({ payload }, { call, put,take }): any {
             const result = yield call(SubjectService.remove, payload);
-            yield put({ type: 'fetch', payload: {name:''} });
+            yield put({ type: 'fetch', payload:pl });
             yield take('fetch/@@end');
             return result
         },

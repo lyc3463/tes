@@ -15,7 +15,7 @@ const Zhanghupeizhi=(props)=>{
     const [reserveAmount,setReserveAmount]=useState(0);
     // 指定结算日期
     const [settlementTime,setSettlementTime]=useState(1);
-    const days = Array.from({ length: 31 }, (_, i) => i + 1);
+    const days = Array.from({ length: 28 }, (_, i) => i + 1);
     const [remark,setRemark]=useState('');
     // 手续费
     const [commission,setCommission]=useState(0);
@@ -30,17 +30,15 @@ const Zhanghupeizhi=(props)=>{
           type:'Zhanghupeizhi/one'
       }).then((res)=>{
           if (res.ErrorCode===0){
-              console.log(res)
+              console.log("res",res)
               setSettlement(res.Data.settlement);
               setBalance(res.Data.balance);
               setMaxAmount(res.Data.maxAmount);
               setReserveAmount(res.Data.reserveAmount);
               setCommission(res.Data.commission);
               if (res.Data.settlementTime){
-                  console.log('不等于0')
                   setSettlementTime(res.Data.settlementTime);
               }else {
-                  console.log('等于0')
                   setReserveAmount(1);
               }
           }else {
@@ -77,7 +75,7 @@ const Zhanghupeizhi=(props)=>{
         } else {
             props.dispatch({
                 type:'Zhanghupeizhi/add',
-                payload:{withdAmount,remark,commissionz}
+                payload:{withdAmount,remark,commission}
             }).then((res)=>{
                 if (res.ErrorCode==0){
                     message.success('提交成功，等待管理员审核');

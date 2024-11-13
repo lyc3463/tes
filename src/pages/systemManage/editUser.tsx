@@ -2,7 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {connect,useLocation,history} from "umi";
 import {Button, Form, Input, message, Select} from "antd";
 import * as UsersService from '@/services/users';
-import {buildTree, filterAndUpdateList, mmPattern, phonePattern} from "@/utils/OpenTool";
+import {buildTree, ensureArrayLength, filterAndUpdateList, mmPattern, phonePattern} from "@/utils/OpenTool";
 import {qxTree} from "@/constants/qxMenu";
 import TypeMenu from "@/ModelTypes/TypeMenu";
 import {StaticInfo} from "@/StaticInfo";
@@ -17,7 +17,7 @@ const EditUser=(props:any)=>{
     const location=useLocation();
     const [roleList,setRoleList]=useState([]);
     const formRef =useRef();
-    const [selected, setSelected] = useState<string[]>(Array(332).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(343).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -29,9 +29,12 @@ const EditUser=(props:any)=>{
     let getOneUserInfo=(id:string)=>{
         UsersService.one(id).then((res:any)=>{
             if (res?.ErrorCode==0){
-                console.log(res)
+                console.log("res",res)
                 formRef.current?.setFieldsValue(res.Data);
-                setSelected(res.Data.authority.split(''));
+                const authorityString = res.Data.authority;
+                const splitArray = authorityString.split('');
+                const adjustedArray = ensureArrayLength(splitArray, selected.length, '0');
+                setSelected(adjustedArray);
             }else {
                 message.error(res.Data)
             }

@@ -75,15 +75,11 @@ const HouseModel: HouseInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload }, { call, put }): any {
+        *remove({ payload }, { call, put,take }): any {
             const result = yield call(HouseService.remove, payload);
-            if (result.status !== 'ok') {
-                alert('cuowu');
-            }
             yield put({ type: 'fetch', payload: pl });
-            UmiHistorty.replace({
-                pathname: '../user/list',
-            });
+            yield take('fetch/@@end');
+            return result
         },
     },
     reducers: {

@@ -10,7 +10,7 @@ const CompanyList=(props:any)=>{
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
     // 公司关联有的所有项目
     const [projectList,setProjectList]=useState([]);
-
+    const [name,setName]=useState('');
     const columns =[
 
         {
@@ -62,6 +62,18 @@ const CompanyList=(props:any)=>{
 
             }
         })};
+    const getList=()=>{
+        props.dispatch({
+            type:'Compan/fetch',
+            payload:{name}
+        })
+    };
+    useEffect(() => {
+        getList();
+    }, []);
+    const sousuo=()=>{
+        getList()
+    };
     return(
         <div>
 
@@ -74,11 +86,11 @@ const CompanyList=(props:any)=>{
                     </div>
                     <Space>
                         <Input
-
                             addonBefore="公司名称:"
+                            onChange={(e)=>setName(e.target.value)}
                         />
 
-                        <Button type="primary">
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>

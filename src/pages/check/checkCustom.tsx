@@ -2,6 +2,7 @@ import {Button, DatePicker, Form, Input, List, message, Modal, Pagination, Selec
 import {connect, history} from "@@/exports";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
+import CustomType from '@/ModelTypes/TypeCustom';
 
 const CheckCustom=(props)=>{
     const [uid,setUid]=useState(0);
@@ -16,21 +17,18 @@ const CheckCustom=(props)=>{
     const [customEndTime,setCustomEndTime]=useState('2099-01-01');
     // 审核状态  2全部，0未审核，1已审核
     const [customStatus,setCustomStatus]=useState(2);
+    // 增加次数的id
+    const [aid,setAid]=useState(0);
+    // 增加到访次的弹窗
+    const [aOpen,setAOpen]=useState(false);
+    // 备注
+    const [remark,setRemark]=useState('');
     const columns =[
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            render: (text:any, record:any) => {
-                return(
-                    <Button type='link'>{text}</Button>
-                )
-            }
-        },
         {
             title: '日期',
             dataIndex: 'custom_date',
             key: 'custom_date',
+            align:'center',
             render: (text:any, record:any) => {
                 return(
                     <span>{dayjs(text).format('YYYY-MM-DD')}</span>
@@ -41,71 +39,88 @@ const CheckCustom=(props)=>{
             title: '姓名',
             dataIndex: 'custom_name',
             key: 'custom_name',
+            align:'center',
         },
         {
-            title: '类别',
-            dataIndex: 'visitor_type',
-            key: 'visitor_type',
+            title: '联系方式',
+            dataIndex: 'phone',
+            key: 'phone',
+            align:'center',
         },
         {
             title: '访客职位',
             dataIndex: 'visitor_position',
             key: 'visitor_position',
+            align:'center',
         },
         {
             title: '公司名称',
             dataIndex: 'company_name',
             key: 'company_name',
+            align:'center',
         },
         {
             title: '行业',
             dataIndex: 'industry',
             key: 'industry',
+            align:'center',
         },
         {
             title: '来访渠道',
             dataIndex: 'visitor_channels',
             key: 'visitor_channels',
+            align:'center',
         },
         {
             title: '中介名称',
             dataIndex: 'intermediary_name',
             key: 'intermediary_name',
+            align:'center',
         },
         {
             title: '目前办公区域',
             dataIndex: 'office_area',
             key: 'office_area',
+            align:'center',
         },
         {
             title: '租赁原因',
             dataIndex: 'reason_lease',
             key: 'reason_lease',
+            align:'center',
         },
         {
             title: '产品需求',
             dataIndex: 'demands',
             key: 'demands',
+            align:'center',
         },
         {
             title: '需求面积',
             dataIndex: 'required_area',
             key: 'required_area',
+            align:'center',
         },
         {
             title: '备注',
             dataIndex: 'remark',
             key: 'remark',
+            fixed: 'right',
+            align:'center',
         },
         {
             title: '来访次数',
             dataIndex: 'visitor_number',
             key: 'visitor_number',
             fixed: 'right',
+            align:'center',
             width: 100,
             render:(text:any,record:any,)=>{
                 return(
-                    <div>{text}次</div>
+                    <Space>
+                        <span style={{fontSize:'12px'}}>{text}次</span>
+                        <Button type='primary' onClick={()=>onaddNum(record)}>+</Button>
+                    </Space>
                 )
             }
         },
@@ -114,6 +129,7 @@ const CheckCustom=(props)=>{
             dataIndex: 'custom_sattus',
             key: 'custom_sattus',
             fixed: 'right',
+            align:'center',
             width: 70,
             render:(text:any,record:any,)=>{
                 return(
@@ -126,7 +142,8 @@ const CheckCustom=(props)=>{
         {
             title: '操作',
             fixed: 'right',
-            width: 100,
+            align:'center',
+            width: 150,
             render: (text:any, record:any) => {
                 return(
                     <div>
@@ -213,6 +230,32 @@ const CheckCustom=(props)=>{
     useEffect(() => {
         logFenye();
     }, [page]);
+
+    // 到访次数弹窗
+    const onaddNum=(e:CustomType)=>{
+        setAid(e.id);
+        setRemark(e.remark);
+        setAOpen(true);
+    };
+    // 到访次数确定按钮
+    const aopenOK=()=>{
+        props.dispatch({
+            type:"Custom/editNum",
+            payload:{aid,remark}
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('修改成功');
+                setRemark('');
+                setAOpen(false);
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
+    const onlikai=()=>{
+      setRemark('');
+      setAOpen(false)
+    };
     return(
         <div>
             <List>
@@ -274,8 +317,8 @@ const CheckCustom=(props)=>{
             <Table
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
-                scroll={{x:2000,y:'70vh'}}
-
+                scroll={{x:2500,y:'70vh'}}
+                size='small'
                 pagination={false}
                 rowKey={(columns) => columns.id}
                 dataSource={props.CustomList}
@@ -286,6 +329,10 @@ const CheckCustom=(props)=>{
                 <div>
                     确定要审核通过吗？
                 </div>
+            </Modal>
+            {/*    到访次数弹窗*/}
+            <Modal open={aOpen} onOk={aopenOK} onCancel={onlikai}>
+               <Input.TextArea value={remark} onChange={(e)=>setRemark(e.target.value)}/>
             </Modal>
         </div>
     )

@@ -2,7 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {connect,useLocation,history} from "umi";
 import {Button, Form, Input, message} from "antd";
 import * as RoleService from '@/services/role';
-import {buildTree, mmPattern, phonePattern} from "@/utils/OpenTool";
+import {buildTree, ensureArrayLength, mmPattern, phonePattern} from "@/utils/OpenTool";
 import {qxTree} from "@/constants/qxMenu";
 import TypeMenu from "@/ModelTypes/TypeMenu";
 import {StaticInfo} from "@/StaticInfo";
@@ -10,12 +10,12 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 let qxList=StaticInfo.uqx;
-let authArr =qxList.split('').map(Number)
+let authArr =qxList.split('').map(Number);
 const EditRole=(props)=>{
     const treeData = buildTree(qxTree);
     const location=useLocation();
     const formRef =useRef();
-    const [selected, setSelected] = useState<string[]>(Array(332).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(343).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -25,10 +25,13 @@ const EditRole=(props)=>{
         getOneUserInfo(id);
     },[]);
     let getOneUserInfo=(id:string)=>{
-        RoleService.one(id).then((res)=>{
-            if (res?.ErrorCode==0){
+        RoleService.one(id).then((res:any)=>{
+            if (res.ErrorCode==0){
                 formRef.current?.setFieldsValue(res.Data);
-                setSelected(res.Data.authority.split(''));
+                const authorityString = res.Data.authority;
+                const splitArray = authorityString.split('');
+                const adjustedArray = ensureArrayLength(splitArray, selected.length, '0');
+                setSelected(adjustedArray);
             }else {
                 message.error(res.Data)
             }

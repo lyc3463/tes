@@ -9,16 +9,16 @@ const Unit=(props:any)=>{
     const [endRents,setEndRents]=useState(9999999999);
 
     const columns =[
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            render: (text:any, record:any) => {
-                return(
-                   <Button type='link' onClick={()=>toedit(record.id)}>{text}</Button>
-                )
-            }
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     key: 'id',
+        //     render: (text:any, record:any) => {
+        //         return(
+        //            <Button type='link' onClick={()=>toedit(record.id)}>{text}</Button>
+        //         )
+        //     }
+        // },
         {
             title: '所属房屋',
             dataIndex: 'house_name',
@@ -134,7 +134,7 @@ const Unit=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        <Button type='primary'>编辑</Button>
+                        <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
                         <Button type='primary' danger>删除</Button>
                     </Space>
                 )

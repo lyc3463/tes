@@ -44,10 +44,7 @@ const AccountModels: AccountInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(AccountService.fetch, payload?payload:pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
+
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',

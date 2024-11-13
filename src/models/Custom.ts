@@ -35,6 +35,7 @@ export interface CustomInterface {
         remove: Effect;
         check: Effect;
         fenye: Effect;
+        editNum: Effect;
     };
     reducers: {
         list: Reducer<CustomType[]>;
@@ -76,7 +77,7 @@ const CustomModels: CustomInterface = {
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(CustomService.edit, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
@@ -92,7 +93,7 @@ const CustomModels: CustomInterface = {
         },
         *check({ payload, callback }, { call, put, take }): any {
             const result = yield call(CustomService.check, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
@@ -106,6 +107,12 @@ const CustomModels: CustomInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+        },
+        *editNum({ payload, callback }, { call, put, take }): any {
+            const result = yield call(CustomService.editNum, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
     },
     reducers: {

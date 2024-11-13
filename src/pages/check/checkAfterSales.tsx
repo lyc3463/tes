@@ -5,12 +5,18 @@ import CheckRenew from "@/pages/check/checkRenew";
 import CheckOutRent from "@/pages/check/checkOutRent";
 import CheckPreferential from "@/pages/check/checkPreferential";
 import CheckByStages from "@/pages/check/checkByStages";
+import {useState} from "react";
 
 
 const CheckAfterSales=()=>{
+    const [activeKey, setActiveKey] = useState(sessionStorage.getItem('activeTabKey2') || '1');
+    const onChange = (key) => {
+        setActiveKey(key);
+        sessionStorage.setItem('activeTabKey2', key);
+    };
     return(
         <div>
-            <Tabs>
+            <Tabs  activeKey={activeKey} onChange={onChange}>
                 <Tabs.TabPane tab='更名审核' key='1'>
                     <CheckRename/>
                 </Tabs.TabPane>

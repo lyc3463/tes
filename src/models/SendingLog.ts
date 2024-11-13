@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import SendingLogType from '@/ModelTypes/TypeSendingLog';
 import { fixPathname } from '@/utils/common';
-import {sousuo} from "@/services/sendingLog";
 let pl={
     current:1,
     phone:'',

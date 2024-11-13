@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import {connect,history} from "umi";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 const tailLayout = {
-    wrapperCol: { offset: 4 },
+    wrapperCol: { offset: 3 },
 };
 const ops= [
     {
@@ -50,7 +50,6 @@ const AddStaff=(props:any)=>{
             mianzuEndDate: item.freePeriod ? item.freePeriod[1].toISOString().split('T')[0] : '',
             dizneg: item.increment,
         })), null, 2)
-        console.log(formItems)
         props.dispatch({
             type:'Staff/add',
             payload:{...values,endDate,startDate,jsonDate}
@@ -146,37 +145,39 @@ const AddStaff=(props:any)=>{
                 {/*<Form.Item label='选择合同'>*/}
                 {/*    <Select options={ops} onChange={onSelect}/>*/}
                 {/*</Form.Item>*/}
+                <Form.Item {...tailLayout}>
+                    {formItems.map(item => (
+                        <div style={{ display: 'flex'}} key={item.key}>
+                            <Form.Item label="起租日" key={`start-date-${item.key}`}>
+                                <DatePicker.RangePicker
+                                    value={item.startDate}
+                                    onChange={(dates) => updateFormItem(item.key, 'startDate', dates)}
+                                />
+                            </Form.Item>
+                            <Form.Item label="免租期" key={`free-period-${item.key}`}>
+                                <DatePicker.RangePicker
+                                    value={item.freePeriod}
+                                    onChange={(dates) => updateFormItem(item.key, 'freePeriod', dates)}
+                                />
+                            </Form.Item>
+                            <Form.Item label="递增" key={`increment-${item.key}`}>
+                                <InputNumber
+                                    value={item.increment}
+                                    onChange={(value) => updateFormItem(item.key, 'increment', value)}
+                                />
+                            </Form.Item>
+                            <Form.Item key={`delete-button-${item.key}`}>
+                                <Button onClick={() => removeFormItemByKey(item.key)} type="link" style={{ marginLeft: 'auto' }}>
+                                    删除
+                                </Button>
+                            </Form.Item>
+                        </div>
+                    ))}
 
-                {formItems.map(item => (
-                    <div style={{ display: 'flex', marginBottom: '16px' }} key={item.key}>
-                        <Form.Item label="起租日" key={`start-date-${item.key}`}>
-                            <DatePicker.RangePicker
-                                value={item.startDate}
-                                onChange={(dates) => updateFormItem(item.key, 'startDate', dates)}
-                            />
-                        </Form.Item>
-                        <Form.Item label="免租期" key={`free-period-${item.key}`}>
-                            <DatePicker.RangePicker
-                                value={item.freePeriod}
-                                onChange={(dates) => updateFormItem(item.key, 'freePeriod', dates)}
-                            />
-                        </Form.Item>
-                        <Form.Item label="递增" key={`increment-${item.key}`}>
-                            <InputNumber
-                                value={item.increment}
-                                onChange={(value) => updateFormItem(item.key, 'increment', value)}
-                            />
-                        </Form.Item>
-                        <Form.Item key={`delete-button-${item.key}`}>
-                            <Button onClick={() => removeFormItemByKey(item.key)} type="link" style={{ marginLeft: 'auto' }}>
-                                删除
-                            </Button>
-                        </Form.Item>
-                    </div>
-                ))}
-                <Button type="primary" onClick={addFormItem} style={{ marginTop: '16px' }}>
-                    新增
-                </Button>
+                    <Button type="primary" onClick={addFormItem} style={{ marginTop: '16px' }}>
+                        新增
+                    </Button>
+                </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
                         录入合同

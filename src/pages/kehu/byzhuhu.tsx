@@ -27,6 +27,8 @@ const Byzhuhu=(props:any)=>{
             let data=res.Data;
             formRef.current.setFieldsValue(data);
             console.log('data',data);
+        }else {
+            message.error(res.Data)
         }
     };
     useEffect(()=>{
@@ -37,7 +39,7 @@ const Byzhuhu=(props:any)=>{
     },[]);
     const onFinish=(valus:any)=>{
         valus.water_id?valus.water_id:valus.water_id=0;
-        console.log(valus)
+        console.log(valus);
         props.dispatch({
             type:'Zuhu/byzhuhu',
             payload:{...valus,uid}

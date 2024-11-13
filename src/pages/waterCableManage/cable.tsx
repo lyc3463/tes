@@ -11,17 +11,6 @@ const Cable=(props:any)=>{
     }
     const columns =[
         {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            render:(text:any,record:any)=>{
-                return(
-                    <Button type='link' onClick={(e)=>toedit(record.id)}>{text}</Button>
-                )
-            }
-        },
-
-        {
             title: '采集器',
             dataIndex: 'collectorid',
             key: 'collectorid',
@@ -108,6 +97,7 @@ const Cable=(props:any)=>{
                     <>
                        <Space>
                            <Button type='link' onClick={()=>tojiben(record)}>基本业务</Button>
+                           <Button type='link' onClick={(e)=>toedit(record.id)}>编辑</Button>
                        </Space>
                     </>
                 )
@@ -116,6 +106,7 @@ const Cable=(props:any)=>{
     ];
     useEffect(() => {
         logFenye();
+        console.log(props)
     }, [page]);
     const  toAdd=()=>{
         history.push('/waterCableManage/addCable')

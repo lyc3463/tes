@@ -52,3 +52,6 @@ export function check(vals:any) {
 export function fenye(vals:any) {
     return getData(1128, [vals.customName,vals.customBeginTime,vals.customEndTime,vals.customStatus]);
 }
+export function editNum(vals:any) {
+    return getData(1397, [vals.aid,vals.remark]);
+}

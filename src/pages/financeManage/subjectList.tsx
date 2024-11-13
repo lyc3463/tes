@@ -1,10 +1,11 @@
 import {Button, Form, Input, List, message, Modal, Select, Space, Table} from "antd";
 import {history,connect} from "umi";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 const SubjectList=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
+    const [name,setName]=useState('');
     const columns =[
         {
             title: '科目名称',
@@ -59,7 +60,19 @@ const SubjectList=(props:any)=>{
                 message.error(res.Data);
             }
         })
-    }
+    };
+    const getList=()=>{
+        props.dispatch({
+            type:'Subject/fetch',
+            payload:{name}
+        })
+    };
+    useEffect(() => {
+        getList();
+    }, []);
+    const sousuo=()=>{
+        getList()
+    };
     return(
         <div>
             <List>
@@ -72,8 +85,9 @@ const SubjectList=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="科目名称:"
+                            onChange={(e)=>setName(e.target.value)}
                         />
-                        <Button type="primary">
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>

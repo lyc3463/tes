@@ -6,8 +6,9 @@ import * as CompanService from "@/services/compan";
 const AccountList=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
+    const [name,setName]=useState('');
+    const [account_type,setAccount_type]=useState(2);
     const columns =[
-
         {
             title: '账户名称',
             dataIndex: 'account_name',
@@ -76,7 +77,27 @@ const AccountList=(props:any)=>{
                 message.error(res.Data);
             }
         })
-    }
+    };
+    // 列表
+    const getList=()=>{
+        props.dispatch({
+            type:'Account/fetch',
+            payload:{name,account_type}
+        })
+    };
+    useEffect(() => {
+        getList();
+    }, []);
+
+    // 搜索按钮
+    const sousuo=()=>{
+        getList()
+    };
+    // 监听类型变换
+    const changeType=(e)=>{
+        console.log(e)
+      setAccount_type(e);
+    };
     return(
         <div>
             <List>
@@ -88,11 +109,36 @@ const AccountList=(props:any)=>{
                     </div>
                     <Space>
                         <Input
-
                             addonBefore="账户名称:"
+                            onChange={(e)=>setName(e.target.value)}
                         />
-
-                        <Button type="primary">
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                类型:
+                            </div>
+                            <Select
+                                onChange={changeType}
+                                defaultValue={account_type}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:2, label: '全部' },
+                                    { value:1, label: '公账' },
+                                    { value:0, label: '私账' },
+                                ]}
+                            />
+                        </Space.Compact>
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>

@@ -75,8 +75,8 @@ const EditCable=(props:any)=>{
 
                 <Form.Item label='电表类型' name='electricity_type'>
                     <Select options={[
-                        {label:'单相单费率',value:1},
-                        {label:'三相单费率',value:2}
+                        {label:'单相单费率',value:'16225'},
+                        {label:'三相单费率',value:'10226'}
                     ]}>
                     </Select>
                 </Form.Item>

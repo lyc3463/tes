@@ -29,7 +29,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { sleep } from '@/utils/common';
 import {phonePattern} from "@/utils/OpenTool";
 
-
 type Fnc = () => void;
 const noop = () => { };
 
@@ -437,6 +436,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:1.0.6</p>
                 </div>
               </Form.Item>
             </Form>

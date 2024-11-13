@@ -1,6 +1,7 @@
 import {useState,useEffect} from "react";
 import {connect} from "umi";
 import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import dayjs from "dayjs";
 
 const ChongzhiLog=(props)=>{
     const [page,setPage]=useState(1);
@@ -10,6 +11,18 @@ const ChongzhiLog=(props)=>{
     const [endDate,setEndDate]=useState('2099-01-01');
 
     const columns =[
+        {
+            title: '日期',
+            dataIndex: 'created',
+            key: 'created',
+            render:(_:any,record:any)=>{
+                return(
+                    <div>
+                        {dayjs(record.created).format("YYYY-MM-DD")}
+                    </div>
+                )
+            }
+        },
         {
             title: '金额(元)',
             dataIndex: 'smsAmount',
@@ -55,6 +68,14 @@ const ChongzhiLog=(props)=>{
             setStartDate(data[0]);
             setEndDate(data[1]);
         }
+    };
+    const sousuo=()=>{
+        setPage(1);
+        props.dispatch({
+            type:'Recharge/fenye',
+            payload:{startDate,endDate,stutes}
+        });
+        fenye();
     };
     return(
         <div>
@@ -105,7 +126,7 @@ const ChongzhiLog=(props)=>{
                                 </div>
                                <DatePicker.RangePicker onChange={changeDate}/>
                             </Space.Compact>
-                            <Button type="primary" >
+                            <Button type="primary" onClick={sousuo}>
                                 搜索
                             </Button>
                         </Space>

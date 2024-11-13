@@ -7,24 +7,23 @@ const CableRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
-    const [type,setType]=useState(3);
+    const [cid,setCId]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
     // 搜索
     const sousuo=()=>{
         setPage(1);
         props.dispatch({
-            type:'RechargeRate/fenye',
-            payload:{name,phone,type,startDate,endDate}
+            type:'CableRate/fenye',
+            payload:{name,cid,startDate,endDate}
         });
         logFenye();
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
-            type:"RechargeRate/fetch",
-            payload:{page,name,phone,type,startDate,endDate}
+            type:"CableRate/fetch",
+            payload:{page,name,cid,startDate,endDate}
         })
     };
     // 监听页数
@@ -33,57 +32,71 @@ const CableRate=(props)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log(props)
+        console.log('电费扣费',props)
     }, [page]);
     const columns =[
         {
             title: '日期',
-            dataIndex: 'estarttime',
-            key: 'estarttime',
+            dataIndex: 'recordTime',
+            key: 'recordTime',
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {dayjs(record.estarttime).format('YYYY-MM-DD')}
+                        {dayjs(record.recordTime).format('YYYY-MM-DD HH:mm:ss')}
                     </div>
                 )
             }
         },
         {
-            title: '姓名',
-            dataIndex: 'appUser_name',
-            key: 'appUser_name',
+            title: '租户姓名',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
         },
         {
-            title: '手机号',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
+            title: '电表地址',
+            dataIndex: 'address',
+            key: 'address',
         },
         {
-            title: '类型',
-            dataIndex: 'consumptionType',
-            key: 'consumptionType',
+            title: '采集器编号',
+            dataIndex: 'collector_id',
+            key: 'collector_id',
+        },
+        {
+            title: '旧总用量',
+            dataIndex: 'energyOld',
+            key: 'energyOld',
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.consumptionType==1?<Tag color='green'>充值</Tag>:<Tag color='red'>未知</Tag>}
+                        <span style={{color:'red'}}>{record.energyOld}</span>kWh
                     </div>
                 )
             }
         },
         {
-            title: '充值金额(元)',
-            dataIndex: 'consumptionMoney',
-            key: 'consumptionMoney',
+            title: '新总用量',
+            dataIndex: 'energyNew',
+            key: 'energyNew',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        <span style={{color:'red'}}>{record.energyNew}</span>kWh
+                    </div>
+                )
+            }
         },
         {
-            title: '用户余额(元)',
-            dataIndex: 'appUser_balance',
-            key: 'appUser_balance',
-        },
-        {
-            title: '用户积分余额(分)',
-            dataIndex: 'appUser_integral',
-            key: 'appUser_integral',
+            title: '用量',
+            dataIndex: 'energyUsage',
+            key: 'energyUsage',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        <span style={{color:'red'}}>{record.energyUsage}</span>kWh
+                    </div>
+                )
+            }
         },
     ];
     // 监听日期
@@ -136,7 +149,7 @@ const CableRate=(props)=>{
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
-                dataSource={props.RechargeRateList}
+                dataSource={props.CableRateList}
                 scroll={{y:'70vh'}}
                 rowKey={(columns) => columns.id}
                 size='small'
@@ -147,8 +160,8 @@ const CableRate=(props)=>{
 }
 const mapStateToProps = (state: any) => {
     return {
-        RechargeRateList: state.RechargeRate.list,
-        count: state.RechargeRate.count,
+        CableRateList: state.CableRate.list,
+        count: state.CableRate.count,
     }
 };
 export default connect(mapStateToProps) (CableRate)

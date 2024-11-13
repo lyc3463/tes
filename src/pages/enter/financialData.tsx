@@ -122,7 +122,6 @@ const FinancialData=(props:any)=>{
                 )
             }
         },
-
     ];
     const toadd=()=>{
         history.push('/enter/addFinancialData')

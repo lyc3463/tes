@@ -6,13 +6,14 @@ import {getContainInfo, remove} from "@/services/project";
 
 const ProjectList=(props:any)=>{
     // 删除的弹窗
-    const [isDeleteOpen,setIsDeleteOpen]=useState(false)
+    const [isDeleteOpen,setIsDeleteOpen]=useState(false);
     // 展示当前项目下包含的科目
-    const [iskemuList,setiskemuList]=useState([])
+    const [iskemuList,setiskemuList]=useState([]);
     // 展示当前项目下包含的账户
-    const [iszhList,setiszhList]=useState([])
+    const [iszhList,setiszhList]=useState([]);
     // 需要删除的id
-    const [uid,setUid]=useState()
+    const [uid,setUid]=useState();
+    const [name,setName]=useState('');
     const columns =[
         {
             title: '项目名称',
@@ -37,35 +38,52 @@ const ProjectList=(props:any)=>{
                 )
             }
         }
-    ]
+    ];
 
     // 查询当前项目底下包含的资料
     const isdelete=async (e:number)=>{
-        setUid(e)
+        setUid(e);
         let res=await ProjectService.getContainInfo(e)
         if (res?.ErrorCode==0){
             setIsDeleteOpen(true)
             setiskemuList(res.Data[1])
             setiszhList(res.Data[2])
         }
-    }
+    };
 
     // 确定强制删除
-    const ConfirmDelete=async ()=>{
-        let res=await ProjectService.remove(uid);
-        if (res.ErrorCode==0){
-            message.success('删除成功');
-            setIsDeleteOpen(false);
-        }else {
-            message.error(res.Data)
-        }
-    }
+    const ConfirmDelete= ()=>{
+        props.dispatch({
+            type:'Project/remove',
+            payload:uid
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setIsDeleteOpen(false);
+            }else {
+                message.error(res.Data)
+            }
+        })
+
+    };
     const toProject=()=>{
         history.push('/financeManage/addProject')
-    }
+    };
    const toedit=(e:number)=>{
        history.push(`/financeManage/editProject?id=${e}`)
-   }
+   };
+    const getList=()=>{
+        props.dispatch({
+            type:'Project/fetch',
+            payload:{name}
+        })
+    };
+    useEffect(() => {
+        getList();
+    }, []);
+    const sousuo=()=>{
+        getList()
+    };
     return(
         <div>
             <List>
@@ -77,11 +95,11 @@ const ProjectList=(props:any)=>{
                     </div>
                     <Space>
                         <Input
-
                             addonBefore="项目名称:"
+                            onChange={(e)=>setName(e.target.value)}
                         />
 
-                        <Button type="primary">
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>

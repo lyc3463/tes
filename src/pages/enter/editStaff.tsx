@@ -43,10 +43,11 @@ const EditStaff=(props:any)=>{
             type:'Staff/edit',
             payload:{...val,uid,endDate,startDate}
         }).then((res:any)=>{
-            console.log(res)
             if (res.ErrorCode==0){
                 message.success('修改成功');
                 history.push('/enter/staff')
+            }else {
+                message.error(res.Data)
             }
         })
     };

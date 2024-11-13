@@ -3,6 +3,7 @@ import { EventMgr } from '@/Event/EventMgr';
 import { getSendStr } from './utils';
 import { StaticInfo } from '@/StaticInfo';
 import { createSearchParams } from 'umi';
+import {message} from "antd";
 
 
 export async function getData(ActionId: number, canshus: any[]) {
@@ -11,22 +12,27 @@ export async function getData(ActionId: number, canshus: any[]) {
     return fetch(window.ServerConfig.apiServer + '?' + sendstr).then((_res: any) => {
         EventMgr.event(info_event.hideWait);
         const res = _res.json();
-        if (res.ErrorCode != 0) {
-            if (res.ErrorCode == -6666) {
-                StaticInfo.userState = false;
-                sessionStorage.removeItem('userState')
-                EventMgr.event(info_event.ExitHttpLogin, res.Data);
-            } else if (res.ErrorCode == -9999) {
-                StaticInfo.userState = false;
-                sessionStorage.removeItem('userState')
-                EventMgr.event(info_event.cuowu9999, res.Data);
-            }
-            else {
-                if (res.Data != null) {
-                    EventMgr.event(info_event.Error, res.Data);
+        let rez=res.then((res)=>{
+            if (res.ErrorCode != 0) {
+                if (res.ErrorCode == -6666) {
+                    StaticInfo.userState = false;
+                    sessionStorage.removeItem('userState')
+                    EventMgr.event(info_event.ExitHttpLogin, res.Data);
+                } else if (res.ErrorCode == -9999) {
+                    StaticInfo.userState = false;
+                    sessionStorage.removeItem('userState')
+                    EventMgr.event(info_event.cuowu9999, res.Data);
+                }else if (res.ErrorCode==-1300){
+                    message.error('账号已在其他地方登录，为了账户安全请修改密码')
+                }
+                else {
+                    if (res.Data != null) {
+                        EventMgr.event(info_event.Error, res.Data);
+                    }
                 }
             }
-        }
+        })
+
         return res;
     }
     ).catch(() => {

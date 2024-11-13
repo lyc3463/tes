@@ -7,5 +7,5 @@ export function one() {
     return getData(1325, []);
 }
 export function add(vals:any) {
-    return getData(1328, [vals.withdAmount,vals.remark,vals.commissionz]);
+    return getData(1328, [vals.withdAmount,vals.remark,vals.commission]);
 }

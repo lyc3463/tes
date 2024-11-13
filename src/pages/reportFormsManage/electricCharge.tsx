@@ -69,7 +69,6 @@ const ElectricCharge=(props:any)=>{
             },
         }
     ];
-
     useEffect(() => {
         logFenye();
         console.log(props)

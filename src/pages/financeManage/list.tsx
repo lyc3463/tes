@@ -3,11 +3,16 @@ import CompanyList from "@/pages/financeManage/companyList";
 import ProjectList from "@/pages/financeManage/projectList";
 import AccountList from "@/pages/financeManage/accountList";
 import SubjectList from "@/pages/financeManage/subjectList";
+import {useState} from "react";
 const List=()=>{
-
+    const [activeKey, setActiveKey] = useState(sessionStorage.getItem('activeTabKey') || '1');
+    const onChange = (key) => {
+        setActiveKey(key);
+        sessionStorage.setItem('activeTabKey', key); 
+    };
     return(
         <div>
-          <Tabs>
+          <Tabs  activeKey={activeKey} onChange={onChange}>
               <Tabs.TabPane tab="公司列表" key="1">
                   <CompanyList/>
               </Tabs.TabPane>

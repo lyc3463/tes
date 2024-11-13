@@ -32,6 +32,7 @@ const AddCustom=(props:any)=>{
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
                 form={form}
+                initialValues={{visitor_type: ''}}
                 layout="horizontal"
                 size={'large'}
                 onFinish={onFinish}

@@ -10,7 +10,9 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import CompanType from '@/ModelTypes/TypeCompan';
 import { fixPathname } from '@/utils/common';
-
+let pl={
+    name:''
+}
 
 export interface CompanCountState {
     count: number;
@@ -40,7 +42,7 @@ const CompanModel: CompanInterface = {
     state: {},
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
-            const res = yield call(CompanService.fetch, payload?payload:{name:''});
+            const res = yield call(CompanService.fetch, payload?payload:pl);
             // const resc = yield call(
             //   GongsiService.fetchcount,
             //   _.omit(pl, ['page']),
@@ -65,19 +67,19 @@ const CompanModel: CompanInterface = {
         },
         *add({ payload }, { call, put,take }): any {
             const result = yield call(CompanService.add, payload);
-            yield put({ type: 'fetch', payload: {name:''} });  // 重新加载数据
+            yield put({ type: 'fetch', payload: pl });  // 重新加载数据
             yield take('fetch/@@end');
             return result;
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(CompanService.edit, payload);
-            yield put({ type: 'fetch', payload: {name:''} });  // 重新加载数据
+            yield put({ type: 'fetch', payload: pl });  // 重新加载数据
             yield take('fetch/@@end');
             return result
         },
         *remove({ payload }, { call, put,take}): any {
             const result = yield call(CompanService.remove, payload);
-            yield put({ type: 'fetch', payload: {name:''} });  // 重新加载数据
+            yield put({ type: 'fetch', payload: pl });  // 重新加载数据
             yield take('fetch/@@end');
             return result
         },

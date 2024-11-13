@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 
 import TypeMenu from "@/ModelTypes/TypeMenu";
+import {qxTree} from "@/constants/qxMenu/index";
 
 export  const phonePattern = /^1(3|4|5|6|7|8|9)\d{9}$/;
 // 验证密码
@@ -136,4 +137,50 @@ export  const getBase64 = file =>
 
     // 释放URL对象
     URL.revokeObjectURL(url);
+}
+// export  function filterPermissionsByString(str) {
+//     // 将字符串转换为布尔数组，'1' 表示 true，'0' 表示 false
+//     const hasPermission = str.split('').map(char => char === '1');
+//
+//     // 根据布尔数组过滤权限数组
+//     return qxTree.filter((_, index) => hasPermission[index]).map(permission => permission.name);
+// }
+// export function findDifferences(arr1, arr2) {
+//     const setId1 = new Set(arr1.map(item => item.id));
+//     const setId2 = new Set(arr2.map(item => item.id));
+//
+//     // 找出在 setId1 中但不在 setId2 中的元素，并提取 name 属性
+//     const diff1 = arr1.filter(item => !setId2.has(item.id)).map(item => item.name);
+//     // 找出在 setId2 中但不在 setId1 中的元素，并提取 name 属性
+//     const diff2 = arr2.filter(item => !setId1.has(item.id)).map(item => item.name);
+//
+//     // 合并两个差异数组并返回
+//     return [...diff1, ...diff2];
+// }
+function getPermissionsFromArrayAndBinaryString(qxTreez, binaryString) {
+    return binaryString.split('').map((bit, index) => bit === '1' ? qxTreez[index] : null).filter(perm => perm !== null);
+}
+export function findRemovedPermissions(oldBinaryString, newBinaryString) {
+    // 获取旧权限和新权限的数组
+    const oldPermissions = getPermissionsFromArrayAndBinaryString(qxTree, oldBinaryString);
+    const newPermissionsArray = getPermissionsFromArrayAndBinaryString(qxTree, newBinaryString);
+    // 创建一个新权限ID的Set以便快速查找
+    const newPermissionsIds = new Set(newPermissionsArray.map(perm => perm.id));
+
+    // 找出在旧权限中存在但在新权限中不存在的权限
+    const removedPermissions = oldPermissions.filter(oldPerm => !newPermissionsIds.has(oldPerm.id));
+
+    return removedPermissions;
+}
+
+export function ensureArrayLength(array, length, fillValue) {
+    // 如果数组长度小于指定长度，则在末尾添加 fillValue 以达到指定长度
+    while (array.length < length) {
+        array.push(fillValue);
+    }
+    // 如果数组长度大于指定长度，则截断数组到指定长度
+    if (array.length > length) {
+        array.length = length;
+    }
+    return array;
 }

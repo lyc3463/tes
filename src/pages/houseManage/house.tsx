@@ -1,22 +1,16 @@
-import {Button, Input, InputNumber, List, Select, Space, Table} from "antd";
+import {Button, Input, InputNumber, List, message, Modal, Select, Space, Table} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
-
+import HonuseType from '@/ModelTypes/TypeHouse'
 const House=(props:any)=>{
     const [name,setName]=useState('');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
+    const [open,setOpne]=useState(false);
+    const [uid,setUid]=useState(0);
+    const [uname,setUname]=useState('');
     const columns =[
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            render: (_:any, record:any) => {
-                return(
-                    <Button type='link' onClick={()=>toedit(record.id)}>{_}</Button>
-                )
-            }
-        },
+
         {
             title: '房屋名称',
             dataIndex: 'house_name',
@@ -95,13 +89,14 @@ const House=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        <Button type='primary'>编辑</Button>
-                        <Button type='primary' danger>删除</Button>
+                        <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
+                        <Button type='primary' danger onClick={()=>deleteOpen(record)}>删除</Button>
                     </Space>
                 )
             }
         },
     ];
+    // 监听最小租金,
     const changeBeginRents=(e)=>{
         if (e){
             setBeginRents(e);
@@ -109,6 +104,7 @@ const House=(props:any)=>{
             setBeginRents(0);
         }
     };
+    // 监听最大租金
     const changeEndRents=(e)=>{
         if (e<beginRents){
             setEndRents(beginRents);
@@ -126,6 +122,7 @@ const House=(props:any)=>{
     };
     useEffect(() => {
         getList();
+        console.log(props)
     }, []);
     const getList=()=>{
         props.dispatch({
@@ -138,6 +135,24 @@ const House=(props:any)=>{
     };
     const sousuo=()=>{
         getList();
+    };
+    const deleteOpen=(e:HonuseType)=>{
+        setOpne(true);
+        setUid(e.id);
+        setUname(e.house_name)
+    };
+    const onOK=()=>{
+        props.dispatch({
+            type:'House/remove',
+            payload:uid
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setOpne(false);
+            }else {
+                message.error(res.Data)
+            }
+        })
     };
     return(
         <div>
@@ -176,6 +191,11 @@ const House=(props:any)=>{
                 dataSource={props.HouseList}
                 pagination={false}
             />
+            <Modal onOk={onOK} title='删除' onCancel={()=>setOpne(false)} open={open}>
+                <div>
+                   <span>是否要删除:</span><span style={{color:'red'}}>{uname}</span>
+                </div>
+            </Modal>
         </div>
     )
 }

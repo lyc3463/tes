@@ -89,7 +89,7 @@ const EditUnit=(props:any)=>{
                     <Radio.Group >
                         <Radio value={1}>已租</Radio>
                         <Radio value={2}>未租</Radio>
-                        <Radio value={3}>退租</Radio>
+                        {/*<Radio value={3}>退租</Radio>*/}
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item {...tailLayout}>

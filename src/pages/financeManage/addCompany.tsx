@@ -16,7 +16,7 @@ const AddCompany=(props:any)=>{
         })
         if (res.ErrorCode==0){
             message.success('添加成功')
-            history.push('/financeManage/companyList')
+            history.push('/financeManage/list')
         }else {
             message.error(res.Data)
         }

@@ -51,7 +51,7 @@ const DayWater=(props)=>{
     ];
     const getList=()=>{
         props.dispatch({
-            type:'Statistics/dayfetch',
+            type:'DateWater/dayfetch',
             payload:{startDate,endDate}
         })
     };

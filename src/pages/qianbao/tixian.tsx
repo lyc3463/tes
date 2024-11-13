@@ -67,8 +67,16 @@ const Tixian=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        {record.withdStatus==1?<Tag color='red'>未提现</Tag>
-                           :<Tag color='green'>已提现</Tag>}
+                        {record.withdStatus === 1 ? (
+                            <Tag color='red'>未审核</Tag>
+                        ) : record.withdStatus === 2 ? (
+                            <Tag color='blue'>已审核</Tag> // 通常已审核可以用蓝色或其他颜色表示，但这里你可以根据需要选择
+                        ) : record.withdStatus === 3 ? (
+                            <Tag color='orange'>未通过</Tag> // 未通过可以用橙色或其他颜色表示
+                        ) : (
+                            // 如果需要，你可以在这里添加处理其他情况的代码
+                            <Tag color='grey'>未知状态</Tag> // 例如，当 withdStatus 不是 1、2 或 3 时
+                        )}
                     </Space>
                 )
             }
@@ -136,7 +144,7 @@ const Tixian=(props:any)=>{
                                     { value: 0, label: '全部' },
                                     { value: 1, label: '未审核' },
                                     { value: 2, label: '已审核' },
-                                    // { value: 3, label: '押金类收费' },
+                                    { value: 3, label: '未通过' },
                                 ]}
                             />
                         </Space.Compact>
