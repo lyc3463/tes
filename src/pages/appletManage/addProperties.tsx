@@ -1,7 +1,8 @@
-import {Button, Form, Input, InputNumber, message, Radio, Select, Spin} from "antd";
+import {Button, Form, Image, Input, InputNumber, message, Radio, Select, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
 import {connect, history} from "umi";
 import CmpImageUploader from "@/components/ImageUploader";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -9,35 +10,55 @@ const AddProperties=(props:any)=>{
     const [isLoading,setIsLoading]=useState(false)
     const [form] = Form.useForm();
     // 单图
-    const [single, setSingle] = useState<string | undefined>(undefined);
+    const [img, setImg] = useState<string | undefined>(undefined);
     // 多图
-    const [singles, setSingles] = useState<string | undefined>(undefined);
-    const onFinish=async (values)=>{
-        let res=await props.dispatch({
+    const [imgs, setImgs] = useState([]);
+    // 显示的单图
+    const [housing_image,setHousing_image]=useState('');
+    // 显示的多图
+    const [fileData,setFileData]=useState([]);
+    const onFinish=(values)=>{
+        let singles=imgs.join(",");
+        setIsLoading(true);
+         props.dispatch({
             type:'Properties/add',
-            payload:{...values,single,singles}
-        })
-        if (res.ErrorCode==0){
-            message.success('添加成功')
-            history.push('/appletManage/properties')
-        }else {
-            message.error(res.Data)
-        }
+            payload:{...values,img,singles}
+        }).then((res:TypeErrorCode)=>{
+             if (res.ErrorCode==0){
+                 message.success('添加成功');
+                 history.push('/appletManage/properties');
+                 setIsLoading(false);
+             }else {
+                 message.error(res.Data);
+                 setIsLoading(false);
+             }
+         })
     };
-
-
-    // 单图
+    // 单图名字
     const handleImageUpload = (val: string) => {
-        setSingle(val); // 将base64字符串保存到状态中
+        setImg(val);
     };
-    // 多图
+    // 多图名字
     const handleImageUploads=(val:string)=>{
-        setSingles(val)
-    }
+        setImgs([...imgs,val]);
+    };
 
-    useEffect(()=>{
-        console.log(props)
-    },[])
+    // 单图base64
+    const handBase64=(vals:string)=>{
+        setHousing_image(vals);
+    };
+    // 多图base64
+    const handBase64s=(vals:string)=>{
+        setFileData([...fileData,vals]);
+    };
+    const handleDelete=(index:number)=>{
+        const newImages = [...imgs];
+        newImages.splice(index, 1);
+        setImgs(newImages);
+        const newB64 = [...fileData];
+        newB64.splice(index, 1);
+        setFileData(newB64);
+    };
     return(
         <Spin spinning={isLoading}>
             <Form
@@ -116,10 +137,37 @@ const AddProperties=(props:any)=>{
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item label="封面图" >
-                    <CmpImageUploader onImageUpload={handleImageUpload}/>
+                    <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={handBase64}/>
+                    {housing_image?<Image src={housing_image} style={{width:'80px',height:'80px'}}/>:''}
                 </Form.Item>
                 <Form.Item label="多图">
-                    <CmpImageUploader onImageUpload={handleImageUploads}/>
+                    <CmpImageUploader onImageUpload={handleImageUploads} oldBase64={handBase64s}/>
+                    <Space style={{display:'flex',flexWrap:'wrap'}}>
+                        <Space style={{display:'flex',flexWrap:'wrap',marginTop:'25px'}}>
+                            {fileData.length>0?fileData.map((item:any,index:number)=>{
+                                return(
+                                    <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
+                                        <Image src={item} style={{ width: '80px', height: '80px' }} />
+                                        <Button
+                                            type="primary"
+                                            danger
+                                            onClick={() => handleDelete(index)}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '0',
+                                                left: '0',
+                                                zIndex: 1,
+                                                padding: '2px 4px',
+                                                transform: 'translate(-50%, -50%)', // 使按钮居中于图片的左上角
+                                            }}
+                                        >
+                                            删除
+                                        </Button>
+                                    </div>
+                                )
+                            }):''}
+                        </Space>
+                    </Space>
                 </Form.Item>
                 <Form.Item label="排序" name="sort">
                     <InputNumber placeholder={'越大排越前'}/>

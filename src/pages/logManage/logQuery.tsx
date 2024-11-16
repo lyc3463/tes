@@ -2,7 +2,7 @@ import {connect} from "umi";
 import {Button, DatePicker, Image, Input, List, Pagination, Space, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
-import {findRemovedPermissions} from "@/utils/OpenTool";
+import {findChangedPermissions} from "@/utils/OpenTool";
 const LogQuery=(props)=>{
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
@@ -26,43 +26,28 @@ const LogQuery=(props)=>{
                 )
             }
         },
-        // {
-        //     title: '修改前权限',
-        //     dataIndex: 'oldAuthority',
-        //     key: 'oldAuthority',
-        //     render:(_:any,item:any)=>{
-        //         // const filteredPermissions1 = filterPermissionsByString(qxTree, item.oldAuthority);
-        //         // return(
-        //         //     <div>
-        //         //         <Input.TextArea value={filteredPermissions1.map((item:any,index:any)=>{
-        //         //             return item.name
-        //         //         })}/>
-        //         //     </div>
-        //         // )
-        //     }
-        // },
-        // {
-        //     title: '修改后权限',
-        //     dataIndex: 'newAuthority',
-        //     key: 'newAuthority',
-        //     render:(_:any,item:any)=>{
-        //         const filteredPermissions1 = filterPermissionsByString(item.newAuthority);
-        //         return(
-        //             <div>
-        //                 <Input.TextArea value={filteredPermissions1.join(',')}/>
-        //             </div>
-        //         )
-        //     }
-        // },
         {
-            title: '差异',
+            title: '移除的权限',
             dataIndex: 'key',
             key: 'key',
             render:(_:any,item:any)=>{
-                const removedPermissions=findRemovedPermissions(item.oldAuthority,item.newAuthority)
+                const removedPermissions:{removedPermissions:any,addedPermissions:any}=findChangedPermissions(item.oldAuthority,item.newAuthority);
                 return(
                     <div>
-                       <Input.TextArea value={removedPermissions.map(val=>{return val.name})}/>
+                       <Input.TextArea value={removedPermissions.removedPermissions.map(val=>{return val.name})}/>
+                    </div>
+                )
+            }
+        },
+        {
+            title: '新增的权限',
+            dataIndex: 'key',
+            key: 'key',
+            render:(_:any,item:any)=>{
+                const removedPermissions:{removedPermissions:any,addedPermissions:any}=findChangedPermissions(item.oldAuthority,item.newAuthority);
+                return(
+                    <div>
+                        <Input.TextArea value={removedPermissions.addedPermissions.map(val=>{return val.name})}/>
                     </div>
                 )
             }
@@ -73,7 +58,6 @@ const LogQuery=(props)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log(props);
     }, [page]);
     // 分页
     const logFenye=()=>{

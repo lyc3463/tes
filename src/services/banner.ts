@@ -4,12 +4,12 @@ export function fetch(vals:any) {
 }
 
 export function add(vals:any) {
-    return getData(1030, [vals.biaohao,vals.single,vals.isxianshi]);
+    return getData(1030, [vals.biaohao,vals.single,vals.isxianshi=0]);
 }
 
 
 export function edit(vals:any) {
-    return getData(1031, [vals.uid,vals.carousel_name,vals.single,vals.carouselStatus]);
+    return getData(1031, [vals.uid,vals.carousel_name,vals.single,vals.carouselStatus=0]);
 }
 
 export function remove(vals:any) {

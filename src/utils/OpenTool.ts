@@ -160,17 +160,31 @@ export  const getBase64 = file =>
 function getPermissionsFromArrayAndBinaryString(qxTreez, binaryString) {
     return binaryString.split('').map((bit, index) => bit === '1' ? qxTreez[index] : null).filter(perm => perm !== null);
 }
-export function findRemovedPermissions(oldBinaryString, newBinaryString) {
-    // 获取旧权限和新权限的数组
+export function findChangedPermissions(oldBinaryString, newBinaryString) {
+    // 确保 qxTree 作为参数传递（如果它是必需的）
     const oldPermissions = getPermissionsFromArrayAndBinaryString(qxTree, oldBinaryString);
     const newPermissionsArray = getPermissionsFromArrayAndBinaryString(qxTree, newBinaryString);
-    // 创建一个新权限ID的Set以便快速查找
-    const newPermissionsIds = new Set(newPermissionsArray.map(perm => perm.id));
 
-    // 找出在旧权限中存在但在新权限中不存在的权限
-    const removedPermissions = oldPermissions.filter(oldPerm => !newPermissionsIds.has(oldPerm.id));
+    // 从新权限中提取ID集合
+    const newPermissionsIds = new Set(
+        newPermissionsArray
+            .filter(perm => perm && perm.id !== undefined)
+            .map(perm => perm.id)
+    );
 
-    return removedPermissions;
+    // 找出在旧权限中存在但在新权限中不存在的权限（被移除的权限）
+    const removedPermissions = oldPermissions
+        .filter(oldPerm => oldPerm && oldPerm.id !== undefined && !newPermissionsIds.has(oldPerm.id));
+
+    // 找出在新权限中存在但在旧权限中不存在的权限（被添加的权限）
+    const addedPermissions = newPermissionsArray
+        .filter(newPerm => newPerm && newPerm.id !== undefined && !oldPermissions.some(oldPerm => oldPerm.id === newPerm.id));
+
+    // 返回被移除和被添加的权限
+    return {
+        removedPermissions,
+        addedPermissions
+    };
 }
 
 export function ensureArrayLength(array, length, fillValue) {

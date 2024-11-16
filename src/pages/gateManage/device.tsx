@@ -19,6 +19,7 @@ import * as TestService from '@/services/test';
 import MyQRCodeComponent from '@/components/Myqrcode';
 import {StaticInfo} from "@/StaticInfo"
 import dayjs from "dayjs";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const Device=(props)=>{
     // 页码
     const [page,setPage]=useState(1);
@@ -29,8 +30,8 @@ const Device=(props)=>{
     // 二维码弹窗
     const [open,setOpen]=useState(false);
     const [code,setCode]=useState('');
-    const [fenzuID,setFenzuID]=useState(0);
-    const [timestamp,setTimestamp]=useState(0)
+    const [timestamp,setTimestamp]=useState(0);
+    const [title,setTitle]=useState('')
     const columns = [
         {
             title: '闸机编号',
@@ -60,10 +61,10 @@ const Device=(props)=>{
     // 生成二维码
     const onOK=()=>{
         let obj={id:StaticInfo.park_id,ts:timestamp}
-        TestService.testQrCode(JSON.stringify(obj)).then((res:any)=>{
-            console.log(res)
+        TestService.testQrCode(JSON.stringify(obj)).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setCode(res.Data);
+                setTitle('请截图或者拍照保留通行二维码')
             }else {
                 message.error(res.Data);
             }
@@ -144,15 +145,18 @@ const Device=(props)=>{
             <Modal title='访客二维码' onOk={onOK} open={open} onCancel={()=>setOpen(false)}>
                 <Form>
                     <Form.Item label='选择到期时间' >
-                        <DatePicker showTime onChange={changeDate}
-                        />
+                        <DatePicker showTime onChange={changeDate}/>
                     </Form.Item>
                 </Form>
                 <div>
-                    {code?<MyQRCodeComponent value={code}/>:''}
+                    {code?
+                        <div>
+                            <MyQRCodeComponent value={code}/>
+                            <span style={{fontSize:'12px' ,color:'#555'}}>{title}</span>
+                        </div>
+                        :''}
                 </div>
             </Modal>
-
         </div>
     )
 }

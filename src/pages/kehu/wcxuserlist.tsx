@@ -12,7 +12,7 @@ const Wcxuserlist=(props:any)=>{
     const [phone,setPhone]=useState('');
     // 弹窗
     const [isOpen,setIsOpen]=useState(false);
-    const [selected, setSelected] = useState<string[]>(Array(343).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(344).fill('0'));
     const [openID,setOpenID]=useState('');
     const columns =[
         {
@@ -213,8 +213,8 @@ const Wcxuserlist=(props:any)=>{
             {/*编辑权限弹窗*/}
             <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk}>
                 <Space>
-                    <Button type='primary' onClick={()=>setSelected(Array(343).fill('1'))}>全选</Button>
-                    <Button type='primary' onClick={()=>setSelected(Array(343).fill('0'))}>反选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(344).fill('1'))}>全选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(344).fill('0'))}>反选</Button>
                 </Space>
                 <TreeMenu tree={treeData} selected={selected} setSelected={setSelected} />
             </Modal>

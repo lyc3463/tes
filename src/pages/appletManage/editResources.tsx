@@ -1,6 +1,6 @@
 import {useLocation,connect,history} from "umi";
 import CmpImageUploader from "@/components/ImageUploader";
-import {Button, Form, Image, Input, InputNumber, message, Radio, Select, Space} from "antd";
+import {Button, Form, Image, Input, InputNumber, message, Radio, Select, Space, Spin} from "antd";
 import {useEffect, useRef, useState} from "react";
 import * as resourcesServer from "@/services/resources";
 
@@ -8,12 +8,13 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditResources=(props:any)=>{
+    const [isLoading,setIsLoading]=useState(false);
     const formRef=useRef()
     const location=useLocation();
     // 单图
-    const [single, setSingle] = useState<string | undefined>(undefined);
+    const [img, setImg] = useState<string | undefined>(undefined);
     // 多图
-    const [singles, setSingles] = useState<string | undefined>(undefined);
+    const [imgs, setImgs] = useState([]);
     // 显示的单图
     const [housing_image,setHousing_image]=useState('');
     // 显示的多图
@@ -32,8 +33,8 @@ const EditResources=(props:any)=>{
         let res:any=await resourcesServer.one(id);
         if (res?.ErrorCode==0){
             formRef.current.setFieldsValue(res?.Data)
-            setSingle(res?.Data.fileName);
-            setSingles(res?.Data.fileNames);
+            setImg(res?.Data.fileName);
+            setImgs(res?.Data.fileNames.split(","));
             setFileData(res.Data.fileData);
             setHousing_image(res.Data.housing_image);
         }else {
@@ -42,22 +43,26 @@ const EditResources=(props:any)=>{
     }
     // 单图名字
     const handleImageUpload = (val: string) => {
-        setSingle(val);
+        setImg(val);
     };
     // 多图名字
     const handleImageUploads=(val:string)=>{
-        setSingles(val);
+        setImgs([...imgs,val]);
     };
     const onFinish=async (values:any)=>{
+        let singles=imgs.join(",");
+        setIsLoading(true);
         let res:any=await props.dispatch({
             type:'Resources/edit',
-            payload:{...values,uid,single,singles}
+            payload:{...values,uid,img,singles}
         });
         if (res.ErrorCode==0){
             message.success('修改成功');
             history.push('/appletManage/resources');
+            setIsLoading(false);
         }else {
             message.error(res.Data);
+            setIsLoading(false);
         }
     };
     // 单图base64
@@ -66,10 +71,18 @@ const EditResources=(props:any)=>{
     };
     // 多图base64
     const handBase64s=(vals:string)=>{
-
+        setFileData([...fileData,vals]);
+    };
+    const handleDelete=(index:number)=>{
+        const newImages = [...imgs];
+        newImages.splice(index, 1);
+        setImgs(newImages);
+        const newB64 = [...fileData];
+        newB64.splice(index, 1);
+        setFileData(newB64);
     };
     return(
-        <div>
+        <Spin spinning={isLoading}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -144,14 +157,40 @@ const EditResources=(props:any)=>{
                 </Form.Item>
                 <Form.Item label="多图">
                     <CmpImageUploader onImageUpload={handleImageUploads} oldBase64={handBase64s}/>
+                    <Space style={{display:'flex',flexWrap:'wrap'}}>
+                        <Space style={{display:'flex',flexWrap:'wrap',marginTop:'25px'}}>
+                            {fileData.length>0?fileData.map((item:any,index:number)=>{
+                                return(
+                                    <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
+                                        <Image src={item} style={{ width: '80px', height: '80px' }} />
+                                        <Button
+                                            type="primary"
+                                            danger
+                                            onClick={() => handleDelete(index)}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '0',
+                                                left: '0',
+                                                zIndex: 1,
+                                                padding: '2px 4px',
+                                                transform: 'translate(-50%, -50%)', // 使按钮居中于图片的左上角
+                                            }}
+                                        >
+                                            删除
+                                        </Button>
+                                    </div>
+                                )
+                            }):''}
+                        </Space>
+                    </Space>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
-                        添加
+                        修改
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

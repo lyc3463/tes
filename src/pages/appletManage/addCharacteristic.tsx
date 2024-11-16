@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {Button, Form, Input, message, Radio, Select, Spin} from "antd";
 import {connect, history} from "umi";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -8,16 +9,22 @@ const tailLayout = {
 const AddCharacteristic=(props:any)=>{
     const [isLoading,setIsLoading]=useState(false)
     const [form] = Form.useForm();
-
-    const onFinish=async (values)=>{
-        let res=await props.dispatch({
+    const onFinish=(values)=>{
+        setIsLoading(true);
+        props.dispatch({
             type:'Characteristic/add',
             payload:values
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('添加成功');
+                setIsLoading(false);
+                history.push('/appletManage/propertyDescription');
+            }else {
+                message.error(res.Data);
+                setIsLoading(false);
+            }
         })
-        if (res.ErrorCode==0){
-            message.success('添加成功')
-            history.push('/appletManage/propertyDescription')
-        }
+
     }
     return(
         <Spin spinning={isLoading}>

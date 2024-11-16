@@ -52,36 +52,31 @@ const ConsumptionLog=(props:any)=>{
                 let consumptionTypeText;
                 switch (item.consumptionType) {
                     case 1:
-                        consumptionTypeText = '充值';
+                        consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>充值</Tag>;
                         break;
                     case 2:
-                        consumptionTypeText = '租金';
+                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金</Tag>;
                         break;
                     case 3:
-                        consumptionTypeText = '电费';
+                        consumptionTypeText = <Tag style={{ color: '#2196F3' }}>电费</Tag>;
                         break;
                     case 4:
-                        consumptionTypeText = '水费';
+                        consumptionTypeText = <Tag style={{ color: '#FFC107' }}>水费</Tag>;
                         break;
                     case 5:
-                        consumptionTypeText = '公共缴费';
+                        consumptionTypeText = <Tag style={{ color: '#9C27B0' }}>公共缴费</Tag>;
                         break;
                     case 6:
-                        consumptionTypeText = '违约金';
+                        consumptionTypeText = <Tag style={{ color: '#E91E63' }}>违约金</Tag>;
                         break;
                     case 7:
-                        consumptionTypeText = '物业管理费';
-                        break;
-                    case 8:
-                        consumptionTypeText = '物业管理费';
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>物业管理费</Tag>;
                         break;
                     default:
-                        consumptionTypeText = '未知类型';
+                        consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
                 return (
-                    <div>
-                        {consumptionTypeText}
-                    </div>
+                    consumptionTypeText
                 );
             }
         },

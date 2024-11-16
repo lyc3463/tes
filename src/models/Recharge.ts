@@ -30,6 +30,7 @@ export interface RechargeInterface {
         fetch: Effect;
         add: Effect;
         fenye: Effect;
+        addchongzhi: Effect;
     };
     reducers: {
         list: Reducer<RechargeType[]>;
@@ -70,6 +71,12 @@ const RechargeModel: RechargeInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+        },
+        *addchongzhi({ payload, callback }, { call, put, take }): any {
+            const result = yield call(RechargeService.addchongzhi, payload);
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
+            return result
         },
     },
     reducers: {

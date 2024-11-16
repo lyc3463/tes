@@ -3,6 +3,7 @@ import {Button, Form, Input, List, message, Modal, Radio, Select, Space, Spin, T
 import {history,connect} from "umi";
 import * as CharacteristicService from "@/services/characteristic";
 import CharacteristicType from "@/ModelTypes/TypeCharacteristic";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const park_id=sessionStorage.getItem('park_id')
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -22,26 +23,20 @@ const Characteristic=(props:any)=>{
     // form 实例
     const formRef=useRef()
     const columns=[
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            render: (text: any, record: any) => (
-                <Button type="link" >{text}</Button>
-            ),
-        },
+
         {
             title: '区域名称',
             dataIndex: 'feature_name',
         },
-        {
-            title: '显示在小程序',
-            dataIndex: 'TSStatus',
-            render: (text: any, record: any) => (
-                <div>
-                    {text?<span style={{color:'green'}}>是</span>:<span style={{color:'red'}}>否</span>}
-                </div>
-            ),
-        },
+        // {
+        //     title: '显示在小程序',
+        //     dataIndex: 'TSStatus',
+        //     render: (text: any, record: any) => (
+        //         <div>
+        //             {text?<span style={{color:'green'}}>是</span>:<span style={{color:'red'}}>否</span>}
+        //         </div>
+        //     ),
+        // },
         {
             title: '操作',//简单常用操作放这里，复杂放详情
             dataIndex: 'operation',
@@ -59,39 +54,54 @@ const Characteristic=(props:any)=>{
         setIsDeleteOpen(true)
     }
     // 确定删除
-    const deleteOK=async ()=>{
-        let res=await props.dispatch({
+    const deleteOK=()=>{
+        setIsLoading(true);
+        props.dispatch({
             type:'Characteristic/remove',
             payload:did
-        })
-        if (res?.ErrorCode==0){
-            message.success('删除成功')
-            setIsDeleteOpen(false)
-        }
-    }
+        }).then((res:TypeErrorCode)=>{
+           if (res?.ErrorCode==0){
+               message.success('删除成功');
+               setIsDeleteOpen(false);
+               setIsLoading(false);
+           }else {
+               message.error(res.Data);
+               setIsLoading(false);
+           }
+       })
+
+    };
     const toadd=()=>{
         history.push('/appletManage/addCharacteristic')
-    }
+    };
     // 修改
-    const onFinsh=async (values:any)=>{
-        let res=await props.dispatch({
+    const onFinsh= (values:any)=>{
+        setIsLoading(true);
+        props.dispatch({
             type:'Characteristic/edit',
             payload: {...values,uid}
+        }).then((res:TypeErrorCode)=>{
+            if (res?.ErrorCode==0){
+                message.success('修改成功');
+                setInsEditOpen(false);
+                setIsLoading(false);
+            }else {
+                message.error(res.Data);
+                setIsLoading(false);
+            }
         })
-        if (res?.ErrorCode==0){
-            message.success('修改成功')
-            setInsEditOpen(false)
-        }
-    }
+    };
     // 详情
     const isEdit=async (e:any)=>{
         setUid(e.id)
         setInsEditOpen(true)
-        let res=await CharacteristicService.one(e?.id)
-        if (res?.ErrorCode==0){
-            formRef.current.setFieldsValue(res?.Data)
+        let res:any=await CharacteristicService.one(e?.id)
+        if (res.ErrorCode==0){
+            formRef.current.setFieldsValue(res.Data)
+        }else {
+            message.error(res.Data)
         }
-    }
+    };
     return(
         <div>
             <Spin spinning={isLoading}>

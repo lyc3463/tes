@@ -11,11 +11,7 @@ const tailLayout = {
 const AddRegion=(props:any)=>{
     const [isLoading,setIsLoading]=useState(false)
     const [form] = Form.useForm();
-    // 是否显示在小程序
-    const [stutes,setStutes]=useState(1)
-    const change=(e)=>{
-        setStutes(e.target.value)
-    }
+
     const onFinish=async (values)=>{
         let res=await  props.dispatch({
             type:'Region/add',
@@ -45,12 +41,12 @@ const AddRegion=(props:any)=>{
                 <Form.Item label="区域名称" name="name">
                     <Input placeholder="例:天河区"/>
                 </Form.Item>
-                <Form.Item label="是否显示在小程序" name='stutes'>
-                    <Radio.Group>
-                        <Radio value={1}>是</Radio>
-                        <Radio value={0}>否</Radio>
-                    </Radio.Group>
-                </Form.Item>
+                {/*<Form.Item label="是否显示在小程序" name='stutes'>*/}
+                {/*    <Radio.Group>*/}
+                {/*        <Radio value={1}>是</Radio>*/}
+                {/*        <Radio value={0}>否</Radio>*/}
+                {/*    </Radio.Group>*/}
+                {/*</Form.Item>*/}
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
                         添加

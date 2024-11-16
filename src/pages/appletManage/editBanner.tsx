@@ -79,12 +79,12 @@ const EditBanner=(props:any)=>{
                     <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={getImgBase64}/>
                     {imgBase64?<Image src={imgBase64} style={{width:'80px',height:"80px"}}/>:''}
                 </Form.Item>
-                <Form.Item label="是否显示在小程序" name='carouselStatus'>
-                    <Radio.Group>
-                        <Radio value={1}>是</Radio>
-                        <Radio value={0}>否</Radio>
-                    </Radio.Group>
-                </Form.Item>
+                {/*<Form.Item label="是否显示在小程序" name='carouselStatus'>*/}
+                {/*    <Radio.Group>*/}
+                {/*        <Radio value={1}>是</Radio>*/}
+                {/*        <Radio value={0}>否</Radio>*/}
+                {/*    </Radio.Group>*/}
+                {/*</Form.Item>*/}
                 <Form.Item {...tailLayout}>
                     <Button type="primary"  htmlType="submit">
                         修改

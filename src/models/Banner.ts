@@ -67,23 +67,20 @@ const BannerModel: GongsiInterface = {
         },
         *add({ payload, callback }, { call, put, take }): any {
             const result = yield call(BannerService.add, payload);
-            if (result.ErrorCode==0){
-                yield put({ type: 'fetch', payload: pl });
-            }
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(BannerService.edit, payload);
-            if (result.ErrorCode==0){
-                yield put({ type: 'fetch', payload: pl });
-            }
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
             return result
         },
         *remove({ payload ,callback}, { call, put ,take}): any {
             const result = yield call(BannerService.remove, payload);
-            if (result.ErrorCode==0){
-                yield put({ type: 'fetch', payload: pl });
-            }
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
             return result
         },
     },
@@ -111,12 +108,7 @@ const BannerModel: GongsiInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/appletManage/banner/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
+
                 // if (
                 //     StaticInfo.userId > 0 &&
                 //     pathname === '/xiangmu/gongsiguanli/detail/'

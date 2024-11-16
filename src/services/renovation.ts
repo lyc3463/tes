@@ -5,12 +5,12 @@ export function fetch(vals:any) {
 }
 // 添加装修
 export function add(vals:any) {
-    return getData(1043, [vals.name,vals.stutes]);
+    return getData(1043, [vals.name,vals.stutes=0]);
 }
 
 
 export function edit(vals:any) {
-    return getData(1044, [vals.id,vals.renovation_name,vals.ZXStatus]);
+    return getData(1044, [vals.id,vals.renovation_name,vals.ZXStatus=0]);
 }
 
 export function remove(vals:number) {

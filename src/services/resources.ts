@@ -6,7 +6,7 @@ export function fetchFenye(vals:any) {
     return getData(1067, [vals.page,vals.houingType,vals.houingStatus,vals.beginRentHousing,vals.endRentHousing,vals.beginPriceHousing,vals.endPriceHousing,vals.houesID]);
 }
 export function add(vals:any) {
-    return getData(1062, [
+    return postData(1062, [
         vals.housing_name,
         vals.housing_type,
         vals.properties_id,
@@ -22,13 +22,10 @@ export function add(vals:any) {
         vals.housing_status,
         vals.sort,
         vals.single,
-        vals.singles,
-    ]);
+    ],vals.singles);
 }
-
-
 export function edit(vals:any) {
-    return getData(1063, [
+    return postData(1063, [
         vals.uid,
         vals.housing_name,
         vals.housing_type,
@@ -44,9 +41,9 @@ export function edit(vals:any) {
         vals.housing_characteristic,
         vals.housing_status,
         vals.sort,
-        vals.single,
-        vals.singles,
-    ]);
+        vals.img,
+
+    ],vals.singles);
 }
 
 export function remove(vals:any) {

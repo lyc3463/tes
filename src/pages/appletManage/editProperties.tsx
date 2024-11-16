@@ -1,58 +1,84 @@
 import {useEffect, useRef, useState} from "react";
 import {history, useLocation,connect} from "umi";
 import * as propertiesServer from "@/services/properties";
-import {Button, Form, Image, Input, InputNumber, message, Radio, Upload} from "antd";
+import {Button, Form, Image, Input, InputNumber, message, Radio, Space, Upload,Spin} from "antd";
 import CmpImageUploader from "@/components/ImageUploader";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditProperties=(props:any)=>{
-    const formRef=useRef()
-    const location=useLocation()
+    const formRef=useRef();
+    const location=useLocation();
+    const [isLoading,setIsLoading]=useState(false);
     // 单图
-    const [single, setSingle] = useState<string | undefined>(undefined);
+    const [img, setImg] = useState<string | undefined>(undefined);
     // 多图
-    const [singles, setSingles] = useState<string | undefined>(undefined);
+    const [imgs, setImgs] = useState([]);
+    // 显示的单图
+    const [housing_image,setHousing_image]=useState('');
+    // 显示的多图
+    const [fileData,setFileData]=useState([]);
     // 需要修改的id
-    const [uid,setUid]=useState('')
+    const [uid,setUid]=useState('');
     useEffect(()=>{
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
-        setUid(id)
-        getOneProperties(id)
-    },[])
+        setUid(id);
+        getOneProperties(id);
+    },[]);
     const getOneProperties=async (id:string)=>{
-        let res=await propertiesServer.one(id)
+        let res:any=await propertiesServer.one(id);
         if (res.ErrorCode==0){
             formRef.current.setFieldsValue(res?.Data)
-            setSingle(res.Data.image)
-            setSingles(res.Data.images)
-        }
-    }
-    const onFinish=async (values:any)=>{
-        let res=await props.dispatch({
-            type:'Properties/edit',
-            payload:{
-                ...values,uid,single,singles
-            }
-        })
-        if (res.ErrorCode==0){
-            message.success('修改成功');
-            history.push('/appletManage/properties')
+            setImg(res?.Data.fileName);
+            setImgs(res?.Data.fileNames.split(","));
+            setFileData(res.Data.fileData);
+            setHousing_image(res.Data.properties_image);
         }else {
             message.error(res.Data)
         }
-    }
-    // 单图
-    const handleImageUpload = (val: string) => {
-        setSingle(val); // 将base64字符串保存到状态中
     };
-    // 多图
+    const onFinish=(values:any)=>{
+        let singles=imgs.join(",");
+        props.dispatch({
+            type:'Properties/edit',
+            payload:{...values,uid,img,singles}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('修改成功');
+                history.push('/appletManage/properties');
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
+    // 单图名字
+    const handleImageUpload = (val: string) => {
+        setImg(val);
+    };
+    // 多图名字
     const handleImageUploads=(val:string)=>{
-        setSingles(val)
-    }
+        setImgs([...imgs,val]);
+    };
+    // 单图base64
+    const handBase64=(vals:string)=>{
+        setHousing_image(vals);
+    };
+    // 多图base64
+    const handBase64s=(vals:string)=>{
+        setFileData([...fileData,vals]);
+    };
+    const handleDelete=(index:number)=>{
+        const newImages = [...imgs];
+        newImages.splice(index, 1);
+        setImgs(newImages);
+        const newB64 = [...fileData];
+        newB64.splice(index, 1);
+        setFileData(newB64);
+    };
     return(
-        <div>
+        <Spin spinning={isLoading}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -129,10 +155,37 @@ const EditProperties=(props:any)=>{
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item label="封面图" >
-                    <CmpImageUploader onImageUpload={handleImageUpload}/>
+                    <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={handBase64}/>
+                    {housing_image?<Image src={housing_image} style={{width:'80px',height:'80px'}}/>:''}
                 </Form.Item>
                 <Form.Item label="多图">
-                    <CmpImageUploader onImageUpload={handleImageUploads}/>
+                    <CmpImageUploader onImageUpload={handleImageUploads} oldBase64={handBase64s}/>
+                    <Space style={{display:'flex',flexWrap:'wrap'}}>
+                        <Space style={{display:'flex',flexWrap:'wrap',marginTop:'25px'}}>
+                            {fileData.length>0?fileData.map((item:any,index:number)=>{
+                                return(
+                                    <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
+                                        <Image src={item} style={{ width: '80px', height: '80px' }} />
+                                        <Button
+                                            type="primary"
+                                            danger
+                                            onClick={() => handleDelete(index)}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '0',
+                                                left: '0',
+                                                zIndex: 1,
+                                                padding: '2px 4px',
+                                                transform: 'translate(-50%, -50%)', // 使按钮居中于图片的左上角
+                                            }}
+                                        >
+                                            删除
+                                        </Button>
+                                    </div>
+                                )
+                            }):''}
+                        </Space>
+                    </Space>
                 </Form.Item>
                 <Form.Item label="排序" name="sort">
                     <InputNumber placeholder={'越大排越前'} min={0}/>
@@ -143,7 +196,7 @@ const EditProperties=(props:any)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

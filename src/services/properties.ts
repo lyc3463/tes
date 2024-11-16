@@ -4,7 +4,7 @@ export function fetch(vals:any) {
     return getData(1056, [vals.name]);
 }
 export function add(vals:any) {
-    return getData(1053, [
+    return postData(1053, [
         vals.properties_title,
         vals.properties_address,
         vals.group,
@@ -20,13 +20,13 @@ export function add(vals:any) {
         vals.get_room_rate,
         vals.properties_status,
         vals.sort,
-        vals.single,
-        vals.singles
-    ]);
+        vals.img,
+
+    ], vals.singles);
 }
 
 export function edit(vals:any) {
-    return getData(1054, [
+    return postData(1054, [
         vals.uid,
         vals.properties_title,
         vals.properties_address,
@@ -43,9 +43,8 @@ export function edit(vals:any) {
         vals.get_room_rate,
         vals.properties_status,
         vals.sort,
-        vals.single,
-        vals.singles
-    ]);
+        vals.img,
+    ],vals.singles);
 }
 
 export function remove(vals:any) {

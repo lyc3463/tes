@@ -5,12 +5,12 @@ export function fetch(vals:any) {
 }
 // 添加区域
 export function add(vals:any) {
-    return getData(1025, [vals.name,vals.stutes]);
+    return getData(1025, [vals.name,vals.stutes=0]);
 }
 
 
 export function edit(vals:any) {
-    return getData(1026, [vals.id,vals.area_name,vals.areaStatus]);
+    return getData(1026, [vals.id,vals.area_name,vals.areaStatus=0]);
 }
 
 export function remove(vals:number) {

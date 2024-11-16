@@ -21,12 +21,12 @@ const ReportLog=(props:any)=>{
             ),
         },
         {
-            title: '报修租户',
-            dataIndex: 'tenant_name',
+            title: '报修用户',
+            dataIndex: 'appUser_name',
         },
         {
-            title: '联系电话',
-            dataIndex: 'tenant_phone',
+            title: '用户联系方式',
+            dataIndex: 'appUser_phone',
         },
         {
             title: '跟进人',

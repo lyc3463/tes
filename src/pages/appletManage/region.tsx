@@ -4,42 +4,36 @@ import {useEffect, useRef, useState} from "react";
 import {history,connect} from "umi";
 import * as RegionService from '@/services/region';
 import RenovationType from "@/ModelTypes/TypeRenovation";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const Region=(props:any)=>{
-    const [isLoading,setIsLoading]=useState(false)
+    const [isLoading,setIsLoading]=useState(false);
     // 编辑的弹窗
-    const [isEditOpen,setInsEditOpen]=useState(false)
+    const [isEditOpen,setInsEditOpen]=useState(false);
     // 需要修改的id
-    const [uid,setUid]=useState<number|undefined>()
+    const [uid,setUid]=useState<number|undefined>();
     // form 实例
-    const formRef=useRef()
+    const formRef=useRef();
     // 删除的弹窗
-    const [isDeleteOpen,setIsDeleteOpen]=useState(false)
+    const [isDeleteOpen,setIsDeleteOpen]=useState(false);
     // 删除的id
-    const [did,setDid]=useState<number|undefined>()
+    const [did,setDid]=useState<number|undefined>();
     const columns=[
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            render: (text: any, record: any) => (
-                <Button type="link" >{text}</Button>
-            ),
-        },
         {
             title: '区域名称',
             dataIndex: 'area_name',
         },
-        {
-            title: '显示在小程序',
-            dataIndex: 'areaStatus',
-            render: (text: any, record: any) => (
-                <div>
-                    {text?<span style={{color:'green'}}>是</span>:<span style={{color:'red'}}>否</span>}
-                </div>
-            ),
-        },
+        // {
+        //     title: '显示在小程序',
+        //     dataIndex: 'areaStatus',
+        //     render: (text: any, record: any) => (
+        //         <div>
+        //             {text?<span style={{color:'green'}}>是</span>:<span style={{color:'red'}}>否</span>}
+        //         </div>
+        //     ),
+        // },
         {
             title: '操作',//简单常用操作放这里，复杂放详情
             dataIndex: 'operation',
@@ -50,47 +44,60 @@ const Region=(props:any)=>{
                 </Space>
             ),
         },
-    ]
+    ];
     // 详情
     const isEdit=async (e:any)=>{
-        setUid(e.id)
-        setInsEditOpen(true)
-        let res=await RegionService.one(e?.id)
-        if (res?.ErrorCode==0){
-            formRef.current.setFieldsValue(res?.Data)
+        setUid(e.id);
+        setInsEditOpen(true);
+        let res:any=await RegionService.one(e?.id);
+        if (res.ErrorCode==0){
+            formRef.current.setFieldsValue(res?.Data);
+        }else {
+            message.error(res.Data);
         }
-    }
-
-  const toadd=()=>{
-        history.push('/appletManage/addRegion')
-  }
-  // 修改
-  const onFinsh=async (values:any)=>{
-      let res=await props.dispatch({
-          type:'Region/edit',
-          payload:{...values,uid}
-      })
-      if (res?.ErrorCode==0){
-          message.success('删除成功')
-          setIsDeleteOpen(false)
-      }
-  }
+    };
+    const toadd=()=>{
+        history.push('/appletManage/addRegion');
+    };
+    // 修改
+    const onFinsh=(values:any)=>{
+        setIsLoading(true);
+        props.dispatch({
+            type:'Region/edit',
+            payload:{...values,uid}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('编辑成功');
+                setIsLoading(false);
+                setInsEditOpen(false);
+            }else {
+                message.error(res.Data);
+                setIsLoading(false);
+            }
+        })
+    };
     // 删除的弹窗
-  const isDelete=async (record:RenovationType)=>{
-        setDid(record.id)
-        setIsDeleteOpen(true)
-  }
-  // 确定删除的确定
-  const deleteOK=async ()=>{
-        let res=await props.dispatch({
+    const isDelete=async (record:RenovationType)=>{
+        setDid(record.id);
+        setIsDeleteOpen(true);
+    };
+    // 确定删除的确定
+    const deleteOK= ()=>{
+        setIsLoading(true);
+        props.dispatch({
             type:'Region/remove',
             payload:did
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setIsLoading(false);
+                setIsDeleteOpen(false);
+            }else {
+                message.error(res.Data);
+                setIsLoading(false);
+            }
         })
-      if (res?.ErrorCode==0){
-              message.success('删除成功')
-              setIsDeleteOpen(false)
-      }
-  }
+    };
     return(
         <div>
             <Spin spinning={isLoading}>
@@ -123,12 +130,12 @@ const Region=(props:any)=>{
                     <Form.Item label="区域名称" name='area_name'>
                         <Input/>
                     </Form.Item>
-                    <Form.Item label="是否显示在小程序" name='areaStatus'>
-                        <Radio.Group>
-                            <Radio value={1}>是</Radio>
-                            <Radio value={0}>否</Radio>
-                        </Radio.Group>
-                    </Form.Item>
+                    {/*<Form.Item label="是否显示在小程序" name='areaStatus'>*/}
+                    {/*    <Radio.Group>*/}
+                    {/*        <Radio value={1}>是</Radio>*/}
+                    {/*        <Radio value={0}>否</Radio>*/}
+                    {/*    </Radio.Group>*/}
+                    {/*</Form.Item>*/}
                     <Form.Item {...tailLayout}>
                         <Button type="primary"  htmlType="submit">
                             修改
@@ -136,13 +143,11 @@ const Region=(props:any)=>{
                     </Form.Item>
                 </Form>
             </Modal>
-
             {/*删除的弹窗*/}
             <Modal open={isDeleteOpen} onOk={deleteOK} onCancel={() => setIsDeleteOpen(false)} title='删除'>
                 <div>是否要删除此数据?</div>
             </Modal>
         </div>
-
     )
 }
 const mapStateToProps = (state: any) => {

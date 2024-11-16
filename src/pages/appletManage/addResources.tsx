@@ -1,4 +1,4 @@
-import {Button, Form, Input, InputNumber, Radio, Select, Spin, message} from "antd";
+import {Button, Form, Input, InputNumber, Radio, Select, Spin, message, Image, Space} from "antd";
 import {UploadOutlined} from "@ant-design/icons";
 import {useEffect, useState} from "react";
 import {connect,history} from 'umi'
@@ -13,10 +13,15 @@ const AddResources=(props:any)=>{
     const [isxianshi,setIsxianshi]=useState(1)
     // 单图
     const [single, setSingle] = useState<string | undefined>(undefined);
+    // 单图b64
+    const [b64,setB64]=useState('');
     // 多图
-    const [singles, setSingles] = useState<string | undefined>(undefined);
+    const [imgs, setImgs] = useState([]);
+    // 多图B64
+    const [b64s,setB64s]=useState([]);
     // 添加提交
     const onFinish=async (values)=>{
+        let singles=imgs.join(',');
         let res=await props.dispatch({
             type:'Resources/add',
             payload:{...values,single,singles}
@@ -27,14 +32,29 @@ const AddResources=(props:any)=>{
         }else {
             message.error(res.Data)
         }
-    }
+    };
     // 单图
     const handleImageUpload = (val: string) => {
         setSingle(val); // 将base64字符串保存到状态中
     };
     // 多图
     const handleImageUploads=(val:string)=>{
-        setSingles(val);
+        setImgs([...imgs,val]);
+    };
+    // 单图B64
+    const getImgBase64=(val:string)=>{
+      setB64(val);
+    };
+    const getImgBase64s=(val:string)=>{
+        setB64s([...b64s,val]);
+    };
+    const handleDelete=(index:number)=>{
+        const newImages = [...imgs];
+        newImages.splice(index, 1);
+        setImgs(newImages);
+        const newB64 = [...b64s];
+        newB64.splice(index, 1);
+        setB64s(newB64);
     };
     return(
         <Spin spinning={isLoading}>
@@ -104,10 +124,35 @@ const AddResources=(props:any)=>{
                     <InputNumber min={0}/>
                 </Form.Item>
                 <Form.Item label="封面图">
-                    <CmpImageUploader onImageUpload={handleImageUpload}/>
+                    <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={getImgBase64}/>
+                    {b64?<Image src={b64} style={{width:'80px',height:"80px"}}/>:''}
                 </Form.Item>
                 <Form.Item label="多图">
-                    <CmpImageUploader onImageUpload={handleImageUploads}/>
+                    <CmpImageUploader onImageUpload={handleImageUploads} oldBase64={getImgBase64s}/>
+                    <Space style={{display:'flex',flexWrap:'wrap',marginTop:'25px'}}>
+                        {b64s.length>0?b64s.map((item:any,index:number)=>{
+                            return(
+                                <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
+                                    <Image src={item} style={{ width: '80px', height: '80px' }} />
+                                    <Button
+                                        type="primary"
+                                        danger
+                                        onClick={() => handleDelete(index)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '0',
+                                            left: '0',
+                                            zIndex: 1,
+                                            padding: '2px 4px',
+                                            transform: 'translate(-50%, -50%)', // 使按钮居中于图片的左上角
+                                        }}
+                                    >
+                                        删除
+                                    </Button>
+                                </div>
+                            )
+                        }):''}
+                    </Space>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">

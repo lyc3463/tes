@@ -203,10 +203,10 @@ class MainPage extends Component<any> {
                   }
                 </Modal>
                 <Space size="large">
-                  {/*<Button type="link" onClick={()=>this.setState({open:true})}>*/}
-                  {/*  {this.state.list.length}*/}
-                  {/*  <AlertFilled />*/}
-                  {/*</Button>*/}
+                  <Button type="link" onClick={()=>this.setState({open:true})}>
+                    {this.state.list.length}
+                    <AlertFilled />
+                  </Button>
                   <span>
                     用户姓名:{StaticInfo.username}
                   </span>

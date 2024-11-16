@@ -22,10 +22,8 @@ const Resources=(props)=>{
     // 删除的弹窗
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
     const [houesID,setHouesID]=useState(0)
-
     // 删除的id
     const [did,setDid]=useState(0);
-
     const columns=[
         {
             title: '房源名称',

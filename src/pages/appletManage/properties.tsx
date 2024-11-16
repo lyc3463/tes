@@ -1,7 +1,8 @@
-import {Button, Image, List, Modal, Space, Spin, Table} from "antd";
+import {Button, Image, List, message, Modal, Space, Spin, Table} from "antd";
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import * as PropertiesService from '@/services/properties';
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const Properties=(props:any)=>{
     const [loading, setLoading] = useState(false);
     // 打开删除的弹窗
@@ -51,24 +52,29 @@ const Properties=(props:any)=>{
         let res:any=await PropertiesService.getHouse(e)
         if (res.ErrorCode==0){
             setFangyuanList(res.Data)
-        }
-        setIsopen(true)
-    }
-
+        };
+        setIsopen(true);
+    };
     const toadd=()=>{
         history.push('/appletManage/addProperties')
-    }
+    };
     // 强制删除
-    const setOK=async ()=>{
-       let res=await props.dispatch({
+    const setOK=()=>{
+        setLoading(true);
+        props.dispatch({
            type:'Properties/remove',
            payload:deleteID
-       })
-        if (res.ErrorCode==0){
-            setIsopen(false)
-        }
-    }
-
+       }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setIsopen(false);
+                setLoading(false);
+            }else {
+                message.error(res.Data);
+                setLoading(false);
+            }
+        })
+    };
     return (
         <Spin spinning={loading}>
             <List>

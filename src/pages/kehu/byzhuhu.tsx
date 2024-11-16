@@ -39,7 +39,6 @@ const Byzhuhu=(props:any)=>{
     },[]);
     const onFinish=(valus:any)=>{
         valus.water_id?valus.water_id:valus.water_id=0;
-        console.log(valus);
         props.dispatch({
             type:'Zuhu/byzhuhu',
             payload:{...valus,uid}
