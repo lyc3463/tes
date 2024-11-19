@@ -17,6 +17,9 @@ let pl={
     billEndTime:'2099-01-01',
     billStatus:2,
     billMoneyType:2,
+    companyId:0,
+    projectId:0,
+    subjectId:0
 }
 
 export interface BiaoqianCountState {

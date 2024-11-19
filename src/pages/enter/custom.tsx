@@ -33,6 +33,12 @@ const Custom=(props:any)=>{
             align:'center',
         },
         {
+            title: '联系方式',
+            dataIndex: 'phone',
+            key: 'phone',
+            align:'center',
+        },
+        {
             title: '类别',
             dataIndex: 'visitor_type',
             key: 'visitor_type',
@@ -194,6 +200,7 @@ const Custom=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log(props)
     }, [page]);
     return(
         <div>

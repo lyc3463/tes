@@ -53,15 +53,15 @@ const TravelRecord=(props:any)=>{
       props.display({
           type:'TravelRecord/fenye',
           dispatch:{deviceSn,startDate,endDate}
-      })
-        logFenye()
+      });
+        logFenye();
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"TravelRecord/fetch",
             payload:{page,deviceSn,startDate,endDate}
-        })
+        });
     };
     useEffect(() => {
         logFenye();

@@ -12,6 +12,9 @@ const CheckFinance=(props:any)=>{
     const [billEndTime,setBillEndTime]=useState('2099-01-01');
     const [billStatus,setBillStatus]=useState(2);
     const [billMoneyType,setBillMoneyType]=useState(2);
+    const [companyId,setCompanyId]=useState(0);
+    const [projectId,setProjectId]=useState(0);
+    const [subjectId,setSubjectId]=useState(0);
     const columns =[
         {
             title: '日期',
@@ -159,7 +162,7 @@ const CheckFinance=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'Bill/fenye',
-            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType}
+            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId}
         });
         logFenye();
     };
@@ -167,7 +170,7 @@ const CheckFinance=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Bill/fetch",
-            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType}
+            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId}
         })
     };
     // 监听页数
@@ -287,6 +290,34 @@ const CheckFinance=(props:any)=>{
                     scroll={{y:'70vh'}}
                     rowKey={(columns) => columns.id}
                     dataSource={props.BillList}
+                    summary={(columns) => (
+                      <Table.Summary fixed>
+                        <Table.Summary.Row>
+                          <Table.Summary.Cell
+                            index={1}
+                          >
+                              统计
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell
+                            index={7}
+                          >
+                              {props.count?props.count.moneySum:''}元
+                          </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                      </Table.Summary>
+                    )}
                 />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             {/*    审核通过弹窗*/}

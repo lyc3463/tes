@@ -10,6 +10,9 @@ const FinancialData=(props:any)=>{
     const [billEndTime,setBillEndTime]=useState('2099-01-01');
     const [billStatus,setBillStatus]=useState(2);
     const [billMoneyType,setBillMoneyType]=useState(2);
+    const [companyId,setCompanyId]=useState(0);
+    const [projectId,setProjectId]=useState(0);
+    const [subjectId,setSubjectId]=useState(0);
     const columns =[
         {
             title: '日期',
@@ -141,7 +144,7 @@ const FinancialData=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'Bill/fenye',
-            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType}
+            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId}
         });
         logFenye();
     };
@@ -149,7 +152,7 @@ const FinancialData=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Bill/fetch",
-            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType}
+            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId}
         })
     };
     // 监听页数
@@ -175,7 +178,7 @@ const FinancialData=(props:any)=>{
         setBillStatus(e);
     };
     useEffect(() => {
-        console.log(props)
+        console.log(props);
         logFenye();
     }, [page]);
     return(
@@ -271,10 +274,40 @@ const FinancialData=(props:any)=>{
                     columns={columns}
                     style={{border:'1px solid #ddd',borderRadius:'4px'}}
                     pagination={false}
-                    scroll={{y:'70vh'}}
+                    scroll={{y:'60vh'}}
                     rowKey={(columns) => columns.id}
                     dataSource={props.BillList}
                     size='small'
+                    summary={(columns) => (
+                      <Table.Summary fixed>
+                        <Table.Summary.Row>
+                          <Table.Summary.Cell
+                            index={1}
+                          >
+                              统计
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell
+                            index={8}
+                          >
+                              {props.count?props.count.moneySum:''}元
+                          </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                      </Table.Summary>
+                    )}
                 />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>

@@ -9,7 +9,7 @@ export function add(vals:any) {
 }
 
 export function edit(vals:any) {
-    return getData(1170, [vals.uid,vals.name,vals.nickname,vals.phone,vals.estarttime,vals.companyName,vals.groupId,vals.oldImgName]);
+    return getData(1170, [vals.uid,vals.name,vals.nickname,vals.phone,vals.estarttime,vals.eendtime,vals.companyName,vals.groupId,vals.oldImgName]);
 }
 
 export function remove(vals:any) {

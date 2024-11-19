@@ -2,7 +2,6 @@ import {useEffect, useRef, useState} from "react";
 import {connect,history,useLocation} from "umi";
 import * as EmpServer from "@/services/emp";
 import {Button, DatePicker, Form, Image, Input, message, Radio, Select, Space, Upload} from "antd";
-import moment from "moment";
 import dayjs from "dayjs";
 import CmpImageUploader from "@/components/ImageUploader";
 import {filterAndUpdateList} from "@/utils/OpenTool";
@@ -29,16 +28,18 @@ const EditYuangong=(props:any)=>{
             formRef.current.setFieldsValue(res.Data);
             setFileBase64(res.Data.avatarBase64);
             setOldImgName(res.Data.empFileName);
-            seteendtime(dayjs(res.Data.eendtime).format('YYYY-MM-DD HH:MM:ss'));
-            setEstarttime(dayjs(res.Data.estarttime).format('YYYY-MM-DD HH:MM:ss'));
-
+            seteendtime(dayjs(res.Data.eendtime).format('YYYY-MM-DD HH:mm:ss'));
+            setEstarttime(dayjs(res.Data.estarttime).format('YYYY-MM-DD HH:mm:ss'));
+        }else {
+            message.error(res.Data)
         }
     };
     useEffect(()=>{
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
-        setUid(id)
-        getOneEmp(id)
+        setUid(id);
+        getOneEmp(id);
+        getGroupingList();
     },[]);
     // 修改上传
     const onFinisn=(values:any)=>{
@@ -63,6 +64,12 @@ const EditYuangong=(props:any)=>{
     const getImgBase64=(item:any)=>{
         setFileBase64(item);
     };
+    // 获取分组
+    const getGroupingList=()=>{
+        props.dispatch({
+            type:'Grouping/fetch'
+        })
+    };
     return(
         <div>
             <Form
@@ -76,7 +83,7 @@ const EditYuangong=(props:any)=>{
             >
                 <Form.Item label='授权开始/结束时间'>
                     {
-                        eendtime&&estarttime?<DatePicker showTime  defaultValue={dayjs(estarttime)}/>:''
+                        eendtime&&estarttime?<DatePicker.RangePicker showTime  defaultValue={[dayjs(estarttime), dayjs(eendtime)]}/>:''
                     }
                 </Form.Item>
                 <Form.Item label='员工姓名' name='name'>
@@ -108,7 +115,6 @@ const EditYuangong=(props:any)=>{
                         {fileBase64?<Image src={fileBase64} style={{width:'80px',height:'80px'}}/>:''}
                     </Space>
                 </Form.Item>
-
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
                         编辑

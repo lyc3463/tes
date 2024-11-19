@@ -103,10 +103,9 @@ const BillSum=(props:any)=>{
                 )
             }
         },
-
     ];
     const toInfo=(id:number)=>{
-        history.push(`/enter/financialDataInfo?id=${id}`)
+        history.push(`/enter/financialDataInfo?id=${id}`);
     };
     // 导出数据
     const exportToExcel=()=>{

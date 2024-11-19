@@ -15,11 +15,13 @@ const EditCustom=(props)=>{
     const [custom_date,setCustom_date]=useState('');
     // 获取单个信息详情
     const getOneCustom=async (id:string)=>{
-        let res=await  CustomServer.one(id);
-        if (res?.ErrorCode==0){
+        let res:any=await  CustomServer.one(id);
+        if (res.ErrorCode==0){
             let data=res.Data;
             formRef.current.setFieldsValue(data);
             setCustom_date(dayjs(data.custom_date).format('YYYY-MM-DD'))
+        }else {
+            message.error(res.Data)
         }
     };
     const onFinish=async (values)=>{
@@ -31,7 +33,7 @@ const EditCustom=(props)=>{
             message.success('修改成功')
             history.push('/enter/custom')
         }
-    }
+    };
     useEffect(()=>{
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
@@ -56,7 +58,6 @@ const EditCustom=(props)=>{
                     {
                         custom_date?<DatePicker onChange={getDataInfo} defaultValue={dayjs(custom_date)}/>:''
                     }
-
                 </Form.Item>
                 <Form.Item label='客户姓名' name='custom_name'>
                     <Input placeholder='客户姓名'/>

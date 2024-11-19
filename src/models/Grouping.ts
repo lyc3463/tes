@@ -117,12 +117,6 @@ const GroupingModel: GroupingInterface = {
                         payload: location.state,
                     });
                 }
-                if (StaticInfo.userId > 0 && pathname === '/enter/editYuangonglData/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
                 if (StaticInfo.userId > 0 && pathname === '/enter/yuangongInfo/') {
                     dispatch({
                         type: 'fetch',
