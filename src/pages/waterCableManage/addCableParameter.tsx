@@ -254,7 +254,6 @@ const AddCableParameter=(props:any)=>{
         }else {
             message.error(res.Data)
         }
-
     };
     return(
         <div>
@@ -281,14 +280,14 @@ const AddCableParameter=(props:any)=>{
                     <>
                         <Form.Item label='价格'>
                             <InputNumber  style={{width:'80px'}} value={totalPrice}  disabled/>
-                            <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>(kWh) =基础价
+                            <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>(元/kWh) =基础价
                             <InputNumber style={{width:'80px'}} min={0} onChange={listenbasicPrice}/>+附加单价
                             <InputNumber style={{width:'80px'}} min={0}  onChange={listenadditionalPrice}/>
                             (每<InputNumber step={1} precision={0} min={0} style={{width:'80px'}} onChange={changeMinute}/>小时收费一次)
                         </Form.Item>
                         <Form.Item label='损耗'>
                             <InputNumber defaultValue={loss} style={{width:'80px'}} onChange={changeLoss}/>
-                            (m³)<span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
+                            (kWh)<span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
                             每<InputNumber style={{width:'80px'}} step={1} precision={0} min={0} onChange={changPrice}/>天收费一次
                         </Form.Item>
                     </>

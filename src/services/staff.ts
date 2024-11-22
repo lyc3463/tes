@@ -9,7 +9,7 @@ export function add(vals:any) {
 }
 
 export function edit(vals:any) {
-    return getData(1236, [vals.uid,vals.identifier,vals.clientId,vals.customCard,vals.unit_id,vals.zuMoney,vals.manageFee,vals.deposit,vals.contractType=1,vals.startDate,vals.endDate]);
+    return postData(1236, [vals.uid,vals.identifier,vals.clientId,vals.customCard,vals.unit_id,vals.zuMoney,vals.manageFee,vals.deposit,vals.contractType=1,vals.startDate,vals.endDate],vals.jsonDate);
 }
 
 export function remove(vals:any) {

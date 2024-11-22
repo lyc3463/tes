@@ -1,6 +1,7 @@
-import {Button, DatePicker, Input, List, Space, Table} from "antd";
+import {Button, DatePicker, Image, Input, List, Pagination, Space, Table} from "antd";
 import {useEffect, useState} from "react";
 import {connect} from "umi";
+import dayjs from "dayjs";
 
 const TravelRecord=(props:any)=>{
     // 开始时间
@@ -13,27 +14,32 @@ const TravelRecord=(props:any)=>{
     const columns = [
         {
             title: '闸机编号',
-            dataIndex: 'position',
+            dataIndex: 'device_sn',
         },
         {
-            title: '通行闸机',
-            dataIndex: 'name',
+            title: '闸机地点',
+            dataIndex: 'gateName',
+        },
+        {
+            title: '姓名',
+            dataIndex: 'travel_name',
         },
         {
             title: '人脸',
-            dataIndex: 'house_name',
+            dataIndex: 'reg_image',
+            render: (text: any, record:any) => (
+                <div>
+                    <Image src={`data:image/jpeg;base64,${record.reg_image}`} style={{height:'50px',width:'50px'}}/>
+                </div>
+            ),
         },
         {
             title: '通行时间',
-            dataIndex: 'date',
-        },
-        {
-            title: '操作',//简单常用操作放这里，复杂放详情
-            dataIndex: 'operation',
-            render: (text: any, record: any) => (
-                <Space>
-                    <Button type='primary' danger>删除</Button>
-                </Space>
+            dataIndex: 'travelTime',
+            render: (text: any, record:any) => (
+                <div>
+                    {dayjs(record.travelTime).format('YYYY-MM-DD HH:mm:ss')}
+                </div>
             ),
         },
     ];
@@ -47,15 +53,7 @@ const TravelRecord=(props:any)=>{
             setEndDate(data[1]);
         }
     };
-    // 搜索
-    const sousuo=()=>{
-      setPage(1);
-      props.display({
-          type:'TravelRecord/fenye',
-          dispatch:{deviceSn,startDate,endDate}
-      });
-        logFenye();
-    };
+
     // 分页
     const logFenye=()=>{
         props.dispatch({
@@ -65,7 +63,20 @@ const TravelRecord=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log(props)
     }, [page]);
+    const onChange=(e)=>{
+      setPage(e)
+    };
+    // 搜索
+    const  sousuo=()=>{
+      setPage(1);
+      props.dispatch({
+          type:'TravelRecord/fenye',
+          dispatch:{deviceSn,startDate,endDate}
+      });
+      logFenye();
+    };
     return(
         <div>
             <List>
@@ -92,7 +103,7 @@ const TravelRecord=(props:any)=>{
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
-                        <Button type="primary" onChange={sousuo}>
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -108,6 +119,7 @@ const TravelRecord=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )
 }

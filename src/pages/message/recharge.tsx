@@ -5,6 +5,8 @@ import * as RechargeService from '@/services/recharge';
 import {connect} from "umi";
 import ErrorCodeType from "@/ModelTypes/TypeErrorCode";
 import Myqrcode from "@/components/Myqrcode";
+import {RedoOutlined} from "@ant-design/icons";
+
 const Recharge=(props)=>{
     const data=[
         {id:1,title:5250,money:500,youhui:5},
@@ -15,7 +17,6 @@ const Recharge=(props)=>{
     const [numberItems,setNumberItems]=useState(0);
     const [remaining,setRemaining]=useState(0);
     const [parkName,setParkName]=useState('');
-    const [remarks,setRemarks]=useState('短信充值');
     // 替换页面
     const [isTihuan,setIsTihuan]=useState(false);
     // code
@@ -29,7 +30,7 @@ const Recharge=(props)=>{
     };
     useEffect(() => {
         if (money<500){
-            setNumberItems(money/0.1)
+            setNumberItems(money/0.1);
         }else if (money>=500&&money<1000){
             setNumberItems((money/0.1)+(money*0.5));
         }else if (money>=1000&&money<5000){
@@ -40,12 +41,13 @@ const Recharge=(props)=>{
     }, [money]);
     // 获取园区短信条数
     const getOneNuber=()=>{
-        RechargeService.one().then((res:any)=>{
+        RechargeService.one().then((res:ErrorCodeType)=>{
             if (res.ErrorCode==0){
+                console.log("刷新条数",res);
                 setRemaining(res.Data.SmsNumber);
                 setParkName(res.Data.park_name);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
             }
         })
     };
@@ -56,30 +58,24 @@ const Recharge=(props)=>{
         if (money<=0){
             message.warning('请输入金额');
         }else {
+            let newMoney=money*100;
+            let remarks=`短信充值;充值金额${newMoney}分;充值条数${numberItems}条`;
             props.dispatch({
                 type:'Recharge/addchongzhi',
-                payload:{money,remarks}
+                payload:{newMoney,remarks,numberItems}
             }).then((res:ErrorCodeType)=>{
                 if (res.ErrorCode==0){
                     setCode(res.Data);
+                    getOneNuber();
                     setIsTihuan(true);
                 }else {
-                    message.error(res.Data)
+                    message.error(res.Data);
                 }
             });
         }
     };
-    const paymentOK=()=>{
-        RechargeService.lunxun().then((res:ErrorCodeType)=>{
-            if (res.ErrorCode==0){
-                message.success('充值成功');
-                setIsTihuan(false);
-            }else {
-                message.error(res.Data)
-            }
-        })
-    };
     const cancelOk=()=>{
+        getOneNuber();
         setIsTihuan(false);
     };
     return(
@@ -106,7 +102,6 @@ const Recharge=(props)=>{
                     </div>
                     <div className={styles.okCss}>扫码成功后，如没有反应请点击下面确定付款按钮</div>
                     <Space>
-                        <Button type='primary' onClick={paymentOK}>我已付款</Button>
                         <Button type='primary' onClick={cancelOk}>离开</Button>
                     </Space>
                 </div>:<>
@@ -118,11 +113,11 @@ const Recharge=(props)=>{
                             </div>
                             <div className={styles.controlGroup}>
                                 <label className={styles.controlLabel}>当前剩余</label>
-                                <div className={styles.controls}>{remaining}条</div>
+                                <div className={styles.controls}><span>{remaining}条</span><Button style={{border:'none'}} onClick={()=> getOneNuber()}><RedoOutlined /></Button></div>
                             </div>
                             <div className={styles.controlGroup}>
                                 <div className={styles.controls}>
-                                    <InputNumber value={money} className={styles.post} min={0.1} name='totle_fee' placeholder='每条0.1元' onChange={(e)=>changemoney(e)}/> 元
+                                    <InputNumber value={money} className={styles.post} min={1} name='totle_fee' placeholder='每条0.1元' onChange={(e)=>changemoney(e)}/> 元
                                     ( 短信数量：
                                     <span style={{color:'red'}}>{numberItems}</span>条)
                                     <br/>

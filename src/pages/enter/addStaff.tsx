@@ -2,6 +2,8 @@ import {Button, Form, Pagination, Table, Modal, Select, DatePicker, Input, Input
 import {useEffect, useState} from "react";
 import {connect,history} from "umi";
 import {filterAndUpdateList} from "@/utils/OpenTool";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import dayjs from "dayjs";
 const tailLayout = {
     wrapperCol: { offset: 3 },
 };
@@ -26,7 +28,7 @@ interface FormItemType {
 }
 const AddStaff=(props:any)=>{
     const [form] = Form.useForm();
-    const [formItems, setFormItems] = useState([{ key: 1, startDate: null, freePeriod: null, increment: null }]); // 初始状态，可以包含默认项
+    const [formItems, setFormItems] = useState([{ key: 1, beginTime: null, endTime: null, rentBeginTime: null,rentEndTime:null,incremental:0}]);
     // 客户列表
     const [kehuList,setKehuList]=useState([]);
     // 单元列表
@@ -35,56 +37,68 @@ const AddStaff=(props:any)=>{
     const [startDate,setStartDate]=useState('');
     // 结束时间
     const [endDate,setEndDate]=useState('');
-
     // 删除表单项
     const removeFormItemByKey = key => {
         setFormItems(prevItems => prevItems.filter(item => item.key !== key));
     };
-
     const onFinish= (values)=>{
-      let jsonDate= JSON.stringify(formItems.map(item => ({
-            // key: item.key,
-            qizuStartDate: item.startDate ? item.startDate[0].toISOString().split('T')[0] : '',
-            qizuEndDate: item.startDate ? item.startDate[1].toISOString().split('T')[0] : '',
-            mianzuStartDate: item.freePeriod ? item.freePeriod[0].toISOString().split('T')[0] : '',
-            mianzuEndDate: item.freePeriod ? item.freePeriod[1].toISOString().split('T')[0] : '',
-            dizneg: item.increment,
-        })), null, 2)
+        let jsonDate=JSON.stringify(formItems);
         props.dispatch({
             type:'Staff/add',
             payload:{...values,endDate,startDate,jsonDate}
-        }).then((res:any)=>{
+        }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('添加成功');
                 history.push('/enter/staff');
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
             }
         })
     };
     useEffect(() => {
         filterAndUpdateList(props.CheckCompanyList, 'custom_name', 'id', setKehuList);
-        filterAndUpdateList(props.UnitList, 'unit_name', 'id', setUnitList);
+        getUnitList();
+        getCheckCompanyList();
     }, []);
     const changeData=(_,item)=>{
         setStartDate(item[0]);
         setEndDate(item[1]);
     };
-    // 更新表单项
-    const updateFormItem = (key, fieldName, value) => {
-        setFormItems(prevItems =>
-            prevItems.map(item =>
-                item.key === key ? { ...item, [fieldName]: value } : item
-            )
-        );
+    // 更新起租日
+    const updateqizuDate = (key, updates) => {
+        setFormItems(prevItems => prevItems.map(item => item.key === key ? { ...item, ...updates } : item));
+    };
+    // 更新免租期
+    const updatemz = (key, updates) => {
+        setFormItems(prevItems => prevItems.map(item => item.key === key ? { ...item, ...updates } : item));
+    };
+     // 更新递增
+    const updatedz = (key, updates) => {
+        setFormItems(prevItems => prevItems.map(item => item.key === key ? { ...item, ...updates } : item));
     };
     // 添加新表单项
     const addFormItem = () => {
         const newKey = formItems.length ? Math.max(...formItems.map(item => item.key)) + 1 : 1;
-        setFormItems([...formItems, { key: newKey, startDate: null, freePeriod: null, increment: null }]);
+        setFormItems([...formItems, { key: newKey, beginTime: null, endTime: null, rentBeginTime: null,rentEndTime:null, incremental:0}]);
     };
-
-
+    const handleSearch = (value:any) =>{
+        props.dispatch({
+            type: 'CheckCompany/fetch',
+            payload: {page: 1, name:value, startDate: '2000-01-01', endDate: '2099-01-01'}
+        })
+    };
+    // 获取单元列表
+    const getUnitList=()=>{
+        props.dispatch({
+            type:'Unit/fetch'
+        })
+    };
+    // 获取客户列表
+    const getCheckCompanyList=()=>{
+        props.dispatch({
+            type:'CheckCompany/fetch'
+        })
+    };
     return(
         <div>
             <Form
@@ -100,14 +114,15 @@ const AddStaff=(props:any)=>{
                     <Input/>
                 </Form.Item>
                 <Form.Item label='客户' name='clientId'>
-                    <Select>
-                        {kehuList.map((item:any,index:any)=>{
+                    <Select showSearch  onSearch={handleSearch}>
+                        {props.CheckCompanyList?props.CheckCompanyList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.custom_name}
                                 </Select.Option>
                             )
-                        })}
+                        }):""
+                        }
                     </Select>
                 </Form.Item>
                 <Form.Item label='身份证' name='customCard'>
@@ -115,13 +130,13 @@ const AddStaff=(props:any)=>{
                 </Form.Item>
                 <Form.Item label='单元' name='unit_id'>
                     <Select placeholder='单元'>
-                        {unitList.map((item:any,index:any)=>{
+                        {props.UnitList?props.UnitList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.unit_name}
                                 </Select.Option>
                             )
-                        })}
+                        }):''}
                     </Select>
                 </Form.Item>
                 <Form.Item label='起租日'>
@@ -136,44 +151,34 @@ const AddStaff=(props:any)=>{
                 <Form.Item label='押金' name='deposit' >
                     <InputNumber/>
                 </Form.Item>
-                {/*<Form.Item label='递增' >*/}
-                {/*    <Input/>*/}
-                {/*</Form.Item>*/}
-                {/*<Form.Item label='日期'>*/}
-                {/*    <DatePicker.RangePicker onChange={changeData}/>*/}
-                {/*</Form.Item>*/}
-                {/*<Form.Item label='选择合同'>*/}
-                {/*    <Select options={ops} onChange={onSelect}/>*/}
-                {/*</Form.Item>*/}
                 <Form.Item {...tailLayout}>
-                    {formItems.map(item => (
+                    {formItems.map((item:any,index:number) => (
+
                         <div style={{ display: 'flex'}} key={item.key}>
-                            <Form.Item label="起租日" key={`start-date-${item.key}`}>
+                            <Form.Item label="起租日">
                                 <DatePicker.RangePicker
-                                    value={item.startDate}
-                                    onChange={(dates) => updateFormItem(item.key, 'startDate', dates)}
+                                    onChange={(dates,data) => updateqizuDate(item.key,{beginTime: data[0], endTime: data[1]})}
                                 />
                             </Form.Item>
-                            <Form.Item label="免租期" key={`free-period-${item.key}`}>
+                            <Form.Item label="免租期" >
                                 <DatePicker.RangePicker
-                                    value={item.freePeriod}
-                                    onChange={(dates) => updateFormItem(item.key, 'freePeriod', dates)}
+                                    onChange={(dates,data) => updatemz(item.key,{rentBeginTime: data[0], rentEndTime: data[1]})}
                                 />
                             </Form.Item>
-                            <Form.Item label="递增" key={`increment-${item.key}`}>
+                            <Form.Item label="递增" >
                                 <InputNumber
-                                    value={item.increment}
-                                    onChange={(value) => updateFormItem(item.key, 'increment', value)}
+                                    value={item.incremental}
+                                    onChange={(value) => updatedz(item.key,{incremental:value})}
                                 />
                             </Form.Item>
-                            <Form.Item key={`delete-button-${item.key}`}>
+                            <Form.Item>
                                 <Button onClick={() => removeFormItemByKey(item.key)} type="link" style={{ marginLeft: 'auto' }}>
                                     删除
                                 </Button>
                             </Form.Item>
                         </div>
-                    ))}
 
+                    ))}
                     <Button type="primary" onClick={addFormItem} style={{ marginTop: '16px' }}>
                         新增
                     </Button>
@@ -184,7 +189,6 @@ const AddStaff=(props:any)=>{
                     </Button>
                 </Form.Item>
             </Form>
-            <pre></pre>
         </div>
     )
 }

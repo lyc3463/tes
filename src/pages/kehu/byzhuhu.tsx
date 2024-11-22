@@ -2,7 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import * as ZuhuServer from "@/services/zuhu";
 import dayjs from "dayjs";
 import {connect,history} from "umi";
-import {Button, DatePicker, Form, Input, InputNumber, Select, Radio, message} from "antd";
+import {Button, DatePicker, Form, Input, InputNumber, Select, Radio, message, Spin} from "antd";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -11,22 +11,12 @@ const Byzhuhu=(props:any)=>{
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     const formRef=useRef();
-    // 小程序列表
-    const [appUserList,setAppUserList]=useState([]);
-    // 单元列表
-    const [unitList,setUnitList]=useState([]);
-    // 收费项目列表
-    const [itemList,setItemList]=useState([]);
-    // 水表
-    const [watertList,setWatertList]=useState([]);
-    // 电表
-    const [cableList,setCableList]=useState([]);
+    const [isSpinning,setIsSpinning]=useState(false);
     const getOneCustom=async (id:string)=>{
         let res:any=await  ZuhuServer.one(id);
         if (res.ErrorCode==0){
             let data=res.Data;
             formRef.current.setFieldsValue(data);
-            console.log('data',data);
         }else {
             message.error(res.Data)
         }
@@ -38,6 +28,7 @@ const Byzhuhu=(props:any)=>{
         getOneCustom(id);
     },[]);
     const onFinish=(valus:any)=>{
+        setIsSpinning(true);
         valus.water_id?valus.water_id:valus.water_id=0;
         props.dispatch({
             type:'Zuhu/byzhuhu',
@@ -45,21 +36,53 @@ const Byzhuhu=(props:any)=>{
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('绑定成功');
-                history.push('/kehu/zuhuguanlian')
+                history.push('/kehu/zuhuguanlian');
+                setIsSpinning(false);
             }else {
-                message.error(res.Data)
+                setIsSpinning(false);
+                message.error(res.Data);
             }
         })
     };
     useEffect(() => {
-        filterAndUpdateList(props.AppUserList, 'appUser_phone', 'openId', setAppUserList);
-        filterAndUpdateList(props.UnitList, 'unit_name', 'id', setUnitList);
-        filterAndUpdateList(props.GongsiList, 'item_name', 'id', setItemList);
-        filterAndUpdateList(props.CableList, 'remark', 'id', setCableList);
-        filterAndUpdateList(props.WatertList, 'remark', 'id', setWatertList);
+        getUnitList();
+        getWatertList();
+        getCableList();
+        getGongsiList();
+        getAppUserList();
     }, []);
+    // 获取水表列表
+    const getWatertList=()=>{
+        props.dispatch({
+            type:'Watert/fetch'
+        })
+    };
+    // 获取电表列表
+    const getCableList=()=>{
+        props.dispatch({
+            type:'Cable/fetch'
+        })
+    };
+    // 获取小程序用户列表
+    const getAppUserList=()=>{
+        props.dispatch({
+            type:'AppUser/fetch'
+        })
+    };
+    // 获取收费项目列表
+    const getGongsiList=()=>{
+        props.dispatch({
+            type:'Gongsi/fetch'
+        })
+    };
+    // 获取单元列表
+    const getUnitList=()=>{
+        props.dispatch({
+            type:'Unit/fetch'
+        })
+    };
     return(
-        <div>
+        <Spin spinning={isSpinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -71,57 +94,57 @@ const Byzhuhu=(props:any)=>{
             >
                 <Form.Item label='单元' name='unit_id'>
                     <Select>
-                        {unitList.map((item:any,index:any)=>{
+                        {props.UnitList?props.UnitList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.unit_name}
                                 </Select.Option>
                             )
-                        })}
+                        }):''}
                     </Select>
                 </Form.Item>
                 <Form.Item label='电表' name='electricity_id'>
                     <Select>
-                        {cableList.map((item:any,index:any)=>{
+                        {props.CableList?props.CableList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.remark}
                                 </Select.Option>
                             )
-                        })}
+                        }):''}
                     </Select>
                 </Form.Item>
                 <Form.Item label='水表' name='water_id'>
                     <Select>
-                        {watertList.map((item:any,index:any)=>{
+                        {props.WatertList?props.WatertList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.remark}
                                 </Select.Option>
                             )
-                        })}
+                        }):''}
                     </Select>
                 </Form.Item>
                 <Form.Item label='小程序用户' name='open_id'>
                     <Select>
-                        {appUserList.map((item:any,index:any)=>{
+                        {props.AppUserList?props.AppUserList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.openId} key={index}>
+                                    {item.appUser_phone}
                                 </Select.Option>
                             )
-                        })}
+                        }):''}
                     </Select>
                 </Form.Item>
                 <Form.Item label='收费项目' name='item_id'>
                     <Select>
-                        {itemList.map((item:any,index:any)=>{
+                        {props.GongsiList?props.GongsiList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.item_name}
                                 </Select.Option>
                             )
-                        })}
+                        }):''}
                     </Select>
                 </Form.Item>
                 <Form.Item label='预留金额' name='reserved_amount'>
@@ -148,7 +171,7 @@ const Byzhuhu=(props:any)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

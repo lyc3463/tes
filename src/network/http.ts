@@ -85,7 +85,6 @@ export async function getData(ActionId: number, canshus: any[]) {
 
 export async function postData(ActionId: number, canshus: any[], b64data: string) {
     let sendstr = await getSendStr(ActionId, canshus);
-
     return fetch(window.ServerConfig.apiServer, {
         method: 'POST',
         body: JSON.stringify([sendstr, b64data]),

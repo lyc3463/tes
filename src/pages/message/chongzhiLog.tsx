@@ -9,7 +9,6 @@ const ChongzhiLog=(props)=>{
     const [stutes,setStutes]=useState(0);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
-
     const columns =[
         {
             title: '日期',

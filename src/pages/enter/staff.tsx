@@ -199,7 +199,6 @@ const Staff=(props:any)=>{
             setEndDate(data[1]);
         }
     };
-
     return(
         <div>
             <List>

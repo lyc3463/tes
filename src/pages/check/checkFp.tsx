@@ -93,6 +93,18 @@ const CheckFp=(props:any)=>{
                 )
             }
         },
+         {
+            title: '通知',
+            dataIndex: 'invoiceStatus',
+            key: 'invoiceStatus',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.invoiceStatus==2?<Button type='primary'>发送</Button>:''}
+                    </div>
+                )
+            }
+        },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -150,14 +162,33 @@ const CheckFp=(props:any)=>{
           }
       })
     };
+        // 监听日期
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+        }
+    };
+    // 状态
+    const changeStutes=(e)=>{
+      setStutes(e)
+    };
+    const sousuo=()=>{
+      setPage(1);
+        props.dispatch({
+            type:'CheckFp/fenye',
+            payload:{page,startDate,endDate,openId,stutes}
+        });
+        logFenye();
+    };
     return(
         <Spin spinning={isLoading}>
             <List>
                 <List.Item>
                     <Space>
-                        <Input
-                            addonBefore="摘要:"
-                        />
                         <Space.Compact>
                             <div
                                 style={{
@@ -173,7 +204,7 @@ const CheckFp=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker/>
+                            <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
                         <Space.Compact>
                             <div
@@ -191,41 +222,17 @@ const CheckFp=(props:any)=>{
                                 状态:
                             </div>
                             <Select
+                                onChange={changeStutes}
+                                defaultValue={stutes}
                                 style={{ width: 120 }}
                                 options={[
-                                    { value: 1, label: '未审核' },
                                     { value: 0, label: '全部' },
+                                    { value: 1, label: '未审核' },
                                     { value: 2, label: '已审核' },
                                 ]}
                             />
                         </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                状态:
-                            </div>
-                            <Select
-                                // onChange={changeStutes}
-                                // defaultValue={billStatus}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value: 0, label: '未审核' },
-                                    { value: 1, label: '已审核' },
-                                    { value: 2, label: '全部' },
-                                ]}
-                            />
-                        </Space.Compact>
-                        <Button type="primary">
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>

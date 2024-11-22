@@ -1,4 +1,4 @@
-import {Button, Form, Image, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, Form, Image, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {connect} from 'umi';
 import * as AppUserService from '@/services/appUser';
 import {useEffect, useState} from "react";
@@ -7,6 +7,7 @@ import {buildTree, ensureArrayLength} from "@/utils/OpenTool";
 
 const Wcxuserlist=(props:any)=>{
     const treeData = buildTree(qxTree);
+    const [isSpinning,setIsSpinning]=useState(false);
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
@@ -64,18 +65,6 @@ const Wcxuserlist=(props:any)=>{
                 )
             }
         },
-        // {
-        //     title: '是否实名',
-        //     dataIndex: 'is_name',
-        //     key: 'is_name',
-        //     render:(text:any,record:any,)=>{
-        //         return(
-        //             <div>
-        //                 {record.is_name==1?<Tag color='green'>已实名</Tag>:<Tag color='red'>未实名</Tag>}
-        //             </div>
-        //         )
-        //     }
-        // },
         {
             title: '权限',
             dataIndex: 'qx',
@@ -134,12 +123,13 @@ const Wcxuserlist=(props:any)=>{
                 const adjustedArray = ensureArrayLength(splitArray, selected.length, '0');
                 setSelected(adjustedArray);
             }else{
-                message.error(res.Data)
+                message.error(res.Data);
             }
         })
     };
     // 确定编辑权限
     const onOk=()=>{
+        setIsSpinning(true);
         let joinqx=selected.join('');
         props.dispatch({
             type:'AppUser/edit',
@@ -147,9 +137,11 @@ const Wcxuserlist=(props:any)=>{
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('修改成功');
+                setIsSpinning(false);
                 setIsOpen(false);
             }else {
                 message.error(res.Data);
+                setIsSpinning(false);
             }
         })
     };
@@ -181,7 +173,7 @@ const Wcxuserlist=(props:any)=>{
         setSelected(newSelected);
     };
     return(
-        <div>
+        <Spin spinning={isSpinning}>
             <List style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
                 <List.Item>
                     <Space>
@@ -218,7 +210,7 @@ const Wcxuserlist=(props:any)=>{
                 </Space>
                 <TreeMenu tree={treeData} selected={selected} setSelected={setSelected} />
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

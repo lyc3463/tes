@@ -1,11 +1,13 @@
 import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
 import {history,connect} from "umi";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 
 const OwnerInfo=(props)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [page,setPage]=useState(1);
+    const [name,setName]=useState('');
     const toadd=()=>{
       history.push('/contract/addOwnerlnfo/');
     };
@@ -20,7 +22,12 @@ const OwnerInfo=(props)=>{
         }
     };
     const sousuo=()=>{
-
+        setPage(1);
+       props.dispatch({
+                type:"OwnerInfo/fenye",
+                payload:{name,startDate,endDate}
+       })
+        logFenye();
     };
     const columns =[
         {
@@ -62,6 +69,19 @@ const OwnerInfo=(props)=>{
         },
 
     ];
+    const onChange=(e)=>{
+        setPage(e);
+    };
+    // 分页
+    const logFenye=()=>{
+        props.dispatch({
+            type:"OwnerInfo/fetch",
+            payload:{page,name,startDate,endDate}
+        })
+    };
+    useEffect(() => {
+        logFenye();
+    }, [page]);
     return(
         <div>
             <List>
@@ -103,10 +123,16 @@ const OwnerInfo=(props)=>{
                 scroll={{y:'60vh'}}
                 pagination={false}
                 rowKey={(columns) => columns.id}
-                dataSource={props.StaffList}
+                dataSource={props.OwnerInfoList}
             />
-            {/*{props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}*/}
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )
 }
-export default connect() (OwnerInfo)
+const mapStateToProps = (state: any) => {
+    return {
+        OwnerInfoList: state.OwnerInfo.list,
+        count:state.OwnerInfo.count
+    }
+};
+export default connect(mapStateToProps) (OwnerInfo)

@@ -200,7 +200,6 @@ const Custom=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log(props)
     }, [page]);
     return(
         <div>

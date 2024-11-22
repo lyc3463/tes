@@ -167,8 +167,6 @@ const Kehulist=(props:any)=>{
         props.dispatch({
             type:"CheckCompany/fetch",
             payload:{page,name,startDate,endDate}
-        }).then((res:any)=>{
-            console.log(res)
         })
     };
     // 时间选择
@@ -184,7 +182,6 @@ const Kehulist=(props:any)=>{
     useEffect(() => {
         logFenye();
     }, [page]);
-
     return (
         <div>
             <List>

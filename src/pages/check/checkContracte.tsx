@@ -18,6 +18,10 @@ const CheckContracte=(props:any)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
+    // 发送弹窗
+    const [fsOpen,setFsOpen]=useState(false);
+    // 发送小程序用户
+    const [fId,setfId]=useState(0);
     const columns =[
         {
             title: '合同编号',
@@ -93,18 +97,30 @@ const CheckContracte=(props:any)=>{
             }
 
         },
-        // {
-        //     title: '线上签合同',
-        //     dataIndex: 'xianshang',
-        //     key: 'xianshang',
-        //
-        // },
-        // {
-        //     title: '线下签合同',
-        //     dataIndex: 'xianxia',
-        //     key: 'xianxia',
-        //
-        // },
+        {
+            title: '下载',
+            dataIndex: 'zuMoney',
+            key: 'zuMoney',
+            align:'center',
+            render: (text:any, record:any) => {
+                return(
+                    <Space>
+                        {record.contractStatus==2? <Button type='link' onClick={()=>{toxiazai(record.id)}}>下载</Button> :''}
+                    </Space>
+                )
+            }
+        },
+        {
+            title: '线上签合同',
+            dataIndex: 'zuMoney',
+            key: 'zuMoney',
+            align:'center',
+            render: (text:any, record:any) => {
+                return(
+                 <Button type='link' onClick={()=>onSelectWXusetList(record)}>发送</Button>
+                )
+            }
+        },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -124,6 +140,10 @@ const CheckContracte=(props:any)=>{
             }
         },
     ];
+    const onSelectWXusetList=(e:any)=>{
+        setFsOpen(true);
+        setfId(e.id)
+    };
     // 审核弹窗
     const isCheck=(id:number)=>{
         setUid(id);
@@ -146,6 +166,10 @@ const CheckContracte=(props:any)=>{
     // 去详情页面
     const toInfo=(e:number)=>{
         history.push(`/check/contracteInfo?id=${e}`)
+    };
+    // 下载页面
+    const toxiazai=(e)=>{
+        history.push(`/check/contractez?id=${e}`)
     };
     // 搜索
     const sousuo=()=>{
@@ -192,6 +216,9 @@ const CheckContracte=(props:any)=>{
             setEndDate(data[1]);
         }
     };
+    const onFsOk=()=>{
+        console.log('发送');
+    };
     return(
         <div>
             <List>
@@ -218,32 +245,6 @@ const CheckContracte=(props:any)=>{
                                 日期:
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
-                        </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                合同类型:
-                            </div>
-                            <Select
-                                onChange={changeType}
-                                defaultValue={contractType}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value:0, label: '全部' },
-                                    { value:1, label: '未审核' },
-                                    { value:2, label: '已审核' },
-                                ]}
-                            />
                         </Space.Compact>
                         <Space.Compact>
                             <div
@@ -290,6 +291,10 @@ const CheckContracte=(props:any)=>{
             {/*    审核通过的弹窗*/}
             <Modal title='审核合同' open={isOpen} onCancel={()=>setIsOpen(false)} onOk={checkOk}>
                 <div>是否要审核通过？</div>
+            </Modal>
+        {/*发送弹窗*/}
+            <Modal open={fsOpen} title='选择小程序用户' onCancel={()=>setFsOpen(false)} onOk={onFsOk}>
+
             </Modal>
         </div>
     )
