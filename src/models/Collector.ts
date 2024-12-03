@@ -10,8 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import CollectorType from '@/ModelTypes/TypeCollector';
 import { fixPathname } from '@/utils/common';
-import * as BannerService from "@/services/banner";
-import * as CableService from "@/services/cable";
 let pl={
     page:1,
     collector_number:'',

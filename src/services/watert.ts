@@ -8,7 +8,7 @@ export function add(vals:any) {
 
 
 export function edit(vals:any) {
-    // return getData(1118, [vals.uid,vals.account_name,vals.account_card,vals.balance,vals.account_type,vals.company_id,vals.project_id]);
+    return getData(1118, [vals.uid,vals.water_type,vals.priceid,vals.rate,vals.remark]);
 }
 
 export function remove(vals:any) {
@@ -26,6 +26,9 @@ export function addcz(vals:any) {
 }
 export function addkh(vals:any) {
     return getData(1395, [vals.uid]);
+}
+export function ql(vals:any) {
+    return getData(1401, [vals]);
 }
 
 

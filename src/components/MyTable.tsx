@@ -24,13 +24,19 @@ const MyTable=(props:any)=>{
           setEndDate(endTime);
           getList(start,endTime);
       }else if (props.value==2){
-          let start=dayjs(props.startTime).format('YYYY-DD-MM HH:mm:ss');
-          let parsedTime = dayjs(start);
-          const parsedEndTime = parsedTime.clone().minute(59).second(59).hour(23);
-          let endTime=dayjs(parsedEndTime).format('YYYY-MM-DD HH:mm:ss');
+          let startTime = dayjs(props.startTime);
+          let endOfMonthDate = startTime.clone().endOf('month').date();
+          let endTime = startTime.clone().endOf('month').startOf('second').add(59, 'second').add(59, 'minute').subtract(1, 'millisecond');
+          let endTimeSimpler = startTime.clone().endOf('month').subtract(1, 'millisecond');
+          let start = startTime.format('YYYY-MM-DD HH:mm:ss');
+          let end = endTimeSimpler.format('YYYY-MM-DD HH:mm:ss');
+          // let start=dayjs(props.startTime).format('YYYY-MM-DD HH:mm:ss');
+          // let parsedTime = dayjs(start);
+          // const parsedEndTime = parsedTime.clone().minute(59).second(59).hour(23);
+          // let endTime=dayjs(parsedEndTime).format('YYYY-MM-DD HH:mm:ss');
           setStartDate(start);
-          setEndDate(endTime);
-          getList(start,endTime);
+          setEndDate(end);
+          getList(start,end);
       }else if (props.value==3){
           let start=dayjs(props.startTime).format('YYYY-MM-DD HH:mm:ss');
           let parsedTime = dayjs(start);
@@ -53,7 +59,7 @@ const MyTable=(props:any)=>{
     const getList=(vals:string,vals2:string)=>{
       StatisticsService.fetch(page,'','',vals,vals2).then((res:any)=>{
           if (res.ErrorCode==0){
-              console.log(res)
+              console.log(res);
               setList(res.Data)
           }else {
               message.error(res.Data)

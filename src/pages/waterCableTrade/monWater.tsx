@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import {Button, DatePicker, List, Modal, Space, Table} from "antd";
 import MyTable from "@/components/MyTable";
 import {connect} from "umi";
+import MywaterTable from "@/components/MywaterTable";
 
 const MonWater=(props)=>{
     // 获取当前日期
@@ -16,13 +17,28 @@ const MonWater=(props)=>{
     // 详情的时间
     const [infoDate,setInfoDate]=useState('');
     const [open,setOpen]=useState(false);
+    const isoDateString = (text:string)=>{
+        const formattedString = `${text.substring(0, 4)}-${text.substring(4, 6)}`;
+
+        return formattedString
+    };
+    const getFirstDayOfMonth=(yearMonth:string)=> {
+        const year = parseInt(yearMonth.slice(0, 4), 10);
+        const month = parseInt(yearMonth.slice(4, 6), 10);
+        const firstDay = new Date(year, month - 1, 1, 0, 0, 0);
+        const formattedDate = firstDay.toISOString().split('T')[0].replace(/-/g, '-').padEnd(19, '0') + ' 00:00:00';
+        const formattedDateSimpler = `${year}-${String(month).padStart(2, '0')}-${String(firstDay.getDate()).padStart(2, '0')} 00:00:00`;
+
+        // 返回格式化后的日期时间字符串
+        return formattedDateSimpler;
+    }
     const columns=[
         {
             title: '日期',
             dataIndex: 'recordTimes',
             render: (_: any, record: any) => (
                 <div>
-                    {dayjs(record.recordTimes).format('YYYY-DD-MM')}日
+                    {isoDateString(record.recordTimes)}月
                 </div>
 
             ),
@@ -57,10 +73,11 @@ const MonWater=(props)=>{
     };
     useEffect(() => {
         getList();
-        console.log(props)
+        console.log("props",props)
     }, []);
     const toInfo=(e:string)=>{
-        setInfoDate(e);
+        let strtoDate=getFirstDayOfMonth(e);
+        setInfoDate(strtoDate);
         setOpen(true);
     };
     // 监听日期
@@ -132,7 +149,7 @@ const MonWater=(props)=>{
 
             />
             <Modal open={open} title={'详情'} onCancel={()=>setOpen(false)} onOk={()=>setOpen(false)} width={'70vw'}>
-                <MyTable startTime={infoDate} value={2}/>
+                <MywaterTable startTime={infoDate} value={3}/>
             </Modal>
         </div>
     )

@@ -64,7 +64,7 @@ function Gongsiguanli(props: any) {
         },
     ];
     const tianjia = () => {
-        history.push('../addgongsi/')
+        history.push('/xiangmu/addgongsi/')
     };
     const toedit=(e:number)=>{
         history.push(`/xiangmu/editShoufei?id=${e}`)

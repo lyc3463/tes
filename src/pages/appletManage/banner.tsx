@@ -21,15 +21,7 @@ const Banner=(props:any)=>{
                 <Image src={text} style={{width:"50px",height:'50px'}}/>
             ),
         },
-        // {
-        //     title: '显示在小程序',
-        //     dataIndex: 'carouselStatus',
-        //     render: (text: any, record: any) => (
-        //         <div>
-        //             {text?<span style={{color:'green'}}>是</span>:<span style={{color:'red'}}>否</span>}
-        //         </div>
-        //     ),
-        // },
+
         {
             title: '操作',//简单常用操作放这里，复杂放详情
             dataIndex: 'operation',
@@ -40,7 +32,7 @@ const Banner=(props:any)=>{
                 </Space>
             ),
         },
-    ]
+    ];
 
     // 删除的弹窗
     const isdelete=async (e:number)=>{

@@ -1,7 +1,7 @@
 import {connect,history} from 'umi'
 import {Button, Form, Input, InputNumber, message, Radio, Select} from "antd";
 import CryptoUtils from '@/utils/Crypto';
-import {mmPattern, phonePattern, buildTree, filterAndUpdateList} from "@/utils/OpenTool";
+import {mmPattern, phonePattern, buildTree, filterAndUpdateList, ensureArrayLength} from "@/utils/OpenTool";
 import {qxTree} from "@/constants/qxMenu";
 import {useEffect, useState} from "react";
 import { StaticInfo } from '@/StaticInfo';
@@ -16,7 +16,7 @@ const AddUser=(props:any)=>{
     const [form] = Form.useForm();
     const treeData = buildTree(qxTree);
     const [roleList,setRoleList]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(344).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(346).fill('0'));
     const onFinish= (values)=>{
         let mm =CryptoUtils.md5(values.passWord);
         values.passWord=mm;
@@ -68,9 +68,12 @@ const AddUser=(props:any)=>{
     const change=(e)=>{
         RoleService.one(e).then((res:any)=>{
             if (res.ErrorCode==0){
-                setSelected(res.Data.authority)
+                const splitArray = res.Data.authority.split('');
+                const adjustedArray = ensureArrayLength(splitArray, selected.length, '0');
+                setSelected(adjustedArray);
+
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
             }
         })
     };

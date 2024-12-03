@@ -17,7 +17,7 @@ const EditUser=(props:any)=>{
     const location=useLocation();
     const [roleList,setRoleList]=useState([]);
     const formRef =useRef();
-    const [selected, setSelected] = useState<string[]>(Array(344).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(346).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -29,7 +29,6 @@ const EditUser=(props:any)=>{
     let getOneUserInfo=(id:string)=>{
         UsersService.one(id).then((res:any)=>{
             if (res?.ErrorCode==0){
-                console.log("res",res)
                 formRef.current?.setFieldsValue(res.Data);
                 const authorityString = res.Data.authority;
                 const splitArray = authorityString.split('');
@@ -89,7 +88,10 @@ const EditUser=(props:any)=>{
     const change=(e)=>{
         RoleService.one(e).then((res:any)=>{
             if (res.ErrorCode==0){
-                setSelected(res.Data.authority.split(''));
+                const splitArray = res.Data.authority.split('');
+                const adjustedArray = ensureArrayLength(splitArray, selected.length, '0');
+                setSelected(adjustedArray);
+
             }else {
                 message.error(res.Data)
             }

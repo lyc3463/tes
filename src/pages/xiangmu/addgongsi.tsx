@@ -69,7 +69,7 @@ function Addgongsi(props: any) {
   }
   // 预支付金额
   const ChangePrepaidAmount=(e)=>{
-    setPrepaidAmount(e.target.value)
+    setPrepaidAmount(e);
   }
   // 计量方式
   const changeCountMethod=(e)=>{
@@ -101,19 +101,20 @@ function Addgongsi(props: any) {
             每<InputNumber controls={false} defaultValue={item_interval} onChange={changeJianGe}/>个月收费一次
             <p style={{color:'#555',fontSize:'12px'}}>注意：下方单价和固定金额为每月数额 。</p>
           </Form.Item>
-            <Form.Item label='扣款方式'>
-              <Radio.Group onChange={koukuanType} defaultValue={deduction_method}>
-                <Radio value={1}>当期收当期(预付费)</Radio>
-                <Radio value={2}>当期收上期(后付费)</Radio>
-                <Radio value={3}>当期收下期(预付费且押一个周期)</Radio>
-              </Radio.Group>
-            </Form.Item></>:''
+            {/*<Form.Item label='扣款方式'>*/}
+            {/*  <Radio.Group onChange={koukuanType} defaultValue={deduction_method}>*/}
+            {/*    <Radio value={1}>当期收当期(预付费)</Radio>*/}
+            {/*    <Radio value={2}>当期收上期(后付费)</Radio>*/}
+            {/*    <Radio value={3}>当期收下期(预付费且押一个周期)</Radio>*/}
+            {/*  </Radio.Group>*/}
+            {/*</Form.Item>*/}
+          </>:''
         }
-        {
-          setDeduction_method==1?   <Form.Item label='预付金额'>
-            <Input defaultValue={prepaidAmount}  onChange={ChangePrepaidAmount}/>
-          </Form.Item>:''
-        }
+        {/*{*/}
+        {/*  itemType==1?<Form.Item label='预付金额(元)'>*/}
+        {/*    <InputNumber defaultValue={prepaidAmount}  onChange={ChangePrepaidAmount}/>*/}
+        {/*  </Form.Item>:''*/}
+        {/*}*/}
         <Form.Item label='月金额计算方式'>
           <Radio.Group onChange={jierType} defaultValue={monthly_amount}>
             <Radio value={1}>固定金额</Radio>

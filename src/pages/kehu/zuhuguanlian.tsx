@@ -23,12 +23,12 @@ const Zuhuguanlian=(props:any)=>{
             key: 'tenant_card',
         },
         {
-            title: '余额',
+            title: '余额(元)',
             dataIndex: 'appUser_balance',
             key: 'appUser_balance',
         },
         {
-            title: '积分',
+            title: '积分(分)',
             dataIndex: 'appUser_integral',
             key: 'appUser_integral',
         },
@@ -71,9 +71,6 @@ const Zuhuguanlian=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-    }, []);
-    useEffect(() => {
-        console.log(props)
     }, [page]);
     // 分页
     const logFenye=()=>{

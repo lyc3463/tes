@@ -3,6 +3,9 @@ import {connect} from "umi";
 import {useEffect} from "react";
 
 const MonthlyBill=(props:any)=>{
+    useEffect(() => {
+        console.log(props)
+    }, []);
     const columns =[
         {
             title: '日期',

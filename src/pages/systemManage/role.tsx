@@ -1,8 +1,13 @@
-import {Button, DatePicker, Image, Input, List, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Modal, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Role=(props)=>{
+    const [uid,setUid]=useState(0);
+    const [isOpen,setIsopen]=useState(false);
+    const [isspinning,setisspinning]=useState(false);
+    const [name,setName]=useState('');
     const columns =[
         {
             title: '角色名称',
@@ -17,7 +22,7 @@ const Role=(props)=>{
                 return(
                    <Space>
                        <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
-                       <Button type='link'>删除</Button>
+                       <Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>
                    </Space>
                 )
             }
@@ -29,9 +34,42 @@ const Role=(props)=>{
     const toedit=(e)=>{
         history.push(`/systemManage/editRole?id=${e}`)
     };
-
+    // 删除弹窗
+    const isdelete=(e:number)=>{
+      setUid(e);
+      setIsopen(true);
+    };
+    const onOK=()=>{
+        setisspinning(true);
+        props.dispatch({
+            type:'Role/remove',
+            payload:uid
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setIsopen(false);
+                setisspinning(false);
+            }else {
+                message.error(res.Data);
+                setIsopen(false);
+                setisspinning(false);
+            }
+        })
+    };
+    const sousuo=()=>{
+        logfenye();
+    };
+    const logfenye=()=>{
+        props.dispatch({
+            type:"Role/fetch",
+            payload:{name}
+        })
+    };
+    useEffect(() => {
+        logfenye();
+    }, []);
     return(
-        <div>
+        <Spin spinning={isspinning}>
             <List>
                 <List.Item>
                     <div>
@@ -42,8 +80,9 @@ const Role=(props)=>{
                     <Space>
                         <Input
                             addonBefore="角色名称:"
+                            onChange={(e)=>setName(e.target.value)}
                         />
-                        <Button type="primary">
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -57,7 +96,12 @@ const Role=(props)=>{
                 pagination={false}
                 dataSource={props.RoleList}
             />
-        </div>
+            <Modal open={isOpen} onOk={onOK} onCancel={()=>setIsopen(false)} title='删除角色'>
+                <div>
+                    是否要删除角色
+                </div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

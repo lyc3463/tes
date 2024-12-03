@@ -198,3 +198,25 @@ export function ensureArrayLength(array, length, fillValue) {
     }
     return array;
 }
+
+//当前月份总天数
+export function getDaysInCurrentMonth() {
+    // 创建一个表示当前日期的 Date 对象
+    const currentDate = new Date();
+
+    // 获取当前年份和月份
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1; // getMonth() 返回的是 0-11，所以要加 1
+
+    // 创建一个表示下个月第一天的 Date 对象
+    // 例如，如果当前日期是 2023-10-15，那么下个月的第一天是 2023-11-01
+    const nextMonthFirstDay = new Date(currentYear, currentMonth, 1);
+
+    // 获取上个月最后一天的日期（即当前月份的天数）
+    // 例如，如果下个月第一天是 2023-11-01，那么上个月的最后一天是 2023-10-31
+    // 减去一天，得到的就是当前月份的最后一天
+    const lastDayOfCurrentMonth = new Date(nextMonthFirstDay - 1);
+
+    // 返回当前月份的天数
+    return lastDayOfCurrentMonth.getDate();
+}

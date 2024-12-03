@@ -10,6 +10,9 @@ const Finance=(props)=>{
     const [type,setType]=useState(2);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [companyId,setcompanyId]=useState(0);
+    const [projectId,setprojectId]=useState(0);
+    const [subjectId,setsubjectId]=useState(0);
     const columns =[
         {
             title: '日期',
@@ -117,7 +120,7 @@ const Finance=(props)=>{
         setPage(1);
         props.dispatch({
             type:'Finance/fenye',
-            payload:{abstract,startDate,endDate,stutes,type}
+            payload:{abstract,startDate,endDate,stutes,type,companyId,projectId,subjectId}
         });
         logFenye();
     };
@@ -125,7 +128,7 @@ const Finance=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Finance/fetch",
-            payload:{page,abstract,startDate,endDate,stutes,type}
+            payload:{page,abstract,startDate,endDate,stutes,type,companyId,projectId,subjectId}
         })
     };
     // 监听页数

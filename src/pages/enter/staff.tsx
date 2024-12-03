@@ -69,7 +69,7 @@ const Staff=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        合同类型1
+                        {record.contractType==1?<Tag color='cyan'>定金合同</Tag>:<Tag color='purple'>正式合同</Tag>}
                     </div>
                 )
             }

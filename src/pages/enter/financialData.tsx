@@ -171,6 +171,7 @@ const FinancialData=(props:any)=>{
     };
     // 监听类型
     const changeType=(e:number)=>{
+        console.log("类型",e)
         setBillMoneyType(e);
     };
     // 监听状态
@@ -178,7 +179,6 @@ const FinancialData=(props:any)=>{
         setBillStatus(e);
     };
     useEffect(() => {
-        console.log(props);
         logFenye();
     }, [page]);
     return(

@@ -73,7 +73,7 @@ const CheckContracte=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        合同类型1
+                        {record.contractType==1?<Tag color='cyan'>定金合同</Tag>:<Tag color='purple'>正式合同</Tag>}
                     </div>
                 )
             }
@@ -105,22 +105,22 @@ const CheckContracte=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        {record.contractStatus==2? <Button type='link' onClick={()=>{toxiazai(record.id)}}>下载</Button> :''}
+                        {record.contractStatus==2? <Button type='link' onClick={()=>{toxiazai(record)}}>下载</Button> :''}
                     </Space>
                 )
             }
         },
-        {
-            title: '线上签合同',
-            dataIndex: 'zuMoney',
-            key: 'zuMoney',
-            align:'center',
-            render: (text:any, record:any) => {
-                return(
-                 <Button type='link' onClick={()=>onSelectWXusetList(record)}>发送</Button>
-                )
-            }
-        },
+        // {
+        //     title: '线上签合同',
+        //     dataIndex: 'zuMoney',
+        //     key: 'zuMoney',
+        //     align:'center',
+        //     render: (text:any, record:any) => {
+        //         return(
+        //          <Button type='link' onClick={()=>onSelectWXusetList(record)}>发送</Button>
+        //         )
+        //     }
+        // },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -169,7 +169,11 @@ const CheckContracte=(props:any)=>{
     };
     // 下载页面
     const toxiazai=(e)=>{
-        history.push(`/check/contractez?id=${e}`)
+        if (e.contractType==2){
+            history.push(`/check/contractez?id=${e.id}`);
+        }else {
+            history.push(`/check/checkdingjin?id=${e.id}`);
+        };
     };
     // 搜索
     const sousuo=()=>{

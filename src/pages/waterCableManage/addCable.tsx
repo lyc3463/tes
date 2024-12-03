@@ -23,12 +23,13 @@ const AddCable=(props:any)=>{
             message.success('添加成功')
             history.push('/waterCableManage/cable')
         }else {
-            message.error(res.Data)
+            message.error(res.Data);
         }
-    }
+    };
     useEffect(() => {
         filterAndUpdateList(props.CollectorList, 'collectorid', 'id', setCollectorList);
         filterAndUpdateList(props.CableParameterList, 'price_name', 'id', setCable);
+        console.log('props',props)
     }, []);
     const ChangeOps=(e)=>{
         const selectedItem = collectorList.find(item => item.value === e);
@@ -72,8 +73,8 @@ const AddCable=(props:any)=>{
                 </Form.Item>
                 <Form.Item label='电表类型' name='electricity_type'>
                     <Select options={[
-                        {label:'单相单费率',value:'16225'},
-                        {label:'三相单费率',value:'10226'}
+                        {label:'单相单费率07抄表',value:'65361'},
+                        {label:'三相单费率07抄表',value:'65362'}
                     ]}>
                     </Select>
                 </Form.Item>

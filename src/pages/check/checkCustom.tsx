@@ -1,5 +1,5 @@
 import {Button, DatePicker, Form, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
-import {connect, history} from "@@/exports";
+import {connect, history} from "umi";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import CustomType from '@/ModelTypes/TypeCustom';

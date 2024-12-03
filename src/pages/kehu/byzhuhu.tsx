@@ -12,13 +12,28 @@ const Byzhuhu=(props:any)=>{
     const [uid,setUid]=useState<string|undefined>();
     const formRef=useRef();
     const [isSpinning,setIsSpinning]=useState(false);
+    const [unit_idz,setUnit_id]=useState([]);
+    const [electricity_idz,setElectricity_id]=useState([]);
+    const [water_idz,setWater_id]=useState([]);
+    const [item_idz,setItem_idz]=useState([]);
     const getOneCustom=async (id:string)=>{
         let res:any=await  ZuhuServer.one(id);
         if (res.ErrorCode==0){
             let data=res.Data;
-            formRef.current.setFieldsValue(data);
+            formRef.current.setFieldsValue(data[0])
+            setUnit_id(data[1]);
+            setElectricity_id(data[2]);
+            setWater_id(data[3]);
+            let newArr=data[4].map((item:any)=>{
+                return item.id
+            });
+            if (newArr.length<1){
+                setItem_idz([0]);
+            }else {
+                setItem_idz(newArr);
+            }
         }else {
-            message.error(res.Data)
+            message.error(res.Data);
         }
     };
     useEffect(()=>{
@@ -28,11 +43,14 @@ const Byzhuhu=(props:any)=>{
         getOneCustom(id);
     },[]);
     const onFinish=(valus:any)=>{
+        let unit_id=unit_idz.join('|');
+        let water_id=water_idz.join('|');
+        let electricity_id=electricity_idz.join('|');
+        let item_id=item_idz.join('|');
         setIsSpinning(true);
-        valus.water_id?valus.water_id:valus.water_id=0;
         props.dispatch({
             type:'Zuhu/byzhuhu',
-            payload:{...valus,uid}
+            payload:{...valus,uid,unit_id,water_id,electricity_id,item_id}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('绑定成功');
@@ -81,6 +99,34 @@ const Byzhuhu=(props:any)=>{
             type:'Unit/fetch'
         })
     };
+    const changeEle=(e)=>{
+        if (e.includes(0)){
+            setElectricity_id([0]);
+        }else {
+            setElectricity_id(e);
+        }
+    };
+    const changeUint=(e)=>{
+        if (e.includes(0)){
+            setUnit_id([0]);
+        }else {
+            setUnit_id(e);
+        }
+    };
+    const changeWater=(e)=>{
+        if (e.includes(0)){
+            setWater_id([0]);
+        }else {
+            setWater_id(e);
+        }
+    };
+    const changeitem=(e)=>{
+        if (e.includes(0)){
+            setItem_idz([0]);
+        }else {
+            setItem_idz(e);
+        }
+    };
     return(
         <Spin spinning={isSpinning}>
             <Form
@@ -92,8 +138,11 @@ const Byzhuhu=(props:any)=>{
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                <Form.Item label='单元' name='unit_id'>
-                    <Select>
+                <Form.Item label='单元'>
+                    <Select  mode="multiple" value={unit_idz} onChange={changeUint}>
+                        <Select.Option value={0} key="no-unit-associated">
+                            暂不关联
+                        </Select.Option>
                         {props.UnitList?props.UnitList.map((item:any,index:any)=>{
                             return(
                                 <Select.Option value={item.id} key={index}>
@@ -103,22 +152,28 @@ const Byzhuhu=(props:any)=>{
                         }):''}
                     </Select>
                 </Form.Item>
-                <Form.Item label='电表' name='electricity_id'>
-                    <Select>
+                <Form.Item label='电表' >
+                    <Select mode="multiple" value={electricity_idz} onChange={changeEle}>
+                        <Select.Option value={0} key="no-unit-associated">
+                            暂不关联
+                        </Select.Option>
                         {props.CableList?props.CableList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.id} key={index}>
+                                <Select.Option value={item.id} key={item.id}>
                                     {item.remark}
                                 </Select.Option>
                             )
                         }):''}
                     </Select>
                 </Form.Item>
-                <Form.Item label='水表' name='water_id'>
-                    <Select>
+                <Form.Item label='水表'>
+                    <Select mode="multiple" value={water_idz} onChange={changeWater}>
+                        <Select.Option value={0} key="no-unit-associated">
+                            暂不关联
+                        </Select.Option>
                         {props.WatertList?props.WatertList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.id} key={index}>
+                                <Select.Option value={item.id} key={item.id}>
                                     {item.remark}
                                 </Select.Option>
                             )
@@ -129,15 +184,18 @@ const Byzhuhu=(props:any)=>{
                     <Select>
                         {props.AppUserList?props.AppUserList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.openId} key={index}>
+                                <Select.Option value={item.openId} key={item.id}>
                                     {item.appUser_phone}
                                 </Select.Option>
                             )
                         }):''}
                     </Select>
                 </Form.Item>
-                <Form.Item label='收费项目' name='item_id'>
-                    <Select>
+                <Form.Item label='收费项目' >
+                    <Select  mode="multiple" value={item_idz} onChange={changeitem}>
+                        <Select.Option value={0} key="no-unit-associated">
+                            暂不关联
+                        </Select.Option>
                         {props.GongsiList?props.GongsiList.map((item:any,index:any)=>{
                             return(
                                 <Select.Option value={item.id} key={index}>

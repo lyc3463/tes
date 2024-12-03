@@ -3,6 +3,7 @@ import {Button, Input, List, Modal, Table, Empty, Select, Space, DatePicker} fro
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import MyTable from "@/components/MyTable";
+import MywaterTable from "@/components/MywaterTable";
 
 const YaerWater=(props:any)=>{
     // 获取当前日期
@@ -135,7 +136,7 @@ const YaerWater=(props:any)=>{
 
             />
             <Modal open={open} title={'详情'} onCancel={()=>setOpen(false)} onOk={()=>setOpen(false)} width={'70vw'}>
-                <MyTable startTime={infoDate} value={4}/>
+                <MywaterTable startTime={infoDate} value={4}/>
             </Modal>
         </div>
     )

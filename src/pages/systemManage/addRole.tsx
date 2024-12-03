@@ -14,7 +14,7 @@ let authArr =qxList.split('').map(Number)
 const AddRole=(props)=>{
     const [form] = Form.useForm();
     const treeData = buildTree(qxTree);
-    const [selected, setSelected] = useState<string[]>(Array(344).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(346).fill('0'));
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: TypeMenu[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void })=> {
         return (
             <ul>

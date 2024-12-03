@@ -1,4 +1,4 @@
-import {Button, Form, Input, message, Radio, Spin} from "antd";
+import {Button, Form, Image, Input, message, Radio, Spin} from "antd";
 import {history, useLocation,connect} from "umi";
 import CmpImageUploader from "@/components/ImageUploader";
 import * as LinksServer from "@/services/links";
@@ -14,16 +14,19 @@ const EditLinks=(props:any)=>{
     const formRef=useRef()
     // 路由参数
     const [uid,setUid]=useState<string|undefined>()
-    // 单图
+    // 单图名字
     const [single, setSingle] = useState<string | undefined>(undefined);
-
+    // 图片地址
+    const [b64,setB64]=useState('');
     // 获取单个友情图详情
     const getOneLink=async (id:string)=>{
-        let res=await  LinksServer.one(id);
-        console.log(res)
-        if (res?.ErrorCode==0){
-            formRef.current.setFieldsValue(res?.Data)
-            setSingle(res?.Data.carousel_image)
+        let res:any=await  LinksServer.one(id);
+        if (res.ErrorCode==0){
+            formRef.current.setFieldsValue(res.Data);
+            setSingle(res.Data.fileName);
+            setB64(res.Data.link_image)
+        }else {
+            message.error(res.Data)
         }
     };
     // 编辑提交
@@ -47,6 +50,9 @@ const EditLinks=(props:any)=>{
         setUid(id)
         getOneLink(id)
     },[]);
+    const setOldB64=(e)=>{
+        setB64(e);
+    };
     return(
         <Spin spinning={isLoading}>
             <Form
@@ -66,7 +72,8 @@ const EditLinks=(props:any)=>{
                     <Input/>
                 </Form.Item>
                 <Form.Item label="封面图" >
-                    <CmpImageUploader onImageUpload={handleImageUpload}/>
+                    <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={setOldB64}/>
+                    {b64?<Image src={b64} style={{height:'80px',width:'80px'}}/>:''}
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">

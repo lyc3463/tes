@@ -1,7 +1,11 @@
-import {Button, Form, Input, List, Select, Space, Table} from "antd";
+import {Button, Form, Input, List, message, Modal, Select, Space, Spin, Table} from "antd";
 import {history,connect} from 'umi'
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const UserManage=(props:any)=>{
+    const [did,setDid]=useState(0);
+    const [isspinning,setisspinning]=useState(false);
+    const [isopen,setisopen]=useState(false);
     const columns =[
         {
             title: '用户姓名',
@@ -20,7 +24,7 @@ const UserManage=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                       {/*<Button type='link'>删除</Button>*/}
+                       <Button type='link' onClick={()=>isDelete(record.id)} >删除</Button>
                        <Button type='link' onClick={()=>toEdit(record.id)}>编辑</Button>
                     </div>
                 )
@@ -36,8 +40,29 @@ const UserManage=(props:any)=>{
     useEffect(() => {
         console.log(props)
     }, []);
+    const isDelete=(e:number)=>{
+        setisopen(true);
+        setDid(e);
+    };
+    const onOk=()=>{
+        setisspinning(true);
+        props.dispatch({
+            type:'Users/remove',
+            payload:did
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setisopen(false);
+                setisspinning(false);
+            }else {
+                message.error(res.Data);
+                setisopen(false);
+                setisspinning(false);
+            }
+        })
+    };
     return(
-        <div>
+        <Spin spinning={isspinning}>
             <List>
                 <List.Item>
                     <div>
@@ -63,7 +88,10 @@ const UserManage=(props:any)=>{
                 pagination={false}
                 dataSource={props.UsersList}
             />
-        </div>
+            <Modal open={isopen} onOk={onOk} onCancel={()=>setisopen(false)}>
+                <div>是否要删除?</div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

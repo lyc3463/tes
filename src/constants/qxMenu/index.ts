@@ -347,5 +347,7 @@ export const qxTree: TypeMenu[] = [
     { id: 341, name: '发送发票', parentId: 330, authId: 341},
     { id: 342, name: '客户到访次数', parentId: 43, authId: 342},
     { id: 343, name: '编辑', parentId: 75, authId: 343},
+    { id: 344, name: '保存合同模板', parentId: 47, authId: 344},
+    { id: 345, name: '启用问卷', parentId: 277, authId: 345},
 
 ]

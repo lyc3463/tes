@@ -71,7 +71,7 @@ const AddWater=(props:any)=>{
                 </Form.Item>
                 <Form.Item label='水表类型' name='water_type'>
                     <Select options={[
-                        {label:'无线普通预付费水表',value:'13300'}
+                        {label:'无线无预付',value:'13301'}
                     ]}/>
                 </Form.Item>
                 <Form.Item label='倍率' name='rate'>

@@ -14,9 +14,12 @@ let pl={
     page:1,
     billAbstract:'',
     billBgeinTime:'2000-01-01',
-    billEndTime:'2030-01-01',
+    billEndTime:'2099-01-01',
     billStatus:1,
     billMoneyType:2,
+    companyId:0,
+    projectId:0,
+    subjectId:0
 }
 
 export interface BillSumCountState {
@@ -31,6 +34,7 @@ export interface BillSumInterface {
     effects: {
         fetch: Effect;
         fetchOne: Effect;
+        fenye: Effect;
     };
     reducers: {
         list: Reducer<BillSumType[]>;
@@ -44,11 +48,22 @@ const BannerModel: BillSumInterface = {
     state: {},
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
-            const res = yield call(BillService.fetch, pl);
+            const res = yield call(BillService.fetch, payload?payload:pl);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
                     payload: { list: res.Data },
+                });
+            } else {
+                message.error(res.ErrorCode + res.Data);
+            }
+        },
+        *fenye({ type, payload }, { put, call, select }): any {
+            const res = yield call(BillService.fenye, payload?payload:pl);
+            if (res.ErrorCode == 0) {
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -92,6 +107,12 @@ const BannerModel: BillSumInterface = {
                 if (StaticInfo.userId > 0 && pathname === '/financeManage/billSum/') {
                     dispatch({
                         type: 'fetch',
+                        payload: location.state,
+                    });
+                }
+                if (StaticInfo.userId > 0 && pathname === '/financeManage/billSum/') {
+                    dispatch({
+                        type: 'fenye',
                         payload: location.state,
                     });
                 }

@@ -5,11 +5,11 @@ export function fetch(vals:any) {
 }
 
 export function add(vals:any) {
-    return getData(1145, [vals.item_name,vals.itemType,vals.item_interval,vals.deduction_method,vals.monthly_amount,vals.count_method,vals.price,vals.remark,vals.prepaidAmount]);
+    return getData(1145, [vals.item_name,vals.itemType,vals.item_interval,vals.deduction_method,vals.monthly_amount,vals.count_method,vals.price,vals.remark/*,vals.prepaidAmount*/]);
 }
 
 export function edit(vals:any) {
-    return getData(1146, [vals.uid,vals.item_name,vals.itemType,vals.item_interval,vals.deduction_method,vals.monthly_amount,vals.count_method,vals.price,vals.remark,vals.prepaidAmount]);
+    return getData(1146, [vals.uid,vals.item_name,vals.itemType,vals.item_interval,vals.deduction_method,vals.monthly_amount,vals.count_method,vals.price,vals.remark/*,vals.prepaidAmount*/]);
 }
 
 export function remove(vals:any) {

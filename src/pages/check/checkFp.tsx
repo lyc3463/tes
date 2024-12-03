@@ -93,18 +93,6 @@ const CheckFp=(props:any)=>{
                 )
             }
         },
-         {
-            title: '通知',
-            dataIndex: 'invoiceStatus',
-            key: 'invoiceStatus',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.invoiceStatus==2?<Button type='primary'>发送</Button>:''}
-                    </div>
-                )
-            }
-        },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -113,9 +101,9 @@ const CheckFp=(props:any)=>{
                 return(
                     <Space>
                          {record.invoiceStatus==1?(<>
-                            <Button type='primary' onClick={()=>onTongguo(record)}>审核通过</Button><Button type='primary' onClick={()=>toedit(record)}>编辑</Button>
+                             <Button type='primary' onClick={()=>onTongguo(record)} danger>拒绝</Button>
+                             <Button type='primary' onClick={()=>toedit(record)}>详情</Button>
                          </>):''}
-                        <Button type='primary'>详情</Button>
                     </Space>
                 )
             }

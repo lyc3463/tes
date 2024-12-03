@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import {Button, DatePicker, List, Modal, Space, Table} from "antd";
-import MyTable from "@/components/MyTable";
 import {connect} from "umi";
+import MywaterTable from "@/components/MywaterTable";
 
 const DayWater=(props)=>{
     // 获取当前日期
@@ -16,36 +16,42 @@ const DayWater=(props)=>{
     // 详情的时间
     const [infoDate,setInfoDate]=useState('');
     const [open,setOpen]=useState(false);
+    const isoDateString = (text:string)=>{
+        let date=text.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$3-$2-$1");
+        let dateString= new Date(date);
+        return dateString
+    };
     const columns=[
         {
             title: '日期',
             dataIndex: 'recordTimes',
             render: (_: any, record: any) => (
                 <div>
-                    {dayjs(record.recordTimes).format('YYYY-DD-MM')}日
+                    {/*{}*/}
+                    {dayjs(isoDateString(record.recordTimes)).format("YYYY-MM-DD")}
                 </div>
 
             ),
         },
         {
-            title: '用水',
+            title: '总用价',
             dataIndex: 'energyUsages',
             render: (_: any, record: any) => (
                 <div>
-                    {record.energyUsages}t
+                    {record.energyUsages}元
                 </div>
 
             ),
         },
         {
-            title: '总数量',
+            title: '水表数量',
             dataIndex: 'hourCount',
         },
         {
             title: '操作',
             dataIndex: 'complaint_content',
             render: (_: any, record: any) => (
-                <Button onClick={()=>toInfo(record.recordTimes)}>详情</Button>
+                <Button onClick={()=>toInfo(record)}>详情</Button>
             ),
         },
     ];
@@ -57,10 +63,11 @@ const DayWater=(props)=>{
     };
     useEffect(() => {
         getList();
-        console.log(props)
+        console.log("props",props)
     }, []);
-    const toInfo=(e:string)=>{
-        setInfoDate(e);
+    const toInfo=(e:any)=>{
+        let date=dayjs(isoDateString(e.recordTimes)).format("YYYY-MM-DD")
+        setInfoDate(date);
         setOpen(true);
     };
     // 监听日期
@@ -132,7 +139,7 @@ const DayWater=(props)=>{
 
             />
             <Modal open={open} title={'详情'} onCancel={()=>setOpen(false)} onOk={()=>setOpen(false)} width={'70vw'}>
-                <MyTable startTime={infoDate} value={2}/>
+                <MywaterTable startTime={infoDate} value={2}/>
             </Modal>
         </div>
     )

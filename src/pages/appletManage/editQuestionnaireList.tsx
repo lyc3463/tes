@@ -1,13 +1,15 @@
 import {Button, Form, Input, InputNumber, message, Radio} from "antd";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {connect,history} from "umi";
 import * as QuestionnaireServer from "@/services/questionnaire";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditQuestionnaireList=(props)=>{
     const [form] = Form.useForm();
+    const formRef=useRef();
     // 切换问题类型的弹窗
     const [problem_type,setProblem_type]=useState(0);
     // 初始化状态，包含一个初始条目
@@ -21,8 +23,12 @@ const EditQuestionnaireList=(props)=>{
         getOneProperties(id);
     },[]);
     const getOneProperties=(id:string)=>{
-        QuestionnaireServer.one(id).then((res:any)=>{
-           console.log(res)
+        QuestionnaireServer.one(id).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                formRef.current.setFieldsValue(res.Data);
+            }else {
+                message.error(res.Data);
+            }
        })
     };
     const handleAdd = () => {
@@ -49,6 +55,7 @@ const EditQuestionnaireList=(props)=>{
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
                 form={form}
+                ref={formRef}
                 layout="horizontal"
                 size={'large'}
                 style={{ marginTop: '1rem' }}
@@ -79,7 +86,7 @@ const EditQuestionnaireList=(props)=>{
                 </div>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
-                        添加
+                        修改
                     </Button>
                 </Form.Item>
             </Form>

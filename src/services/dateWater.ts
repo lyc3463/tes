@@ -12,12 +12,12 @@ export function moonfetch(vals:any) {
 export function yearfetch(vals:any) {
     return getData(1390, [vals.startDate,vals.endDate]);
 }
-// // 用水详情列表
-// export function fetch(page:number,cid:string,name:string,startDate:string,endDate:string) {
-//     return getData(1391, [page,cid,name,startDate,endDate]);
-// }
-// // 用水详情分页
-// export function fenye(cid:string,name:string,startDate:string,endDate:string) {
-//     return getData(1356, [cid,name,startDate,endDate]);
-// }
+// 用水详情列表
+export function fetch(page:number,cid:string,name:string,startDate:string,endDate:string) {
+    return getData(1357, [page,cid,name,startDate,endDate]);
+}
+// 用水详情分页
+export function fenye(cid:string,name:string,startDate:string,endDate:string) {
+    return getData(1358, [cid,name,startDate,endDate]);
+}
 

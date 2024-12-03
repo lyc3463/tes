@@ -82,7 +82,7 @@ const AddWaterParameter=(props:any)=>{
     }
     // 监听每多少小时扣费
     const changPrice=(e)=>{
-        setEvery_price(e*24*60)
+        setEvery_price(e)
     }
     // 监听阶梯值2
     const changeStep_value2=(e)=>{
@@ -94,7 +94,7 @@ const AddWaterParameter=(props:any)=>{
     }
     // 每多少分钟收费
     const changeMinute=(e)=>{
-        setMinute_price(e*60)
+        setMinute_price(e)
     }
     useEffect(()=>{
         // 计算水价价格  基础价+附加单价
@@ -114,7 +114,8 @@ const AddWaterParameter=(props:any)=>{
                 we_type,
                 base_price1,
                 additional_price1,
-                loss,every_price,
+                loss,
+                every_price:every_price*24*60,
                 base_price2:0,
                 additional_price2:0,
                 base_price3:0,

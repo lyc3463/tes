@@ -1,4 +1,4 @@
-import {Button, Form, Input, InputNumber, message, Radio} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio, Spin} from "antd";
 import {useEffect, useRef, useState} from "react";
 import {connect, history,useLocation} from "umi";
 import * as CableParameterServer from "@/services/cableParameter";
@@ -6,6 +6,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditCableParameter=(props)=>{
+    const [isSpinning,setIsSpinning]=useState(false);
     const we_type=2;
     const location=useLocation();
     const formRef =useRef();
@@ -127,7 +128,7 @@ const EditCableParameter=(props)=>{
     }
     // 监听每多少小时扣费
     const changPrice=(e)=>{
-        setEvery_price(e*24*60)
+        setEvery_price(e)
     }
     // 监听阶梯值1
     const changeStep_value1=(e)=>{
@@ -224,15 +225,16 @@ const EditCableParameter=(props)=>{
     const getOneCollerctor=async (id:string)=>{
         let res:any=await  CableParameterServer.one(id);
         if (res?.ErrorCode==0){
+            console.log("参数详情",res)
             let Data=res.Data;
             formRef.current.setFieldsValue(res?.Data);
             // 损耗 多少天收费
             setEvery_price(Data.every_price/24/60);
             // 损耗 单价
             setLoss(Data.loss);
-        //     价钱类型
+            //价钱类型
             setPrice_type(Data.price_type);
-        //     基础价格
+            //基础价格
             setBase_price1(Data.base_price1);
             setBase_price2(Data.base_price2);
             setBase_price3(Data.base_price3);
@@ -242,7 +244,7 @@ const EditCableParameter=(props)=>{
             setBase_price7(Data.base_price7);
             setBase_price8(Data.base_price8);
             setBase_price9(Data.base_price9);
-        //     附加单价
+            //附加单价
             setAdditional_price1(Data.additional_price1);
             setAdditional_price2(Data.additional_price2);
             setAdditional_price3(Data.additional_price3);
@@ -266,6 +268,7 @@ const EditCableParameter=(props)=>{
         getOneCollerctor(id);
     }, []);
     const onFinish = (values: any) => {
+        setIsSpinning(true);
         props.dispatch({
             type:'CableParameter/edit',
             payload:{...values,
@@ -274,7 +277,7 @@ const EditCableParameter=(props)=>{
                 base_price1,
                 additional_price1,
                 loss,
-                every_price,
+                every_price:every_price*24*60,
                 base_price2,
                 additional_price2,
                 base_price3,
@@ -298,17 +301,19 @@ const EditCableParameter=(props)=>{
             }
         }).then((res:any)=>{
             if (res.ErrorCode==0){
+                setIsSpinning(false);
                 message.success('添加成功');
                 history.push('/waterCableManage/parameter')
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setIsSpinning(false);
             }
         })
 
 
     };
     return(
-        <div>
+        <Spin spinning={isSpinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -428,7 +433,7 @@ const EditCableParameter=(props)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 export default connect() (EditCableParameter)

@@ -1,11 +1,15 @@
-import {Button, Form, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, Form, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import {getRandomNumber} from "@/utils/OpenTool";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Cable=(props:any)=>{
     const [page,setPage]=useState(1);
     const [collectorId,setCollectorId]=useState('');
+    const [did,setDid]=useState(0);
+    const [open,setOpen]=useState(false);
+    const [isSpinning,setIsSpinning]=useState(false);
     const toedit=(e)=>{
         history.push(`/waterCableManage/editCable?id=${e}`)
     }
@@ -49,7 +53,7 @@ const Cable=(props:any)=>{
                 return(
                     <>
                         <div>
-                            {record.electricity_type=='16625'?<Tag color='cyan'>单相单费率</Tag>:<Tag color='blue'>三相单费率</Tag>}
+                            {record.electricity_type=='65361'?<Tag color='cyan'>单相单费率07抄表</Tag>:<Tag color='blue'>未知类型</Tag>}
                         </div>
                     </>
                 )
@@ -60,20 +64,20 @@ const Cable=(props:any)=>{
             dataIndex: 'remark',
             key: 'remark',
         },
-        {
-            title: '状态',
-            dataIndex: 'presence',
-            key: 'presence',
-            render:(_:any,record:any)=>{
-                return(
-                    <>
-                        <div>
-                            {record.electricity_type==1?<Tag color='#87d068'>已开户</Tag>:<Tag color='red'>未开户</Tag>}
-                        </div>
-                    </>
-                )
-            }
-        },
+        // {
+        //     title: '状态',
+        //     dataIndex: 'presence',
+        //     key: 'presence',
+        //     render:(_:any,record:any)=>{
+        //         return(
+        //             <>
+        //                 <div>
+        //                     {record.electricity_type==1?<Tag color='#87d068'>已开户</Tag>:<Tag color='red'>未开户</Tag>}
+        //                 </div>
+        //             </>
+        //         )
+        //     }
+        // },
         {
             title: '积累用电量',
             dataIndex: 'submitted',
@@ -98,6 +102,7 @@ const Cable=(props:any)=>{
                        <Space>
                            <Button type='link' onClick={()=>tojiben(record)}>基本业务</Button>
                            <Button type='link' onClick={(e)=>toedit(record.id)}>编辑</Button>
+                           <Button type='link' onClick={(e)=>onDeleteOpen(record.id)}>删除</Button>
                        </Space>
                     </>
                 )
@@ -106,7 +111,6 @@ const Cable=(props:any)=>{
     ];
     useEffect(() => {
         logFenye();
-        console.log(props)
     }, [page]);
     const  toAdd=()=>{
         history.push('/waterCableManage/addCable')
@@ -139,8 +143,30 @@ const Cable=(props:any)=>{
     const changeName=(e)=>{
       setCollectorId(e.target.value);
     };
+    // 删除弹窗
+    const onDeleteOpen=(e)=>{
+        setDid(e);
+        setOpen(true);
+    };
+    // 确定删除
+    const onOk=()=>{
+        setIsSpinning(true)
+        props.dispatch({
+            type:'Cable/remove',
+            payload:did
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setOpen(false);
+                setIsSpinning(false);
+            }else {
+                message.error(res.Data);
+                setIsSpinning(false)
+            }
+        })
+    };
     return(
-        <div>
+        <Spin spinning={isSpinning}>
             <List>
                 <List.Item>
                     <div>
@@ -169,7 +195,11 @@ const Cable=(props:any)=>{
                 dataSource={props.CableList}
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+        {/*    删除的弹窗*/}
+            <Modal open={open} title='删除的弹窗' onOk={onOk} onCancel={()=>setOpen(false)}>
+                <div>确定要删除电表吗?</div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

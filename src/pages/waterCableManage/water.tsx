@@ -1,4 +1,4 @@
-import {Button, Form, Input, List, message, Modal, Pagination, Space, Table, Tag} from "antd";
+import {Button, Form, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import {connect,history} from 'umi'
 import {getRandomNumber} from "@/utils/OpenTool";
 import {useEffect, useState} from "react";
@@ -7,6 +7,7 @@ const Water=(props:any)=>{
     const [page,setPage]=useState(1);
     const [uid,setUid]=useState(0);
     const [open,setOpne]=useState(false);
+    const [isSpinning,setIsSpinning]=useState(false);
     const columns =[
         {
             title: '采集器',
@@ -57,7 +58,7 @@ const Water=(props:any)=>{
             render:(_:any,record:any)=>{
                 return(
                     <>
-                        <Tag color='green'>无线普通预付费水表</Tag>
+                        {record.water_type=='13301'?<Tag color='cyan'>无线无预付</Tag>:<Tag color='blue'>未知类型</Tag>}
                     </>
                 )
             }
@@ -94,6 +95,7 @@ const Water=(props:any)=>{
                 return(
                     <>
                         <Space>
+                            <Button type='link' onClick={()=>toedit(record)}>编辑</Button>
                             <Button type='link' onClick={()=>tojiben(record)}>基本业务</Button>
                             <Button type='link' onClick={()=>isdelete(record)}>删除</Button>
                         </Space>
@@ -104,6 +106,9 @@ const Water=(props:any)=>{
     ];
     const toadd=()=>{
         history.push('/waterCableManage/addWater')
+    };
+    const toedit=(e:any)=>{
+        history.push(`/waterCableManage/editWater?id=${e.id}`)
     };
     const onChange=(e)=>{
       setPage(e);
@@ -119,20 +124,24 @@ const Water=(props:any)=>{
         setOpne(true);
     };
     const onOk=()=>{
+      setIsSpinning(true);
       props.dispatch({
           type:'Watert/remove',
           payload:uid
       }).then((res:any)=>{
           if (res.ErrorCode==0){
+              setIsSpinning(false);
               message.success('删除成功');
               setOpne(false)
           }else {
-              message.error(res.Data)
+              setIsSpinning(false);
+              setOpne(false)
+              message.error(res.Data);
           }
       })
     };
     return(
-        <div>
+        <Spin spinning={isSpinning}>
             <List>
                 <List.Item>
                     <div>
@@ -164,7 +173,7 @@ const Water=(props:any)=>{
             <Modal onOk={onOk} onCancel={()=>setOpne(false)} title='删除' open={open}>
                 <div>确定删除吗?</div>
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

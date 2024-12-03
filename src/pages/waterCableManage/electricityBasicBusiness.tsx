@@ -1,12 +1,14 @@
 import {useEffect, useRef, useState} from "react";
 import {useLocation,connect} from 'umi'
-import {Button, Form, Input, InputNumber, message, Modal, Select, Space} from "antd";
+import {Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin} from "antd";
 import * as CableServer from "@/services/cable";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const ElectricityBasicBusiness=(props:any)=>{
     const location=useLocation();
+    const [isSpinning,setIsSpinning]=useState(false);
     const formRef =useRef();
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
@@ -14,6 +16,8 @@ const ElectricityBasicBusiness=(props:any)=>{
     const [lazha,setlazha]=useState(false);
     // 合闸弹窗
     const [hezha,sethezha]=useState(false);
+    // 清零弹窗
+    const [qlOpen,setQlOpen]=useState(false);
     // 充值弹窗
     const [cz,setcz]=useState(false);
     // 充值金额
@@ -22,7 +26,7 @@ const ElectricityBasicBusiness=(props:any)=>{
     // 获取单个电表详情
     const getOneCable=async (id:string)=>{
         let res:any=await  CableServer.one(id);
-        if (res?.ErrorCode==0){
+        if (res.ErrorCode==0){
             formRef.current.setFieldsValue(res?.Data)
         }else {
             message.error(res.Data)
@@ -66,8 +70,22 @@ const ElectricityBasicBusiness=(props:any)=>{
             }
         })
     };
+    const qlOk=()=>{
+        setIsSpinning(true);
+        CableServer.ql(uid).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('清零成功');
+                setQlOpen(false);
+                setIsSpinning(false);
+            }else {
+                message.error(res.Data);
+                setQlOpen(false);
+                setIsSpinning(false);
+            }
+        })
+    };
     return(
-        <div>
+        <Spin spinning={isSpinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -85,29 +103,29 @@ const ElectricityBasicBusiness=(props:any)=>{
                 </Form.Item>
                 <Form.Item label='电能表类型' name='electricity_type'>
                     <Select options={[
-                        {label:'单相单费率',value:'16225'},
-                        {label:'三相单费率',value:'10226'}
+                        {label:'单相单费率07抄表',value:'65361'},
+                        // {label:'三相单费率07抄表',value:'65362'}
                     ]}>
                     </Select>
                 </Form.Item>
-                <Form.Item label='表参数设置'>
-                    <Select/>
-                </Form.Item>
+                {/*<Form.Item label='表参数设置'>*/}
+                {/*    <Select/>*/}
+                {/*</Form.Item>*/}
                 <Form.Item label='描述' name='remark'>
                     <Input.TextArea/>
                 </Form.Item>
-                <Form.Item label='互感器变化'>
-                    <Input/>
-                </Form.Item>
+                {/*<Form.Item label='互感器变化'>*/}
+                {/*    <Input/>*/}
+                {/*</Form.Item>*/}
                 <Form.Item label='其他操作'>
                     <Space>
-                        <Button type='primary'>远程清零</Button>
-                        <Button type='primary'>远程销户</Button>
+                        <Button type='primary' onClick={()=>{setQlOpen(true)}}>远程清零</Button>
+                        {/*<Button type='primary'>远程销户</Button>*/}
                         <Button type='primary' onClick={()=>setlazha(true)}>拉闸</Button>
                         <Button type='primary' onClick={()=>sethezha(true)}>合闸</Button>
                         {/*<Button type='primary'>保电</Button>*/}
                         {/*<Button type='primary'>解除保电</Button>*/}
-                        <Button type='primary' onClick={()=>setcz(true)}>充值</Button>
+                        {/*<Button type='primary' onClick={()=>setcz(true)}>充值</Button>*/}
                     </Space>
                 </Form.Item>
                 <Form.Item label='当前总用量'>
@@ -139,7 +157,13 @@ const ElectricityBasicBusiness=(props:any)=>{
                     </Form.Item>
                 </Form>
             </Modal>
-        </div>
+            {/*远程清零弹窗*/}
+            <Modal open={qlOpen} onCancel={()=>setQlOpen(false)} onOk={qlOk}>
+                <div>
+                    确定要清零吗？
+                </div>
+            </Modal>
+        </Spin>
     )
 }
 export default connect() (ElectricityBasicBusiness)

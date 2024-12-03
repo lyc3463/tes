@@ -1,19 +1,13 @@
-import {Button, Form, Image, message, Modal, Table} from "antd";
+import {Button, Form, Image, message, Modal, Space, Spin, Table} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Links=(props:any)=>{
-    const [did,setDid]=useState()
-    const [isDeleteOpen,setisDeleteOpen]=useState(false)
+    const [did,setDid]=useState();
+    const [isDeleteOpen,setisDeleteOpen]=useState(false);
+    const [isSpinning,setIsSpinning]=useState(false);
     const columns =[
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            render:(text:any,record:any)=>{
-                return <Button type='link' onClick={()=>toedit(record.id)}>{text}</Button>
-            }
-        },
         {
             title: '名称',
             dataIndex: 'link_name',
@@ -38,34 +32,43 @@ const Links=(props:any)=>{
             key: 'cao',
             render:(text:any,record:any,)=>{
                 return(
-                    <div>
+                    <Space>
                         <Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>
-                    </div>
+                        <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
+                    </Space>
                 )
             }
         }
     ]
     const toadd=()=>{
-        history.push('/appletManage/addLinks')
-    }
+        history.push('/appletManage/addLinks');
+    };
    const toedit=(e:number)=>{
-       history.push(`/appletManage/editLinks?id=${e}`)
-   }
+       history.push(`/appletManage/editLinks?id=${e}`);
+   };
    const isDelete=(e)=>{
-        setDid(e)
-       setisDeleteOpen(true)
-   }
+       setDid(e);
+       setisDeleteOpen(true);
+   };
    const onDelete=async ()=>{
-        let res=await props.dispatch({
+       setIsSpinning(true);
+         props.dispatch({
             type:'Links/remove',
             payload:did
-        })
-       if (res.ErrorCode==0){
-           message.success('删除成功')
-       }
-   }
+        }).then((res:TypeErrorCode)=>{
+             if (res.ErrorCode==0){
+                 message.success('删除成功');
+                 setisDeleteOpen(false);
+                 setIsSpinning(false);
+             }else {
+                 message.error(res.Data);
+                 setIsSpinning(false);
+             }
+         })
+
+   };
     return(
-        <div>
+        <Spin spinning={isSpinning}>
             <Form style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
                 <Form.Item>
                     <Button type='primary' onClick={toadd}>添加友情链接</Button>
@@ -82,7 +85,7 @@ const Links=(props:any)=>{
             <Modal open={isDeleteOpen} onOk={onDelete} onCancel={()=>setisDeleteOpen(false)}>
                 确定要删除吗?
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

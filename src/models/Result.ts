@@ -107,13 +107,7 @@ const ResultModel: ResultInterface = {
     subscriptions: {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
-                const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/appletManage/wenjuanList/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
+
             });
         },
     },

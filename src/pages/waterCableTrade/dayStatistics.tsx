@@ -9,21 +9,26 @@ const DayStatistics=(props:any)=>{
     // 获取当前日期
     const today = dayjs();
     // 获取当前日期往前一个月的日期（仅年月日）
-    const oneMonthAgo = today.subtract(30, 'day').format("YYYY-MM-DD HH:mm:ss");
-    const oneMonthAgoEndDate = today.startOf('day').subtract(1, 'second').format("YYYY-MM-DD HH:mm:ss");
+    const oneMonthAgo = today.subtract(30, 'day').format("YYYY-MM-DD");
+    const oneMonthAgoEndDate = today.startOf('day').subtract(1, 'second').format("YYYY-MM-DD");
     // 设置状态，使用年月日格式
-    const [startDate, setStartDate] = useState('2024-11-01');
-    const [endDate, setEndDate] = useState('2024-11-30');
+    const [startDate, setStartDate] = useState(oneMonthAgo);
+    const [endDate, setEndDate] = useState(oneMonthAgoEndDate);
     // 详情的时间
     const [infoDate,setInfoDate]=useState('');
     const [open,setOpen]=useState(false);
+    const isoDateString = (text:string)=>{
+        let date=text.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$3-$2-$1");
+        let dateString= new Date(date);
+        return dateString
+    };
     const columns=[
         {
             title: '日期',
             dataIndex: 'recordTimes',
             render: (_: any, record: any) => (
                 <div>
-                    {dayjs(record.recordTimes).format('YYYY-DD-MM')}日
+                    {dayjs(isoDateString(record.recordTimes)).format("YYYY-MM-DD")}
                 </div>
 
             ),
@@ -60,7 +65,8 @@ const DayStatistics=(props:any)=>{
         getList();
     }, []);
     const toInfo=(e:string)=>{
-        setInfoDate(e);
+        let date=dayjs(isoDateString(e)).format("YYYY-MM-DD")
+        setInfoDate(date);
         setOpen(true);
     };
     // 监听日期
@@ -95,7 +101,7 @@ const DayStatistics=(props:any)=>{
                         >
                             日期:
                         </div>
-                        <DatePicker.RangePicker showTime onChange={changeDate}/>
+                        <DatePicker.RangePicker onChange={changeDate}  defaultValue={[dayjs(startDate), dayjs(endDate)]}/>
                     </Space.Compact>
                     <Button type="primary" onClick={sousuo}>
                         搜索

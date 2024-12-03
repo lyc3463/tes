@@ -9,11 +9,11 @@ export function add(vals:any) {
 
 
 export function edit(vals:any) {
-    return getData(1112, [vals.uid,vals.cid,vals.electricity_type,vals.address,vals.label_id=0, vals.priceid, vals.rate, vals.remark]);
+    return getData(1112, [vals.uid,vals.electricity_type,vals.priceid, vals.rate, vals.remark]);
 }
 
 export function remove(vals:any) {
-    // return getData(1032, [vals]);
+    return getData(1113, [vals]);
 }
 export function fenye(vals:any) {
     return getData(1116, [vals.collectorId]);
@@ -28,5 +28,8 @@ export function off(vals:any){
 
 export function addcz(vals:any){
     return getData(1396,[vals.uid,vals.money])
+}
+export function ql(vals:any){
+    return getData(1400,[vals])
 }
 

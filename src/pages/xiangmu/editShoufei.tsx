@@ -40,7 +40,6 @@ const EditShoufei=(props:any)=>{
     };
     // 收费间隔
     const changeJianGe=(e)=>{
-        console.log(e)
         setItem_interval(e)
     };
     //  单价
@@ -49,7 +48,7 @@ const EditShoufei=(props:any)=>{
     };
     // 预支付金额
     const ChangePrepaidAmount=(e)=>{
-        setPrepaidAmount(e.target.value)
+        setPrepaidAmount(e)
     };
     // 计量方式
     const changeCountMethod=(e)=>{
@@ -66,10 +65,10 @@ const EditShoufei=(props:any)=>{
         }
     };
     const getAccounOne=async (e:any)=>{
-        let res=await GongsiService.one(e)
-        if (res?.ErrorCode==0){
-            let data=res?.Data;
-            formRef.current?.setFieldsValue(data);
+        let res:any=await GongsiService.one(e)
+        if (res.ErrorCode==0){
+            let data=res.Data;
+            formRef.current.setFieldsValue(data);
             setItemType(data.itemType);
             setItem_interval(data.item_interval);
             setDeduction_method(data.deduction_method);
@@ -112,19 +111,20 @@ const EditShoufei=(props:any)=>{
                         每<InputNumber controls={false} defaultValue={item_interval} onChange={changeJianGe}/>个月收费一次
                         <p style={{color:'#555',fontSize:'12px'}}>注意：下方单价和固定金额为每月数额 。</p>
                     </Form.Item>
-                        <Form.Item label='扣款方式'>
-                            <Radio.Group onChange={koukuanType} defaultValue={deduction_method}>
-                                <Radio value={1}>当期收当期(预付费)</Radio>
-                                <Radio value={2}>当期收上期(后付费)</Radio>
-                                <Radio value={3}>当期收下期(预付费且押一个周期)</Radio>
-                            </Radio.Group>
-                        </Form.Item></>:''
+                        {/*<Form.Item label='扣款方式'>*/}
+                        {/*    <Radio.Group onChange={koukuanType} defaultValue={deduction_method}>*/}
+                        {/*        <Radio value={1}>当期收当期(预付费)</Radio>*/}
+                        {/*        <Radio value={2}>当期收上期(后付费)</Radio>*/}
+                        {/*        <Radio value={3}>当期收下期(预付费且押一个周期)</Radio>*/}
+                        {/*    </Radio.Group>*/}
+                        {/*</Form.Item>*/}
+                        </>:''
                 }
-                {
-                    setDeduction_method==1?   <Form.Item label='预付金额'>
-                        <Input defaultValue={prepaidAmount}  onChange={ChangePrepaidAmount}/>
-                    </Form.Item>:''
-                }
+                {/*{*/}
+                {/*    itemType==1?   <Form.Item label='预付金额(元)'>*/}
+                {/*        <InputNumber defaultValue={prepaidAmount}  onChange={ChangePrepaidAmount}/>*/}
+                {/*    </Form.Item>:''*/}
+                {/*}*/}
                 <Form.Item label='月金额计算方式' name='monthly_amount'>
                     <Radio.Group onChange={jierType} defaultValue={monthly_amount}>
                         <Radio value={1}>固定金额</Radio>
@@ -133,7 +133,7 @@ const EditShoufei=(props:any)=>{
                     </Radio.Group>
                 </Form.Item>
                 {
-                    monthly_amount==1?<Form.Item label='固定金额'>
+                    monthly_amount==1?<Form.Item label='固定金额(元)'>
                         <InputNumber onChange={changePrice} defaultValue={price} />
                     </Form.Item>:''
                 }

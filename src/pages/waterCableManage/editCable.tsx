@@ -39,7 +39,6 @@ const EditCable=(props:any)=>{
     };
 
     useEffect(()=>{
-        console.log(props)
         filterAndUpdateList(props.CollectorList, 'collectorid', 'id', setCollectorList);
         filterAndUpdateList(props.CableParameterList, 'price_name', 'id', setCable);
         const searchParams = new URLSearchParams(location.search);
@@ -72,11 +71,10 @@ const EditCable=(props:any)=>{
                         })}
                     </Select>
                 </Form.Item>
-
                 <Form.Item label='电表类型' name='electricity_type'>
                     <Select options={[
-                        {label:'单相单费率',value:'16225'},
-                        {label:'三相单费率',value:'10226'}
+                        {label:'单相单费率07抄表',value:'65361'},
+                        // {label:'三相单费率07抄表',value:'65362'}
                     ]}>
                     </Select>
                 </Form.Item>
