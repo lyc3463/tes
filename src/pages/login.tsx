@@ -408,7 +408,7 @@ export default function Login() {
           </div>
           {/*右侧图片*/}
           <div className={styles.rightBox}>
-            <p style={{fontSize:'30px',color:"#000",fontWeight:'600',textAlign:'center'}}>物业公司端系统</p>
+            <p style={{fontSize:'30px',color:"#000",fontWeight:'600',textAlign:'center'}}>钱市街公司端系统</p>
             <Form
                 name="loginForm"
                 form={form}

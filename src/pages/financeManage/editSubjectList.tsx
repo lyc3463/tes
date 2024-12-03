@@ -10,10 +10,6 @@ const EditSubjectList=(props:any)=>{
     const [isLoading,setIsLoading]=useState(false)
     const location=useLocation()
     const formRef =useRef()
-    // 公司列表
-    const [companyList,setCompaniesList]=useState([])
-    // 项目列表
-    const [projectList,setProjectsList]=useState([])
     // 路由参数
     const [uid,setUid]=useState<string|undefined>()
     useEffect(() => {
@@ -21,8 +17,7 @@ const EditSubjectList=(props:any)=>{
         const id = searchParams.get('id');
         setUid(id)
         getSubjectOne(id)
-        filterAndUpdateList(props.CompanList, 'company_name', 'id', setCompaniesList);
-        filterAndUpdateList(props.ProjectList, 'project_name', 'id', setProjectsList);
+
     }, []);
 
     const getSubjectOne=async (e:any)=>{
@@ -56,28 +51,6 @@ const EditSubjectList=(props:any)=>{
             >
                 <Form.Item label="科目名称" name="subject_name" rules={[{required: true, message: '请输入科目名称'}]}>
                     <Input placeholder="例:xx项目"/>
-                </Form.Item>
-                <Form.Item label="选择公司" name="company_id" rules={[{required: true, message: '请选择公司'}]}>
-                    <Select>
-                        {companyList.map((item:any,index:any)=>{
-                            return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
-                                </Select.Option>
-                            )
-                        })}
-                    </Select>
-                </Form.Item>
-                <Form.Item label="选择项目" name="project_id" rules={[{required: true, message: '请选择项目'}]}>
-                    <Select>
-                        {projectList.map((item:any,index:any)=>{
-                            return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
-                                </Select.Option>
-                            )
-                        })}
-                    </Select>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary"  htmlType="submit">

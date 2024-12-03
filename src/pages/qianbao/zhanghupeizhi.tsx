@@ -21,6 +21,8 @@ const Zhanghupeizhi=(props)=>{
     const [commission,setCommission]=useState(0);
     // 提现金额
     const [withdAmount,setWithdAmount]=useState(0);
+    // 结算方式类型
+    const [settlementz,setsettlementz]=useState(0);
     // 监听结算方式
     const changeRadio=(e)=>{
         setSettlement(e.target.value);
@@ -30,12 +32,12 @@ const Zhanghupeizhi=(props)=>{
           type:'Zhanghupeizhi/one'
       }).then((res)=>{
           if (res.ErrorCode===0){
-              console.log("res",res)
               setSettlement(res.Data.settlement);
               setBalance(res.Data.balance);
               setMaxAmount(res.Data.maxAmount);
               setReserveAmount(res.Data.reserveAmount);
               setCommission(res.Data.commission);
+              setsettlementz(settlement);
               if (res.Data.settlementTime){
                   setSettlementTime(res.Data.settlementTime);
               }else {
@@ -101,7 +103,7 @@ const Zhanghupeizhi=(props)=>{
                 {/*</Form.Item>*/}
                 <Form.Item label='当前余额'>
                     <span style={{fontSize:'25px',fontWeight:'500'}}>{balance}</span>元<span style={{marginLeft:'15px'}}>可提现金额<span style={{color:'red'}}>{balance}</span>元</span>
-                    <Button type='primary' onClick={()=>setopen(true)}>手动立即提现</Button>
+                    <Button type='primary' onClick={()=>setopen(true)} disabled={settlementz==4?false:true}>手动立即提现</Button>
                     <p style={{color:'#888'}}>如未设置默认银行卡请到<span style={{color:'red'}}>钱包管理/银行卡管理</span>设置默认银行卡</p>
                 </Form.Item>
                 {/*<Form.Item label='今日提现预计到账日'>*/}

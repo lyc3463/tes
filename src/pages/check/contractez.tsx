@@ -12,6 +12,7 @@ import * as UnitService from "@/services/unit";
 import html2pdf from "html2pdf.js";
 
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {numberToRMB} from "@/utils/OpenTool";
 const tailLayout = {
     wrapperCol: { offset: 3 },
 };
@@ -259,17 +260,17 @@ const Contractez = () => {
                     </p>
                     <p style={{ marginLeft: '30px', fontWeight: 500, fontSize: '24px' }}>第二条：租赁期限</p>
                     <p style={{ marginLeft: '50px' }}>
-                        租赁期限为<Input style={{ width: '100px' }} placeholder='模板不用填写' />年，即从{startDate}-{endDate}止（含免租期）。租赁期限届满前三个月，如乙方未向甲方提出书面续租申请的，在合理时间内，甲方有权带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的三个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
+                        租赁期限为<Input style={{ width: '50px',border:"none"}}/>年，即从{startDate}-{endDate}止（含免租期）。租赁期限届满前三个月，如乙方未向甲方提出书面续租申请的，在合理时间内，甲方有权带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的三个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
                     </p>
 
                     <p style={{ marginLeft: '30px', fontWeight: 500, fontSize: '24px' }}>第三条：免租期</p>
                     <p style={{ marginLeft: '50px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>1.</span>
-                        租赁物的免租期为<Input style={{ width: '100px' }} placeholder='模板不用填写' />天,即从{
+                        租赁物的免租期为<Input style={{ width: '50px' }} />天,即从{
                         mzq.map((item,index)=>{
                             return(
                                 <span>
-                                    <span>{dayjs(item.rentBeginTime).format('YYYY-MM-DD')}</span>，<span>{dayjs(item.rentEndTime).format('YYYY-MM-DD')}</span>
+                                    <span>{dayjs(item.rentBeginTime).format('YYYY-MM-DD')}</span>至<span>{dayjs(item.rentEndTime).format('YYYY-MM-DD')}</span>，
                                 </span>
                             )
                         })
@@ -292,14 +293,14 @@ const Contractez = () => {
                     <p style={{ marginLeft: '30px', fontWeight: 500, fontSize: '24px' }}>第四条：租赁费用</p>
                     <p style={{ marginLeft: '50px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>1.</span>
-                        合同保证金：本租赁合同的保证金为人民币{deposit}元（大写：<Input style={{ width: '100px' }} placeholder='不需要填写' />），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方
+                        合同保证金：本租赁合同的保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方
                         办理退租手续、退还租赁物、结清全部应付的租金、管理费、水电费等相关费用、经营注册地址变更或办理注销手续后，甲方在收到乙方前述全部事宜的书面证明文件后7个工作日内将合同保证金无息退还乙方。 如乙方违反本合同之规定，甲方有权（但并无义务）将合同保证金没收或做相应扣除，乙方应在接到甲方扣除通知后的十五日内将甲方扣除的合同保证金补足给甲
                         方，否则视为乙方违约。
                     </p>
 
                     <p style={{ marginLeft: '50px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>2.</span>
-                        租金：租赁物租金第1年起为每月<Input style={{ width: '100px' }} placeholder='不需要填写' />第2年起每年租金将在上年的基础上递增 <Input style={{ width: '100px' }} placeholder='不需要填写' /> %，以此类推。合同租金明细如下:
+                        租金：租赁物租金第1年起为每月<Input style={{ width: '100px' }}/>第2年起每年租金将在上年的基础上递增 <Input style={{ width: '100px' }}/> %，以此类推。合同租金明细如下:
                         <Table columns={columns} />
                     </p>
                     <p style={{ marginLeft: '50px' }}>
@@ -312,13 +313,13 @@ const Contractez = () => {
                     </p>
                     <p style={{ marginLeft: '70px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>(1)</span>
-                        物业费的保证金为人民币{deposit}元（大写：<Input style={{ width: '100px' }} placeholder='不需要填写' />），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方办理退租手续、
+                        物业费的保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方办理退租手续、
                         退还租赁物、结清全部应付的租金、管理费、水电费等相关费用、经营注册地址变更或办理注销手续后，甲方在收到乙方前述全部事宜的书面证明文件后7个工作日内
                         将物业费的保证金无息退还乙方。
                     </p>
                     <p style={{ marginLeft: '70px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>(2)</span>
-                        租赁期间租赁物物业费为每月{manageFee}元，第2年起每年物业费将在上年的基础上递增<Input style={{ width: '100px' }} placeholder='不需要填写' /> %，以此类推。乙方应在本合同乙方签署之日
+                        租赁期间租赁物物业费为每月{manageFee}元，第2年起每年物业费将在上年的基础上递增<Input style={{ width: '100px' }} /> %，以此类推。乙方应在本合同乙方签署之日
                         支付首期物业费给甲方；除首期物业费外，乙方应于每月二十八日前（按自然月计算）向甲方或甲方指定的物业服务方支付次月物业费。
                     </p>
                     <p style={{ marginLeft: '50px' }}>
@@ -327,7 +328,7 @@ const Contractez = () => {
                     </p>
                     <p style={{ marginLeft: '70px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>(1)</span>
-                        租赁期间乙方经营过程中所产生的水电费按乙方实际使用量计算，每月电费、水费需提前充值预付，具体充值办法详见附件《关于生活用电小助手平台使用的告知书》；  如乙方未按约向甲方支付租金等款项的，甲方有权从乙方充值预付款中扣除乙方应向甲方支付的款项；以上水电单价均不含公摊及损耗，公摊及损害由乙方据实缴纳。如遇有关
+                        租赁期间乙方经营过程中所产生的水电费按乙方实际使用量计算，每月电费、水费需提前充值预付，具体充值办法详见附件《关于钱市街小程序使用的告知书》；  如乙方未按约向甲方支付租金等款项的，甲方有权从乙方充值预付款中扣除乙方应向甲方支付的款项；以上水电单价均不含公摊及损耗，公摊及损害由乙方据实缴纳。如遇有关
                         部门调整收费标准，则甲方有权相应调整水电费标准。
                     </p>
                     <p style={{ marginLeft: '70px' }}>
@@ -819,7 +820,7 @@ const Contractez = () => {
                         附件五 双方证照文件
                     </p>
                     <p style={{ marginLeft: '50px' }}>
-                        附件六 《关于生活用电小助手平台使用的告知书》
+                        附件六 《关于钱市街小程序使用的告知书》
                     </p>
                     <p style={{ marginLeft: '50px' }}>
                         附件七 《安全生产责任书》
@@ -968,12 +969,12 @@ const Contractez = () => {
                     </p>
                     <p style={{ marginLeft: '50px' }}>
                         <h3>
-                            附件六：关于生活用电小助手平台使用的告知书
+                            附件六：关于钱市街小程序使用的告知书
                         </h3>
                     </p>
                     <p style={{ marginLeft: '50px', textAlign: 'center' }}>
                         <h2>
-                            关于生活用电小助手平台使用的告知书
+                            关于钱市街小程序使用的告知书
                         </h2>
                     </p>
                     <p style={{ marginLeft: '50px' }}>
@@ -985,13 +986,13 @@ const Contractez = () => {
                         您好！
                     </p>
                     <p style={{ marginLeft: '70px' }}>
-                        为了提高服务效率，更及时反馈商户的费用信息，我司统一采用《生活用电小助手》电子商务平台进行缴费管理，其中包含了微信提醒服务、账务管理以及欠费项目提示等诸多功能，各商户可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；请商户合理安排缴费时间、金额，避免因拖欠水电费用导致受限。
+                        为了提高服务效率，更及时反馈商户的费用信息，我司统一采用《钱市街小程序》电子商务平台进行缴费管理，其中包含了微信提醒服务、账务管理以及欠费项目提示等诸多功能，各商户可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；请商户合理安排缴费时间、金额，避免因拖欠水电费用导致受限。
                     </p>
                     <p style={{ marginLeft: '70px' }}>
                         缴费流程如下：
                     </p>
                     <p style={{ marginLeft: '70px' }}>
-                        请使用微信搜索《生活用电小助手》，关注公众号，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。各商户届时可以自主在公众号根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。谢谢！
+                        请使用微信搜索《钱市街小程序》，关注公众号，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。各商户届时可以自主在公众号根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。谢谢！
                     </p>
                     <p style={{ marginLeft: '70px' }}>
                         { }
@@ -1005,7 +1006,7 @@ const Contractez = () => {
                     </p>
                     <p style={{ marginLeft: '50px', textAlign: 'center' }}>
                         <h3>
-                            关于生活用电小助手平台使用的告知书——签收联
+                            关于钱市街小程序使用的告知书——签收联
                         </h3>
                     </p>
                     <p style={{ marginLeft: '70px' }}>
@@ -1202,7 +1203,7 @@ const Contractez = () => {
                         根据贵我双方所签订的《房屋租赁合同》约定，我方承租贵方位于{rentAddress}{unit_name}房号的房地产（下称“租赁房地产”）。
                     </p>
                     <p style={{ marginLeft: '70px' }}>
-                        我方确认，租赁期间，贵方将按{elePrice}元/度的标准向我方收取租赁房地产使用期间所产生的电费。贵方通过生活用电小助手平台扣缴的其他费用，包括但不限于水费、物业管理费等，均与电费无关。如我方逾期支付电费的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
+                        我方确认，租赁期间，贵方将按{elePrice}元/度的标准向我方收取租赁房地产使用期间所产生的电费。贵方通过钱市街小程序扣缴的其他费用，包括但不限于水费、物业管理费等，均与电费无关。如我方逾期支付电费的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
                     </p>
                     <p style={{ marginLeft: '70px', fontSize: '24px' }}>
                         特此确认！
@@ -1292,7 +1293,7 @@ const Contractez = () => {
                         </p>
                         <p style={{ marginLeft: '30px', fontWeight: 500, fontSize: '24px' }}>第二条：租赁期限</p>
                         <p style={{ marginLeft: '50px' }}>
-                            租赁期限为<Input style={{ width: '100px' }} placeholder='模板不用填写' />年，即从{startDate}-{endDate}止（含免租期）。租赁期限届满前三个月，如乙方未向甲方提出书面续租申请的，在合理时间内，甲方有权带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的三个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
+                            租赁期限为<Input style={{ width: '50px' }}/>年，即从{startDate}-{endDate}止（含免租期）。租赁期限届满前三个月，如乙方未向甲方提出书面续租申请的，在合理时间内，甲方有权带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的三个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
                         </p>
 
                         <p style={{ marginLeft: '30px', fontWeight: 500, fontSize: '24px' }}>第三条：免租期</p>
@@ -1302,7 +1303,7 @@ const Contractez = () => {
                             mzq.map((item,index)=>{
                                 return(
                                     <span>
-                                    <span>{dayjs(item.rentBeginTime).format('YYYY-MM-DD')}</span>，<span>{dayjs(item.rentEndTime).format('YYYY-MM-DD')}</span>,
+                                    <span>{dayjs(item.rentBeginTime).format('YYYY-MM-DD')}</span>至<span>{dayjs(item.rentEndTime).format('YYYY-MM-DD')}</span>，
                                 </span>
                                 )
                             })
@@ -1325,14 +1326,14 @@ const Contractez = () => {
                         <p style={{ marginLeft: '30px', fontWeight: 500, fontSize: '24px' }}>第四条：租赁费用</p>
                         <p style={{ marginLeft: '50px' }}>
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>1.</span>
-                            合同保证金：本租赁合同的保证金为人民币{deposit}元（大写：<Input style={{ width: '100px' }} placeholder='不需要填写' />），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方
+                            合同保证金：本租赁合同的保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方
                             办理退租手续、退还租赁物、结清全部应付的租金、管理费、水电费等相关费用、经营注册地址变更或办理注销手续后，甲方在收到乙方前述全部事宜的书面证明文件后7个工作日内将合同保证金无息退还乙方。 如乙方违反本合同之规定，甲方有权（但并无义务）将合同保证金没收或做相应扣除，乙方应在接到甲方扣除通知后的十五日内将甲方扣除的合同保证金补足给甲
                             方，否则视为乙方违约。
                         </p>
 
                         <p style={{ marginLeft: '50px' }}>
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>2.</span>
-                            租金：租赁物租金第1年起为每月<Input style={{ width: '100px' }} placeholder='不需要填写' />第2年起每年租金将在上年的基础上递增 <Input style={{ width: '100px' }} placeholder='不需要填写' /> %，以此类推。合同租金明细如下:
+                            租金：租赁物租金第1年起为每月<Input style={{ width: '100px' }} />第2年起每年租金将在上年的基础上递增 <Input style={{ width: '100px' }} /> %，以此类推。合同租金明细如下:
                             <Table columns={columns} />
                         </p>
                         <p style={{ marginLeft: '50px' }}>
@@ -1345,13 +1346,13 @@ const Contractez = () => {
                         </p>
                         <p style={{ marginLeft: '70px' }}>
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>(1)</span>
-                            物业费的保证金为人民币{deposit}元（大写：<Input style={{ width: '100px' }} placeholder='不需要填写' />），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方办理退租手续、
+                            物业费的保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方办理退租手续、
                             退还租赁物、结清全部应付的租金、管理费、水电费等相关费用、经营注册地址变更或办理注销手续后，甲方在收到乙方前述全部事宜的书面证明文件后7个工作日内
                             将物业费的保证金无息退还乙方。
                         </p>
                         <p style={{ marginLeft: '70px' }}>
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>(2)</span>
-                            租赁期间租赁物物业费为每月{manageFee}元，第2年起每年物业费将在上年的基础上递增<Input style={{ width: '100px' }} placeholder='不需要填写' /> %，以此类推。乙方应在本合同乙方签署之日
+                            租赁期间租赁物物业费为每月{manageFee}元，第2年起每年物业费将在上年的基础上递增<Input style={{ width: '100px' }} /> %，以此类推。乙方应在本合同乙方签署之日
                             支付首期物业费给甲方；除首期物业费外，乙方应于每月二十八日前（按自然月计算）向甲方或甲方指定的物业服务方支付次月物业费。
                         </p>
                         <p style={{ marginLeft: '50px' }}>
@@ -1360,7 +1361,7 @@ const Contractez = () => {
                         </p>
                         <p style={{ marginLeft: '70px' }}>
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>(1)</span>
-                            租赁期间乙方经营过程中所产生的水电费按乙方实际使用量计算，每月电费、水费需提前充值预付，具体充值办法详见附件《关于生活用电小助手平台使用的告知书》；  如乙方未按约向甲方支付租金等款项的，甲方有权从乙方充值预付款中扣除乙方应向甲方支付的款项；以上水电单价均不含公摊及损耗，公摊及损害由乙方据实缴纳。如遇有关
+                            租赁期间乙方经营过程中所产生的水电费按乙方实际使用量计算，每月电费、水费需提前充值预付，具体充值办法详见附件《关于钱市街小程序使用的告知书》；  如乙方未按约向甲方支付租金等款项的，甲方有权从乙方充值预付款中扣除乙方应向甲方支付的款项；以上水电单价均不含公摊及损耗，公摊及损害由乙方据实缴纳。如遇有关
                             部门调整收费标准，则甲方有权相应调整水电费标准。
                         </p>
                         <p style={{ marginLeft: '70px' }}>
@@ -1849,7 +1850,7 @@ const Contractez = () => {
                             附件五 双方证照文件
                         </p>
                         <p style={{ marginLeft: '50px' }}>
-                            附件六 《关于生活用电小助手平台使用的告知书》
+                            附件六 《关于钱市街小程序使用的告知书》
                         </p>
                         <p style={{ marginLeft: '50px' }}>
                             附件七 《安全生产责任书》
@@ -1998,12 +1999,12 @@ const Contractez = () => {
                         </p>
                         <p style={{ marginLeft: '50px' }}>
                             <h3>
-                                附件六：关于生活用电小助手平台使用的告知书
+                                附件六：关于钱市街小程序使用的告知书
                             </h3>
                         </p>
                         <p style={{ marginLeft: '50px', textAlign: 'center' }}>
                             <h2>
-                                关于生活用电小助手平台使用的告知书
+                                关于钱市街小程序使用的告知书
                             </h2>
                         </p>
                         <p style={{ marginLeft: '50px' }}>
@@ -2015,13 +2016,13 @@ const Contractez = () => {
                             您好！
                         </p>
                         <p style={{ marginLeft: '70px' }}>
-                            为了提高服务效率，更及时反馈商户的费用信息，我司统一采用《生活用电小助手》电子商务平台进行缴费管理，其中包含了微信提醒服务、账务管理以及欠费项目提示等诸多功能，各商户可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；请商户合理安排缴费时间、金额，避免因拖欠水电费用导致受限。
+                            为了提高服务效率，更及时反馈商户的费用信息，我司统一采用《钱市街小程序》电子商务平台进行缴费管理，其中包含了微信提醒服务、账务管理以及欠费项目提示等诸多功能，各商户可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；请商户合理安排缴费时间、金额，避免因拖欠水电费用导致受限。
                         </p>
                         <p style={{ marginLeft: '70px' }}>
                             缴费流程如下：
                         </p>
                         <p style={{ marginLeft: '70px' }}>
-                            请使用微信搜索《生活用电小助手》，关注公众号，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。各商户届时可以自主在公众号根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。谢谢！
+                            请使用微信搜索《钱市街小程序》，关注公众号，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。各商户届时可以自主在公众号根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。谢谢！
                         </p>
                         <p style={{ marginLeft: '70px' }}>
                             { }
@@ -2035,7 +2036,7 @@ const Contractez = () => {
                         </p>
                         <p style={{ marginLeft: '50px', textAlign: 'center' }}>
                             <h3>
-                                关于生活用电小助手平台使用的告知书——签收联
+                                关于钱市街小程序使用的告知书——签收联
                             </h3>
                         </p>
                         <p style={{ marginLeft: '70px' }}>
@@ -2232,7 +2233,7 @@ const Contractez = () => {
                             根据贵我双方所签订的《房屋租赁合同》约定，我方承租贵方位于{rentAddress}{unit_name}房号的房地产（下称“租赁房地产”）。
                         </p>
                         <p style={{ marginLeft: '70px' }}>
-                            我方确认，租赁期间，贵方将按{elePrice}元/度的标准向我方收取租赁房地产使用期间所产生的电费。贵方通过生活用电小助手平台扣缴的其他费用，包括但不限于水费、物业管理费等，均与电费无关。如我方逾期支付电费的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
+                            我方确认，租赁期间，贵方将按{elePrice}元/度的标准向我方收取租赁房地产使用期间所产生的电费。贵方通过钱市街小程序扣缴的其他费用，包括但不限于水费、物业管理费等，均与电费无关。如我方逾期支付电费的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
                         </p>
                         <p style={{ marginLeft: '70px', fontSize: '24px' }}>
                             特此确认！

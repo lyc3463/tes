@@ -220,3 +220,57 @@ export function getDaysInCurrentMonth() {
     // 返回当前月份的天数
     return lastDayOfCurrentMonth.getDate();
 }
+
+export function numberToRMB(n) {
+    const fraction = ['角', '分'];  // 角分
+    const digit = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];  // 数字
+    const unit = ['', '拾', '佰', '仟', '万', '亿', '兆'];  // 单位
+    const isNegative = n < 0;  // 判断是否为负数
+    n = Math.abs(n);  // 获取绝对值
+
+    let result = '';
+    let parts = [];
+
+    // 处理小数部分（角分），确保小数部分为两位
+    let fractionPart = (n % 1).toFixed(2).slice(2); // 获取小数部分并确保两位
+    if (fractionPart !== '00') {  // 如果小数部分有非零值，处理角分
+        for (let i = 0; i < fractionPart.length; i++) {
+            if (fractionPart[i] !== '0') {  // 只有当是非零值时，才拼接角分
+                parts.push(digit[parseInt(fractionPart[i])] + fraction[i]);
+            }
+        }
+    }
+
+    // 处理整数部分
+    let unitIndex = 0;
+    let integerPart = Math.floor(n);
+    while (integerPart > 0) {
+        let section = integerPart % 10;
+        if (section !== 0) {
+            result = digit[section] + unit[unitIndex] + result;
+        } else {
+            // 连续的零只保留一个零
+            if (result.charAt(0) !== '零') {
+                result = '零' + result;
+            }
+        }
+        integerPart = Math.floor(integerPart / 10);
+        unitIndex++;
+    }
+
+    // 处理负数情况
+    if (isNegative) {
+        result = '负' + result;
+    }
+
+    // 拼接完整的人民币大写（圆替代元）
+    result += '圆';  // 确保整数部分后面有“圆”而不是“元”
+    result += parts.join(''); // 加上小数部分的“角分”
+
+    // 如果小数部分为空，去掉“零”
+    if (result.indexOf('零') > 0) {
+        result = result.replace(/零/g, ''); // 可以根据需求保留或者删除零
+    }
+
+    return result;
+}

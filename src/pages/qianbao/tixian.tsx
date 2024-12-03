@@ -3,6 +3,7 @@ import {connect} from "umi";
 import {useEffect, useState} from "react";
 import {Simulate} from "react-dom/test-utils";
 import change = Simulate.change;
+import dayjs from "dayjs";
 
 const Tixian=(props:any)=>{
     const [page,setPage]=useState(1);
@@ -10,6 +11,16 @@ const Tixian=(props:any)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
     const columns =[
+        {
+            title: '日期',
+            dataIndex: 'created',
+            key: 'created',
+            render:(text,record)=>{
+                return(
+                    <div>{dayjs(record.created).format("YYYY-MM-DD")}</div>
+                )
+            }
+        },
         {
             title: '提现银行卡',
             dataIndex: 'cardId',

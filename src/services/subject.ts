@@ -5,11 +5,11 @@ export function fetch(vals:any) {
 }
 
 export function add(vals:any) {
-    return getData(1086, [vals.name,vals.company_id,vals.project_id]);
+    return getData(1086, [vals.name]);
 }
 
 export function edit(vals:any) {
-    return getData(1087, [vals.uid,vals.subject_name,vals.company_id,vals.project_id]);
+    return getData(1087, [vals.uid,vals.subject_name]);
 }
 
 export function remove(vals:any) {
