@@ -18,7 +18,7 @@ export const menuData: TypeMenu[] = [
     { id: 12, route: '/kehu/wcxuserlist/', name: '小程序用户列表', parentId: 10 , authId: 12},
     { id: 13, route: '/kehu/zuhuguanlian/', name: '租户关联', parentId: 10 , authId: 13},
     { id: 14, route: '/kehu/zuhulist/', name: '租户列表', parentId: 10 , authId: 14},
-    { id: 15, route: '/kehu/typeList/', name: '标签管理', parentId: 10 , authId: 15},
+    // { id: 15, route: '/kehu/typeList/', name: '标签管理', parentId: 10 , authId: 15},
     { id: 16, route: '/waterCableManage/', name: '水电管理' , authId: 16},
     { id: 17, route: '/waterCableManage/collector', name: '采集器管理' , parentId: 16, authId: 17},
     { id: 18, route: '/waterCableManage/cable', name: '电表管理' , parentId: 16, authId: 18},

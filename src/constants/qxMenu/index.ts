@@ -18,7 +18,7 @@ export const qxTree: TypeMenu[] = [
     { id: 12, name: '小程序用户列表', parentId: 10 , authId: 12},
     { id: 13, name: '租户关联', parentId: 10 , authId: 13},
     { id: 14, name: '租户列表', parentId: 10 , authId: 14},
-    { id: 15, name: '标签类别管理', parentId: 10 , authId: 15},
+    // { id: 15, name: '标签类别管理', parentId: 10 , authId: 15},
     { id: 16, name: '水电管理' , authId: 16},
     { id: 17, name: '采集器管理' , parentId: 16, authId: 17},
     { id: 18, name: '电表管理' , parentId: 16, authId: 18},

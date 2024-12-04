@@ -13,16 +13,6 @@ const SubjectList=(props:any)=>{
             key: 'subject_name',
         },
         {
-            title: '项目名称',
-            dataIndex: 'project_name',
-            key: 'project_name',
-        },
-        {
-            title: '所属公司',
-            dataIndex: 'company_name',
-            key: 'company_name',
-        },
-        {
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',

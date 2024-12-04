@@ -84,7 +84,7 @@ const Dingjin=()=>{
       if (uid>0){
 
       }  else {
-          ContractTypeService.add(companyName,companyAddress,rentAddress,openName,openBank,bankCard,templateType,legalPerson,phone,contacts,documentImage,attractPhone,attractWXNumber,reportPhone,reportEmail,attract).then((res:TypeErrorCode)=>{
+          ContractTypeService.add(companyName,companyAddress,rentAddress,openName,openBank,bankCard,templateType,legalPerson,phone,contacts,documentImage,attractPhone,attractWXNumber,reportPhone,reportEmail,attract,0,0,0).then((res:TypeErrorCode)=>{
               console.log(res)
           })
       }
