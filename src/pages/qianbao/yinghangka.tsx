@@ -1,6 +1,7 @@
 import {Button, Input, List, message, Modal, Select, Space, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Yinghangka=(props:any)=>{
     const [page,setPage]=useState(1);
@@ -9,6 +10,9 @@ const Yinghangka=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [isOpen,setOpen]=useState(false);
     const [yhk,setYhk]=useState('');
+    const [did,setDid]=useState(0);
+    const [isOffOpen,setisOffOpen]=useState(false);
+    const [isONOpen,setisONOpen]=useState(false);
     const columns =[
         {
             title: '户名',
@@ -38,6 +42,18 @@ const Yinghangka=(props:any)=>{
                 return(
                     <div>
                         {record.isDefault==1?<Tag color='green'>是</Tag>:<Tag color='red'>否</Tag>}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '切换默认卡号',
+            dataIndex: 'offon',
+            key: 'offon',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.isDefault==1?<Button onClick={()=>offOpen(record.id)} type='primary' danger >关闭默认</Button>:<Button type='primary' onClick={()=>onOpen(record.id)}>开启默认</Button>}
                     </div>
                 )
             }
@@ -95,6 +111,45 @@ const Yinghangka=(props:any)=>{
             }
         })
     };
+    // 关闭默认
+    const offOpen=(e:number)=>{
+      setDid(e);
+      setisOffOpen(true)
+    };
+    // 关闭默认OK
+    const onOffOK=()=>{
+        props.dispatch({
+            type:'Yinghangka/onisoff',
+            payload:{did,stutes:0}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('关闭成功');
+                setisOffOpen(false);
+            }else {
+                message.error(res.Data);
+                setisOffOpen(false);
+            }
+        })
+    };
+    // 开启是弹窗
+    const onOpen=(e)=>{
+      setDid(e);
+      setisONOpen(true);
+    };
+    const onOnOK=()=>{
+        props.dispatch({
+            type:'Yinghangka/onisoff',
+            payload:{did,stutes:1}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('开启成功');
+                setisONOpen(false);
+            }else {
+                message.error(res.Data);
+                setisONOpen(false);
+            }
+        })
+    };
     return(
         <div>
             <List>
@@ -129,9 +184,17 @@ const Yinghangka=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-        {/*    弹窗*/}
+        {/*    删除弹窗*/}
             <Modal open={isOpen} onOk={onOk} title='删除' onCancel={()=>setOpen(false)}>
                 <div>是否要删除银行卡:<span style={{color:'red'}}>{yhk}</span></div>
+            </Modal>
+            {/*关闭默认是弹窗*/}
+            <Modal open={isOffOpen} onOk={onOffOK} onCancel={()=>setisOffOpen(false)}>
+                <div>是否要关闭默认?</div>
+            </Modal>
+            {/*关闭默认是弹窗*/}
+            <Modal open={isONOpen} onOk={onOnOK} onCancel={()=>setisONOpen(false)}>
+                <div>是否要关闭默认?</div>
             </Modal>
         </div>
     )

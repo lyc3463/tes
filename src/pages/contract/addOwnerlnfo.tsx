@@ -16,7 +16,7 @@ const AddOwnerlnfo=(props)=>{
     const onFinish= (values)=>{
         let jsonDate=JSON.stringify(formItems);
         props.dispatch({
-            type:'Ownerlnfo/add',
+            type:'OwnerInfo/add',
             payload:{...values,endDate,startDate,jsonDate}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
@@ -63,6 +63,9 @@ const AddOwnerlnfo=(props)=>{
                 style={{ marginTop:'1rem'}}
             >
                 <Form.Item label='合同编号' name='identifier'>
+                    <Input/>
+                </Form.Item>
+                 <Form.Item label='甲方银行账号' name='ownerCard'>
                     <Input/>
                 </Form.Item>
                 <Form.Item label='租户名称' name='tenantName'>
@@ -114,7 +117,7 @@ const AddOwnerlnfo=(props)=>{
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
-                        录入合同
+                        添加
                     </Button>
                 </Form.Item>
             </Form>

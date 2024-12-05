@@ -180,6 +180,7 @@ const Staff=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props)
     }, [page]);
     // 监听合同编号
     const changeIdentifier=(e)=>{

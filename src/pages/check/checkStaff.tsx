@@ -112,7 +112,7 @@ const CheckStaff=(props:any)=>{
             payload:{uid}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
-                message.success('已通过,等待闸机服务器响应(可能稍微有点久~~~~)');
+                message.success('已通过,等待闸机服务器响应');
                 setOpen(false);
             }else {
                 message.error(res.Data);

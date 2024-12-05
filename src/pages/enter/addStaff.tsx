@@ -275,13 +275,16 @@ const AddStaff=(props:any)=>{
                 <Form.Item label='起租日'>
                     <DatePicker.RangePicker onChange={changeData}/>
                 </Form.Item>
-                <Form.Item label='租金' name='zuMoney'>
+                <Form.Item label='租金(元)' name='zuMoney'>
                     <InputNumber/>
                 </Form.Item>
                 <Form.Item label='管理费(元)' name='manageFee'>
                     <InputNumber/>
                 </Form.Item>
-                <Form.Item label='押金' name='deposit' >
+                <Form.Item label='管理费每年递增%' name='manageFeeRent'>
+                    <InputNumber min={0}/>
+                </Form.Item>
+                <Form.Item label='押金(元)' name='deposit' >
                     <InputNumber/>
                 </Form.Item>
                 <Form.Item label='经营主体' name='businessEntity' >

@@ -53,6 +53,7 @@ const contracteInfo=(props:any)=>{
     const getOneStaff= (id:string)=>{
         StaffServer.one(id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('res',res)
                 formRef.current.setFieldsValue(res.Data[0]);
                 setEndDate(dayjs(res.Data[0].endTime).format('YYYY-MM-DD'));
                 setStartDate(dayjs(res.Data[0].beginTime).format('YYYY-MM-DD'));
@@ -121,7 +122,6 @@ const contracteInfo=(props:any)=>{
     };
     // 更新递增
     const updatedz = (key, updates) => {
-        console.log(updates)
         setFormItems(prevItems => prevItems.map(item => item.id === key ? { ...item, ...updates } : item));
     };
     // 添加新表单项
@@ -197,7 +197,7 @@ const contracteInfo=(props:any)=>{
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
                 ref={formRef}
-                onFinish={onFinish}
+                // onFinish={onFinish}
                 layout="horizontal"
                 size={'large'}
                 style={{ marginTop:'1rem'}}
@@ -244,13 +244,16 @@ const contracteInfo=(props:any)=>{
                         }):''}
                     </Select>
                 </Form.Item>
-                <Form.Item label='租金' name='zuMoney'>
+                <Form.Item label='租金(元)' name='zuMoney'>
                     <InputNumber/>
                 </Form.Item>
                 <Form.Item label='管理费(元)' name='manageFee'>
                     <InputNumber/>
                 </Form.Item>
-                <Form.Item label='押金' name='deposit' >
+                <Form.Item label='管理费每年递增%' name='manageFeeRent'>
+                    <InputNumber min={0}/>
+                </Form.Item>
+                <Form.Item label='押金(元)' name='deposit' >
                     <InputNumber/>
                 </Form.Item>
                 <Form.Item label='经营主体' name='businessEntity' >
@@ -377,11 +380,11 @@ const contracteInfo=(props:any)=>{
                         新增物品清单
                     </Button>
                 </Form.Item>
-                <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        修改
-                    </Button>
-                </Form.Item>
+                {/*<Form.Item {...tailLayout}>*/}
+                {/*    <Button type="primary" htmlType="submit">*/}
+                {/*        修改*/}
+                {/*    </Button>*/}
+                {/*</Form.Item>*/}
             </Form>
         </div>
     )

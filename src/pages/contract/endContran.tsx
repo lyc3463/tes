@@ -172,6 +172,7 @@ const EndContran=()=>{
         ContractTypeService.add(companyName,companyAddress,rentAddress,openName,openBank,bankCard,templateType,legalPerson,phone,contacts,documentImage,attractPhone,attractWXNumber,reportPhone,reportEmail,attract,elePice,waterPice,eleloss).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('保存成功');
+                getOne();
             }else {
                 message.error(res.Data);
             }
@@ -206,16 +207,16 @@ const EndContran=()=>{
                     <p>联系电话：<Input style={{width:'200px'}} placeholder='必填' value={phone} onChange={changephone}/></p>
                     <p>联系人：<Input style={{width:'200px'}} placeholder='必填' value={contacts} onChange={changecontacts}/></p>
                     <p style={{marginTop:'30px'}}></p>
-                    <p>承租方(乙方): <Input style={{width:'200px'}} placeholder='模板不用填写'/></p>
-                    <p>地址：<Input style={{width:'200px'}} placeholder='模板不用填写'/></p>
-                    <p>法定代表人：<Input style={{width:'200px'}} placeholder='模板不用填写'/></p>
-                    <p>联系电话：<Input style={{width:'200px'}} placeholder='模板不用填写'/></p>
-                    <p>联系人：<Input style={{width:'200px'}} placeholder='模板不用填写'/></p>
+                    <p>承租方(乙方): <Input style={{width:'200px'}} placeholder='模板不用填写' disabled/></p>
+                    <p>地址：<Input style={{width:'200px'}} placeholder='模板不用填写' disabled/></p>
+                    <p>法定代表人：<Input style={{width:'200px'}} placeholder='模板不用填写' disabled/></p>
+                    <p>联系电话：<Input style={{width:'200px'}} placeholder='模板不用填写' disabled/></p>
+                    <p>联系人：<Input style={{width:'200px'}} placeholder='模板不用填写' disabled/></p>
                     <p style={{marginLeft:'30px'}}>根据《中华人民共和国民法典》及相关法律法规，就乙方承租甲方房屋事宜，甲、乙双方在自愿、平等和互利的基础上，经协商一致，签订本合同并共同遵守。</p>
                     <p style={{marginLeft:'30px',fontWeight:500,fontSize:'24px'}}>第一条：房屋状况</p>
                     <p style={{marginLeft:'50px'}}>
-                        <span style={{fontSize:"18px",fontWeight:400}}>1.</span>甲方将位于<Input style={{width:'300px'}} placeholder='必填' value={rentAddress} onChange={changerentAddress}/><Input style={{width:'200px'}} placeholder='模板不用填写'/>房号的建筑物（以下简称“租赁物”）出租给乙方使用。经甲乙双
-                        方认可确定租赁物面积约为<Input style={{width:'100px'}} placeholder='模板不用填写'/>平方米（任何与面积相关的费用计算均以此面积为基础任何其他方式的测量均不影响对该租赁面积的确认，乙方 不得以租赁面积与实际交付面积存在误差为由解除合同或要求甲方支付补偿或赔偿）。签订本合同前，
+                        <span style={{fontSize:"18px",fontWeight:400}}>1.</span>甲方将位于<Input style={{width:'400px'}} placeholder='必填' value={rentAddress} onChange={changerentAddress}/><Input style={{width:'200px'}} placeholder='模板不用填写' disabled/>房号的建筑物（以下简称“租赁物”）出租给乙方使用。经甲乙双
+                        方认可确定租赁物面积约为<Input style={{width:'100px'}} placeholder='模板不用填写' disabled/>平方米（任何与面积相关的费用计算均以此面积为基础任何其他方式的测量均不影响对该租赁面积的确认，乙方 不得以租赁面积与实际交付面积存在误差为由解除合同或要求甲方支付补偿或赔偿）。签订本合同前，
                         乙方已充分获悉租赁物的现场情况、土地性质、规划 用途和消防、竣工及产权状况，本项目周边市政配套及道路等，乙方承诺在租赁期限内或本合同终止后，不再以前述任何理由要求解除本合同或调整租赁面积或要求甲方退还、减免租金、物业费等款项。
                     </p>
 
@@ -233,45 +234,44 @@ const EndContran=()=>{
                     </p>
                     <p style={{marginLeft:'50px'}}>
                         <span style={{fontSize:"18px",fontWeight:400}}>5.</span>
-                        乙方只能将租赁物用作<Input style={{width:'100px'}} placeholder='模板不用填写' />用途。乙方在租赁物从事经营的主体名称是<Input style={{width:'100px'}} placeholder='模板不用填写' />，其经营范围或业务范围为<Input style={{width:'100px'}} placeholder='模板不用填写' />。
+                        乙方只能将租赁物用作<Input style={{width:'100px'}} placeholder='模板不用填写' disabled/>用途。乙方在租赁物从事经营的主体名称是<Input style={{width:'100px'}} placeholder='模板不用填写'disabled />，其经营范围或业务范围为<Input style={{width:'100px'}} placeholder='模板不用填写' disabled/>。
                         如乙方需变更在租赁物从事经营主体、经营范围或业务范围的，应事先经甲方书面同意；涉及须经政府主管部门批准或办理登记手续的，应在取得批准或办理
                         登记手续之日起三天内书面通知甲方。未经甲方事先书面同意，乙方不得将租赁物用于本条规定以外的其他用途。
                     </p>
                     <p style={{marginLeft:'30px',fontWeight:500,fontSize:'24px'}}>第二条：租赁期限</p>
                     <p style={{marginLeft:'50px'}}>
-                        租赁期限为<Input style={{width:'100px'}} placeholder='模板不用填写'/>年，即从<DatePicker.RangePicker/>止（含免租期）。租赁期限届满前三个月，如乙方未向甲方提出书面续租申请的，在合理时间内，甲方有权带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的三个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
+                        租赁期限为<Input style={{width:'100px'}} placeholder='模板不用填写' disabled/>年，即从<DatePicker.RangePicker disabled/>止（含免租期）。租赁期限届满前三个月，如乙方未向甲方提出书面续租申请的，在合理时间内，甲方有权带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的三个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
                     </p>
 
                     <p style={{marginLeft:'30px',fontWeight:500,fontSize:'24px'}}>第三条：免租期</p>
                     <p style={{marginLeft:'50px'}}>
                         <span style={{fontSize:"18px",fontWeight:400}}>1.</span>
-                        租赁物的免租期为<Input style={{width:'100px'}} placeholder='模板不用填写'/>天,即从<DatePicker.RangePicker/>止。免租期届满次日为起租日，由起租日开始计收租金。免租期内乙方无须向甲方支付租金，但应承担实际使用租赁物所产生的水费、电费、物业费等；不论任何原因本租赁合同实际履行期不足一年的，则乙方应当向甲方支付 免租期租金，免租期租金的计算公式为：本租赁合同首期租金÷30×免租期天数。
+                        租赁物的免租期为<Input style={{width:'100px'}} placeholder='模板不用填写' disabled/>天,即从<DatePicker.RangePicker disabled/>止。免租期届满次日为起租日，由起租日开始计收租金。免租期内乙方无须向甲方支付租金，但应承担实际使用租赁物所产生的水费、电费、物业费等；不论任何原因本租赁合同实际履行期不足一年的，则乙方应当向甲方支付 免租期租金，免租期租金的计算公式为：本租赁合同首期租金÷30×免租期天数。
                     </p>
 
                     <p style={{marginLeft:'50px'}}>
                         <span style={{fontSize:"18px",fontWeight:400}}>2.</span>
-                        双方约定在<DatePicker.RangePicker/>（下称“交付日”），甲方将租赁物按双方约定的交付标准交付乙方使用，
+                        双方约定在<DatePicker.RangePicker disabled/>（下称“交付日”），甲方将租赁物按双方约定的交付标准交付乙方使用，
                         且乙方同意按租赁物及设 施的约定及现场实际状况标准承租。乙方应派专人（持乙方授权委托书及身份证明原件）到租赁物现场与甲方办理交付手续，乙方逾期不办理租赁物交付手续的，本合同规定的租赁期和免租期的起止日期不顺延；乙方逾期七天仍未办理租赁物交付手续的，甲方有权单方解除合同，不予退回合同保证金、物业费保证金和乙方
                         已支付的其他全部费用，如乙方尚未交纳合同保证金及物业费保证金的，应向甲方支付相当于合同保证金及物业费保证金金额的违约金；如乙方未缴齐合同保证金、
                         物业费保证金及合同约定的首期租金、首期物业费的，甲方可顺延交付租赁物的时间，但合同约定的免租期及租赁期限均不予顺延。
                     </p>
-
                     <p style={{marginLeft:'50px'}}>
                         <span style={{fontSize:"18px",fontWeight:400}}>3.</span>
                         乙方签收甲方的收楼通知书或已接收物业，视同已经无异议接收租赁物。乙方在交付日届满后十五天仍未与甲方办理租赁物交付手续的，视同乙方违约，甲方有权将租赁物另行出租，并没收乙方已经交纳全部保证金及其他已付全部费用。
                     </p>
-
                     <p style={{marginLeft:'30px',fontWeight:500,fontSize:'24px'}}>第四条：租赁费用</p>
                     <p style={{marginLeft:'50px'}}>
                         <span style={{fontSize:"18px",fontWeight:400}}>1.</span>
-                        合同保证金：本租赁合同的保证金为人民币<Input style={{width:'100px'}} placeholder='不需要填写'/>元（大写：<Input style={{width:'100px'}} placeholder='不需要填写'/>），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方
+                        合同保证金：本租赁合同的保证金为人民币<Input style={{width:'100px'}} placeholder='不需要填写' disabled/>元（大写：<Input  disabled style={{width:'100px'}} placeholder='不需要填写'/>），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方
                         办理退租手续、退还租赁物、结清全部应付的租金、管理费、水电费等相关费用、经营注册地址变更或办理注销手续后，甲方在收到乙方前述全部事宜的书面证明文件后7个工作日内将合同保证金无息退还乙方。 如乙方违反本合同之规定，甲方有权（但并无义务）将合同保证金没收或做相应扣除，乙方应在接到甲方扣除通知后的十五日内将甲方扣除的合同保证金补足给甲
                         方，否则视为乙方违约。
                     </p>
-
                     <p style={{marginLeft:'50px'}}>
                         <span style={{fontSize:"18px",fontWeight:400}}>2.</span>
-                        租金：租赁物租金第1年起为每月<Input style={{width:'100px'}} placeholder='不需要填写'/>第2年起每年租金将在上年的基础上递增 <Input style={{width:'100px'}} placeholder='不需要填写'/> %，以此类推。合同租金明细如下:
+                        租金：租赁物租金第1年起为每月<Input style={{width:'100px'}} placeholder='不需要填写' disabled/>
+                        {/*第2年起每年租金将在上年的基础上递增 <Input style={{width:'100px'}} placeholder='不需要填写' disabled/> %，以此类推。*/}
+                        合同租金明细如下:
                         <Table columns={columns}/>
                     </p>
                     <p style={{marginLeft:'50px'}}>
@@ -284,13 +284,13 @@ const EndContran=()=>{
                     </p>
                     <p style={{marginLeft:'70px'}}>
                         <span style={{fontSize:"18px",fontWeight:400}}>(1)</span>
-                        物业费的保证金为人民币<Input style={{width:'100px'}} placeholder='不需要填写'/>元（大写：<Input style={{width:'100px'}} placeholder='不需要填写'/>），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方办理退租手续、
+                        物业费的保证金为人民币<Input style={{width:'100px'}} placeholder='不需要填写' disabled/>元（大写：<Input style={{width:'100px'}} disabled placeholder='不需要填写'/>），乙方应于本合同签订当日向甲方支付。租赁期满，在乙方配合甲方办理退租手续、
                         退还租赁物、结清全部应付的租金、管理费、水电费等相关费用、经营注册地址变更或办理注销手续后，甲方在收到乙方前述全部事宜的书面证明文件后7个工作日内
                         将物业费的保证金无息退还乙方。
                     </p>
                     <p style={{marginLeft:'70px'}}>
                         <span style={{fontSize:"18px",fontWeight:400}}>(2)</span>
-                        租赁期间租赁物物业费为每月<Input style={{width:'100px'}} placeholder='不需要填写'/>元，第2年起每年物业费将在上年的基础上递增<Input style={{width:'100px'}} placeholder='不需要填写'/> %，以此类推。乙方应在本合同乙方签署之日
+                        租赁期间租赁物物业费为每月<Input style={{width:'100px'}} placeholder='不需要填写' disabled/>元，第2年起每年物业费将在上年的基础上递增<Input style={{width:'100px'}} placeholder='不需要填写' disabled/> %，以此类推。乙方应在本合同乙方签署之日
                         支付首期物业费给甲方；除首期物业费外，乙方应于每月二十八日前（按自然月计算）向甲方或甲方指定的物业服务方支付次月物业费。
                     </p>
                     <p style={{marginLeft:'50px'}}>
@@ -418,7 +418,7 @@ const EndContran=()=>{
 
                     <p style={{marginLeft:'50px'}}>
                         <span style={{fontSize:"18px",fontWeight:400}}>7.</span>
-                        甲乙双方共同确认，为达成本租赁合同甲方根据乙方要求对租赁物进行了定制装修，装修费用合计<Input style={{width:'100px'}} placeholder='不需要填写'/>元；如本合同因乙方原因提前解除或终止的，乙方应当按照如下标准补偿甲方装修
+                        甲乙双方共同确认，为达成本租赁合同甲方根据乙方要求对租赁物进行了定制装修，装修费用合计<Input style={{width:'100px'}} placeholder='不需要填写' disabled/>元；如本合同因乙方原因提前解除或终止的，乙方应当按照如下标准补偿甲方装修
                         投入：剩余未履行的租赁期÷租赁期×甲方投入装修价值。
                    </p>
                     <p style={{marginLeft:'30px',fontWeight:500,fontSize:'24px'}}>第九条：租赁物交还及提前终止合同</p>
@@ -800,8 +800,8 @@ const EndContran=()=>{
                         【签署页  无正文】
                     </p>
 
-                    <p style={{marginLeft:'30px'}}><span style={{marginRight:'100px'}}>甲方（签署）:<Input style={{width:'300px'}}  value={companyName}  onChange={changecompanyName}/></span><span>乙方（签署）:<Input style={{width:'300px'}} placeholder='不需要填写'/></span></p>
-                    <p style={{marginLeft:'30px'}}><span style={{marginRight:'100px'}}>法定代表人:<Input style={{width:'200px'}} value={legalPerson} onChange={changelegalPerson}/></span><span>法定代表人:<Input style={{width:'200px'}} placeholder='不需要填写'/></span></p>
+                    <p style={{marginLeft:'30px'}}><span style={{marginRight:'100px'}}>甲方（签署）:<Input style={{width:'300px'}}  value={companyName}  onChange={changecompanyName}/></span><span>乙方（签署）:<Input style={{width:'300px'}} placeholder='不需要填写' disabled/></span></p>
+                    <p style={{marginLeft:'30px'}}><span style={{marginRight:'100px'}}>法定代表人:<Input style={{width:'200px'}} value={legalPerson} onChange={changelegalPerson}/></span><span>法定代表人:<Input style={{width:'200px'}} placeholder='不需要填写' disabled/></span></p>
                     <p style={{marginLeft:'30px'}}><span style={{marginRight:'300px'}}>签订日期 :<span style={{color:"red"}}></span></span><span>签订日期:<span style={{color:'red'}}></span></span></p>
 
                     <p style={{marginLeft:'50px'}}>
@@ -833,10 +833,10 @@ const EndContran=()=>{
                         甲方：<Input style={{width:'300px'}} value={companyName}  onChange={changecompanyName}/>
                     </p>
                     <p style={{marginLeft:'50px'}}>
-                        乙方：：<Input style={{width:'200px'}}/>
+                        乙方：：<Input style={{width:'200px'}} disabled/>
                     </p>
                     <p style={{marginLeft:'50px'}}>
-                        鉴于：双方于<DatePicker/>日就位于<Input style={{width:'350px'}} value={rentAddress} onChange={changerentAddress}/><Input style={{width:'90px'}}/>房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于<DatePicker/>日之前按照合同约定向乙方交付租赁房地产。
+                        鉴于：双方于<DatePicker disabled/>日就位于<Input style={{width:'350px'}} value={rentAddress} onChange={changerentAddress}/><Input style={{width:'90px'}} disabled/>房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于<DatePicker/>日之前按照合同约定向乙方交付租赁房地产。
                     </p>
                     <p style={{marginLeft:'70px'}}>
                         现双方根据租赁房地产验收交付等情况确认如下：
@@ -847,12 +847,12 @@ const EndContran=()=>{
                     </p>
                     <p style={{marginLeft:'70px'}}>
                         <span style={{fontSize:"18px",fontWeight:400}}>2.</span>
-                        双方确认：<DatePicker/>为签署《房屋租赁合同书》项下的租赁物交付日。
+                        双方确认：<DatePicker disabled/>为签署《房屋租赁合同书》项下的租赁物交付日。
                     </p>
                     <p style={{marginLeft:'70px'}}>
                         本确认书经双方签署之日起生效。
                     </p>
-                    <p style={{marginLeft:'30px'}}><span style={{marginRight:'100px'}}>甲方（签署）:<Input style={{width:'250px'}} value={companyName}  onChange={changecompanyName}/></span><span>乙方（签署）:<Input style={{width:'200px'}} placeholder='不需要填写'/></span></p>
+                    <p style={{marginLeft:'30px'}}><span style={{marginRight:'100px'}}>甲方（签署）:<Input style={{width:'250px'}} value={companyName}  onChange={changecompanyName}/></span><span>乙方（签署）:<Input style={{width:'200px'}} placeholder='不需要填写' disabled/></span></p>
                     <p style={{marginLeft:'30px'}}><span style={{marginRight:'300px'}}>签订日期 :<span style={{color:"red"}}></span></span><span>签订日期:<span style={{color:'red'}}></span></span></p>
                     <p style={{marginLeft:'50px'}}>
                         <h3>
@@ -914,7 +914,7 @@ const EndContran=()=>{
                         （以下无正文）
                     </p>
                     <p style={{marginLeft:'50px'}}>
-                        承租方签署:<Input style={{width:'150px'}} placeholder='不需要填写' />
+                        承租方签署:<Input style={{width:'150px'}} placeholder='不需要填写' disabled/>
                     </p>
                     <p style={{marginLeft:'50px'}}>
                         签约日期:
@@ -1001,7 +1001,7 @@ const EndContran=()=>{
                         为了积极贯彻执行国家和本省、本市有关安全生产、消防、治安保卫、劳动保护等法律法规和相关标准，包括但不限于《中华人民共和国安全生产法》《中华人民共和国消防法》《中华人民共和国劳动法》《中华人民共和国反恐怖主义法》《中华人民共和国治安管理处罚法》《中华人民共和国环境保护法》《广东省安全生产条例》、广东省实施《中华人民共和国消防法》办法、《广东省公共安全视频图像信息系统管理办法》《广州市安全生产条例》《广州市安全生产管理规定》《仓库防火安全管理规则》《建筑内部装修设计防火规范》等。安全生产工作实行管行业必须管安全、管业务必须管安全、管生产经营必须管安全，强化和落实生产经营单位主体责任。
                     </p>
                     <p style={{marginLeft:'50px'}}>
-                        一、现由<Input style={{width:'100px'}}/>先生/小姐，（身份证：<Input style={{width:'200px'}}/>）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
+                        一、现由<Input style={{width:'100px'}} disabled/>先生/小姐，（身份证：<Input style={{width:'200px'}} disabled/>）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
                     </p>
                     <p style={{marginLeft:'50px'}}>
                         二、生产经营单位的主要负责人是本单位安全生产第一责任人，对本单位的安全生产工作全面负责。

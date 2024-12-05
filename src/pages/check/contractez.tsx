@@ -95,6 +95,14 @@ const Contractez = () => {
     const [elePrice, setelePrice] = useState('');
     // 免租期
     const [mzq,setmzq]=useState([]);
+    // 租金
+    const [zuMoney,setzuMoney]=useState(0);
+    // 电费损耗
+    const [eleloss,seteleloss]=useState(0);
+    // 代缴电费
+    const [elePice,setelePice]=useState(0);
+    // 代缴水费
+    const [waterPice,setwaterPice]=useState(0);
 
     // 图片显示的名字
     const [b64, setB64] = useState('');
@@ -126,6 +134,7 @@ const Contractez = () => {
                 setdispatchCard(res.Data[0].dispatchCard);
                 setcustomCard(res.Data[0].customCard);
                 setelePrice(res.Data[0].elePrice);
+                setzuMoney(res.Data[0].zuMoney);
                 setmzq(res.Data[1])
             } else {
                 message.error(res.Data)
@@ -179,7 +188,10 @@ const Contractez = () => {
                 setreportEmail(res.Data.reportEmail);
                 setcontacts(res.Data.contacts);
                 setattract(res.Data.attract);
-                setB64(res.Data.documentBase64)
+                setB64(res.Data.documentBase64);
+                seteleloss(res.Data.loss);
+                setelePice(res.Data.elePrice);
+                setwaterPice(res.Data.waterPrice);
             } else {
                 message.error(res.Data);
             }
@@ -188,18 +200,39 @@ const Contractez = () => {
     const columns = [
         {
             title: '租期',
-            dataIndex: 'name',
-            key: 'name'
+            dataIndex: 'beginTime',
+            key: 'beginTime',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {dayjs(record.beginTime).format("YYYY-MM-DD")}至{dayjs(record.endTime).format("YYYY-MM-DD")}
+                    </div>
+                )
+            }
         },
         {
             title: '递增比例',
-            dataIndex: 'name',
-            key: 'name'
+            dataIndex: 'incremental',
+            key: 'incremental',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.incremental}%
+                    </div>
+                )
+            }
         },
         {
             title: '月租金金额（人民币）',
             dataIndex: 'name',
-            key: 'name'
+            key: 'name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {(((record.incremental/100)*zuMoney)+zuMoney).toFixed(2)}元
+                    </div>
+                )
+            }
         },
     ];
     // 下载pdf
@@ -266,7 +299,7 @@ const Contractez = () => {
                     <p style={{ marginLeft: '30px', fontWeight: 500, fontSize: '24px' }}>第三条：免租期</p>
                     <p style={{ marginLeft: '50px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>1.</span>
-                        租赁物的免租期为<Input style={{ width: '50px' }} />天,即从{
+                        租赁物的免租期为<Input style={{ width: '50px' ,border:"none"}} />天,即从{
                         mzq.map((item,index)=>{
                             return(
                                 <span>
@@ -300,8 +333,8 @@ const Contractez = () => {
 
                     <p style={{ marginLeft: '50px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>2.</span>
-                        租金：租赁物租金第1年起为每月<Input style={{ width: '100px' }}/>第2年起每年租金将在上年的基础上递增 <Input style={{ width: '100px' }}/> %，以此类推。合同租金明细如下:
-                        <Table columns={columns} />
+                        租金：租赁物租金第1年起为每月{zuMoney}元。以此类推。合同租金明细如下:
+                        <Table columns={columns} dataSource={mzq}  rowKey={(columns) => columns.id} size='small'/>
                     </p>
                     <p style={{ marginLeft: '50px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>3.</span>
@@ -319,7 +352,7 @@ const Contractez = () => {
                     </p>
                     <p style={{ marginLeft: '70px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>(2)</span>
-                        租赁期间租赁物物业费为每月{manageFee}元，第2年起每年物业费将在上年的基础上递增<Input style={{ width: '100px' }} /> %，以此类推。乙方应在本合同乙方签署之日
+                        租赁期间租赁物物业费为每月{manageFee}元，第2年起每年物业费将在上年的基础上递增<Input style={{ width: '50px',border:'none' }} /> %，以此类推。乙方应在本合同乙方签署之日
                         支付首期物业费给甲方；除首期物业费外，乙方应于每月二十八日前（按自然月计算）向甲方或甲方指定的物业服务方支付次月物业费。
                     </p>
                     <p style={{ marginLeft: '50px' }}>
@@ -406,11 +439,9 @@ const Contractez = () => {
                     </p>
                     <p style={{ marginLeft: '50px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>4.</span>
-                        乙方使用租赁物期间，租赁物内不得存放化学、有毒、有害气体、易燃易爆等危险物品，否则，由此
+                        乙方使用租赁物期间，租赁物内不得存放化学、有毒、有害气体、易燃易爆等危险物品，否则，由此造成的一切经济损失和责任由乙方承担。
                     </p>
-                    <p style={{ marginLeft: '50px' }}>
-                        造成的一切经济损失和责任由乙方承担。
-                    </p>
+
                     <p style={{ marginLeft: '50px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>5.</span>
                         如果乙方安装的电器或线路或管道发生危险和不安全时，当甲方或有关政府机关提出要求时，乙方应马上更换上述设备、线路或管道。乙方应允许甲方或甲方指定方检查由乙方安装在该单元内
@@ -868,7 +899,7 @@ const Contractez = () => {
                         乙方：{customcompany_name}
                     </p>
                     <p style={{ marginLeft: '50px' }}>
-                        鉴于：双方于<DatePicker />日就位于{rentAddress}{unit_name}房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于{startDate}日之前按照合同约定向乙方交付租赁房地产。
+                        鉴于：双方于<span style={{marginRight:'90px'}}></span>日就位于{rentAddress}{unit_name}房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于{startDate}日之前按照合同约定向乙方交付租赁房地产。
                     </p>
                     <p style={{ marginLeft: '70px' }}>
                         现双方根据租赁房地产验收交付等情况确认如下：
@@ -879,7 +910,7 @@ const Contractez = () => {
                     </p>
                     <p style={{ marginLeft: '70px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>2.</span>
-                        双方确认：<DatePicker />为签署《房屋租赁合同书》项下的租赁物交付日。
+                        双方确认：<span style={{marginRight:'90px'}}></span>为签署《房屋租赁合同书》项下的租赁物交付日。
                     </p>
                     <p style={{ marginLeft: '70px' }}>
                         本确认书经双方签署之日起生效。
@@ -1203,7 +1234,7 @@ const Contractez = () => {
                         根据贵我双方所签订的《房屋租赁合同》约定，我方承租贵方位于{rentAddress}{unit_name}房号的房地产（下称“租赁房地产”）。
                     </p>
                     <p style={{ marginLeft: '70px' }}>
-                        我方确认，租赁期间，贵方将按{elePrice}元/度的标准向我方收取租赁房地产使用期间所产生的电费。贵方通过钱市街小程序扣缴的其他费用，包括但不限于水费、物业管理费等，均与电费无关。如我方逾期支付电费的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
+                        我方确认，租赁期间，贵方将按{elePice}元/度的电费，及{waterPice}元/吨的水费标准向我方收取租赁房地产使用期间所产生的水电费。贵方通过钱市街小程序扣缴的其他费用，包括但不限于水费、物业管理费等，均与电费无关。如我方逾期支付电费的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
                     </p>
                     <p style={{ marginLeft: '70px', fontSize: '24px' }}>
                         特此确认！
@@ -1226,10 +1257,10 @@ const Contractez = () => {
 
                     </p>
                     <p style={{ marginLeft: '50px' }}>
-                        根据贵我双方所签订的《租赁合同》约定，我方承租贵方位于{ }{ }房号的房地产（下称“租赁房地产”）
+                        根据贵我双方所签订的《租赁合同》约定，我方承租贵方位于{rentAddress}{unit_name}房号的房地产（下称“租赁房地产”）
                     </p>
                     <p style={{ marginLeft: '50px' }}>
-                        我方确认，租赁期间，我方每月须按照按每度 <InputNumber /> 元向贵方缴纳设备损耗、维护费。前述设备损耗、维护费与我方每月应缴纳的物业管理费、水费、电费同时缴纳，如我方逾期支付的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
+                        我方确认，租赁期间，我方每月须按照按每度 {eleloss} 元向贵方缴纳设备损耗、维护费。前述设备损耗、维护费与我方每月应缴纳的物业管理费、水费、电费同时缴纳，如我方逾期支付的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
                     </p>
                     <p style={{ marginLeft: '50px' }}>
                         我方确认，前述设备损耗、维护费为贵方统筹协调租赁房地产综合管理所应收取的对价，在任何情况下我方均不以设备损耗、维护费畸高或不合理为由要求调整。
@@ -1251,7 +1282,7 @@ const Contractez = () => {
             <Modal open={isOpen}  onCancel={()=>setisOpen(false)} width={800} footer={[
                 <Button onClick={onOk} type='primary'>下载PDF</Button>
             ]}>
-                <div className="receipt-container" id='pdf-content'>
+                <div className="receipt-container" >
                     <h1 style={{ textAlign: 'center', marginTop: '50px' }}>房屋租赁合同书</h1>
                     <div className="receipt-info">
                         <p style={{ marginLeft: '50px' }}>出租方(甲方):{companyName}</p>
@@ -1293,13 +1324,13 @@ const Contractez = () => {
                         </p>
                         <p style={{ marginLeft: '30px', fontWeight: 500, fontSize: '24px' }}>第二条：租赁期限</p>
                         <p style={{ marginLeft: '50px' }}>
-                            租赁期限为<Input style={{ width: '50px' }}/>年，即从{startDate}-{endDate}止（含免租期）。租赁期限届满前三个月，如乙方未向甲方提出书面续租申请的，在合理时间内，甲方有权带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的三个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
+                            租赁期限为<Input style={{ width: '50px',border:"none"}}/>年，即从{startDate}-{endDate}止（含免租期）。租赁期限届满前三个月，如乙方未向甲方提出书面续租申请的，在合理时间内，甲方有权带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的三个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
                         </p>
 
                         <p style={{ marginLeft: '30px', fontWeight: 500, fontSize: '24px' }}>第三条：免租期</p>
                         <p style={{ marginLeft: '50px' }}>
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>1.</span>
-                            租赁物的免租期为{
+                            租赁物的免租期为<Input style={{ width: '50px' ,border:"none"}} />天,即从{
                             mzq.map((item,index)=>{
                                 return(
                                     <span>
@@ -1307,7 +1338,7 @@ const Contractez = () => {
                                 </span>
                                 )
                             })
-                        }天,即从<DatePicker.RangePicker />止。免租期届满次日为起租日，由起租日开始计收租金。免租期内乙方无须向甲方支付租金，但应承担实际使用租赁物所产生的水费、电费、物业费等；不论任何原因本租赁合同实际履行期不足一年的，则乙方应当向甲方支付 免租期租金，免租期租金的计算公式为：本租赁合同首期租金÷30×免租期天数。
+                        }止。免租期届满次日为起租日，由起租日开始计收租金。免租期内乙方无须向甲方支付租金，但应承担实际使用租赁物所产生的水费、电费、物业费等；不论任何原因本租赁合同实际履行期不足一年的，则乙方应当向甲方支付 免租期租金，免租期租金的计算公式为：本租赁合同首期租金÷30×免租期天数。
                         </p>
 
                         <p style={{ marginLeft: '50px' }}>
@@ -1333,8 +1364,8 @@ const Contractez = () => {
 
                         <p style={{ marginLeft: '50px' }}>
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>2.</span>
-                            租金：租赁物租金第1年起为每月<Input style={{ width: '100px' }} />第2年起每年租金将在上年的基础上递增 <Input style={{ width: '100px' }} /> %，以此类推。合同租金明细如下:
-                            <Table columns={columns} />
+                            租金：租赁物租金第1年起为每月{zuMoney}元。以此类推。合同租金明细如下:
+                            <Table columns={columns} dataSource={mzq}  rowKey={(columns) => columns.id} size='small'/>
                         </p>
                         <p style={{ marginLeft: '50px' }}>
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>3.</span>
@@ -1352,7 +1383,7 @@ const Contractez = () => {
                         </p>
                         <p style={{ marginLeft: '70px' }}>
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>(2)</span>
-                            租赁期间租赁物物业费为每月{manageFee}元，第2年起每年物业费将在上年的基础上递增<Input style={{ width: '100px' }} /> %，以此类推。乙方应在本合同乙方签署之日
+                            租赁期间租赁物物业费为每月{manageFee}元，第2年起每年物业费将在上年的基础上递增<Input style={{ width: '50px',border:'none' }} /> %，以此类推。乙方应在本合同乙方签署之日
                             支付首期物业费给甲方；除首期物业费外，乙方应于每月二十八日前（按自然月计算）向甲方或甲方指定的物业服务方支付次月物业费。
                         </p>
                         <p style={{ marginLeft: '50px' }}>
@@ -1441,6 +1472,7 @@ const Contractez = () => {
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>4.</span>
                             乙方使用租赁物期间，租赁物内不得存放化学、有毒、有害气体、易燃易爆等危险物品，否则，由此造成的一切经济损失和责任由乙方承担。
                         </p>
+
                         <p style={{ marginLeft: '50px' }}>
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>5.</span>
                             如果乙方安装的电器或线路或管道发生危险和不安全时，当甲方或有关政府机关提出要求时，乙方应马上更换上述设备、线路或管道。乙方应允许甲方或甲方指定方检查由乙方安装在该单元内
@@ -1898,7 +1930,7 @@ const Contractez = () => {
                             乙方：{customcompany_name}
                         </p>
                         <p style={{ marginLeft: '50px' }}>
-                            鉴于：双方于<DatePicker />日就位于{rentAddress}{unit_name}房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于{startDate}日之前按照合同约定向乙方交付租赁房地产。
+                            鉴于：双方于<span style={{marginRight:'90px'}}></span>日就位于{rentAddress}{unit_name}房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于{startDate}日之前按照合同约定向乙方交付租赁房地产。
                         </p>
                         <p style={{ marginLeft: '70px' }}>
                             现双方根据租赁房地产验收交付等情况确认如下：
@@ -1909,7 +1941,7 @@ const Contractez = () => {
                         </p>
                         <p style={{ marginLeft: '70px' }}>
                             <span style={{ fontSize: "18px", fontWeight: 400 }}>2.</span>
-                            双方确认：<DatePicker />为签署《房屋租赁合同书》项下的租赁物交付日。
+                            双方确认：<span style={{marginRight:'90px'}}></span>为签署《房屋租赁合同书》项下的租赁物交付日。
                         </p>
                         <p style={{ marginLeft: '70px' }}>
                             本确认书经双方签署之日起生效。
@@ -2233,7 +2265,7 @@ const Contractez = () => {
                             根据贵我双方所签订的《房屋租赁合同》约定，我方承租贵方位于{rentAddress}{unit_name}房号的房地产（下称“租赁房地产”）。
                         </p>
                         <p style={{ marginLeft: '70px' }}>
-                            我方确认，租赁期间，贵方将按{elePrice}元/度的标准向我方收取租赁房地产使用期间所产生的电费。贵方通过钱市街小程序扣缴的其他费用，包括但不限于水费、物业管理费等，均与电费无关。如我方逾期支付电费的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
+                            我方确认，租赁期间，贵方将按{elePice}元/度的电费，及{waterPice}元/吨的水费标准向我方收取租赁房地产使用期间所产生的水电费。贵方通过钱市街小程序扣缴的其他费用，包括但不限于水费、物业管理费等，均与电费无关。如我方逾期支付电费的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
                         </p>
                         <p style={{ marginLeft: '70px', fontSize: '24px' }}>
                             特此确认！
@@ -2256,10 +2288,10 @@ const Contractez = () => {
 
                         </p>
                         <p style={{ marginLeft: '50px' }}>
-                            根据贵我双方所签订的《租赁合同》约定，我方承租贵方位于{ }{ }房号的房地产（下称“租赁房地产”）
+                            根据贵我双方所签订的《租赁合同》约定，我方承租贵方位于{rentAddress}{unit_name}房号的房地产（下称“租赁房地产”）
                         </p>
                         <p style={{ marginLeft: '50px' }}>
-                            我方确认，租赁期间，我方每月须按照按每度 <InputNumber /> 元向贵方缴纳设备损耗、维护费。前述设备损耗、维护费与我方每月应缴纳的物业管理费、水费、电费同时缴纳，如我方逾期支付的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
+                            我方确认，租赁期间，我方每月须按照按每度 {eleloss} 元向贵方缴纳设备损耗、维护费。前述设备损耗、维护费与我方每月应缴纳的物业管理费、水费、电费同时缴纳，如我方逾期支付的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
                         </p>
                         <p style={{ marginLeft: '50px' }}>
                             我方确认，前述设备损耗、维护费为贵方统筹协调租赁房地产综合管理所应收取的对价，在任何情况下我方均不以设备损耗、维护费畸高或不合理为由要求调整。

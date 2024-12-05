@@ -192,7 +192,9 @@ const Checkdingjin=()=>{
                     <p>甲方（付款方）：{customcompany_name}</p>
                     <p>乙方（收款方）：{companyName}</p>
                     <p style={{marginLeft:'30px'}}>甲、乙双方因甲方拟租赁乙方商铺事宜，双方经协商一致，就定金担保事宜达成如下协议:</p>
-                    <p style={{marginLeft:'30px'}}>第一条：{custom_name}已详细了解要签署的主合同并已知首年租金（大写）<span >{numberToRMB(zuMoney)}</span>，租赁地址位于{rentAddress}号的物业。
+                    <p style={{marginLeft:'30px'}}>第一条：{custom_name}已详细了解要签署的主合同并已知首年租金（大写）<span >{numberToRMB(zuMoney)}</span>，租赁地址位于{rentAddress}
+                        <Input  style={{width:'100px'}} />
+                        号的物业。
                     </p>
                     <p style={{marginLeft:'30px'}}>第二条:甲方应在本合同签订之日向乙方一次性支付交付定金'{deposit}元整，乙方收款账户如下：</p>
                     <p style={{marginLeft:'50px'}}>开户名称:{openName}</p>
@@ -217,7 +219,8 @@ const Checkdingjin=()=>{
                         <p>甲方（付款方）：{customcompany_name}</p>
                         <p>乙方（收款方）：{companyName}</p>
                         <p style={{marginLeft:'30px'}}>甲、乙双方因甲方拟租赁乙方商铺事宜，双方经协商一致，就定金担保事宜达成如下协议:</p>
-                        <p style={{marginLeft:'30px'}}>第一条：{custom_name}已详细了解要签署的主合同并已知首年租金（大写）<span >{zuMoney}</span>，租赁地址位于{rentAddress}号的物业。
+                        <p style={{marginLeft:'30px'}}>第一条：{custom_name}已详细了解要签署的主合同并已知首年租金（大写）<span >{zuMoney}</span>，租赁地址位于{rentAddress}
+                            <Input style={{width:'100px'}} />号的物业。
                         </p>
                         <p style={{marginLeft:'30px'}}>第二条:甲方应在本合同签订之日向乙方一次性支付交付定金'{deposit}元整，乙方收款账户如下：</p>
                         <p style={{marginLeft:'50px'}}>开户名称:{openName}</p>

@@ -250,6 +250,9 @@ const EditStaff=(props:any)=>{
                 <Form.Item label='管理费(元)' name='manageFee'>
                     <InputNumber/>
                 </Form.Item>
+                <Form.Item label='管理费每年递增%' name='manageFeeRent'>
+                    <InputNumber min={0}/>
+                </Form.Item>
                 <Form.Item label='押金' name='deposit' >
                     <InputNumber/>
                 </Form.Item>

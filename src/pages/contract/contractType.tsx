@@ -8,7 +8,7 @@ const  ContractType=()=>{
                 <Tabs.TabPane key='1' tab='定金合同模板'>
                     <Dingjin/>
                 </Tabs.TabPane>
-                <Tabs.TabPane key='2' tab='最终合同模板'>
+                <Tabs.TabPane key='2' tab='正式合同模板'>
                     <EndContran/>
                 </Tabs.TabPane>
             </Tabs>

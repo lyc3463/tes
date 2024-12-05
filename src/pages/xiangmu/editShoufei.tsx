@@ -62,6 +62,8 @@ const EditShoufei=(props:any)=>{
         if (res.ErrorCode==0){
             message.success('修改成功')
             history.push('/xiangmu/gongsiguanli')
+        }else {
+            message.error(res.Data);
         }
     };
     const getAccounOne=async (e:any)=>{
@@ -96,7 +98,7 @@ const EditShoufei=(props:any)=>{
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                <Form.Item label='收费项目名称' name='item_name'>
+                <Form.Item label='收费项目名称' name='item_name' rules={[{required: true, message: '请输入收费项目名称'}]}>
                     <Input/>
                 </Form.Item>
                 <Form.Item label='收费类型' name='itemType'>
@@ -157,7 +159,7 @@ const EditShoufei=(props:any)=>{
                             <Input onChange={changePrice} defaultValue={price}/>
                         </Form.Item>:''
                 }
-                <Form.Item label='添加备注' name='remark'>
+                <Form.Item label='添加备注' name='remark' rules={[{required: true, message: '请输入备注'}]}>
                     <Input.TextArea/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>

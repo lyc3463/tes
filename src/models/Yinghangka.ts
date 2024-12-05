@@ -31,6 +31,7 @@ export interface YinghangkaInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
+        onisoff: Effect;
     };
     reducers: {
         list: Reducer<YinghangkaType[]>;
@@ -82,6 +83,13 @@ const YinghangkaModel: YinghangkaInterface = {
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
+        },
+        *onisoff({ payload, callback }, { call, put, take }): any {
+            const result = yield call(YinghangkaService.onisoff, payload);
+            yield put({ type: 'fetch', payload: pl });  // 重新加载数据
+            yield take('fetch/@@end');
+            return result
+
         },
     },
     reducers: {

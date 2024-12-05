@@ -46,24 +46,19 @@ const EditYinghangka=(props:any)=>{
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                <Form.Item label='户名' name='accountName'>
+                <Form.Item label='户名' name='accountName' rules={[{required: true, message:'请输入户名'}]}>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='银行卡号' name='cardNum'>
+                <Form.Item label='银行卡号' name='cardNum' rules={[{required: true, message:'请输入银行卡号'}]}>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='预留手机号' name='bankPhone'>
+                <Form.Item label='预留手机号' name='bankPhone' rules={[{required: true, message:'请输入预留手机号'}]}>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='银行名称' name='bankName'>
+                <Form.Item label='银行名称' name='bankName' rules={[{required: true, message:'请输入银行名称'}]}>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='是否为默认卡' name='isDefault'>
-                    <Radio.Group>
-                        <Radio value={1}>是</Radio>
-                        <Radio value={0}>否</Radio>
-                    </Radio.Group>
-                </Form.Item>
+        
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
                         修改

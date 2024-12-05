@@ -210,11 +210,11 @@ const EditWaterParameter=(props)=>{
                             (元/m³) =基础价(元)<InputNumber style={{width:'80px'}} value={base_price1} onChange={listenbasicPrice}/>
                             +附加单价(元)<InputNumber value={additional_price1} onChange={listenadditionalPrice} style={{width:'80px'}}/>
                         </Form.Item>
-                        <Form.Item label='损耗'>
-                            <InputNumber value={loss} style={{width:'80px'}} onChange={changeLoss}/>
-                            (m³)<span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                            每<InputNumber value={every_price} style={{width:'80px'}} step={1} precision={0} min={0} onChange={changPrice}/>天收费一次
-                        </Form.Item>
+                        {/*<Form.Item label='损耗'>*/}
+                        {/*    <InputNumber value={loss} style={{width:'80px'}} onChange={changeLoss}/>*/}
+                        {/*    (m³)<span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>*/}
+                        {/*    每<InputNumber value={every_price} style={{width:'80px'}} step={1} precision={0} min={0} onChange={changPrice}/>天收费一次*/}
+                        {/*</Form.Item>*/}
                     </>
                     :''}
                 {
