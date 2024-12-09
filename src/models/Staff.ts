@@ -10,6 +10,7 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import StaffType from '@/ModelTypes/TypeStaff';
 import { fixPathname } from '@/utils/common';
+import {editzs} from "@/services/staff";
 let pl={
     page:1,
     identifier:'',
@@ -31,8 +32,10 @@ export interface StaffInterface {
     effects: {
         fetch: Effect;
         fetchOne: Effect;
-        add: Effect;
-        edit: Effect;
+        addzs: Effect;
+        adddj: Effect;
+        editzs: Effect;
+        editdj: Effect;
         remove: Effect;
         check: Effect;
         fenye: Effect;
@@ -68,15 +71,28 @@ const StaffModel: StaffInterface = {
                 payload: { one },
             });
         },
-        *add({ payload }, { call, put,take}): any {
-            const result = yield call(StaffService.add, payload);
+        *addzs({ payload }, { call, put,take}): any {
+            const result = yield call(StaffService.addzs, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result;
+        },
+        *adddj({ payload }, { call, put,take}): any {
+            const result = yield call(StaffService.adddj, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result;
         },
 
-        *edit({ payload, callback }, { call, put, take }): any {
-            const result = yield call(StaffService.edit, payload);
+        *editzs({ payload, callback }, { call, put, take }): any {
+            const result = yield call(StaffService.editzs, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result;
+
+        },
+        *editdj({ payload, callback }, { call, put, take }): any {
+            const result = yield call(StaffService.editdj, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result;

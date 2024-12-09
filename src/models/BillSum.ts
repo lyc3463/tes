@@ -19,7 +19,8 @@ let pl={
     billMoneyType:2,
     companyId:0,
     projectId:0,
-    subjectId:0
+    subjectId:0,
+    account_card:''
 }
 
 export interface BillSumCountState {

@@ -4,7 +4,6 @@ import ImageUploader from "@/components/ImageUploader";
 import {useEffect, useState} from "react";
 import * as ContractTypeService from "@/services/contractType";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {edit} from "@/services/contractType";
 
 const EndContran=()=>{
     const templateType=2;
@@ -70,6 +69,7 @@ const EndContran=()=>{
                 setelePice(res.Data.elePrice);
                 setwaterPice(res.Data.waterPrice);
                 seteleloss(res.Data.loss);
+                setB64(res.Data.documentBase64);
             }else {
                 setUid(0);
             }
@@ -190,8 +190,10 @@ const EndContran=()=>{
     };
     const onOk=()=>{
         if (uid>0){
+            console.log('大于0')
             editType();
         }  else {
+            console.log('不大于')
             addType();
         }
     };
@@ -714,9 +716,9 @@ const EndContran=()=>{
                         <span style={{fontSize:"18px",fontWeight:400}}>1.</span>
                         甲方指定如下人员为与乙方的联系人，负责转达甲方的指示和要求，提供文件和资料，接收乙方向甲方送达的通知、文件和资料等，甲方更换联系人应当及时书面通知乙方：
                         <form className={styles.gridForm}>
-                            <div className={styles.gridItem}><input type="text" placeholder="1" value='甲方指派人员' /></div>
-                            <div className={styles.gridItem}><input type="text" placeholder="2" value='联系电话'/></div>
-                            <div className={styles.gridItem}><input type="text" placeholder="3" value='微信号'/></div>
+                            <div className={styles.gridItem}><input type="text" placeholder="1" value='甲方指派人员' disabled/></div>
+                            <div className={styles.gridItem}><input type="text" placeholder="2" value='联系电话' disabled/></div>
+                            <div className={styles.gridItem}><input type="text" placeholder="3" value='微信号' disabled/></div>
                             <div className={styles.gridItem}><Input type="text" placeholder="必填" value={attract} onChange={changeattract}/></div>
                             <div className={styles.gridItem}><Input type="text" placeholder="必填" value={attractPhone} onChange={changeattractPhone}/></div>
                             <div className={styles.gridItem}><Input type="text" placeholder="必填" value={attractWXNumber} onChange={changeattractWXNumber}/></div>
@@ -726,12 +728,12 @@ const EndContran=()=>{
                         <span style={{fontSize:"18px",fontWeight:400}}>2.</span>
                        乙方指定如下人员为与甲方的联系人，负责转达乙方的指示和要求，提供文件和资料，接收甲方向乙方送达的通知、文件和资料等，乙方更换联系人应当及时书面通知甲方：
                         <form className={styles.gridForm}>
-                            <div className={styles.gridItem}><input type="text"  value='乙方指派人员'/></div>
-                            <div className={styles.gridItem}><input type="text"  value='联系电话'/></div>
-                            <div className={styles.gridItem}><input type="text"  value='微信号'/></div>
-                            <div className={styles.gridItem}><input type="text"/></div>
-                            <div className={styles.gridItem}><input type="text"/></div>
-                            <div className={styles.gridItem}><input type="text"/></div>
+                            <div className={styles.gridItem}><input type="text"  value='乙方指派人员' disabled/></div>
+                            <div className={styles.gridItem}><input type="text"  value='联系电话' disabled/></div>
+                            <div className={styles.gridItem}><input type="text"  value='微信号' disabled/></div>
+                            <div className={styles.gridItem}><input type="text" placeholder='模板不用填写' disabled/></div>
+                            <div className={styles.gridItem}><input type="text" placeholder='模板不用填写' disabled/></div>
+                            <div className={styles.gridItem}><input type="text" placeholder='模板不用填写' disabled/></div>
                         </form>
                     </p>
                     <p style={{marginLeft:'50px'}}>
@@ -813,7 +815,6 @@ const EndContran=()=>{
                         <h3>
                             附件二：1、房屋内交付标准
                         </h3>
-
                     </p>
                     <p style={{marginLeft:'50px'}}>
                         <h3>
@@ -824,7 +825,6 @@ const EndContran=()=>{
                         <h3>
                             附件三：交接确认书
                         </h3>
-
                     </p>
                     <h2 style={{textAlign:'center',fontSize:'24px'}}>
                         交接确认书
@@ -836,7 +836,7 @@ const EndContran=()=>{
                         乙方：：<Input style={{width:'200px'}} disabled/>
                     </p>
                     <p style={{marginLeft:'50px'}}>
-                        鉴于：双方于<DatePicker disabled/>日就位于<Input style={{width:'350px'}} value={rentAddress} onChange={changerentAddress}/><Input style={{width:'90px'}} disabled/>房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于<DatePicker/>日之前按照合同约定向乙方交付租赁房地产。
+                        鉴于：双方于<DatePicker disabled/>日就位于<Input style={{width:'350px'}} value={rentAddress} onChange={changerentAddress}/><Input style={{width:'90px'}} disabled/>房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于<DatePicker disabled/>日之前按照合同约定向乙方交付租赁房地产。
                     </p>
                     <p style={{marginLeft:'70px'}}>
                         现双方根据租赁房地产验收交付等情况确认如下：

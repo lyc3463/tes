@@ -19,7 +19,8 @@ let pl={
     billMoneyType:2,
     companyId:0,
     projectId:0,
-    subjectId:0
+    subjectId:0,
+    account_card:''
 }
 
 export interface BiaoqianCountState {
@@ -89,15 +90,11 @@ const BannerModel: BiaoqianInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload ,callback}, { call, put }): any {
+        *remove({ payload ,callback}, { call, put ,take}): any {
             const result = yield call(BillService.remove, payload);
-            if (result.ErrorCode==0){
-                yield put({ type: 'fetch', payload: { name:'' } });
-                message.success('删除成功')
-                return result
-            }else {
-                yield put({ type: 'fetch', payload: { name:'' } });
-            }
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(BillService.fenye,payload?payload:pl);

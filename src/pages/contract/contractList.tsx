@@ -94,19 +94,19 @@ const ContractList=(props:any)=>{
         //     key: 'xianxia',
         //
         // },
-        {
-            title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
-            align:'center',
-            render: (text:any, record:any) => {
-                return(
-                    <Space>
-                        <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
-                    </Space>
-                )
-            }
-        },
+        // {
+        //     title: '操作',
+        //     dataIndex: 'cao',
+        //     key: 'cao',
+        //     align:'center',
+        //     render: (text:any, record:any) => {
+        //         return(
+        //             <Space>
+        //                 <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
+        //             </Space>
+        //         )
+        //     }
+        // },
     ];
     const toInfo=(e:number)=>{
         history.push(`/check/contracteInfo?id=${e}`)

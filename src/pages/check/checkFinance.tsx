@@ -2,6 +2,7 @@ import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Spa
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const CheckFinance=(props:any)=>{
     const [uid,setUid]=useState(0);
@@ -15,6 +16,12 @@ const CheckFinance=(props:any)=>{
     const [companyId,setCompanyId]=useState(0);
     const [projectId,setProjectId]=useState(0);
     const [subjectId,setSubjectId]=useState(0);
+    const [companyList,setCompanyList]=useState([]);
+    const [subjList,setSubjList]=useState([]);
+    const [projectlist,setProjectlist]=useState([]);
+    const [account_card,setaccount_card]=useState('');
+    // 一键审核弹窗
+    const [allOpen,setAllOpen]=useState(false);
     const columns =[
         {
             title: '日期',
@@ -29,29 +36,76 @@ const CheckFinance=(props:any)=>{
             }
         },
         {
-            title: '编号',
-            dataIndex: 'number',
-            key: 'number',
-        },
-        {
             title: '摘要',
             dataIndex: 'billAbstract',
             key: 'billAbstract',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.billAbstract}
+                    </div>
+                )
+            }
         },
         {
             title: '公司',
             dataIndex: 'company_name',
             key: 'company_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.company_name}
+                    </div>
+                )
+            }
         },
         {
             title: '项目',
             dataIndex: 'project_name',
             key: 'project_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.project_name}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '账户名称',
+            dataIndex: 'account_name',
+            key: 'account_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.account_name}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '账户卡号',
+            dataIndex: 'account_card',
+            key: 'account_card',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.account_card}
+                    </div>
+                )
+            }
         },
         {
             title: '科目',
             dataIndex: 'subject_name',
             key: 'subject_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.subject_name}
+                    </div>
+                )
+            }
         },
         {
             title: '收入/支出',
@@ -162,7 +216,7 @@ const CheckFinance=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'Bill/fenye',
-            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId}
+            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
         });
         logFenye();
     };
@@ -170,7 +224,7 @@ const CheckFinance=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Bill/fetch",
-            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId}
+            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
         })
     };
     // 监听页数
@@ -191,13 +245,115 @@ const CheckFinance=(props:any)=>{
     const changeType=(e:number)=>{
         setBillMoneyType(e);
     };
-    // 监听状态
-    const changeStutes=(e:number)=>{
-        setBillStatus(e);
+    // 获取公司列表
+    const getCompanList=()=>{
+        props.dispatch({
+            type:'Compan/fetch',
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                conterCompay(res.Data)
+            }else {
+                conterCompay([])
+            }
+        })
+    };
+    // 获取项目列表
+    const getProjectList=()=>{
+        props.dispatch({
+            type:'Project/fetch',
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                conterproject(res.Data);
+            }else {
+                conterproject([]);
+            }
+        });
+    };
+    // 获取科目列表
+    const getSubjectList=()=>{
+        props.dispatch({
+            type:'Subject/fetch',
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                contersubj(res.Data);
+            }else {
+                contersubj([]);
+            }
+        });
     };
     useEffect(() => {
         logFenye();
+
     }, [page]);
+    useEffect(() => {
+        getProjectList();
+        getSubjectList();
+        getCompanList();
+        console.log(props)
+    }, []);
+    // 监听公司id
+    const changeCompany=(e:number)=>{
+        setCompanyId(e);
+    };
+    // 监听项目id
+    const changeProject=(e:number)=>{
+        setProjectId(e);
+    };
+    // 监听项目id
+    const changeSubject=(e:number)=>{
+        setSubjectId(e);
+    };
+    // 公司拼接
+    const conterCompay=(item)=>{
+        let oldarr=[ {label:'全部',value:0}];
+        let newarr=item.map((item:any)=>{
+            return {
+                label:item.company_name,
+                value:item.id
+            }
+        });
+        setCompanyList(oldarr.concat(newarr));
+    };
+    // 项目拼接
+    const conterproject=(item)=>{
+        let oldarr=[ {label:'全部',value:0}];
+        let newarr=item.map((item:any)=>{
+            return {
+                label:item.project_name,
+                value:item.id
+            }
+        });
+        setProjectlist(oldarr.concat(newarr));
+    };
+    // 科目拼接
+    const contersubj=(item)=>{
+        let oldarr=[ {label:'全部',value:0}];
+        let newarr=item.map((item:any)=>{
+            return {
+                label:item.subject_name,
+                value:item.id
+            }
+        });
+        setSubjList(oldarr.concat(newarr));
+    };
+    // 一键审核弹窗
+    const allCheck=()=>{
+        setAllOpen(true);
+    };
+    // 确定一键审核
+    const allOk=()=>{
+        // props.dispatch({
+        //     type:'Bill/allCheck',
+        // }).then((res:any)=>{
+        //     if (res.ErrorCode==0){
+        //         message.success('一键审核通过');
+        //         setAllOpen(false);
+        //     }else {
+        //         message.error(res.Data);
+        //         setAllOpen(false);
+        //     }
+        // })
+    };
     return(
         <div>
             <List>
@@ -205,7 +361,13 @@ const CheckFinance=(props:any)=>{
                     <Space>
                         <Input
                             onChange={changeName}
+                            style={{ width: 300 }}
                             addonBefore="摘要:"
+                        />
+                        <Input
+                            onChange={(e)=>setaccount_card(e.target.value)}
+                            style={{ width: 300 }}
+                            addonBefore="账户卡号:"
                         />
                         <Space.Compact>
                             <div
@@ -223,6 +385,79 @@ const CheckFinance=(props:any)=>{
                                 时间:
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
+                        </Space.Compact>
+                    </Space>
+                </List.Item>
+                <List.Item>
+                    <Space>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                公司:
+                            </div>
+                            <Select
+                                onChange={changeCompany}
+                                defaultValue={companyId}
+                                style={{ width: 120 }}
+                                options={companyList}
+                            >
+                            </Select>
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                项目:
+                            </div>
+                            <Select
+                                onChange={changeProject}
+                                defaultValue={projectId}
+                                style={{ width: 120 }}
+                                options={projectlist}
+                            >
+                            </Select>
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                科目:
+                            </div>
+                            <Select
+                                onChange={changeSubject}
+                                defaultValue={subjectId}
+                                style={{ width: 120 }}
+                                options={subjList}
+                            >
+                            </Select>
                         </Space.Compact>
                         <Space.Compact>
                             <div
@@ -250,34 +485,11 @@ const CheckFinance=(props:any)=>{
                                 ]}
                             />
                         </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                状态:
-                            </div>
-                            <Select
-                                onChange={changeStutes}
-                                defaultValue={billStatus}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value: 0, label: '未审核' },
-                                    { value: 1, label: '已审核' },
-                                    { value: 2, label: '全部' },
-                                ]}
-                            />
-                        </Space.Compact>
-                        <Button type="primary" onClick={sousuo}>
+                        <Button type="primary"  onClick={sousuo}>
                             搜索
+                        </Button>
+                        <Button type="primary" danger  onClick={allCheck}>
+                            一键审核
                         </Button>
                     </Space>
                 </List.Item>
@@ -325,6 +537,10 @@ const CheckFinance=(props:any)=>{
                 <div>
                     确定要审核通过吗？
                 </div>
+            </Modal>
+        {/*    一键审核弹窗*/}
+            <Modal open={allOpen} onOk={allOk} onCancel={()=>setAllOpen(false)}>
+                <div>是否一键审核？</div>
             </Modal>
         </div>
     )

@@ -16,8 +16,9 @@ import {useEffect, useState} from "react";
 import {connect,history} from "umi";
 import {filterAndUpdateList,getDaysInCurrentMonth} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import * as CustomService from '@/services/custom';
 import dayjs from "dayjs";
-import * as CustomServer from "@/services/custom";
+import * as contractTypeListServer from "@/services/contractTypeList";
 import ImageUploader from "@/components/ImageUploader";
 const tailLayout = {
     wrapperCol: { offset: 3 },
@@ -72,6 +73,15 @@ const AddStaff=(props:any)=>{
     // 补充协议图片b64
     const [xyimgb64,setxyimgb64]=useState([]);
     const [unitB64,setuintB64]=useState('');
+    // 合同类型ID  1定金合同，2正式合同
+    const [contractType,setcontractType]=useState(0);
+    // 合同类型列表
+    const [ctyList,setCtyList]=useState([]);
+    // 合同类型列表ID
+    const [contractTypeid,setcontractTypeid]=useState(0);
+
+    // 签订日期
+    const [dayDate,setDayDate]=useState('');
     // 删除递增表单项
     const removeFormItemByKey = key => {
         setFormItems(prevItems => prevItems.filter(item => item.key !== key));
@@ -81,27 +91,46 @@ const AddStaff=(props:any)=>{
         setwupinList(prevItems => prevItems.filter(item => item.key !== key));
     };
     const onFinish= (values)=>{
-        let formItemsjson=JSON.stringify(formItems);
-        let wupinListjson=JSON.stringify(wupinList);
-        let imgs=xyimgnames.join('|');
-        let date={rentJson:formItemsjson,goodsJson:wupinListjson};
-        let jsonDate=JSON.stringify(date);
-        props.dispatch({
-            type:'Staff/add',
-            payload:{...values,endDate,startDate,jsonDate,deliveryDate,documentImage,unitImage,imgs}
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                message.success('添加成功');
-                history.push('/enter/staff');
-            }else {
-                message.error(res.Data);
-            }
-        })
+        if (contractType==2){
+            console.log("contractType",contractType)
+            let formItemsjson=JSON.stringify(formItems);
+            let wupinListjson=JSON.stringify(wupinList);
+            let imgs=xyimgnames.join('|');
+            let date={rentJson:formItemsjson,goodsJson:wupinListjson};
+            let jsonDate=JSON.stringify(date);
+            props.dispatch({
+                type:'Staff/addzs',
+                payload:{...values,endDate,startDate,jsonDate,deliveryDate,documentImage,unitImage,imgs,contractTypeid}
+            }).then((res:TypeErrorCode)=>{
+                if (res.ErrorCode==0){
+                    message.success('添加成功');
+                    history.push('/enter/staff');
+                }else {
+                    message.error(res.Data);
+                }
+            })
+        }else if (contractType==1){
+            props.dispatch({
+                type:'Staff/adddj',
+                payload:{...values,dayDate,contractTypeid}
+            }).then((res:TypeErrorCode)=>{
+                if (res.ErrorCode==0){
+                    message.success('添加成功');
+                    history.push('/enter/staff');
+                }else {
+                    message.error(res.Data);
+                }
+            })
+        }else {
+            message.warning('请选择合同类型进行填写数据')
+        }
+
     };
     useEffect(() => {
         filterAndUpdateList(props.CheckCompanyList, 'custom_name', 'id', setKehuList);
         getUnitList();
         getCheckCompanyList();
+        getCtyList();
     }, []);
     const changeData=(_,item)=>{
         setStartDate(item[0]);
@@ -222,6 +251,28 @@ const AddStaff=(props:any)=>{
         newB64.splice(index, 1);
         setxyimgb64(newB64);
     };
+    function findById(array, id) {
+        return array.find(item => item.id === id);
+    }
+    const changecontractType=(e)=>{
+        let result=findById(ctyList,e);
+        setcontractType(result.templateType);
+        setcontractTypeid(result.id);
+    };
+    const changeDayDate=(_:any,item:any)=>{
+        setDayDate(item);
+    };
+    // 获取合同类型列表
+    const getCtyList=()=>{
+        contractTypeListServer.contractTypeList().then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setCtyList(res.Data);
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
+
     return(
         <div>
             <Form
@@ -236,6 +287,25 @@ const AddStaff=(props:any)=>{
                 <Form.Item label='合同编号' name='identifier'>
                     <Input/>
                 </Form.Item>
+                <Form.Item label='合同类型' name='contractType'>
+                    <Select onChange={changecontractType}>
+                        {
+                            ctyList.map((item:any,index:number)=>{
+                                return(
+                                    <Select.Option value={item.id} key={index}>
+                                        {item.templateType==1?'定金合同':'正式合同'}
+                                    </Select.Option>
+                                )
+                            })
+                        }
+                        {/*<Select.Option value={1}>*/}
+                        {/*    定金合同*/}
+                        {/*</Select.Option>*/}
+                        {/*<Select.Option value={2}>*/}
+                        {/*    正式合同*/}
+                        {/*</Select.Option>*/}
+                    </Select>
+                </Form.Item>
                 <Form.Item label='客户' name='clientId'>
                     <Select showSearch  onSearch={handleSearch} >
                         {props.CheckCompanyList?props.CheckCompanyList.map((item:any,index:any)=>{
@@ -248,19 +318,6 @@ const AddStaff=(props:any)=>{
                         }
                     </Select>
                 </Form.Item>
-                <Form.Item label='身份证' name='customCard'>
-                    <Input/>
-                </Form.Item>
-                <Form.Item label='合同类型' name='contractType'>
-                   <Select>
-                       <Select.Option value={1}>
-                           定金合同
-                       </Select.Option>
-                       <Select.Option value={2}>
-                           正式合同
-                       </Select.Option>
-                   </Select>
-                </Form.Item>
                 <Form.Item label='单元' name='unit_id'>
                     <Select placeholder='单元'>
                         {props.UnitList?props.UnitList.map((item:any,index:any)=>{
@@ -272,143 +329,155 @@ const AddStaff=(props:any)=>{
                         }):''}
                     </Select>
                 </Form.Item>
-                <Form.Item label='起租日'>
-                    <DatePicker.RangePicker onChange={changeData}/>
-                </Form.Item>
                 <Form.Item label='租金(元)' name='zuMoney'>
                     <InputNumber/>
-                </Form.Item>
-                <Form.Item label='管理费(元)' name='manageFee'>
-                    <InputNumber/>
-                </Form.Item>
-                <Form.Item label='管理费每年递增%' name='manageFeeRent'>
-                    <InputNumber min={0}/>
                 </Form.Item>
                 <Form.Item label='押金(元)' name='deposit' >
                     <InputNumber/>
                 </Form.Item>
-                <Form.Item label='经营主体' name='businessEntity' >
-                    <Input/>
-                </Form.Item>
-                <Form.Item label='经营范围' name='businessScope' >
-                    <Input/>
-                </Form.Item>
-                <Form.Item label='交付日' >
-                    <DatePicker onChange={changedeliveryDate}/>
-                </Form.Item>
-                <Form.Item label='装修费用' name='decorationCost'>
-                    <InputNumber/>
-                </Form.Item>
-                <Form.Item label='派遣人' name='dispatchName'>
-                    <Input/>
-                </Form.Item>
-                <Form.Item label='派遣人身份证' name='dispatchCard'>
-                    <Input/>
-                </Form.Item>
-                <Form.Item label='补充协议' name='remark'>
-                    <Input.TextArea/>
-                </Form.Item>
-                <Form.Item label='补充协议图片'>
-                   <ImageUploader onImageUpload={imgNames} oldBase64={xyB64}/>
-                    <Space style={{display:'flex',flexWrap:'wrap'}}>
-                        <Space style={{display:'flex',flexWrap:'wrap',marginTop:'25px'}}>
-                            {xyimgb64.length>0?xyimgb64.map((item:any,index:number)=>{
-                                return(
-                                    <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
-                                        <Image src={item} style={{ width: '80px', height: '80px' }} />
-                                        <Button
-                                            type="primary"
-                                            danger
-                                            onClick={() => handleDelete(index)}
-                                            style={{
-                                                position: 'absolute',
-                                                top: '0',
-                                                left: '0',
-                                                zIndex: 1,
-                                                padding: '2px 4px',
-                                                transform: 'translate(-50%, -50%)',
-                                            }}
-                                        >
+                {
+                    contractType==2?<>
+                        <Form.Item label='租户身份证' name='customCard'>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label='起租日'>
+                            <DatePicker.RangePicker onChange={changeData}/>
+                        </Form.Item>
+                        <Form.Item label='管理费(元)' name='manageFee'>
+                            <InputNumber/>
+                        </Form.Item>
+                        <Form.Item label='管理费每年递增%' name='manageFeeRent'>
+                            <InputNumber min={0}/>
+                        </Form.Item>
+                        <Form.Item label='经营主体' name='businessEntity' >
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label='经营范围' name='businessScope' >
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label='交付日' >
+                            <DatePicker onChange={changedeliveryDate}/>
+                        </Form.Item>
+                        <Form.Item label='装修费用' name='decorationCost'>
+                            <InputNumber/>
+                        </Form.Item>
+                        <Form.Item label='派遣人' name='dispatchName'>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label='派遣人身份证' name='dispatchCard'>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label='补充协议' name='remark'>
+                            <Input.TextArea/>
+                        </Form.Item>
+                        <Form.Item label='补充协议图片'>
+                            <ImageUploader onImageUpload={imgNames} oldBase64={xyB64}/>
+                            <Space style={{display:'flex',flexWrap:'wrap'}}>
+                                <Space style={{display:'flex',flexWrap:'wrap',marginTop:'25px'}}>
+                                    {xyimgb64.length>0?xyimgb64.map((item:any,index:number)=>{
+                                        return(
+                                            <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
+                                                <Image src={item} style={{ width: '80px', height: '80px' }} />
+                                                <Button
+                                                    type="primary"
+                                                    danger
+                                                    onClick={() => handleDelete(index)}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '0',
+                                                        left: '0',
+                                                        zIndex: 1,
+                                                        padding: '2px 4px',
+                                                        transform: 'translate(-50%, -50%)',
+                                                    }}
+                                                >
+                                                    删除
+                                                </Button>
+                                            </div>
+                                        )
+                                    }):''}
+                                </Space>
+                            </Space>
+                        </Form.Item>
+                        <Form.Item label='单元平面图' >
+                            <ImageUploader onImageUpload={getunitImgName} oldBase64={getunitB64}/>
+                            {unitB64?<Image src={unitB64} style={{width:'80px',height:'80px'}}/>:''}
+                        </Form.Item>
+                        <Form.Item label='租户证件图片' >
+                            <ImageUploader onImageUpload={oldImgName} oldBase64={onB64}/>
+                            {b64?<Image src={b64} style={{width:'80px',height:'80px'}}/>:''}
+                        </Form.Item>
+                        <Form.Item {...tailLayout}>
+                            {formItems.map((item:any,index:number) => (
+                                <div style={{ display: 'flex'}} key={item.key}>
+                                    <Form.Item label="起租日">
+                                        <DatePicker.RangePicker
+                                            onChange={(dates,data) => updateqizuDate(item.key,{beginTime: data[0], endTime: data[1]})}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item label="免租期" >
+                                        <DatePicker.RangePicker disabledDate={disabled30DaysDate}
+                                                                onChange={(dates,data) => updatemz(item.key,{rentBeginTime: data[0], rentEndTime: data[1]})}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item label="递增" >
+                                        <InputNumber
+                                            value={item.incremental}
+                                            onChange={(value) => updatedz(item.key,{incremental:value})}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item>
+                                        <Button onClick={() => removeFormItemByKey(item.key)} type="link" style={{ marginLeft: 'auto' }}>
                                             删除
                                         </Button>
-                                    </div>
-                                )
-                            }):''}
-                        </Space>
-                    </Space>
-                </Form.Item>
-                <Form.Item label='单元平面图' >
-                    <ImageUploader onImageUpload={getunitImgName} oldBase64={getunitB64}/>
-                    {unitB64?<Image src={unitB64} style={{width:'80px',height:'80px'}}/>:''}
-                </Form.Item>
-                <Form.Item label='租户证件图片' >
-                    <ImageUploader onImageUpload={oldImgName} oldBase64={onB64}/>
-                    {b64?<Image src={b64} style={{width:'80px',height:'80px'}}/>:''}
-                </Form.Item>
-                <Form.Item {...tailLayout}>
-                    {formItems.map((item:any,index:number) => (
-                        <div style={{ display: 'flex'}} key={item.key}>
-                            <Form.Item label="起租日">
-                                <DatePicker.RangePicker
-                                    onChange={(dates,data) => updateqizuDate(item.key,{beginTime: data[0], endTime: data[1]})}
-                                />
-                            </Form.Item>
-                            <Form.Item label="免租期" >
-                                <DatePicker.RangePicker disabledDate={disabled30DaysDate}
-                                    onChange={(dates,data) => updatemz(item.key,{rentBeginTime: data[0], rentEndTime: data[1]})}
-                                />
-                            </Form.Item>
-                            <Form.Item label="递增" >
-                                <InputNumber
-                                    value={item.incremental}
-                                    onChange={(value) => updatedz(item.key,{incremental:value})}
-                                />
-                            </Form.Item>
-                            <Form.Item>
-                                <Button onClick={() => removeFormItemByKey(item.key)} type="link" style={{ marginLeft: 'auto' }}>
-                                    删除
-                                </Button>
-                            </Form.Item>
-                        </div>
+                                    </Form.Item>
+                                </div>
 
-                    ))}
-                    <Button type="primary" onClick={addFormItem} style={{ marginTop: '16px' }}>
-                        新增递增
-                    </Button>
-                </Form.Item>
-                <Form.Item {...tailLayout}>
-                    {wupinList.map((item:any,index:number) => (
-                        <div style={{ display: 'flex'}} key={item.key}>
-                            <Form.Item label="物品名称">
-                                <Input
-                                    value={item.wupinName}
-                                    onChange={(value) => updateName(item.key,{wupinName:value.target.value})}
-                                />
-                            </Form.Item>
-                            <Form.Item label="交付标准">
-                                <Input
-                                    value={item.wupininfo}
-                                    onChange={(value) => updatebiaozhun(item.key,{wupininfo:value.target.value})}
-                                />
-                            </Form.Item>
-                            <Form.Item label="数量">
-                                <InputNumber
-                                    value={item.wupinNuber}
-                                    onChange={(value) => updateMiber(item.key,{wupinNuber:value})}
-                                />
-                            </Form.Item>
-                            <Form.Item>
-                                <Button onClick={() => removeqingdan(item.key)} type="link" style={{ marginLeft: 'auto' }}>
-                                    删除
-                                </Button>
-                            </Form.Item>
-                        </div>
+                            ))}
+                            <Button type="primary" onClick={addFormItem} style={{ marginTop: '16px' }}>
+                                新增递增
+                            </Button>
+                        </Form.Item>
+                        <Form.Item {...tailLayout}>
+                            {wupinList.map((item:any,index:number) => (
+                                <div style={{ display: 'flex'}} key={item.key}>
+                                    <Form.Item label="物品名称">
+                                        <Input
+                                            value={item.wupinName}
+                                            onChange={(value) => updateName(item.key,{wupinName:value.target.value})}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item label="交付标准">
+                                        <Input
+                                            value={item.wupininfo}
+                                            onChange={(value) => updatebiaozhun(item.key,{wupininfo:value.target.value})}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item label="数量">
+                                        <InputNumber
+                                            value={item.wupinNuber}
+                                            onChange={(value) => updateMiber(item.key,{wupinNuber:value})}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item>
+                                        <Button onClick={() => removeqingdan(item.key)} type="link" style={{ marginLeft: 'auto' }}>
+                                            删除
+                                        </Button>
+                                    </Form.Item>
+                                </div>
 
-                    ))}
-                    <Button type="primary" onClick={addwuping} style={{ marginTop: '16px' }}>
-                        新增物品清单
-                    </Button>
-                </Form.Item>
+                            ))}
+                            <Button type="primary" onClick={addwuping} style={{ marginTop: '16px' }}>
+                                新增物品清单
+                            </Button>
+                        </Form.Item>
+                    </>:''
+                }
+                {
+                    contractType==1?<Form.Item label='签正式合同日期'>
+                       <DatePicker onChange={changeDayDate}/>
+                    </Form.Item>:''
+                }
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
                         录入合同

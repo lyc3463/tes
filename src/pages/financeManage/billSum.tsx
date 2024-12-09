@@ -18,6 +18,7 @@ const BillSum=(props:any)=>{
     const [companyList,setCompanyList]=useState([]);
     const [subjList,setSubjList]=useState([]);
     const [projectlist,setProjectlist]=useState([]);
+    const [account_card,setaccount_card]=useState('');
     const columns =[
         {
             title: '日期',
@@ -31,30 +32,78 @@ const BillSum=(props:any)=>{
                 )
             }
         },
-        {
-            title: '编号',
-            dataIndex: 'number',
-            key: 'number',
-        },
+
         {
             title: '摘要',
             dataIndex: 'billAbstract',
             key: 'billAbstract',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.billAbstract}
+                    </div>
+                )
+            }
         },
         {
             title: '公司',
             dataIndex: 'company_name',
             key: 'company_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.company_name}
+                    </div>
+                )
+            }
         },
         {
             title: '项目',
             dataIndex: 'project_name',
             key: 'project_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.project_name}
+                    </div>
+                )
+            }
         },
         {
             title: '科目',
             dataIndex: 'subject_name',
             key: 'subject_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.subject_name}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '账户',
+            dataIndex: 'account_name',
+            key: 'account_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.account_name}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '账户卡号',
+            dataIndex: 'account_card',
+            key: 'account_card',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.account_card}
+                    </div>
+                )
+            }
         },
         {
             title: '收入/支出',
@@ -171,7 +220,7 @@ const BillSum=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"BillSum/fetch",
-            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId}
+            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
         })
     };
     // 搜索
@@ -179,7 +228,7 @@ const BillSum=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'BillSum/fenye',
-            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId}
+            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
         });
         logFenye();
     };
@@ -268,28 +317,39 @@ const BillSum=(props:any)=>{
         <div>
             <List>
                 <List.Item>
+                   <Space>
+                       <Input
+                           onChange={changeName}
+                           style={{ width: 300 }}
+                           addonBefore="摘要:"
+                       />
+                       <Input
+                           onChange={(e)=>setaccount_card(e.target.value)}
+                           style={{ width: 300 }}
+                           addonBefore="账户卡号:"
+                       />
+                       <Space.Compact>
+                           <div
+                               style={{
+                                   borderRadius: '6px',
+                                   borderStartEndRadius: 0,
+                                   borderEndEndRadius: 0,
+                                   padding: '0 11px',
+                                   border: '1px solid #d9d9d9',
+                                   display: 'flex',
+                                   alignItems: 'center',
+                                   borderInlineEnd: 0,
+                               }}
+                           >
+                               时间:
+                           </div>
+                           <DatePicker.RangePicker onChange={changeDate}/>
+                       </Space.Compact>
+                   </Space>
+                </List.Item>
+                <List.Item>
                     <Space>
-                        <Input
-                            onChange={changeName}
-                            addonBefore="摘要:"
-                        />
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                时间:
-                            </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
-                        </Space.Compact>
+
                         <Space.Compact>
                             <div
                                 style={{

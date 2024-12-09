@@ -69,7 +69,7 @@ const Staff=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {record.contractType==1?<Tag color='cyan'>定金合同</Tag>:<Tag color='purple'>正式合同</Tag>}
+                        {record.templateType==1?<Tag color='cyan'>定金合同</Tag>:<Tag color='purple'>正式合同</Tag>}
                     </div>
                 )
             }
@@ -115,10 +115,10 @@ const Staff=(props:any)=>{
                     <Space>
                         {record.contractStatus==1?
                             <>
-                                <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
+                                <Button type='link' onClick={()=>toedit(record)}>编辑</Button>
                                 <Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>
                             </>:''}
-                        <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
+                        {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
                     </Space>
                 )
             }
@@ -132,8 +132,12 @@ const Staff=(props:any)=>{
         history.push(`/check/contracteInfo?id=${e}`);
     };
     // 编辑
-    const toedit=(e:number)=>{
-        history.push(`/enter/editStaff?id=${e}`);
+    const toedit=(e:any)=>{
+        if (e.templateType==1){
+            history.push(`/enter/editDjContract?id=${e.id}`);
+        }else if (e.templateType==2){
+            history.push(`/enter/editStaff?id=${e.id}`);
+        }
     };
     // 删除弹窗
     const isdelete=(e:number)=>{
@@ -180,7 +184,6 @@ const Staff=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props)
     }, [page]);
     // 监听合同编号
     const changeIdentifier=(e)=>{

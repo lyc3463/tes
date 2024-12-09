@@ -31,18 +31,6 @@ const OwnerInfo=(props)=>{
     };
     const columns =[
         {
-            title: '合同编号',
-            dataIndex: 'identifier',
-            key: 'identifier',
-            align:'center',
-        },
-        {
-            title: '租户',
-            dataIndex: 'customName',
-            key: 'customName',
-            align:'center',
-        },
-        {
             title: '起租日',
             dataIndex: 'beginTime',
             key: 'beginTime',
@@ -56,18 +44,55 @@ const OwnerInfo=(props)=>{
             }
         },
         {
-            title: '租金',
+            title: '截止日',
+            dataIndex: 'endTime',
+            key: 'endTime',
+            align:'center',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {dayjs(record.endTime).format("YYYY-MM-DD")}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '合同编号',
+            dataIndex: 'identifier',
+            key: 'identifier',
+            align:'center',
+        },
+        {
+            title: '租户',
+            dataIndex: 'tenantName',
+            key: 'tenantName',
+            align:'center',
+        },
+        {
+            title: '甲方银行卡',
+            dataIndex: 'ownerCard',
+            key: 'ownerCard',
+            align:'center',
+        },
+        {
+            title: '甲方',
+            dataIndex: 'ownerName',
+            key: 'ownerName',
+            align:'center',
+        },
+
+        {
+            title: '租金(元)',
             dataIndex: 'zuMoney',
             key: 'zuMoney',
             align:'center',
         },
         {
-            title: '押金',
+            title: '押金(元)',
             dataIndex: 'deposit',
             key: 'deposit',
             align:'center',
         },
-
     ];
     const onChange=(e)=>{
         setPage(e);
@@ -81,13 +106,14 @@ const OwnerInfo=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log("props:",props);
     }, [page]);
     return(
         <div>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
+                        <Button type="primary" onClick={toadd} >
                             业主信息录入
                         </Button>
                     </div>

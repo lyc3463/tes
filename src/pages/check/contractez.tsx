@@ -10,7 +10,6 @@ import * as ContractTypeService from "@/services/contractType";
 import * as CustomService from "@/services/custom";
 import * as UnitService from "@/services/unit";
 import html2pdf from "html2pdf.js";
-
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {numberToRMB} from "@/utils/OpenTool";
 const tailLayout = {
@@ -18,12 +17,7 @@ const tailLayout = {
 };
 const Contractez = () => {
     let contractType = 2;
-    const formRef = useRef();
     const [isOpen,setisOpen]=useState(false);
-    // 客户列表
-    const [kehuList, setKehuList] = useState([]);
-    // 单元列表
-    const [unitList, setUnitList] = useState([]);
     // 开始时间
     const [startDate, setStartDate] = useState('');
     // 装修费
@@ -103,20 +97,25 @@ const Contractez = () => {
     const [elePice,setelePice]=useState(0);
     // 代缴水费
     const [waterPice,setwaterPice]=useState(0);
-
+    // 管理费递增
+    const [manageFeeRent,setmanageFeeRent]=useState(0);
+    // 单元平面图
+    const [unitImage,setunitImage]=useState('');
+    // 物品清单
+    const [wupinList,setwupinList]=useState([]);
     // 图片显示的名字
     const [b64, setB64] = useState('');
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
-        getOneStaff(id);
-        getcontractTypeInfo();
+        // getOneStaff(id);
+        // getcontractTypeInfo();
+        getContrantez(id);
     }, []);
     // 获取合同信息
     const getOneStaff = (id: string) => {
         StaffServer.one(id).then((res: any) => {
             if (res.ErrorCode == 0) {
-                console.log('合同模板', res);
                 // setEndDate(dayjs(res.Data.eendtime).format('YYYY-MM-DD'));
                 // setStartDate(dayjs(res.Data.estarttime).format('YYYY-MM-DD'));
                 // setformItems(res.Data[1])
@@ -145,7 +144,6 @@ const Contractez = () => {
     const getcustomInfo = (e: number) => {
         CustomService.one(e).then((res: TypeErrorCode) => {
             if (res.ErrorCode == 0) {
-                console.log('客户信息', res);
                 setoffice_area(res.Data.office_area);
                 setcustom_name(res.Data.custom_name);
                 setyiphone(res.Data.phone);
@@ -159,7 +157,6 @@ const Contractez = () => {
     const getUnitInfo = (e: number) => {
         UnitService.one(e).then((res: TypeErrorCode) => {
             if (res.ErrorCode == 0) {
-                console.log("单元信息", res);
                 setunit_name(res.Data.unit_name);
                 setrentable_area(res.Data.rentable_area);
                 setunit_type(res.Data.unit_type);
@@ -172,7 +169,6 @@ const Contractez = () => {
     const getcontractTypeInfo = () => {
         ContractTypeService.one(contractType).then((res: TypeErrorCode) => {
             if (res.ErrorCode == 0) {
-                console.log('合同类型', res);
                 setCompanyName(res.Data.companyName);
                 setCompanyAddress(res.Data.companyAddress);
                 setopenName(res.Data.openName);
@@ -247,7 +243,79 @@ const Contractez = () => {
         };
         html2pdf().from(element).set(options).save();
     };
-
+    // 获取合同详情
+    const getContrantez=(oneID)=>{
+        StaffServer.oneOne(oneID).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                console.log("新合同模板",res);
+                setCompanyName(res.Data[0].companyName);
+                setCompanyAddress(res.Data[0].companyAddress);
+                setopenName(res.Data[0].openName);
+                setopenBank(res.Data[0].openBank);
+                setbankCard(res.Data[0].bankCard);
+                setlegalPerson(res.Data[0].legalPerson);
+                setphone(res.Data[0].phone);
+                setdocumentImage(res.Data[0].documentImage);
+                setattractPhone(res.Data[0].attractPhone);
+                setattractWXNumber(res.Data[0].attractWXNumber);
+                setrentAddress(res.Data[0].rentAddress);
+                setreportPhone(res.Data[0].reportPhone);
+                setreportEmail(res.Data[0].reportEmail);
+                setcontacts(res.Data[0].contacts);
+                setattract(res.Data[0].attract);
+                setB64(res.Data[0].tenantImage);
+                seteleloss(res.Data[0].loss);
+                setelePice(res.Data[0].elePrice);
+                setmanageFeeRent(res.Data[0].manageFeeRent);
+                setwaterPice(res.Data[0].waterPrice);
+                // getcustomInfo(res.Data[0].clientId);
+                // getUnitInfo(res.Data[0].unit_id);
+                setbusinessEntity(res.Data[0].businessEntity);
+                setbusinessScope(res.Data[0].businessScope);
+                setStartDate(dayjs(res.Data[0].beginTime).format("YYYY-MM-DD"));
+                setEndDate(dayjs(res.Data[0].endTime).format("YYYY-MM-DD"));
+                setdeliveryDate(dayjs(res.Data[0].deliveryDate).format("YYYY-MM-DD"));
+                setdeposit(res.Data[0].deposit);
+                setmanageFee(res.Data[0].init_manageFee);
+                setdecorationCost(res.Data[0].decorationCost);
+                setdispatchName(res.Data[0].dispatchName);
+                setdispatchCard(res.Data[0].dispatchCard);
+                setcustomCard(res.Data[0].customCard);
+                setelePrice(res.Data[0].elePrice);
+                setzuMoney(res.Data[0].zuMoney);
+                setmzq(res.Data[1]);
+                setoffice_area(res.Data[0].customAddress);
+                setcustom_name(res.Data[0].customName);
+                setyiphone(res.Data[0].customPhone);
+                setcustomcompany_name(res.Data[0].customCompany);
+                setunit_name(res.Data[0].unitName);
+                setrentable_area(res.Data[0].floor_area);
+                setunit_type(res.Data[0].unit_type);
+                setunitImage(res.Data[0].unitImage);
+                let joinData=JSON.parse(res.Data[0].goodsJson);
+                setwupinList(joinData);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
+    const wupinTab=[
+        {
+            title: '物品名称',
+            dataIndex: 'wupinName',
+            key: 'wupinName'
+        },
+        {
+            title: '物品标准',
+            dataIndex: 'wupininfo',
+            key: 'wupininfo'
+        },
+        {
+            title: '物品数量',
+            dataIndex: 'wupinNuber',
+            key: 'wupinNuber'
+        },
+    ]
     return (
         <div>
             <div><Button type='primary' onClick={()=>setisOpen(true)}>预览PDF</Button></div>
@@ -352,7 +420,7 @@ const Contractez = () => {
                     </p>
                     <p style={{ marginLeft: '70px' }}>
                         <span style={{ fontSize: "18px", fontWeight: 400 }}>(2)</span>
-                        租赁期间租赁物物业费为每月{manageFee}元，第2年起每年物业费将在上年的基础上递增<Input style={{ width: '50px',border:'none' }} /> %，以此类推。乙方应在本合同乙方签署之日
+                        租赁期间租赁物物业费为每月{manageFee}元，第2年起每年物业费将在上年的基础上递增{manageFeeRent}%，以此类推。乙方应在本合同乙方签署之日
                         支付首期物业费给甲方；除首期物业费外，乙方应于每月二十八日前（按自然月计算）向甲方或甲方指定的物业服务方支付次月物业费。
                     </p>
                     <p style={{ marginLeft: '50px' }}>
@@ -871,12 +939,37 @@ const Contractez = () => {
                         <h3>
                             附件一：《租赁物平面图》
                         </h3>
+                        <p>
+                            {unitImage?<Image src={unitImage} style={{width:'500px',height:'500px'}}/>:''}
+                        </p>
                     </p>
                     <p style={{ marginLeft: '50px' }}>
                         <h3>
                             附件二：1、房屋内交付标准
                         </h3>
+                        <p>
+                            <Table columns={wupinTab} rowKey={(columns) => columns.key} dataSource={wupinList} size='small' style={{width:'600px'}}  pagination={false}/>
+                            {/*{wupinList.map((item:any,index:number) => (*/}
+                            {/*    <div style={{ display: 'flex'}} key={item.key}>*/}
+                            {/*        <Form.Item label="物品名称">*/}
+                            {/*            <Input*/}
+                            {/*                value={item.wupinName}*/}
+                            {/*            />*/}
+                            {/*        </Form.Item>*/}
+                            {/*        <Form.Item label="交付标准">*/}
+                            {/*            <Input*/}
+                            {/*                value={item.wupininfo}*/}
+                            {/*            />*/}
+                            {/*        </Form.Item>*/}
+                            {/*        <Form.Item label="数量">*/}
+                            {/*            <InputNumber*/}
+                            {/*                value={item.wupinNuber}*/}
+                            {/*            />*/}
+                            {/*        </Form.Item>*/}
+                            {/*    </div>*/}
 
+                            {/*))}*/}
+                        </p>
                     </p>
                     <p style={{ marginLeft: '50px' }}>
                         <h3>
@@ -996,7 +1089,7 @@ const Contractez = () => {
                         <h4>
                             2、出租方证照文件
                         </h4>
-                        {b64 ? <Image src={b64} style={{ width: '100%' }} /> : ''}
+                        {b64 ? <Image src={documentImage} style={{ width: '100%' }} /> : ''}
                     </p>
                     <p style={{ marginLeft: '50px' }}>
                         <h3>
@@ -1282,7 +1375,7 @@ const Contractez = () => {
             <Modal open={isOpen}  onCancel={()=>setisOpen(false)} width={800} footer={[
                 <Button onClick={onOk} type='primary'>下载PDF</Button>
             ]}>
-                <div className="receipt-container" >
+                <div className="receipt-container" id='pdf-content'>
                     <h1 style={{ textAlign: 'center', marginTop: '50px' }}>房屋租赁合同书</h1>
                     <div className="receipt-info">
                         <p style={{ marginLeft: '50px' }}>出租方(甲方):{companyName}</p>
@@ -1902,12 +1995,15 @@ const Contractez = () => {
                             <h3>
                                 附件一：《租赁物平面图》
                             </h3>
+                            <p>
+                                {unitImage?<Image src={unitImage} style={{width:'500px',height:'500px'}}/>:''}
+                            </p>
                         </p>
                         <p style={{ marginLeft: '50px' }}>
                             <h3>
                                 附件二：1、房屋内交付标准
                             </h3>
-
+                            <Table columns={wupinTab} rowKey={(columns) => columns.key} dataSource={wupinList} size='small' style={{width:'600px'}} pagination={false}/>
                         </p>
                         <p style={{ marginLeft: '50px' }}>
                             <h3>
@@ -2027,7 +2123,7 @@ const Contractez = () => {
                             <h4>
                                 2、出租方证照文件
                             </h4>
-                            {b64 ? <Image src={b64} style={{ width: '100%' }} /> : ''}
+                            {b64 ? <Image src={documentImage} style={{ width: '100%' }} /> : ''}
                         </p>
                         <p style={{ marginLeft: '50px' }}>
                             <h3>

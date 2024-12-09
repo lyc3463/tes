@@ -1,6 +1,6 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    return getData(1038, [vals.page,vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId]);
+    return getData(1038, [vals.page,vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId,vals.account_card]);
 }
 
 export function add(vals:any) {
@@ -36,7 +36,7 @@ export function edit(vals:any) {
 }
 
 export function remove(vals:any) {
-    // return getData(1032, [vals]);
+    return getData(1037, [vals]);
 }
 
 export function one(vals:string) {
@@ -46,6 +46,6 @@ export function check(vals:string) {
     return getData(1198, [vals]);
 }
 export function fenye(vals:any) {
-    return getData(1092, [vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId]);
+    return getData(1092, [vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId,vals.account_card]);
 }
 

@@ -96,12 +96,12 @@ const YuangonglData=(props:any)=>{
                         {
                             record.emp_status==1?
                                 <Space>
-                                    <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
+                                    {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
                                     <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
                                     <Button type='link' onClick={()=>isDelete(record)}>删除</Button>
                                 </Space>:
                                 <>
-                                    <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
+                                    {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
                                 </>
                         }
                     </div>

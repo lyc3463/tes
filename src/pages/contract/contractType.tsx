@@ -4,7 +4,7 @@ import EndContran from "@/pages/contract/endContran";
 const  ContractType=()=>{
     return(
         <div>
-            <Tabs >
+            <Tabs>
                 <Tabs.TabPane key='1' tab='定金合同模板'>
                     <Dingjin/>
                 </Tabs.TabPane>

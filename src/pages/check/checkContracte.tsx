@@ -68,12 +68,12 @@ const CheckContracte=(props:any)=>{
         },
         {
             title: '合同类型',
-            dataIndex: 'contractType',
-            key: 'contractType',
+            dataIndex: 'templateType',
+            key: 'templateType',
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {record.contractType==1?<Tag color='cyan'>定金合同</Tag>:<Tag color='purple'>正式合同</Tag>}
+                        {record.templateType==1?<Tag color='cyan'>定金合同</Tag>:<Tag color='purple'>正式合同</Tag>}
                     </div>
                 )
             }
@@ -134,7 +134,7 @@ const CheckContracte=(props:any)=>{
                                 <Button type='link'>编辑</Button>
                                 <Button type='link' onClick={()=>isCheck(record.id)}>审核</Button>
                             </>:''}
-                        <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
+                        {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
                     </Space>
                 )
             }
@@ -169,7 +169,7 @@ const CheckContracte=(props:any)=>{
     };
     // 下载页面
     const toxiazai=(e)=>{
-        if (e.contractType==2){
+        if (e.templateType==2){
             history.push(`/check/contractez?id=${e.id}`);
         }else {
             history.push(`/check/checkdingjin?id=${e.id}`);

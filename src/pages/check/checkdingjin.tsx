@@ -8,6 +8,7 @@ import * as CustomService from "@/services/custom";
 import * as UnitService from "@/services/unit";
 import html2pdf from "html2pdf.js";
 import {numberToRMB} from "@/utils/OpenTool";
+import {oneOne} from "@/services/staff";
 
 const Checkdingjin=()=>{
     const templateType=1;
@@ -84,7 +85,10 @@ const Checkdingjin=()=>{
     const [customCard,setcustomCard]=useState('');
     // 电价
     const [elePrice,setelePrice]=useState('');
+    // 租金
     const [zuMoney,setzuMoney]=useState(0);
+    // 房号
+    const [unitName,setunitName]=useState('');
     const [isonpen,setisopen]=useState(false);
     // 图片显示的名字
     const [b64,setB64]=useState('');
@@ -108,16 +112,29 @@ const Checkdingjin=()=>{
             }
         })
     };
-    // 获取合同信息
-    const getOneStaff= (id:string)=>{
-        StaffServer.one(id).then((res:any)=>{
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const id = searchParams.get('id');
+
+        getContrantez(id);
+    }, []);
+    const onOk = async () => {
+        const element = document.getElementById("pdf-content");
+        const options = {
+            margin: 15,
+            filename: "document.pdf",
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        };
+        html2pdf().from(element).set(options).save();
+    };
+
+
+    // 获取合同详情
+    const getContrantez=(oneID)=>{
+        StaffServer.oneOne(oneID).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('合同模板',res);
-                // setEndDate(dayjs(res.Data.eendtime).format('YYYY-MM-DD'));
-                // setStartDate(dayjs(res.Data.estarttime).format('YYYY-MM-DD'));
-                // setformItems(res.Data[1])
-                getcustomInfo(res.Data[0].clientId);
-                getUnitInfo(res.Data[0].unit_id);
                 setbusinessEntity(res.Data[0].businessEntity);
                 setbusinessScope(res.Data[0].businessScope);
                 setStartDate(dayjs(res.Data[0].beginTime).format("YYYY-MM-DD"));
@@ -131,55 +148,30 @@ const Checkdingjin=()=>{
                 setcustomCard(res.Data[0].customCard);
                 setelePrice(res.Data[0].elePrice);
                 setzuMoney(res.Data[0].zuMoney);
+                setunit_name(res.Data[0].unit_name);
+                setrentable_area(res.Data[0].rentable_area);
+                setunit_type(res.Data[0].unit_type);
+                setoffice_area(res.Data[0].office_area);
+                setcustom_name(res.Data[0].customName);
+                // setyiphone(res.Data.phone);
+                setcustomcompany_name(res.Data[0].customCompany);
+                setCompanyName(res.Data[0].companyName);
+                setCompanyAddress(res.Data[0].companyAddress);
+                setopenName(res.Data[0].openName);
+                setopenBank(res.Data[0].openBank);
+                setbankCard(res.Data[0].bankCard);
+                setlegalPerson(res.Data[0].legalPerson);
+                setphone(res.Data[0].phone);
+                setdocumentImage(res.Data[0].documentImage);
+                setattractPhone(res.Data[0].attractPhone);
+                setattractWXNumber(res.Data[0].attractWXNumber);
+                setrentAddress(res.Data[0].rentAddress);
+                setreportPhone(res.Data[0].attractWXNumber);
+                setunitName(res.Data[0].unitName);
             }else {
-                message.error(res.Data)
-            }
-        });
-    };
-    // 获取客户id
-    const getcustomInfo=(e:number)=>{
-        CustomService.one(e).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                console.log('客户信息',res);
-                setoffice_area(res.Data.office_area);
-                setcustom_name(res.Data.custom_name);
-                setyiphone(res.Data.phone);
-                setcustomcompany_name(res.Data.company_name);
-            }else {
-                message.error(res.Data)
-            }
-        })
-    };
-    // 获取单元详情
-    const getUnitInfo=(e:number)=>{
-        UnitService.one(e).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                console.log("单元信息",res);
-                setunit_name(res.Data.unit_name);
-                setrentable_area(res.Data.rentable_area);
-                setunit_type(res.Data.unit_type);
-            }else {
-                message.error(res.Data)
+                message.error(res.Data);
             }
         })
-    };
-
-    useEffect(() => {
-        const searchParams = new URLSearchParams(location.search);
-        const id = searchParams.get('id');
-        getOneStaff(id);
-        getOne();
-    }, []);
-    const onOk = async () => {
-        const element = document.getElementById("pdf-content");
-        const options = {
-            margin: 15,
-            filename: "document.pdf",
-            image: { type: "jpeg", quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        };
-        html2pdf().from(element).set(options).save();
     };
     return(
         <div>
@@ -193,10 +185,10 @@ const Checkdingjin=()=>{
                     <p>乙方（收款方）：{companyName}</p>
                     <p style={{marginLeft:'30px'}}>甲、乙双方因甲方拟租赁乙方商铺事宜，双方经协商一致，就定金担保事宜达成如下协议:</p>
                     <p style={{marginLeft:'30px'}}>第一条：{custom_name}已详细了解要签署的主合同并已知首年租金（大写）<span >{numberToRMB(zuMoney)}</span>，租赁地址位于{rentAddress}
-                        <Input  style={{width:'100px'}} />
+                        {unitName}
                         号的物业。
                     </p>
-                    <p style={{marginLeft:'30px'}}>第二条:甲方应在本合同签订之日向乙方一次性支付交付定金'{deposit}元整，乙方收款账户如下：</p>
+                    <p style={{marginLeft:'30px'}}>第二条:甲方应在本合同签订之日向乙方一次性支付交付定金{deposit}元整，乙方收款账户如下：</p>
                     <p style={{marginLeft:'50px'}}>开户名称:{openName}</p>
                     <p style={{marginLeft:'50px'}}>开户银行:{openBank}</p>
                     <p style={{marginLeft:'50px'}}>银行账号:{bankCard}</p>
@@ -219,10 +211,11 @@ const Checkdingjin=()=>{
                         <p>甲方（付款方）：{customcompany_name}</p>
                         <p>乙方（收款方）：{companyName}</p>
                         <p style={{marginLeft:'30px'}}>甲、乙双方因甲方拟租赁乙方商铺事宜，双方经协商一致，就定金担保事宜达成如下协议:</p>
-                        <p style={{marginLeft:'30px'}}>第一条：{custom_name}已详细了解要签署的主合同并已知首年租金（大写）<span >{zuMoney}</span>，租赁地址位于{rentAddress}
-                            <Input style={{width:'100px'}} />号的物业。
+                        <p style={{marginLeft:'30px'}}>第一条：{custom_name}已详细了解要签署的主合同并已知首年租金（大写）<span >{numberToRMB(zuMoney)}</span>，租赁地址位于{rentAddress}
+                            {unitName}
+                            号的物业。
                         </p>
-                        <p style={{marginLeft:'30px'}}>第二条:甲方应在本合同签订之日向乙方一次性支付交付定金'{deposit}元整，乙方收款账户如下：</p>
+                        <p style={{marginLeft:'30px'}}>第二条:甲方应在本合同签订之日向乙方一次性支付交付定金{deposit}元整，乙方收款账户如下：</p>
                         <p style={{marginLeft:'50px'}}>开户名称:{openName}</p>
                         <p style={{marginLeft:'50px'}}>开户银行:{openBank}</p>
                         <p style={{marginLeft:'50px'}}>银行账号:{bankCard}</p>

@@ -82,10 +82,11 @@ const CheckStaff=(props:any)=>{
                 return(
                     <div>
                         {
-                            record.emp_status==2?<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
+                            record.emp_status==2?''
+                                // <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
                                 :
                                 <Space>
-                                    <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
+                                    {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
                                     <Button type='link' onClick={()=>check(record)}>审核通过</Button>
                                     <Button type='link' color='red'>删除</Button>
                                 </Space>

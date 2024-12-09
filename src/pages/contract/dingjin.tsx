@@ -1,4 +1,4 @@
-import {Button, Input, message} from "antd";
+import {Button, Input, InputNumber, message} from "antd";
 import * as ContractTypeService from '@/services/contractType';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {useEffect, useState} from "react";
@@ -126,7 +126,7 @@ const Dingjin=()=>{
                     <p style={{marginLeft:'50px'}}>开户银行:<Input style={{width:'200px'}} placeholder='必填' value={openBank} onChange={changeOpenBank}/></p>
                     <p style={{marginLeft:'50px'}}>银行账号:<Input style={{width:'200px'}} placeholder='必填' value={bankCard} onChange={changeBankCard}/></p>
                     <p style={{marginLeft:'30px'}}>第三条:本合同生效后，甲、乙任何一方不得擅自变更或解除，除非使双方协商一致并达成书面协议。</p>
-                    <p style={{marginLeft:'30px'}}>第四条:甲方履行主合同义务（主合同即甲乙双方签订的《租赁合同》，该租赁合同自收到<span style={{color:'red'}}>甲方</span>定金后3日内签订，租赁合同的全文及其租赁物业的状况、位置、押金数额、租金数额及其支付方式<span style={{color:'red'}}>甲乙</span>均已详细知晓）后，乙方应返还定金或以该定金冲抵甲方应付乙方款项(押金或租金)。</p>
+                    <p style={{marginLeft:'30px'}}>第四条:甲方履行主合同义务（主合同即甲乙双方签订的《租赁合同》，该租赁合同自收到<span style={{color:'red'}}>甲方</span>定金后<InputNumber disabled placeholder='模板不用填写'/>日内签订，租赁合同的全文及其租赁物业的状况、位置、押金数额、租金数额及其支付方式<span style={{color:'red'}}>甲乙</span>均已详细知晓）后，乙方应返还定金或以该定金冲抵甲方应付乙方款项(押金或租金)。</p>
                     <p style={{marginLeft:'30px'}}>第五条:因甲方原因逾期不签订主合同或不履行主合同，无权要求返还定金；乙方不履行主合同，应当双倍返还定金。定金罚则的执行，不影响任何一方要求赔偿的权利。</p>
                     <p style={{marginLeft:'30px'}}>第六条:本合同经双方签章自定金交付之日起生效，一式两份；双方各执一份，具有同等法律效力。</p>
                     <p style={{marginLeft:'30px'}}>签订地点：<Input style={{width:'200px'}} value={companyAddress} placeholder='不需要填写' disabled/></p>

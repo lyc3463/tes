@@ -2,6 +2,8 @@ import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} 
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
+import { StaticInfo } from '@/StaticInfo';
+
 
 const Custom=(props:any)=>{
     // 当前页数
@@ -200,7 +202,9 @@ const Custom=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log(StaticInfo.uqx.length);
     }, [page]);
+
     return(
         <div>
             <List>

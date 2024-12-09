@@ -4,12 +4,18 @@ export function fetch(vals:any) {
     return getData(1239, [vals.page,vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate]);
 }
 
-export function add(vals:any) {
-    return postData(1235, [vals.identifier,vals.clientId,vals.customCard,vals.unit_id,vals.zuMoney,vals.manageFee,vals.deposit,vals.contractType,vals.startDate,vals.endDate,vals.businessEntity,vals.businessScope,vals.deliveryDate,vals.decorationCost,vals.documentImage,vals.dispatchName,vals.dispatchCard,vals.unitImage,vals.imgs,vals.remark,vals.manageFeeRent],vals.jsonDate);
+export function addzs(vals:any) {
+    return postData(1235, [vals.identifier,vals.clientId,vals.customCard,vals.unit_id,vals.zuMoney,vals.manageFee,vals.deposit,vals.contractTypeid,vals.startDate,vals.endDate,vals.businessEntity,vals.businessScope,vals.deliveryDate,vals.decorationCost,vals.documentImage,vals.dispatchName,vals.dispatchCard,vals.unitImage,vals.imgs,vals.remark,vals.manageFeeRent],vals.jsonDate);
+}
+export function adddj(vals:any) {
+    return getData(1413, [vals.identifier,vals.clientId,vals.unit_id,vals.zuMoney,vals.deposit,vals.contractTypeid,vals.dayDate]);
 }
 
-export function edit(vals:any) {
-    return postData(1236, [vals.uid,vals.identifier,vals.clientId,vals.customCard,vals.unit_id,vals.zuMoney,vals.manageFee,vals.deposit,vals.contractType,vals.startDate,vals.endDate,vals.businessEntity,vals.businessScope,vals.deliveryDate,vals.decorationCost,vals.documentImage,vals.dispatchName,vals.dispatchCard,vals.unitImage,vals.imgs,vals.remark,vals.manageFeeRent],vals.jsonDate);
+export function editzs(vals:any) {
+    return postData(1236, [vals.uid,vals.identifier,vals.clientId,vals.customCard,vals.unit_id,vals.zuMoney,vals.manageFee,vals.deposit,vals.contractTypeid,vals.startDate,vals.endDate,vals.businessEntity,vals.businessScope,vals.deliveryDate,vals.decorationCost,vals.documentImage,vals.dispatchName,vals.dispatchCard,vals.unitImage,vals.imgs,vals.remark,vals.manageFeeRent],vals.jsonDate);
+}
+export function editdj(vals:any) {
+    return getData(1414, [vals.uid,vals.identifier,vals.clientId,vals.unit_id,vals.zuMoney,vals.deposit,vals.contractTypeid,vals.dayDate]);
 }
 
 export function remove(vals:any) {
@@ -24,5 +30,9 @@ export function check(vals:any) {
 export function fenye(vals:any) {
     return getData(1240, [vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate]);
 }
-
-
+export function onedj(vals:any) {
+    return getData(1415, [vals]);
+}
+export function oneOne(vals:any) {
+    return getData(1416, [vals]);
+}
