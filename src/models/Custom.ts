@@ -15,7 +15,7 @@ let pl={
     customName:'',
     customBeginTime:'2000-01-01',
     customEndTime:'2099-01-01',
-    customStatus:2
+    customStatus:0
 }
 
 export interface CustomState {
@@ -81,15 +81,11 @@ const CustomModels: CustomInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload }, { call, put }): any {
+        *remove({ payload }, { call, put,take }): any {
             const result = yield call(CustomService.remove, payload);
-            if (result.status !== 'ok') {
-                alert('cuowu');
-            }
-            yield put({ type: 'fetch', payload: { page: 1 } });
-            UmiHistorty.replace({
-                pathname: '../user/list',
-            });
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
         *check({ payload, callback }, { call, put, take }): any {
             const result = yield call(CustomService.check, payload);

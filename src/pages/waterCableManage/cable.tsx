@@ -10,16 +10,17 @@ const Cable=(props:any)=>{
     const [did,setDid]=useState(0);
     const [open,setOpen]=useState(false);
     const [isSpinning,setIsSpinning]=useState(false);
+    const [name,setNmae]=useState('');
+    const [remark,setremark]=useState('');
     const toedit=(e)=>{
-        history.push(`/waterCableManage/editCable?id=${e}`)
-    }
+        history.push(`/waterCableManage/editCable?id=${e}`);
+    };
     const columns =[
         {
             title: '采集器',
             dataIndex: 'collectorid',
             key: 'collectorid',
         },
-
         {
             title: '通讯质量',
             dataIndex: 'communicate_quality',
@@ -46,47 +47,82 @@ const Cable=(props:any)=>{
             key: 'address',
         },
         {
+            title: '租户',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
+            render:(_:any,record:any)=>{
+                return(
+                    <div>
+                        {record.tenant_name==null?"未关联租户":record.tenant_name}
+                    </div>
+                )
+            }
+        },
+        {
             title: '电表类型',
             dataIndex: 'electricity_type',
             key: 'electricity_type',
+            width: 200,
             render:(_:any,record:any)=>{
+                let tag;
+                if (record.electricity_type=='65361'){
+                    tag=<Tag color='cyan'>单相单费率07抄表</Tag>
+                }else if (record.electricity_type=='65362'){
+                    tag=<Tag color='blue'>三相单费率07抄表</Tag>
+                }else if (record.electricity_type=='16225'){
+                    tag=<Tag color='green'>单相单费率2020Z款远程预付费</Tag>
+                }else if (record.electricity_type=='16226'){
+                    tag=<Tag color='red'>三相单费率2020Z款远程预付费</Tag>
+                }else {
+                    tag=<Tag color='red'>未知类型</Tag>
+                }
                 return(
                     <>
                         <div>
-                            {record.electricity_type=='65361'?<Tag color='cyan'>单相单费率07抄表</Tag>:<Tag color='blue'>未知类型</Tag>}
+                            {tag}
                         </div>
                     </>
                 )
             }
         },
         {
-            title: '备注',
+            title: '描述',
             dataIndex: 'remark',
             key: 'remark',
         },
-        // {
-        //     title: '状态',
-        //     dataIndex: 'presence',
-        //     key: 'presence',
-        //     render:(_:any,record:any)=>{
-        //         return(
-        //             <>
-        //                 <div>
-        //                     {record.electricity_type==1?<Tag color='#87d068'>已开户</Tag>:<Tag color='red'>未开户</Tag>}
-        //                 </div>
-        //             </>
-        //         )
-        //     }
-        // },
         {
             title: '积累用电量',
-            dataIndex: 'submitted',
-            key: 'submitted',
+            dataIndex: 'eleNumSum',
+            key: 'eleNumSum',
             render:(_:any,record:any)=>{
                 return(
                     <>
-                        <span>{record.submitted}kwh</span>
+                        <span>{record.eleNumSum}kwh</span>
                     </>
+                )
+            }
+        },
+        {
+            title: '当前电量',
+            dataIndex: 'c0',
+            key: 'c0',
+            render:(_:any,record:any)=>{
+                return(
+                    <>
+                        <span>{record.c0}kwh</span>
+                    </>
+                )
+            }
+        },
+        {
+            title: '状态',
+            dataIndex: 'relay_state',
+            key: 'relay_state',
+            render:(_:any,record:any)=>{
+                return(
+                    <div>
+                        {record.relay_state==1?<Tag color='green'>合闸</Tag>:<Tag color='red'>拉闸</Tag>}
+                    </div>
                 )
             }
         },
@@ -111,6 +147,7 @@ const Cable=(props:any)=>{
     ];
     useEffect(() => {
         logFenye();
+        console.log('props',props)
     }, [page]);
     const  toAdd=()=>{
         history.push('/waterCableManage/addCable')
@@ -122,7 +159,7 @@ const Cable=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Cable/fetch",
-            payload:{page,collectorId}
+            payload:{page,collectorId,name,remark}
         })
     };
     // 监听页数
@@ -135,7 +172,7 @@ const Cable=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:"Cable/fenye",
-            payload:{collectorId}
+            payload:{collectorId,name,remark}
         })
         logFenye();
     };
@@ -177,7 +214,15 @@ const Cable=(props:any)=>{
                     <Space>
                         <Input
                             onChange={changeName}
-                            addonBefore="采集器:"
+                            addonBefore="电表地址:"
+                        />
+                        <Input
+                            onChange={(e)=>setremark(e.target.value)}
+                            addonBefore="电表描述:"
+                        />
+                        <Input
+                            onChange={(e)=>setNmae(e.target.value)}
+                            addonBefore="租户姓名:"
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -193,6 +238,41 @@ const Cable=(props:any)=>{
                 size='small'
                 rowKey={(columns) => columns.id}
                 dataSource={props.CableList}
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}>
+
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}>
+
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}>
+
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>
+                                {props.count?props.count.eleNumSum:''}kwh
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}>
+                                {props.count?props.count.c0Sum:''}kwh
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>
+
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         {/*    删除的弹窗*/}

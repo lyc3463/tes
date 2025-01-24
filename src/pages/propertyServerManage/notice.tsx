@@ -1,27 +1,48 @@
-import {Button, Input, List, Select, Space, Spin, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Select, Space, Spin, Table} from "antd";
 import TypeNotice from "@/ModelTypes/TypeNotice";
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import dayjs from "dayjs";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Notice=(props:any)=>{
-    const [loading,setLoading]=useState(false)
+    const [loading,setLoading]=useState(false);
+    // 园区内容
+    const [allNoticeName,setallNoticeName]=useState('');
+    // 开始时间
+    const [beginTimeNotice,setbeginTimeNotice]=useState('2000-01-01');
+    // 结束时间
+    const [endTimeNotice,setendTimeNotice]=useState('2099-01-01');
+    // 删除的弹窗
+    const [Dopen,setDopen]=useState(false);
+    const [uid,setUid]=useState(0);
     // 去添加页面
     const tianjia=()=>{
         history.push('/propertyServerManage/addNotice')
-    }
+    };
     const toinfo=(e:number)=>{
         history.push(`/propertyServerManage/editNotice?id=${e}`)
-    }
+    };
+    const getNotice=()=>{
+      props.dispatch({
+          type:'Notice/fetch',
+          payload:{allNoticeName,beginTimeNotice,endTimeNotice}
+      })
+    };
+    useEffect(() => {
+        getNotice();
+    }, []);
+    // 时间选择
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setbeginTimeNotice('2000-01-01');
+            setendTimeNotice('2099-01-01');
+        } else {
+            setbeginTimeNotice(data[0]);
+            setendTimeNotice(data[1]);
+        }
+    };
     const columns =[
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            render: (_: any, record: any) => (
-                <Button type="link" onClick={()=>toinfo(record.id)}>{record.id}</Button>
-            ),
-        },
         {
             title: '日期',
             dataIndex: 'noticeDate',
@@ -38,18 +59,18 @@ const Notice=(props:any)=>{
                <Input.TextArea defaultValue={record.notice_content}/>
             ),
         },
-        {
-            title: '状态',
-            dataIndex: 'park_status',
-            key: 'park_status',
-            render:(_:any,record:any)=>{
-                return(
-                    <Space>
-                     {record.park_status? <span style={{color:'green'}}>已发布</span>:<span style={{color:"red"}}>未发布</span>}
-                    </Space>
-                )
-            }
-        },
+        // {
+        //     title: '状态',
+        //     dataIndex: 'park_status',
+        //     key: 'park_status',
+        //     render:(_:any,record:any)=>{
+        //         return(
+        //             <Space>
+        //              {record.park_status? <span style={{color:'green'}}>已发布</span>:<span style={{color:"red"}}>未发布</span>}
+        //             </Space>
+        //         )
+        //     }
+        // },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -57,13 +78,39 @@ const Notice=(props:any)=>{
             render:(_:any,record:any)=>{
                 return(
                     <Space>
-                        <Button type='primary' style={{backgroundColor:"red"}}>删除</Button>
+                        <Button type='primary' danger onClick={()=>onDelete(record)}>删除</Button>
                     </Space>
                 )
             }
         },
-    ]
-
+    ];
+    // 搜索
+    const sousuo=()=>{
+        getNotice();
+    };
+    // 删除的弹窗
+    const onDelete=(record:any)=>{
+        setDopen(true);
+        setUid(record.id);
+    };
+    // 删除的确定
+    const onOk=()=>{
+        setLoading(true);
+        props.dispatch({
+            type:'Notice/remove',
+            payload:uid
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setLoading(false);
+                message.success('删除成功');
+                setDopen(false);
+            }else {
+                message.error(res.Data);
+                setLoading(false);
+                setDopen(false);
+            }
+        })
+    };
     return(
         <Spin spinning={loading}>
             <List>
@@ -74,10 +121,6 @@ const Notice=(props:any)=>{
                         </Button>
                     </div>
                     <Space>
-                        <Input
-                            // onChange={cggsname}
-                            addonBefore="园区内容:"
-                        />
                         <Space.Compact>
                             <div
                                 style={{
@@ -91,19 +134,16 @@ const Notice=(props:any)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                状态:
+                                时间:
                             </div>
-                            <Select
-                                defaultValue="255"
-                                style={{ width: 120 }}
-                                // onChange={tiaojiancg}
-                                options={[
-                                    { value: '255', label: '全部' },
-                                    { value: '1', label: '条件' },
-                                ]}
-                            />
+                            <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
-                        <Button type="primary" /*onClick={sousuo}*/>
+                        <Input
+                            onChange={(e)=>{setallNoticeName(e.target.value)}}
+                            addonBefore="园区内容:"
+                        />
+
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -118,6 +158,9 @@ const Notice=(props:any)=>{
                 //     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 // }
             />
+            <Modal title={'删除园区公告'} open={Dopen} loading={loading} onCancel={()=>setDopen(false)} onOk={onOk}>
+                <div>确定要删除吗?</div>
+            </Modal>
         </Spin>
     )
 }

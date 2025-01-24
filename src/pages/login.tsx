@@ -27,7 +27,7 @@ import * as LoginService from '@/services/login';
 import CryptoUtils from '@/utils/Crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { sleep } from '@/utils/common';
-import {phonePattern} from "@/utils/OpenTool";
+import {phonePattern, replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
 
 type Fnc = () => void;
 const noop = () => { };
@@ -83,6 +83,7 @@ export default function Login() {
   const [isyzmOpen,setIsyzmOpen]=useState(false);
   useEffect(() => {
     didmount();
+    console.log('看看csx是什么',StaticInfo.csx);
     return () => {
       unmount();
     }
@@ -201,6 +202,7 @@ export default function Login() {
     //   return;
     // }
     //console.log(values);
+    // console.log(str[i],replaceEnglishCommasWithChinese(str[i]));
     if (values.username === '') {
       EventMgr.event(info_event.Error, '请填写账号');
       return;
@@ -227,6 +229,8 @@ export default function Login() {
         yzm
     ).then((res: any) => {
       if (res?.ErrorCode == 0) {
+        console.log("登录信息",res);
+
         let data = res.Data;
         StaticInfo.userId = data.id;
         StaticInfo.userState = true;
@@ -306,6 +310,8 @@ export default function Login() {
   // }
   const getyzm = async () => {
     // if (phonePattern.test(valPhone)) return true
+    // let name=replaceEnglishCommasWithChinese(values.username);
+    // console.log("name",name);
     let type=1;
     let shebei='设备'
     let res=await LoginService.loginYzm(valPhone,type,shebei);
@@ -436,7 +442,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:1.1.5</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:1.7.5</p>
                 </div>
               </Form.Item>
             </Form>

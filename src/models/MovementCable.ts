@@ -17,6 +17,7 @@ let pl={
     name:'',
     startDate:'2000-01-01',
     endDate:'2099-01-01',
+    tenant:0,
 }
 
 export interface MovementCableState {

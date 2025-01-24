@@ -119,11 +119,7 @@ const OutRent=(props:any)=>{
         <div>
             <List>
                 <List.Item>
-                    <div>
-                        <Button type="primary" onClick={toadd}>
-                            退租录入
-                        </Button>
-                    </div>
+
                     <Space>
                         <Input
                             addonBefore="原手机号:"

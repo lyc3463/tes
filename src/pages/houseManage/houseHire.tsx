@@ -7,6 +7,8 @@ const HouseHire=(props)=>{
     const [name,setName]=useState('');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
+    const [status,setstatus]=useState(0);
+    const [house_id,sethouse_id]=useState(0);
 
     const columns =[
         {
@@ -40,6 +42,16 @@ const HouseHire=(props)=>{
             }
         },
         {
+            title: '可增面积㎡',
+            dataIndex: 'add_area',
+            key: 'add_area',
+            render: (_:any, record:any) => {
+                return(
+                    <span>{record.add_area}㎡</span>
+                )
+            }
+        },
+        {
             title: '所属楼层',
             dataIndex: 'floor',
             key: 'floor',
@@ -51,21 +63,21 @@ const HouseHire=(props)=>{
         },
         {
             title: '单价',
-            dataIndex: 'price',
-            key: 'price',
+            dataIndex: 'rent',
+            key: 'rent',
             render: (_:any, record:any) => {
                 return(
-                    <span>{record.price}㎡/元</span>
+                    <span>{record.rent}㎡/元</span>
                 )
             }
         },
         {
             title: '租金',
-            dataIndex: 'rent',
-            key: 'rent',
+            dataIndex: 'price',
+            key: 'price',
             render: (_:any, record:any) => {
                 return(
-                    <span>{record.rent}元</span>
+                    <span>{record.price}元</span>
                 )
             }
         },
@@ -81,16 +93,7 @@ const HouseHire=(props)=>{
                 )
             }
         },
-        {
-            title: '可增面积㎡',
-            dataIndex: 'add_area',
-            key: 'add_area',
-            render: (_:any, record:any) => {
-                return(
-                    <span>{record.add_area}㎡</span>
-                )
-            }
-        },
+
         {
             title: '状态',
             dataIndex: 'status',
@@ -100,9 +103,9 @@ const HouseHire=(props)=>{
             render: (text:any, record:any) => {
                 let statusText;
                 if (text === 1) {
-                    statusText = <Tag color="green">已租</Tag>; // 假设使用Ant Design的Tag组件来显示状态
+                    statusText = <Tag color="green">未租</Tag>; // 假设使用Ant Design的Tag组件来显示状态
                 } else if (text === 2) {
-                    statusText = <Tag color="blue">未租</Tag>;
+                    statusText = <Tag color="blue">已租</Tag>;
                 } else if (text === 3) {
                     statusText = <Tag color="red">退租</Tag>;
                 } else {
@@ -121,7 +124,7 @@ const HouseHire=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Unit/fetch",
-            payload:{page,name,beginRents,endRents}
+            payload:{page,name,beginRents,endRents,status,house_id}
         })
     };
     // 监听页数
@@ -131,16 +134,16 @@ const HouseHire=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props);
     }, [page]);
-
     const changeName=(e:any)=>{
-        setName(e.target.value)
+        setName(e.target.value);
     };
     const sousuo=()=>{
         setPage(1);
         props.dispatch({
             type:"Unit/fetchFenye",
-            payload:{name,beginRents,endRents}
+            payload:{name,beginRents,endRents,status,house_id}
         })
         logFenye();
     };
@@ -164,7 +167,6 @@ const HouseHire=(props)=>{
         <div>
             <List>
                 <List.Item>
-
                     <Space>
                         <Input
                             onChange={changeName}
@@ -175,9 +177,10 @@ const HouseHire=(props)=>{
                             onChange={changeBeginRents}
                             addonBefore="最小租金:"
                         />
-                        <InputNumber min={beginRents}
-                                     onChange={changeEndRents}
-                                     addonBefore="最大租金:"
+                        <InputNumber
+                            min={beginRents}
+                            onChange={changeEndRents}
+                            addonBefore="最大租金:"
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -192,6 +195,34 @@ const HouseHire=(props)=>{
                 pagination={false}
                 size='small'
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                // summary={(columns) => (
+                //     <Table.Summary fixed>
+                //         <Table.Summary.Row>
+                //             <Table.Summary.Cell
+                //                 index={1}
+                //             >
+                //                 统计
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={0}>
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={0}>
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={0}>
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={0}>
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={0}>
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={0}>
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell
+                //                 index={7}
+                //             >
+                //                 {props.count?props.count.rentSum:''}元
+                //             </Table.Summary.Cell>
+                //         </Table.Summary.Row>
+                //     </Table.Summary>
+                // )}
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>

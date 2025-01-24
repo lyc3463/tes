@@ -19,9 +19,10 @@ const AddNotice=(props:any)=>{
         if (res.ErrorCode==0){
             message.success('添加成功')
             history.push('/propertyServerManage/notice')
+        }else {
+            message.error(res.Data);
         }
-    }
-
+    };
     return(
      <Spin spinning={isLoading}>
          <Form
@@ -39,12 +40,12 @@ const AddNotice=(props:any)=>{
              <Form.Item label="通知内容" name="notice_content">
                  <Input.TextArea/>
              </Form.Item>
-             <Form.Item label="状态" name="park_status">
-                 <Radio.Group>
-                     <Radio value={1}>发布到小程序</Radio>
-                     <Radio value={0}>不发布</Radio>
-                 </Radio.Group>
-             </Form.Item>
+             {/*<Form.Item label="状态" name="park_status">*/}
+             {/*    <Radio.Group>*/}
+             {/*        <Radio value={1}>发布到小程序</Radio>*/}
+             {/*        <Radio value={0}>不发布</Radio>*/}
+             {/*    </Radio.Group>*/}
+             {/*</Form.Item>*/}
              <Form.Item {...tailLayout}>
                  <Button type="primary" htmlType="submit">
                      添加

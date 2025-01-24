@@ -1,14 +1,17 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    return getData(1121, [vals.page,vals.name]);
+    return getData(1121, [vals.page,vals.waterAddress,vals.name,vals.remark]);
+}
+export function fenye(vals:any) {
+    return getData(1122, [vals.waterAddress,vals.name,vals.remark]);
 }
 export function add(vals:any) {
-    return getData(1117, [vals.cid,vals.collectorid,vals.water_type,vals.address,vals.priceid,vals.rate,vals.remark]);
+    return getData(1117, [vals.cid,vals.collectorid,vals.water_type,vals.address,vals.priceid,vals.remark]);
 }
 
 
 export function edit(vals:any) {
-    return getData(1118, [vals.uid,vals.water_type,vals.priceid,vals.rate,vals.remark]);
+    return getData(1118, [vals.uid,vals.water_type,vals.priceid,vals.remark]);
 }
 
 export function remove(vals:any) {

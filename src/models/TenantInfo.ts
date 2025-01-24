@@ -80,15 +80,11 @@ const TenantInfoModels: TenantInfoInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload }, { call, put }): any {
+        *remove({ payload }, { call, put ,take}): any {
             const result = yield call(TenantInfoService.remove, payload);
-            if (result.status !== 'ok') {
-                alert('cuowu');
-            }
-            yield put({ type: 'fetch', payload: { page: 1 } });
-            UmiHistorty.replace({
-                pathname: '../user/list',
-            });
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(TenantInfoService.fenye,payload?payload:pl);

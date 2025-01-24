@@ -34,6 +34,16 @@ const HourStatistics=(props:any)=>{
             ),
         },
         {
+            title: '积累用电',
+            dataIndex: 'eleNumSum',
+            render: (_: any, record: any) => (
+                <div>
+                    {record.eleNumSum}kWh
+                </div>
+
+            ),
+        },
+        {
             title: '总数量',
             dataIndex: 'hourCount',
         },
@@ -41,7 +51,7 @@ const HourStatistics=(props:any)=>{
             title: '操作',
             dataIndex: 'complaint_content',
             render: (_: any, record: any) => (
-                <Button onClick={()=>toInfo(record.recordTimes)}>详情</Button>
+                <Button onClick={()=>toInfo(record.recordTimes)} type='primary'>详情</Button>
             ),
         },
     ];
@@ -53,6 +63,7 @@ const HourStatistics=(props:any)=>{
     };
     useEffect(() => {
         getList();
+        console.log('props',props);
     }, []);
     const toInfo=(e:string)=>{
         setInfoDate(e);
@@ -90,7 +101,7 @@ const HourStatistics=(props:any)=>{
                         >
                             日期:
                         </div>
-                        <DatePicker.RangePicker showTime onChange={changeDate}/>
+                        <DatePicker.RangePicker showTime onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                     </Space.Compact>
                     <Button type="primary" onClick={sousuo}>
                         搜索
@@ -124,7 +135,6 @@ const HourStatistics=(props:any)=>{
                     </Table.Summary.Row>
                   </Table.Summary>
                 )}
-
             />
             <Modal open={open} title={'详情'} onCancel={()=>setOpen(false)} onOk={()=>setOpen(false)} width={'70vw'}>
                 <MyTable startTime={infoDate} value={1}/>

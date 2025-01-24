@@ -113,11 +113,7 @@ const Preferential=(props)=>{
         <div>
             <List>
                 <List.Item>
-                    <div>
-                        <Button type="primary" onClick={toadd}>
-                            优惠录入
-                        </Button>
-                    </div>
+
                     <Space>
                         <Input
                             addonBefore="手机号:"

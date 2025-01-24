@@ -10,7 +10,7 @@ const PUB_KEY3 = `MR1qwRWORNsL7zGp6KA/rfBHQU7Qv7EEQ+//E9GFvKphoJ96Fpqmh+ASctxZBM
 class StaticInfoClass {
 
   //用户数据
-  public deviceId: string = '';
+  public deviceId: string = localStorage.getItem('fp')?localStorage.getItem('fp'):'';
   public userState: boolean = sessionStorage.getItem('userState')==='true'?true:false;
   public userId: number = parseInt(sessionStorage.getItem('userId'))>0?parseInt(sessionStorage.getItem('userId')):0;
   public username: string = sessionStorage.getItem('username');

@@ -1,4 +1,4 @@
-import {Button, DatePicker, Form, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Form, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
@@ -12,14 +12,18 @@ const CheckContracte=(props:any)=>{
     const [contractStatus,setContractStatus]=useState(0);
     // 合同编号
     const [identifier,setIdentifier]=useState('');
-    // 合同类型
+    // 合同类型ID
     const [contractType,setContractType]=useState(0);
+    // 租户姓名
+    const [name,setName]=useState('');
     // 开始时间
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
     // 发送弹窗
     const [fsOpen,setFsOpen]=useState(false);
+    const [templateType,settemplateType]=useState(0);
+    const [spinning,setspinning]=useState(false);
     // 发送小程序用户
     const [fId,setfId]=useState(0);
     const columns =[
@@ -27,25 +31,23 @@ const CheckContracte=(props:any)=>{
             title: '合同编号',
             dataIndex: 'identifier',
             key: 'identifier',
-            align:'center',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.identifier}
+                    </div>
+                )
+            }
         },
         {
             title: '租户',
             dataIndex: 'customName',
             key: 'customName',
-            align:'center',
-        },
-        {
-            title: '单元',
-            dataIndex: 'unitName',
-            key: 'unitName',
-            align:'center',
         },
         {
             title: '起租日',
             dataIndex: 'beginTime',
             key: 'beginTime',
-            align:'center',
             render: (text:any, record:any) => {
                 return(
                     <div>
@@ -55,16 +57,29 @@ const CheckContracte=(props:any)=>{
             }
         },
         {
-            title: '租金',
+            title: '租金(元)',
             dataIndex: 'zuMoney',
             key: 'zuMoney',
-            align:'center',
         },
         {
-            title: '押金',
+            title: '押金(元)',
             dataIndex: 'deposit',
             key: 'deposit',
-            align:'center',
+        },
+        {
+            title: '管理费(元)',
+            dataIndex: 'manageFee',
+            key: 'manageFee',
+        },
+        {
+            title: '预付费(元)',
+            dataIndex: 'prepayment',
+            key: 'prepayment',
+        },
+        {
+            title: '管理费押金(元)',
+            dataIndex: 'depositFee',
+            key: 'depositFee',
         },
         {
             title: '合同类型',
@@ -78,16 +93,10 @@ const CheckContracte=(props:any)=>{
                 )
             }
         },
-        // {
-        //     title: '免租期',
-        //     dataIndex: 'mianzu',
-        //     key: 'mianzu',
-        // },
         {
             title: '状态',
             dataIndex: 'contractStatus',
             key: 'contractStatus',
-            align:'center',
             render: (text:any, record:any) => {
                 return(
                     <div>
@@ -95,29 +104,17 @@ const CheckContracte=(props:any)=>{
                     </div>
                 )
             }
-
-        },
-        {
-            title: '下载',
-            dataIndex: 'zuMoney',
-            key: 'zuMoney',
-            align:'center',
-            render: (text:any, record:any) => {
-                return(
-                    <Space>
-                        {record.contractStatus==2? <Button type='link' onClick={()=>{toxiazai(record)}}>下载</Button> :''}
-                    </Space>
-                )
-            }
         },
         // {
-        //     title: '线上签合同',
+        //     title: '下载',
         //     dataIndex: 'zuMoney',
         //     key: 'zuMoney',
         //     align:'center',
         //     render: (text:any, record:any) => {
         //         return(
-        //          <Button type='link' onClick={()=>onSelectWXusetList(record)}>发送</Button>
+        //             <Space>
+        //                 {record.contractStatus==2? <Button type='link' onClick={()=>{toxiazai(record)}}>下载</Button> :''}
+        //             </Space>
         //         )
         //     }
         // },
@@ -125,16 +122,17 @@ const CheckContracte=(props:any)=>{
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',
-            align:'center',
             render: (text:any, record:any) => {
                 return(
                     <Space>
                         {record.contractStatus==1?
                             <>
-                                <Button type='link'>编辑</Button>
-                                <Button type='link' onClick={()=>isCheck(record.id)}>审核</Button>
-                            </>:''}
-                        {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
+                                {/*<Button type='link' onClick={()=>toedit(record)}>编辑</Button>*/}
+                                <Button type='link' onClick={()=>isCheck(record)}>审核</Button>
+                                <Button type='link' onClick={()=>toInfo(record)}>详情</Button>
+
+                            </>:<Button type='link' onClick={()=>{toxiazai(record)}}>详情</Button>
+                        }
                     </Space>
                 )
             }
@@ -145,27 +143,45 @@ const CheckContracte=(props:any)=>{
         setfId(e.id)
     };
     // 审核弹窗
-    const isCheck=(id:number)=>{
-        setUid(id);
+    const isCheck=(e:any)=>{
+        console.log("点击审核通过详情",e);
+        settemplateType(e.templateType);
+        setUid(e.id);
         setIsOpen(true);
+    };
+    // 编辑
+    const toedit=(e:any)=>{
+        if (e.templateType==1){
+            history.push(`/enter/editDjContract?id=${e.id}`);
+        }else if (e.templateType==2){
+            history.push(`/enter/editStaff?id=${e.id}`);
+        }
     };
     // 确定审核通过
     const checkOk=()=>{
+      setspinning(true);
       props.dispatch({
-          type:'Staff/check',
-          payload:uid
+          type:'CheckStaff/check',
+          payload:{uid,templateType}
       }).then((res)=>{
           if (res.ErrorCode==0){
               message.success('审核通过');
+              setspinning(false);
               setIsOpen(false);
           }else {
               message.error(res.Data);
+              setspinning(false);
+              setIsOpen(false);
           }
       })
     };
     // 去详情页面
-    const toInfo=(e:number)=>{
-        history.push(`/check/contracteInfo?id=${e}`)
+    const toInfo=(e:any)=>{
+        if (e.templateType==2){
+            history.push(`/check/contracteInfo?id=${e.id}`);
+        }else {
+            history.push(`/check/dingjinInfo?id=${e.id}`);
+        }
     };
     // 下载页面
     const toxiazai=(e)=>{
@@ -173,22 +189,22 @@ const CheckContracte=(props:any)=>{
             history.push(`/check/contractez?id=${e.id}`);
         }else {
             history.push(`/check/checkdingjin?id=${e.id}`);
-        };
+        }
     };
     // 搜索
     const sousuo=()=>{
         setPage(1);
         props.dispatch({
-            type:'Staff/fenye',
-            payload:{identifier,contractType,contractStatus,startDate,endDate}
+            type:'CheckStaff/fenye',
+            payload:{identifier,contractType,contractStatus,startDate,endDate,name}
         });
         logFenye();
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
-            type:"Staff/fetch",
-            payload:{page,identifier,contractType,contractStatus,startDate,endDate}
+            type:"CheckStaff/fetch",
+            payload:{page,identifier,contractType,contractStatus,startDate,endDate,name}
         })
     };
     // 监听页数
@@ -224,13 +240,17 @@ const CheckContracte=(props:any)=>{
         console.log('发送');
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
                             onChange={changeIdentifier}
                             addonBefore="合同编号:"
+                        />
+                        <Input
+                            onChange={(e)=>setName(e.target.value)}
+                            addonBefore="租户姓名:"
                         />
                         <Space.Compact>
                             <div
@@ -290,23 +310,36 @@ const CheckContracte=(props:any)=>{
                 pagination={false}
                 rowKey={(columns) => columns.id}
                 dataSource={props.StaffList}
+                summary={(columns) => (
+                    <Table.Summary >
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}>{props.count?props.count.zuMoney:''}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>{props.count?props.count.deposit:''}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>{props.count?props.count.manageFee:''}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}>{props.count?props.count.prepayment:''}元</Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             {/*    审核通过的弹窗*/}
-            <Modal title='审核合同' open={isOpen} onCancel={()=>setIsOpen(false)} onOk={checkOk}>
+            <Modal title='审核合同' open={isOpen} onCancel={()=>setIsOpen(false)} onOk={checkOk} loading={spinning}>
                 <div>是否要审核通过？</div>
             </Modal>
         {/*发送弹窗*/}
-            <Modal open={fsOpen} title='选择小程序用户' onCancel={()=>setFsOpen(false)} onOk={onFsOk}>
+            <Modal open={fsOpen} title='选择小程序用户' onCancel={()=>setFsOpen(false)} onOk={onFsOk} loading={spinning}>
 
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
-        StaffList: state.Staff.list,
-        count: state.Staff.count,
+        StaffList: state.CheckStaff.list,
+        count: state.CheckStaff.count,
     }
 };
 export default connect(mapStateToProps) (CheckContracte)

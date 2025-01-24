@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import ZuhuType from '@/ModelTypes/TypeZuhu';
 import { fixPathname } from '@/utils/common';
-import {byzhuhu} from "@/services/zuhu";
 let pl={
     page:1,
     name:'',
@@ -34,6 +33,7 @@ export interface ZuhuInterface {
         remove: Effect;
         byzhuhu: Effect;
         fenye: Effect;
+        editAbloue: Effect;
     };
     reducers: {
         list: Reducer<ZuhuType[]>;
@@ -48,10 +48,6 @@ const WatertModels: ZuhuInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(ZuhuService.fetch, payload?payload:pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -98,9 +94,12 @@ const WatertModels: ZuhuInterface = {
             yield take('fetch/@@end');
             return result
         },
+        *editAbloue({ payload, callback }, { call, put, take }): any {
+            const result = yield call(ZuhuService.editAbloue, payload);
+            return result
+        },
         *fenye({ payload }, { call, put,take }): any {
             const res = yield call(ZuhuService.fenye, payload?payload:pl);
-
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'count',
@@ -109,6 +108,7 @@ const WatertModels: ZuhuInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
     },
     reducers: {

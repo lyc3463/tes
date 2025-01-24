@@ -10,14 +10,13 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import EmpType from '@/ModelTypes/TypeEmp';
 import { fixPathname } from '@/utils/common';
-import * as CollectorService from "@/services/collector";
-import {check} from "@/services/emp";
+
 let pl={
     page:1,
     cname:'',
     nickname:'',
     phone:'',
-    stutes:2
+    stutes:1
 }
 
 export interface CustomState {
@@ -59,9 +58,8 @@ const EmpModels: EmpInterface = {
                     type: 'list',
                     payload: { list: res.Data },
                 });
-            } else {
-                message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.Emp.list);
@@ -143,30 +141,6 @@ const EmpModels: EmpInterface = {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
                 if (StaticInfo.userId > 0 && pathname === '/enter/yuangonglData/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/enter/yuangonglData/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/check/checkStaff/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/check/checkStaff/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/AccessControlManage/AccessControlPurview/') {
                     dispatch({
                         type: 'fenye',
                         payload: location.state,

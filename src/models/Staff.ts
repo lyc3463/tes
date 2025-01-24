@@ -15,9 +15,10 @@ let pl={
     page:1,
     identifier:'',
     contractType:0,
-    contractStatus:0,
+    contractStatus:1,
     startDate:'2000-01-01',
-    endDate:'2099-01-01'
+    endDate:'2099-01-01',
+    name:''
 }
 export interface StaffCountState {
     count: number;
@@ -101,6 +102,7 @@ const StaffModel: StaffInterface = {
         *remove({ payload }, { call, put,take}): any {
             const result = yield call(StaffService.remove, payload);
             yield put({ type: 'fetch', payload: pl });
+            yield put({ type: 'fenye', payload: pl });
             yield take('fetch/@@end');
             return result;
         },
@@ -159,19 +161,6 @@ const StaffModel: StaffInterface = {
                         payload: location.state,
                     });
                 }
-                if (StaticInfo.userId > 0 && pathname === '/check/checkContracte/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/check/checkContracte/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
-
             });
         },
     },

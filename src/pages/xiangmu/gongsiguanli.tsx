@@ -28,6 +28,7 @@ function Gongsiguanli(props: any) {
             title: '名称',
             dataIndex: 'item_name',
         },
+
         {
             title: '收费类型',
             dataIndex: 'itemType',
@@ -42,6 +43,27 @@ function Gongsiguanli(props: any) {
                         break;
                     case 3:
                         displayText = <Tag color='cyan'>押金类收费</Tag>;
+                        break;
+                    default:
+                        displayText = text || <Tag color='red'>未知类型</Tag>;
+                }
+                return displayText;
+            }
+        },
+        {
+            title: '月金额计算方式',
+            dataIndex: 'monthly_amount',
+            render: (text: any, record: any) =>{
+                let displayText;
+                switch (record.monthly_amount) {
+                    case 1:
+                        displayText = <Tag color='pink'>固定金额</Tag>;
+                        break;
+                    case 2:
+                        displayText =  <Tag color='blue'>按单价收费</Tag>;
+                        break;
+                    case 3:
+                        displayText = <Tag color='cyan'>每户手动输入</Tag>;
                         break;
                     default:
                         displayText = text || <Tag color='red'>未知类型</Tag>;
@@ -98,7 +120,7 @@ function Gongsiguanli(props: any) {
         setPage(e);
     };
     useEffect(() => {
-        console.log(props)
+        console.log('props',props)
         logFenye();
     }, [page]);
     const deteleOpen=(e)=>{
@@ -173,12 +195,13 @@ function Gongsiguanli(props: any) {
                     dataSource={props.GongsiList}
                     pagination={false}
                     size='small'
+                    scroll={{y:'60vh'}}
                     rowClassName={(record, index) =>
                         index % 2 === 1 ? 'tbodd' : 'tbeven'
                     }
                 />
                 {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-            {/*    删除的弹窗*/}
+                {/*删除的弹窗*/}
                 <Modal open={open} onCancel={()=>setOpen(false)} title='删除收费项目' onOk={onOk}>
                     <div>
                         <span>是否要删除：<span style={{color:'red'}}>{uname}</span></span>

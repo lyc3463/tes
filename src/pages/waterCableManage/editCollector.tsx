@@ -1,4 +1,4 @@
-import {Button, Form, Input, InputNumber, message, Select} from "antd";
+import {Button, Form, Input, InputNumber, message, Select, Spin} from "antd";
 import {useEffect, useRef, useState} from "react";
 import {useLocation, connect, history} from 'umi'
 import * as CollectorServer from "@/services/collector";
@@ -9,6 +9,7 @@ const tailLayout = {
 const EditCollector=(props:any)=>{
     const location=useLocation();
     const formRef =useRef();
+    const [spinning,setspinning]=useState(false);
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     // 获取单个采集器详情
@@ -25,19 +26,22 @@ const EditCollector=(props:any)=>{
         getOneCollerctor(id);
     },[]);
     const onFinish=async (values:any)=>{
+        setspinning(true);
         let res=await props.dispatch({
             type:'Collector/edit',
             payload:{...values,uid}
         })
         if (res.ErrorCode==0){
-            message.success('修改成功')
-            history.push('/waterCableManage/collector')
+            message.success('修改成功');
+            history.push('/waterCableManage/collector');
+            setspinning(false);
         }else {
-            message.error(res.Data)
+            message.error(res.Data);
+            setspinning(false);
         }
     }
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -59,7 +63,7 @@ const EditCollector=(props:any)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 export default connect() (EditCollector)

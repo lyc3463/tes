@@ -16,6 +16,8 @@ let pl = {
     phone:'',
     beginRents:0,
     endRents:99999999,
+    stutes:0,
+    house_id:0
 };
 
 export interface HireCountState {

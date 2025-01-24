@@ -12,7 +12,7 @@ import {
     Tag,
     Pagination,
     Modal,
-    message
+    message, Spin
 } from "antd";
 import {UploadOutlined} from "@ant-design/icons";
 import {useEffect, useState} from "react";
@@ -35,7 +35,21 @@ const AccessControlPurview=(props:any)=>{
     const [uname,setUname]=useState('');
     // 删除的ID
     const [uid,setUid]=useState(0);
+    // 加载转圈
+    const [spinning,setspinning]=useState(false);
     const columns =[
+        {
+            title: '登记日期',
+            dataIndex: 'begintime',
+            key: 'begintime',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {dayjs(record.begintime).format('YYYY-MM-DD')}
+                    </div>
+                )
+            }
+        },
         {
             title: '到期时间',
             dataIndex: 'eendtime',
@@ -92,7 +106,7 @@ const AccessControlPurview=(props:any)=>{
     const sousuo=()=>{
         setPage(1);
         props.dispatch({
-            type:'Emp/fenye',
+            type:'CheckEmp/fenye',
             payload:{cname,nickname,phone,stutes}
         });
         logFenye();
@@ -100,7 +114,7 @@ const AccessControlPurview=(props:any)=>{
     // 分页
     const logFenye=()=>{
         props.dispatch({
-            type:"Emp/fetch",
+            type:"CheckEmp/fetch",
             payload:{page,cname,nickname,phone,stutes}
         })
     };
@@ -131,21 +145,25 @@ const AccessControlPurview=(props:any)=>{
     };
     // 确定删除
     const onOk=()=>{
+      setspinning(true);
       props.dispatch({
-          type:'Emp/checkRemove',
+          type:'CheckEmp/checkRemove',
           payload:uid
       }).then((res:any)=>{
           if (res.ErrorCode==0){
               message.success('删除成功');
               setOpen(false);
+              setspinning(false);
               logFenye()
           }else {
-              message.error(res.Data)
+              message.error(res.Data);
+              setOpen(false);
+              setspinning(false);
           }
       })
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -181,13 +199,13 @@ const AccessControlPurview=(props:any)=>{
             <Modal onOk={onOk} title='删除员工' open={isOpen} onCancel={()=>setOpen(false)}>
                 <div>{`是否要删除${uname}`}</div>
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
-        EmpList: state.Emp.list,
-        count: state.Emp.count,
+        EmpList: state.CheckEmp.list,
+        count: state.CheckEmp.count,
     }
 };
 export default connect(mapStateToProps) (AccessControlPurview)

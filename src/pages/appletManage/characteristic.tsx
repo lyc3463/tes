@@ -137,13 +137,6 @@ const Characteristic=(props:any)=>{
                     <Form.Item label="特色名称" name="feature_name">
                         <Input placeholder="例:性价比高"/>
                     </Form.Item>
-
-                    <Form.Item label="是否显示在小程序" name='TSStatus'>
-                        <Radio.Group>
-                            <Radio value={1}>是</Radio>
-                            <Radio value={0}>否</Radio>
-                        </Radio.Group>
-                    </Form.Item>
                     <Form.Item {...tailLayout}>
                         <Button type="primary"  htmlType="submit">
                             修改

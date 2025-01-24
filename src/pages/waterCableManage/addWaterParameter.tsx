@@ -1,4 +1,4 @@
-import {Button, Form, Input, InputNumber, message, Radio} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio, Spin} from "antd";
 import {useEffect, useState} from "react";
 import {connect,history} from "umi";
 
@@ -43,6 +43,7 @@ const AddWaterParameter=(props:any)=>{
     // 监听阶梯值3
     const [step_value3,setStep_value3]=useState(0)
     const [minute_price,setMinute_price]=useState(0)
+    const [spinning,setspinning]=useState(false);
     const [form] = Form.useForm();
     // 监听水价基础价
     const listenbasicPrice=(e)=>{
@@ -108,6 +109,7 @@ const AddWaterParameter=(props:any)=>{
     },[base_price1,additional_price1,base_price6,additional_price6,base_price7,additional_price7,base_price8,additional_price8])
 
     const onFinish = async (values: any) => {
+        setspinning(true);
         let res=await props.dispatch({
             type:'CableParameter/add',
             payload:{...values,
@@ -140,15 +142,17 @@ const AddWaterParameter=(props:any)=>{
             }
         })
         if (res.ErrorCode==0){
+            setspinning(false);
             message.success('添加成功');
-            history.push('/waterCableManage/parameter')
+            history.push('/waterCableManage/parameter');
         }else {
             message.error(res.Data);
+            setspinning(false);
         }
 
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -174,7 +178,7 @@ const AddWaterParameter=(props:any)=>{
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
                             (元/m³) =基础价(元)<InputNumber style={{width:'80px'}} onChange={listenbasicPrice}/>
                             +附加单价(元)<InputNumber onChange={listenadditionalPrice} style={{width:'80px'}}/>
-                            (每<InputNumber step={1} precision={0} min={0} style={{width:'80px'}} onChange={changeMinute}/>小时收费一次)
+                            {/*(每<InputNumber step={1} precision={0} min={0} style={{width:'80px'}} onChange={changeMinute}/>小时收费一次)*/}
                         </Form.Item>
                         {/*<Form.Item label='损耗'>*/}
                         {/*    <InputNumber defaultValue={loss} style={{width:'80px'}} onChange={changeLoss}/>*/}
@@ -226,7 +230,7 @@ const AddWaterParameter=(props:any)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 export default connect() (AddWaterParameter)

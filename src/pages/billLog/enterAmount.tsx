@@ -1,13 +1,16 @@
 import {connect} from "umi";
 import {useEffect, useState} from "react";
-import {Button, Form, Input, InputNumber, List, message, Modal, Pagination, Space, Table} from "antd";
+import {Button, Form, Input, InputNumber, List, message, Modal, Pagination, Space, Spin, Table} from "antd";
 import dayjs from "dayjs";
 const EnterAmount=(props)=>{
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
     const [open,setOpen]=useState(false);
-    const [uid,setUid]=useState(0);
-    const [money,setMoney]=useState(0);
+    const [tenantId,settenantId]=useState(0);
+    const [spinning,setspinning]=useState(false);
+    const [itemId,setitemId]=useState(0);
+    const [itemType,setitemType]=useState(0);
+    const [tenantAmount,settenantAmount]=useState(0);
     const columns =[
         {
             title: '租户姓名',
@@ -20,12 +23,17 @@ const EnterAmount=(props)=>{
             key: 'item_name',
         },
         {
+            title: '每户金额(元)',
+            dataIndex: 'tenantAmount',
+            key: 'tenantAmount',
+        },
+        {
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',
             render: (text:any, record:any) => {
                 return(
-                    <Button type='primary' onClick={()=>shuru(record.id)}>
+                    <Button type='primary' onClick={()=>shuru(record)}>
                         每户输入金额
                     </Button>
                 )
@@ -41,6 +49,7 @@ const EnterAmount=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props);
     }, [page]);
     const sousuo=()=>{
         setPage(1);
@@ -51,27 +60,34 @@ const EnterAmount=(props)=>{
         logFenye();
     };
     const onChange=(e)=>{
-        setPage(e)
+        setPage(e);
     };
-    const shuru=(id:number)=>{
+    const shuru=(item:any)=>{
         setOpen(true);
-        setUid(id);
+        settenantId(item.tenantId);
+        setitemType(item.itemType);
+        setitemId(item.id);
+        settenantAmount(item.tenantAmount);
     };
     const onOk=()=>{
+        setspinning(true);
         props.dispatch({
-            type:'',
-            payload:{uid,money}
+            type:'EnterAmount/edit',
+            payload:{tenantId,tenantAmount}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
+                setspinning(false);
+                setOpen(false);
                 message.success('添加成功');
-                setOpen(false)
             }else {
+                setspinning(false);
+                setOpen(false);
                 message.error(res.Data);
             }
         })
     }
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -96,14 +112,14 @@ const EnterAmount=(props)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-            <Modal open={open} onOk={onOk} onCancel={()=>setOpen(false)} title='输入金额'>
+            <Modal open={open} onOk={onOk} onCancel={()=>setOpen(false)} title='输入金额' loading={spinning}>
                 <Form>
                     <Form.Item label='金额(元)'>
-                        <InputNumber min={0} onChange={(e:any)=>setMoney(e)}/>
+                        <InputNumber min={0} onChange={(e:any)=>settenantAmount(e)} value={tenantAmount}/>
                     </Form.Item>
                 </Form>
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

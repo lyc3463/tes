@@ -5,12 +5,12 @@ export function fetch(vals:any) {
 }
 // 添加特色
 export function add(vals:any) {
-    return getData(1048, [vals.name,vals.stutes]);
+    return getData(1048, [vals.name,vals.stutes=1]);
 }
 
 
 export function edit(vals:any) {
-    return getData(1049, [vals.id,vals.feature_name,vals.TSStatus]);
+    return getData(1049, [vals.id,vals.feature_name,vals.TSStatus=1]);
 }
 
 export function remove(vals:any) {

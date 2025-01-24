@@ -5,7 +5,7 @@ import {connect} from "umi";
 const Zhanghupeizhi=(props)=>{
     const [disabled, setDisabled] = useState(false);
     const [isopen,setopen]=useState(false);
-    // 结算方式
+    // 结算方式 1实时结算 2每天自动结算 3指定日期结算 4手动结算
     const [settlement,setSettlement]=useState(0);
     // 当前余额
     const [balance,setBalance]=useState(0);
@@ -69,26 +69,31 @@ const Zhanghupeizhi=(props)=>{
     };
     // 手动提现
     const onOK=()=>{
-        let commissionz:number=withdAmount*(commission/1000);
-        if ((commissionz+withdAmount)>balance){
-            message.error('账户不足扣手续费')
-        }else if(withdAmount<=0){
-            message.error('提现金额为0')
-        } else {
-            props.dispatch({
-                type:'Zhanghupeizhi/add',
-                payload:{withdAmount,remark,commission}
-            }).then((res)=>{
-                if (res.ErrorCode==0){
-                    message.success('提交成功，等待管理员审核');
-                    getInfo();
-                    setopen(false);
-                    setRemark('');
-                }else {
-                    message.error(res.Data)
-                }
-            })
+        if (settlement==4){
+            let commissionz:number=withdAmount*(commission/1000);
+            if ((commissionz+withdAmount)>balance){
+                message.error('账户不足扣手续费')
+            }else if(withdAmount<=0){
+                message.error('提现金额为0')
+            } else {
+                props.dispatch({
+                    type:'Zhanghupeizhi/add',
+                    payload:{withdAmount,remark,commission}
+                }).then((res)=>{
+                    if (res.ErrorCode==0){
+                        message.success('提交成功，等待管理员审核');
+                        getInfo();
+                        setopen(false);
+                        setRemark('');
+                    }else {
+                        message.error(res.Data)
+                    }
+                })
+            }
+        }else {
+           message.warning('当前类型不是手动结算类型')
         }
+
 
     };
     return(
@@ -103,7 +108,7 @@ const Zhanghupeizhi=(props)=>{
                 {/*</Form.Item>*/}
                 <Form.Item label='当前余额'>
                     <span style={{fontSize:'25px',fontWeight:'500'}}>{balance}</span>元<span style={{marginLeft:'15px'}}>可提现金额<span style={{color:'red'}}>{balance}</span>元</span>
-                    <Button type='primary' onClick={()=>setopen(true)} disabled={settlementz==4?false:true}>手动立即提现</Button>
+                    <Button type='primary' onClick={()=>setopen(true)} >手动立即提现</Button>
                     <p style={{color:'#888'}}>如未设置默认银行卡请到<span style={{color:'red'}}>钱包管理/银行卡管理</span>设置默认银行卡</p>
                 </Form.Item>
                 {/*<Form.Item label='今日提现预计到账日'>*/}

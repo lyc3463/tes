@@ -11,12 +11,13 @@ const RechargeRate=(props)=>{
     const [type,setType]=useState(1);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [userID,setuserID]=useState(0);
     // 搜索
     const sousuo=()=>{
         setPage(1);
         props.dispatch({
             type:'RechargeRate/fenye',
-            payload:{name,phone,type,startDate,endDate}
+            payload:{name,phone,type,startDate,endDate,userID}
         });
         logFenye();
     };
@@ -24,7 +25,7 @@ const RechargeRate=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"RechargeRate/fetch",
-            payload:{page,name,phone,type,startDate,endDate}
+            payload:{page,name,phone,type,startDate,endDate,userID}
         })
     };
     // 监听页数
@@ -33,57 +34,83 @@ const RechargeRate=(props)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log(props)
     }, [page]);
     const columns =[
         {
             title: '日期',
-            dataIndex: 'estarttime',
-            key: 'estarttime',
+            dataIndex: 'consumptionDate',
+            key: 'consumptionDate',
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {dayjs(record.estarttime).format('YYYY-MM-DD')}
+                        {dayjs(record.consumptionDate).format('YYYY-MM-DD')}
                     </div>
                 )
             }
         },
         {
             title: '姓名',
-            dataIndex: 'appUser_name',
-            key: 'appUser_name',
+            dataIndex: 'user_name',
+            key: 'user_name',
         },
         {
             title: '手机号',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
+            dataIndex: 'phone',
+            key: 'phone',
         },
         {
             title: '类型',
             dataIndex: 'consumptionType',
             key: 'consumptionType',
-            render:(text:any,record:any)=>{
-                return(
-                    <div>
-                        {record.consumptionType==1?<Tag color='green'>充值</Tag>:<Tag color='red'>未知</Tag>}
-                    </div>
-                )
+            render:(_:any,item:any)=>{
+                let consumptionTypeText;
+                switch (item.consumptionType) {
+                    case 1:
+                        consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>充值</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金</Tag>;
+                        break;
+                    case 3:
+                        consumptionTypeText = <Tag style={{ color: '#2196F3' }}>电费</Tag>;
+                        break;
+                    case 4:
+                        consumptionTypeText = <Tag style={{ color: '#FFC107' }}>水费</Tag>;
+                        break;
+                    case 5:
+                        consumptionTypeText = <Tag style={{ color: '#9C27B0' }}>公共缴费</Tag>;
+                        break;
+                    case 6:
+                        consumptionTypeText = <Tag style={{ color: '#E91E63' }}>手动充值</Tag>;
+                        break;
+                    case 7:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>损耗</Tag>;
+                        break;
+                    case 8:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
+                }
+                return (
+                    consumptionTypeText
+                );
             }
         },
         {
-            title: '充值金额(元)',
+            title: '金额(元)',
             dataIndex: 'consumptionMoney',
             key: 'consumptionMoney',
         },
         {
-            title: '用户余额(元)',
-            dataIndex: 'appUser_balance',
-            key: 'appUser_balance',
+            title: '原余额(元)',
+            dataIndex: 'oldMoney',
+            key: 'oldMoney',
         },
         {
-            title: '用户积分余额(分)',
-            dataIndex: 'appUser_integral',
-            key: 'appUser_integral',
+            title: '余额(元)',
+            dataIndex: 'newMoney',
+            key: 'newMoney',
         },
     ];
     // 监听日期
@@ -140,6 +167,28 @@ const RechargeRate=(props)=>{
                 scroll={{y:'70vh'}}
                 rowKey={(columns) => columns.id}
                 size='small'
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {props.count?props.count.moneySum:''}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>

@@ -1,9 +1,25 @@
 import {connect, history} from 'umi'
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Form,
+    Image,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag
+} from "antd";
 import TypeCheckFp from "@/ModelTypes/TypeCheckFp";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import ImageUploader from "@/components/ImageUploader";
 const CheckFp=(props:any)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
@@ -15,15 +31,25 @@ const CheckFp=(props:any)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
+    // 发送消息给小程序用户
+    const [openID,setFSAppUser]=useState('');
+    // 发送的弹窗
+    const [FSopen,setFSopen]=useState(false);
+    // 图片名字
+    const [upimg,setImgName]=useState('');
+    // 图片B64
+    const [imgB64,setImgB64]=useState('');
+    // 发送给小程序内容
+    const [conten,setconten]=useState('');
     const columns =[
         {
             title: '申请日期',
-            dataIndex: 'billDate',
-            key: 'billDate',
+            dataIndex: 'created',
+            key: 'created',
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        {dayjs(record.billDate).format('YYYY-MM-DD')}
+                        {dayjs(record.created).format('YYYY-MM-DD')}
                     </div>
                 )
             }
@@ -35,8 +61,8 @@ const CheckFp=(props:any)=>{
         },
         {
             title: '账单类型',
-            dataIndex: 'money_type',
-            key: 'money_type',
+            dataIndex: 'consumptionType',
+            key: 'consumptionType',
             render:(_:any,item:any)=>{
                 let consumptionTypeText;
                 switch (item.consumptionType) {
@@ -82,10 +108,22 @@ const CheckFp=(props:any)=>{
             }
         },
         {
+            title: '通知租户',
+            dataIndex: 'tz',
+            key: 'tz',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.invoiceStatus==2?<Button type='link' onClick={()=>onOpen(record)}>发送</Button>:''}
+                    </div>
+                )
+            }
+        },
+        {
             title: '状态',
             dataIndex: 'invoiceStatus',
             key: 'invoiceStatus',
-            render:(text:any,record:any,)=>{
+            render:(text:any,record:any)=>{
                 return(
                     <div>
                         {record.invoiceStatus==1?<Tag color="red">未审核</Tag>:<Tag color="green">已审核</Tag>}
@@ -101,9 +139,9 @@ const CheckFp=(props:any)=>{
                 return(
                     <Space>
                          {record.invoiceStatus==1?(<>
-                             <Button type='primary' onClick={()=>onTongguo(record)} danger>拒绝</Button>
-                             <Button type='primary' onClick={()=>toedit(record)}>详情</Button>
+                             <Button type='primary' onClick={()=>onTongguo(record)}>审核通过</Button>
                          </>):''}
+                        <Button type='primary' onClick={()=>toedit(record)}>详情</Button>
                     </Space>
                 )
             }
@@ -126,7 +164,7 @@ const CheckFp=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log(props)
+        console.log(props);
     }, [page]);
     // 审核通过弹窗
     const onTongguo=(e:TypeCheckFp)=>{
@@ -172,8 +210,39 @@ const CheckFp=(props:any)=>{
         });
         logFenye();
     };
+    // 发送的弹窗
+    const onOpen=(e:any)=>{
+        console.log('小程序详情',e)
+        setFSAppUser(e.openId);
+        setFSopen(true);
+    };
+    const fsOk=()=>{
+        setIsLoading(true);
+        props.dispatch({
+            type:'TenantInfo/add',
+            payload:{openID,upimg,conten}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setIsLoading(false);
+                message.success('发送成功');
+                setFSopen(false);
+            }else {
+                setIsLoading(false);
+                setFSopen(false);
+                message.error(res.Data);
+            }
+        })
+    };
+    // 图片名字
+    const onimgname=(e)=>{
+        setImgName(e);
+    };
+    // 图片B64
+    const onb64=(e)=>{
+        setImgB64(e);
+    };
     return(
-        <Spin spinning={isLoading}>
+        <Spin spinning={isLoading} style={{zIndex:'1000'}}>
             <List>
                 <List.Item>
                     <Space>
@@ -239,6 +308,18 @@ const CheckFp=(props:any)=>{
             {/*审核的弹窗*/}
             <Modal open={checkOpen} onOk={onOk} onCancel={()=>setCheckOpen(false)} title='审核发票'>
                 <div>确定审核通过吗?</div>
+            </Modal>
+        {/*    发送的弹窗*/}
+            <Modal open={FSopen} onOk={fsOk} onCancel={()=>setFSopen(false)}>
+                <Form>
+                    <Form.Item label='内容'>
+                        <Input.TextArea onChange={(e)=>setconten(e.target.value)}/>
+                    </Form.Item>
+                    <Form.Item label='图片'>
+                        <ImageUploader onImageUpload={onimgname} oldBase64={onb64}/>
+                        {imgB64?<Image src={imgB64} style={{width:'100px',height:'100px'}}/>:''}
+                    </Form.Item>
+                </Form>
             </Modal>
         </Spin>
     )

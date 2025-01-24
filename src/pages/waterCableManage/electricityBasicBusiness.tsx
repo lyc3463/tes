@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
 import {useLocation,connect} from 'umi'
-import {Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin} from "antd";
+import {Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin, Tag} from "antd";
 import * as CableServer from "@/services/cable";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
@@ -11,7 +11,7 @@ const ElectricityBasicBusiness=(props:any)=>{
     const [isSpinning,setIsSpinning]=useState(false);
     const formRef =useRef();
     // 路由参数
-    const [uid,setUid]=useState<string|undefined>();
+    const [uid,setUid]=useState('0');
     // 拉闸弹窗
     const [lazha,setlazha]=useState(false);
     // 合闸弹窗
@@ -22,12 +22,14 @@ const ElectricityBasicBusiness=(props:any)=>{
     const [cz,setcz]=useState(false);
     // 充值金额
     const [money,setMoney]=useState(0);
-
+    // 电表状态 1合闸,2拉闸
+    const [relay_state,setrelay_state]=useState(0);
     // 获取单个电表详情
     const getOneCable=async (id:string)=>{
         let res:any=await  CableServer.one(id);
         if (res.ErrorCode==0){
-            formRef.current.setFieldsValue(res?.Data)
+            formRef.current.setFieldsValue(res?.Data);
+            setrelay_state(res.Data.relay_state);
         }else {
             message.error(res.Data)
         }
@@ -37,6 +39,7 @@ const ElectricityBasicBusiness=(props:any)=>{
          CableServer.off({uid,stutes:2}).then((res:any)=>{
              if (res.ErrorCode==0){
                  message.success('拉闸成功');
+                 getOneCable(uid);
                  setlazha(false);
              }else {
                  message.error(res.Data)
@@ -45,13 +48,16 @@ const ElectricityBasicBusiness=(props:any)=>{
     };
     // 合闸弹窗确定
     const offhezha=()=>{
-        CableServer.off({uid,stutes:1}).then((res:any)=>{
+            setIsSpinning(true);
+            CableServer.off({uid,stutes:1}).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('合闸成功');
                 sethezha(false);
+                setIsSpinning(false);
+                getOneCable(uid);
             }else{
                 message.error(res.Data)
-
+                setIsSpinning(false);
             }
         })
     };
@@ -104,7 +110,7 @@ const ElectricityBasicBusiness=(props:any)=>{
                 <Form.Item label='电能表类型' name='electricity_type'>
                     <Select options={[
                         {label:'单相单费率07抄表',value:'65361'},
-                        // {label:'三相单费率07抄表',value:'65362'}
+                        {label:'三相单费率07抄表',value:'65362'}
                     ]}>
                     </Select>
                 </Form.Item>
@@ -127,9 +133,14 @@ const ElectricityBasicBusiness=(props:any)=>{
                         {/*<Button type='primary'>解除保电</Button>*/}
                         {/*<Button type='primary' onClick={()=>setcz(true)}>充值</Button>*/}
                     </Space>
+                    <Form.Item>
+                        <div>
+                            状态：{relay_state==1?<Tag color='green'>合闸</Tag>:<Tag color='red'>拉闸</Tag>}
+                        </div>
+                    </Form.Item>
                 </Form.Item>
-                <Form.Item label='当前总用量'>
-                    <Input/>
+                <Form.Item label='当前总用量(kwh)' name='c0'>
+                    <InputNumber/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary"  htmlType="submit">
@@ -150,13 +161,13 @@ const ElectricityBasicBusiness=(props:any)=>{
                 </div>
             </Modal>
             {/*充值弹窗*/}
-            <Modal open={cz} onCancel={()=>setcz(false)} onOk={chongzhi}>
-                <Form>
-                    <Form.Item label='充值金额'>
-                        <InputNumber min={0} onChange={(e:number)=>setMoney(e)}/>
-                    </Form.Item>
-                </Form>
-            </Modal>
+            {/*<Modal open={cz} onCancel={()=>setcz(false)} onOk={chongzhi}>*/}
+            {/*    <Form>*/}
+            {/*        <Form.Item label='充值金额'>*/}
+            {/*            <InputNumber min={0} onChange={(e:number)=>setMoney(e)}/>*/}
+            {/*        </Form.Item>*/}
+            {/*    </Form>*/}
+            {/*</Modal>*/}
             {/*远程清零弹窗*/}
             <Modal open={qlOpen} onCancel={()=>setQlOpen(false)} onOk={qlOk}>
                 <div>

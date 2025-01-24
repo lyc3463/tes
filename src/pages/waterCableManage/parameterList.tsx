@@ -1,13 +1,18 @@
 import {connect, history} from 'umi'
 import {useEffect, useState} from "react";
-import {Button, Input, List, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, Input, List, message, Modal, Select, Space, Spin, Table, Tag} from "antd";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const ParameterList=(props:any)=>{
     const [loading, setLoading] = useState(false);
-
+    // 删除的弹窗
+    const [isOpen,setIsOpen]=useState(false);
+    const [uid,setUid]=useState(0);
     // 参数名称
     const [cname,setCname]=useState('');
     // 收费类型
-    const [priceType,setPriceType]=useState(0)
+    const [priceType,setPriceType]=useState(0);
+    // 1水价 2电价 0全部
+    const [we_type,setwe_type]=useState(0);
     const columns = [
         {
             title: '名称',
@@ -45,7 +50,7 @@ const ParameterList=(props:any)=>{
             dataIndex: 'operation',
             render: (_: any, record: any) => (
                 <Space>
-                    <Button type="primary" danger>
+                    <Button type="primary" danger onClick={()=>isDelete(record)}>
                         删除
                     </Button>
                     <Button type="primary" onClick={()=>toedit(record.we_type,record.id)}>
@@ -83,12 +88,39 @@ const ParameterList=(props:any)=>{
     const sousuo= ()=>{
         props.dispatch({
             type:'CableParameter/sousuo',
-            payload:{cname,priceType}
+            payload:{cname,priceType,we_type}
         })
     };
+    // 删除弹窗
+    const isDelete=(e:any)=>{
+        setUid(e.id);
+        setIsOpen(true);
+    };
+    // 确定删除按钮
+    const onOk=()=>{
+      setLoading(true);
+      props.dispatch({
+          type:'CableParameter/remove',
+          payload:uid
+      }).then((res:TypeErrorCode)=>{
+          if (res.ErrorCode==0){
+              message.success('删除成功');
+              setLoading(false);
+              setIsOpen(false);
+          }else {
+              message.error(res.Data);
+              setLoading(false);
+              setIsOpen(false);
+          }
+      })
+    };
+
     useEffect(() => {
-        console.log(props)
+        sousuo();
     }, []);
+    const changeWeType=(e)=>{
+        setwe_type(e);
+    };
     return(
         <div>
             <Spin spinning={loading}>
@@ -138,6 +170,33 @@ const ParameterList=(props:any)=>{
                                     ]}
                                 />
                             </Space.Compact>
+                            <Space.Compact>
+                                <div
+                                    style={{
+                                        borderRadius: '6px',
+                                        borderStartEndRadius: 0,
+                                        borderEndEndRadius: 0,
+                                        padding: '0 11px',
+                                        border: '1px solid #d9d9d9',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        borderInlineEnd: 0,
+                                    }}
+                                >
+                                    价钱类型:
+                                </div>
+                                <Select
+                                    value={we_type}
+                                    style={{ width: 120 }}
+                                    onChange={changeWeType}
+                                    options={[
+                                        { value: 0, label: '全部' },
+                                        { value: 1, label: '水价' },
+                                        { value: 2, label: '电价' },
+
+                                    ]}
+                                />
+                            </Space.Compact>
                             <Button type="primary" onClick={sousuo}>
                                 搜索
                             </Button>
@@ -154,6 +213,9 @@ const ParameterList=(props:any)=>{
                         index % 2 === 1 ? 'tbodd' : 'tbeven'
                     }
                 />
+                <Modal open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOk}>
+                    <div>确定要删除吗?</div>
+                </Modal>
             </Spin>
         </div>
     )

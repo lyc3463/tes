@@ -11,8 +11,8 @@ const DayWater=(props)=>{
     const oneMonthAgo = today.subtract(30, 'day').format("YYYY-MM-DD HH:mm:ss");
     const oneMonthAgoEndDate = today.startOf('day').subtract(1, 'second').format("YYYY-MM-DD HH:mm:ss");
     // 设置状态，使用年月日格式
-    const [startDate, setStartDate] = useState('2024-11-01');
-    const [endDate, setEndDate] = useState('2024-11-30');
+    const [startDate, setStartDate] = useState(oneMonthAgo);
+    const [endDate, setEndDate] = useState(oneMonthAgoEndDate);
     // 详情的时间
     const [infoDate,setInfoDate]=useState('');
     const [open,setOpen]=useState(false);
@@ -30,7 +30,6 @@ const DayWater=(props)=>{
                     {/*{}*/}
                     {dayjs(isoDateString(record.recordTimes)).format("YYYY-MM-DD")}
                 </div>
-
             ),
         },
         {
@@ -40,7 +39,6 @@ const DayWater=(props)=>{
                 <div>
                     {record.energyUsages}元
                 </div>
-
             ),
         },
         {
@@ -51,7 +49,7 @@ const DayWater=(props)=>{
             title: '操作',
             dataIndex: 'complaint_content',
             render: (_: any, record: any) => (
-                <Button onClick={()=>toInfo(record)}>详情</Button>
+                <Button onClick={()=>toInfo(record)} type='primary'>详情</Button>
             ),
         },
     ];
@@ -102,7 +100,7 @@ const DayWater=(props)=>{
                         >
                             日期:
                         </div>
-                        <DatePicker.RangePicker showTime onChange={changeDate}/>
+                        <DatePicker.RangePicker  onChange={changeDate} defaultValue={[dayjs(startDate), dayjs(endDate)]}/>
                     </Space.Compact>
                     <Button type="primary" onClick={sousuo}>
                         搜索
@@ -136,7 +134,6 @@ const DayWater=(props)=>{
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
-
             />
             <Modal open={open} title={'详情'} onCancel={()=>setOpen(false)} onOk={()=>setOpen(false)} width={'70vw'}>
                 <MywaterTable startTime={infoDate} value={2}/>

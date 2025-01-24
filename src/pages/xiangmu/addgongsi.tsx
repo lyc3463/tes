@@ -7,7 +7,28 @@ import { StaticInfo } from '@/StaticInfo';
 import { useEffect, useState } from 'react';
 import { EventMgr } from '@/Event/EventMgr';
 import type { RadioChangeEvent } from 'antd';
-import { Image, Descriptions, Space, Input, Button, message, Tabs, Table, Avatar, Row, Col, Popover, Form, Select, DatePicker, Radio, Checkbox, InputNumber, Statistic } from 'antd';
+import {
+  Image,
+  Descriptions,
+  Space,
+  Input,
+  Button,
+  message,
+  Tabs,
+  Table,
+  Avatar,
+  Row,
+  Col,
+  Popover,
+  Form,
+  Select,
+  DatePicker,
+  Radio,
+  Checkbox,
+  InputNumber,
+  Statistic,
+  Spin
+} from 'antd';
 import { getAvatarUrl } from '@/utils/common';
 import { SyncOutlined } from '@ant-design/icons';
 
@@ -22,19 +43,20 @@ const { TextArea } = Input;
 
 function Addgongsi(props: any) {
   // 收费类型 1周期性收费 2一次性收费 3押金类收费
-  const [itemType,setItemType]=useState(0)
+  const [itemType,setItemType]=useState(0);
   // 月金额计算方式 1固定金额 2按照单价收费 3每户手动输入
-  const [monthly_amount,setMonthly_amount]=useState(0)
+  const [monthly_amount,setMonthly_amount]=useState(0);
   // 扣款方式类型 1当期收当期 2当期收上期 3当期收下期
-  const [deduction_method,setDeduction_method]=useState(0)
+  const [deduction_method,setDeduction_method]=useState(0);
   //  收费间隔
-  const [item_interval,setItem_interval]=useState(0)
+  const [item_interval,setItem_interval]=useState(0);
   // 单价
-  const [price,setPrice]=useState(0)
+  const [price,setPrice]=useState(0);
   // 预支付金额
-  const [prepaidAmount,setPrepaidAmount]=useState(0)
+  const [prepaidAmount,setPrepaidAmount]=useState(0);
   // 计量方式
-  const [count_method,setCountMethod]=useState(0)
+  const [count_method,setCountMethod]=useState(1);
+  const [spinning,setspinning]=useState(false);
   const [form] = Form.useForm();
   // 收费类型
   const shoufeiType=(e:any)=>{
@@ -50,6 +72,7 @@ function Addgongsi(props: any) {
     setDeduction_method(e.target.value)
   }
   const onFinish = async (values: any) => {
+    setspinning(true);
     let res=await props.dispatch({
       type:'Gongsi/add',
       payload:{...values,itemType,monthly_amount,deduction_method,item_interval,price,prepaidAmount,count_method}
@@ -57,8 +80,10 @@ function Addgongsi(props: any) {
     if (res.ErrorCode==0){
       message.success('添加成功');
       history.push('/xiangmu/gongsiguanli');
+      setspinning(false);
     }else {
       message.error(res.Data);
+      setspinning(false);
     }
   };
   // 收费间隔
@@ -67,7 +92,8 @@ function Addgongsi(props: any) {
   }
   //  单价
   const changePrice=(e)=>{
-      setPrice(e)
+    console.log(e)
+    setPrice(e)
   }
   // 预支付金额
   const ChangePrepaidAmount=(e)=>{
@@ -78,7 +104,7 @@ function Addgongsi(props: any) {
       setCountMethod(e.target.value)
   }
   return (
-    <>
+    <Spin spinning={spinning}>
       <Form
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 14 }}
@@ -100,8 +126,8 @@ function Addgongsi(props: any) {
         </Form.Item>
         {
           itemType==1?<><Form.Item label='收费间隔'>
-            每<InputNumber controls={false} defaultValue={item_interval} onChange={changeJianGe}/>个月收费一次
-            <p style={{color:'#555',fontSize:'12px'}}>注意：下方单价和固定金额为每月数额 。</p>
+            每<InputNumber controls={false} defaultValue={item_interval} onChange={changeJianGe}/>天收费一次
+            {/*<p style={{color:'#555',fontSize:'12px'}}>注意：下方单价和固定金额为每1天数额 。</p>*/}
           </Form.Item>
             {/*<Form.Item label='扣款方式'>*/}
             {/*  <Radio.Group onChange={koukuanType} defaultValue={deduction_method}>*/}
@@ -133,12 +159,12 @@ function Addgongsi(props: any) {
           monthly_amount==2?
               <>
                 <Form.Item label='计量方式'>
-                  <Radio.Group onChange={changeCountMethod}>
-                    <Radio value={1}>建筑面积</Radio>
-                    <Radio value={2}>套内面积</Radio>
-                    <Radio value={3}>公摊面积</Radio>
-                    <Radio value={4}>按电费</Radio>
-                    <Radio value={5}>按水费</Radio>
+                  <Radio.Group onChange={changeCountMethod} value={count_method}>
+                    <Radio value={1}>合同面积</Radio>
+                    {/*<Radio value={2}>套内面积</Radio>*/}
+                    {/*<Radio value={3}>公摊面积</Radio>*/}
+                    {/*<Radio value={2}>按电费</Radio>*/}
+                    {/*<Radio value={3}>按水费</Radio>*/}
                   </Radio.Group>
                 </Form.Item>
               </>:''
@@ -146,7 +172,7 @@ function Addgongsi(props: any) {
         {
           monthly_amount==2?
               <Form.Item label='单价(元)'>
-                <Input onChange={changePrice}/>
+                <InputNumber onChange={changePrice}/>
               </Form.Item>:''
         }
         <Form.Item label='添加备注' name='remark' rules={[{required: true, message: '请输入备注'}]}>
@@ -160,7 +186,7 @@ function Addgongsi(props: any) {
         </Form.Item>
       </Form>
 
-    </>
+    </Spin>
   );
 }
 

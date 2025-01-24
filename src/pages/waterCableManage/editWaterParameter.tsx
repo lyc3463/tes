@@ -1,4 +1,4 @@
-import {Button, Form, Input, InputNumber, message, Radio} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio, Spin} from "antd";
 import {useEffect, useRef, useState} from "react";
 import {connect,history,useLocation} from "umi";
 import * as CableParameterServer from "@/services/cableParameter";
@@ -39,12 +39,13 @@ const EditWaterParameter=(props)=>{
     // 阶梯3基础价格
     const [base_price8,setBase_price8]=useState(0);
     // 阶梯3附加单价
-    const [additional_price8,setAdditional_price8]=useState(0)
+    const [additional_price8,setAdditional_price8]=useState(0);
     // 监听阶梯值2
-    const [step_value2,setStep_value2]=useState(0)
+    const [step_value2,setStep_value2]=useState(0);
     // 监听阶梯值3
-    const [step_value3,setStep_value3]=useState(0)
-    const [minute_price,setMinute_price]=useState(0)
+    const [step_value3,setStep_value3]=useState(0);
+    const [minute_price,setMinute_price]=useState(0);
+    const [spinning,setspinning]=useState(false);
     const [form] = Form.useForm();
     // 监听水价基础价
     const listenbasicPrice=(e)=>{
@@ -141,6 +142,7 @@ const EditWaterParameter=(props)=>{
         getOneCollerctor(id);
     }, []);
     const onFinish = async (values: any) => {
+        setspinning(true);
         let res=await props.dispatch({
             type:'CableParameter/edit',
             payload:{...values,
@@ -174,15 +176,17 @@ const EditWaterParameter=(props)=>{
             }
         })
         if (res.ErrorCode==0){
-            message.success('添加成功');
-            history.push('/waterCableManage/parameter')
+            setspinning(false);
+            message.success('修改成功');
+            history.push('/waterCableManage/parameter');
         }else {
             message.error(res.Data);
+            setspinning(false);
         }
 
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -260,7 +264,7 @@ const EditWaterParameter=(props)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 export default connect() (EditWaterParameter)

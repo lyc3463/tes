@@ -58,6 +58,8 @@ const LogQuery=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log("props",props);
+
     }, [page]);
     // 分页
     const logFenye=()=>{

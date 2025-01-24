@@ -11,7 +11,8 @@ import { StaticInfo } from '@/StaticInfo';
 import ProjectType from '@/ModelTypes/TypeProject';
 import { fixPathname } from '@/utils/common';
 let pl={
-    name:''
+    name:'',
+    companyId:0
 }
 
 export interface ProjectCountState {

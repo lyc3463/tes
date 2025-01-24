@@ -27,16 +27,25 @@ const AddFinancialData=(props:any)=>{
     const [accountType,setAccountType]=useState(0);
     // 账号银行号
     const [ccount_card,setAccount_card]=useState(0);
+    const [spinning,setspinning]=useState(false);
     const onFinish=async (values)=>{
-        let res=await props.dispatch({
-            type:'Bill/add',
-            payload:{...values,billDate,company_id,project_id,accountType}
-        });
-        if (res.ErrorCode==0){
-            history.push('/enter/financialData');
-            message.success('添加成功');
+        setspinning(true);
+        if (!values.account_id){
+            message.warning('请选择账户');
+            setspinning(false);
         }else {
-            message.error(res.Data);
+            let res=await props.dispatch({
+                type:'Bill/add',
+                payload:{...values,billDate,company_id,project_id,accountType}
+            });
+            if (res.ErrorCode==0){
+                setspinning(false);
+                history.push('/enter/financialData');
+                message.success('添加成功');
+            }else {
+                setspinning(false);
+                message.error(res.Data);
+            }
         }
     };
     useEffect(() => {
@@ -44,7 +53,7 @@ const AddFinancialData=(props:any)=>{
         getProjectList();
         getSubjectList();
         getAccountList();
-        setBillDate(getCurrentDate())
+        setBillDate(getCurrentDate());
     }, []);
 
     // 日期选择
@@ -54,7 +63,6 @@ const AddFinancialData=(props:any)=>{
     // 监听下拉账号
     const changeAccount=(e)=>{
         AccountService.one(e).then((res:any)=>{
-            console.log(res)
             setCompany_id(res.Data.company_id);
             setProject_id(res.Data.project_id);
             setAccountType(res.Data.account_type);
@@ -79,9 +87,9 @@ const AddFinancialData=(props:any)=>{
             type:'Project/fetch',
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                conterproject(res.Data);
+                setProjectlist(res.Data);
             }else {
-                conterproject([]);
+                setProjectlist([]);
             }
         });
     };
@@ -91,9 +99,9 @@ const AddFinancialData=(props:any)=>{
             type:'Account/fetch',
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                conterAccount(res.Data);
+                setAccountList(res.Data);
             }else {
-                conterAccount([]);
+                setAccountList([]);
             }
         });
     };
@@ -120,16 +128,6 @@ const AddFinancialData=(props:any)=>{
         });
         setCompanyList(newarr);
     };
-    // 账户拼接
-    const conterAccount=(item)=>{
-        let newarr=item.map((item:any)=>{
-            return {
-                label:item.account_name,
-                value:item.id
-            }
-        });
-        setAccountList(newarr);
-    };
     // 项目拼接
     const conterproject=(item)=>{
         let newarr=item.map((item:any)=>{
@@ -154,109 +152,122 @@ const AddFinancialData=(props:any)=>{
         setsubjectName(value);
     };
     return(
-        <div style={{display:'flex',justifyContent:'space-around'}}>
-            <Form
-                // labelCol={{ span: 5 }}
-                wrapperCol={{ span: 14 }}
-                form={form}
-                layout="horizontal"
-                size={'large'}
-                onFinish={onFinish}
-                style={{ marginTop: '1rem' }}
-            >
-                <Space style={{display:'flex',margin:'20px'}}>
-                    <Form.Item label='账户' name='account_id' >
-                        <Select onChange={changeAccount} style={{width:'250px'}}>
-                            {accountList.map((item:any,index:any)=>{
-                                return(
-                                    <Select.Option value={item.value} key={index}>
-                                        {item.label}
-                                    </Select.Option>
-                                )
-                            })}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label='账户类型'>
-                        <Radio.Group value={accountType} style={{display:'flex'}}>
-                            <Radio value={1} style={{width:'80px'}}>公账</Radio>
-                            <Radio value={0} style={{width:'80px'}}>私账</Radio>
-                        </Radio.Group>
-                    </Form.Item>
-                    <Form.Item label='金额(元)' name='billMoney'>
-                        <Input/>
-                    </Form.Item>
-                    <Form.Item label='账户收入/支出' name='money_type'>
-                        <Radio.Group>
-                            <Radio value={1}>支出</Radio>
-                            <Radio value={0}>收入</Radio>
-                        </Radio.Group>
-                    </Form.Item>
-                </Space>
-                <Space style={{display:'flex',margin:'20px'}}>
-                    <Form.Item label='账户名'>
-                        <Input style={{width:'200px'}} value={ccount_card} disabled/>
-                    </Form.Item>
-                    <Form.Item label='选择项目'>
-                        <Select value={project_id} disabled style={{width:'10vw'}}>
-                            {projectlist.map((item:any,index:any)=>{
-                                return(
-                                    <Select.Option value={item.value} key={index}>
-                                        {item.label}
-                                    </Select.Option>
-                                )
-                            })}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label='选择公司'>
-                        <Select value={company_id} disabled style={{width:'23vw'}}>
-                            {companyList.map((item:any,index:any)=>{
-                                return(
-                                    <Select.Option value={item.value} key={index}>
-                                        {item.label}
-                                    </Select.Option>
-                                )
-                            })}
-                        </Select>
-                    </Form.Item>
-                </Space>
-                <Space style={{display:'flex',margin:'20px'}}>
-                    <Form.Item label='选择科目' name='subject_id'>
-                        <Select showSearch
-                                style={{width:'23vw'}}
+        <Spin spinning={spinning}>
+            <div style={{display:'flex',justifyContent:'space-around'}}>
+                <Form
+                    // labelCol={{ span: 5 }}
+                    wrapperCol={{ span: 14 }}
+                    form={form}
+                    layout="horizontal"
+                    size={'large'}
+                    initialValues={{number:''}}
+                    onFinish={onFinish}
+                    style={{ marginTop: '1rem' }}
+                >
+                    <Space style={{display:'flex',margin:'20px'}}>
+                        <Form.Item label='账户' name='account_id' >
+                            <Select
+                                onChange={changeAccount}
+                                style={{width:'250px'}}
+                                showSearch
                                 optionFilterProp="children"
-                                onSearch={(value) => {
-                                    onSearchSbjValue(value)
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = accountList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                    return item?.account_name?.toLowerCase().includes(input.toLowerCase());
                                 }}
-                                filterOption={(input, option) =>
-                                    (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
-                                }
-                        >
-                            {subjList.map((item:any,index:any)=>{
-                                return(
-                                    <Select.Option value={item.value} key={index}>
-                                        {item.label}
-                                    </Select.Option>
-                                )
-                            })}
-                        </Select>
+                            >
+                                {accountList.map((item:any,index:any)=>{
+                                    return(
+                                        <Select.Option value={item.id} key={index}>
+                                            {item.account_name}
+                                        </Select.Option>
+                                    )
+                                })}
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label='账户类型'>
+                            <Radio.Group value={accountType} style={{display:'flex'}}>
+                                <Radio value={1} style={{width:'80px'}}>公账</Radio>
+                                <Radio value={0} style={{width:'80px'}}>私账</Radio>
+                            </Radio.Group>
+                        </Form.Item>
+                        <Form.Item label='金额(元)' name='billMoney' rules={[{required: true,message: '请输入金额'}]}>
+                            <InputNumber/>
+                        </Form.Item>
+                        <Form.Item label='账户收入/支出' name='money_type'>
+                            <Radio.Group>
+                                <Radio value={1}>支出</Radio>
+                                <Radio value={0}>收入</Radio>
+                            </Radio.Group>
+                        </Form.Item>
+                    </Space>
+                    <Space style={{display:'flex',margin:'20px'}}>
+                        <Form.Item label='账户名'>
+                            <Input style={{width:'200px'}} value={ccount_card} disabled/>
+                        </Form.Item>
+                        <Form.Item label='选择项目'>
+                            <Select value={project_id} disabled style={{width:'10vw'}}>
+                                {projectlist.map((item:any,index:any)=>{
+                                    return(
+                                        <Select.Option value={item.id} key={index}>
+                                            {item.project_name}
+                                        </Select.Option>
+                                    )
+                                })}
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label='选择公司'>
+                            <Select value={company_id} disabled style={{width:'23vw'}}>
+                                {companyList.map((item:any,index:any)=>{
+                                    return(
+                                        <Select.Option value={item.value} key={index}>
+                                            {item.label}
+                                        </Select.Option>
+                                    )
+                                })}
+                            </Select>
+                        </Form.Item>
+                    </Space>
+                    <Space style={{display:'flex',margin:'20px'}}>
+                        <Form.Item label='选择科目' name='subject_id'>
+                            <Select showSearch
+                                    style={{width:'23vw'}}
+                                    optionFilterProp="children"
+                                    onSearch={(value) => {
+                                        onSearchSbjValue(value)
+                                    }}
+                                    filterOption={(input, option) =>
+                                        (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+                                    }
+                            >
+                                {subjList.map((item:any,index:any)=>{
+                                    return(
+                                        <Select.Option value={item.value} key={index}>
+                                            {item.label}
+                                        </Select.Option>
+                                    )
+                                })}
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label='编号' name='number' >
+                            <Input style={{width:'10vw'}}/>
+                        </Form.Item>
+                        <Form.Item label='选择日期'>
+                            <DatePicker onChange={changeData} style={{width:'10vw'}} defaultValue={dayjs(billDate)}/>
+                        </Form.Item>
+                    </Space>
+                    <Form.Item label='摘要' name='billAbstract' rules={[{required: true,message: '请输入摘要'}]}>
+                        <Input.TextArea />
                     </Form.Item>
-                    <Form.Item label='编号' name='number'>
-                        <Input style={{width:'10vw'}}/>
+                    <Form.Item {...tailLayout}>
+                        <Button type="primary" htmlType="submit">
+                            添加
+                        </Button>
                     </Form.Item>
-                    <Form.Item label='选择日期'>
-                        <DatePicker onChange={changeData} style={{width:'10vw'}} defaultValue={dayjs(billDate)}/>
-                    </Form.Item>
-                </Space>
-                <Form.Item label='摘要' name='billAbstract' >
-                    <Input.TextArea />
-                </Form.Item>
-                <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
-                </Form.Item>
-            </Form>
-        </div>
+                </Form>
+            </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {
@@ -265,7 +276,6 @@ const mapStateToProps = (state: any) => {
         AccountList: state.Account.list,
         CompanList: state.Compan.list,
         ProjectList: state.Project.list,
-
     }
 };
 export default connect(mapStateToProps) (AddFinancialData)

@@ -2,6 +2,7 @@ import {Button, Form, Input, message, Radio, Select, Spin} from "antd";
 import {useEffect, useState} from "react";
 import {connect,history} from "umi";
 import {filterAndUpdateList} from "@/utils/OpenTool";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -10,19 +11,32 @@ const AddDevice=(props)=>{
     const [form] = Form.useForm();
     const [houseList,setHouseList]=useState([]);
     const onFinish=async (values)=>{
+        setIsLoading(true);
         props.dispatch({
             type:'Gate/add',
             payload:values
-        }).then((res)=>{
+        }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                message.success('添加成功')
-                history.push('/gateManage/device')
+                message.success('添加成功');
+                history.push('/gateManage/device');
+                setIsLoading(false);
+            }else{
+                message.error(res.Data)
+                setIsLoading(false);
             }
         })
     };
     useEffect(() => {
+        getHouseList();
         filterAndUpdateList(props.HouseList, 'house_name', 'id', setHouseList);
     }, []);
+    // 获取房屋列表
+    const getHouseList=()=>{
+        props.dispatch({
+            type:'House/fetch',
+        })
+    };
+
     return(
         <div>
             <Spin spinning={isLoading}>
@@ -46,10 +60,10 @@ const AddDevice=(props)=>{
                             })}
                         </Select>
                     </Form.Item>
-                    <Form.Item label='闸机编号' name='deviceSn'>
+                    <Form.Item label='闸机编号' name='deviceSn' rules={[{required: true, message: '请填写闸机编号'}]}>
                         <Input/>
                     </Form.Item>
-                    <Form.Item label='闸机地点' name='position'>
+                    <Form.Item label='闸机地点' name='position' rules={[{required: true, message: '请填写闸机地点'}]}>
                         <Input/>
                     </Form.Item>
                     <Form.Item {...tailLayout}>
@@ -64,6 +78,7 @@ const AddDevice=(props)=>{
 }
 const mapStateToProps = (state: any) => {
     return {
-        HouseList: state.House.list    }
+        HouseList: state.House.list
+    }
 };
 export default connect(mapStateToProps) (AddDevice)

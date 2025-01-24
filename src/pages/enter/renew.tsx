@@ -120,11 +120,7 @@ const Renew=(props:any)=>{
         <div>
             <List>
                 <List.Item>
-                    <div>
-                        <Button type="primary" onClick={toadd}>
-                            续租录入
-                        </Button>
-                    </div>
+
                     <Space>
                         <Input
                             addonBefore="原手机号:"

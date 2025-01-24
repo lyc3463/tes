@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
@@ -15,6 +15,8 @@ const InvoiceLookUp=(props:any)=>{
     const [did,setDid]=useState(0);
     // 删除的弹窗
     const [deleteOpen,setDeleteOpen]=useState(false);
+    // 删除的弹窗
+    const [spinning,setspinning]=useState(false);
     const columns =[
         {
             title: '日期',
@@ -43,11 +45,11 @@ const InvoiceLookUp=(props:any)=>{
             dataIndex: 'rise_name',
             key: 'rise_name',
         },
-        {
-            title: '税号',
-            dataIndex: 'duty_paragraph',
-            key: 'duty_paragraph',
-        },
+        // {
+        //     title: '税号',
+        //     dataIndex: 'duty_paragraph',
+        //     key: 'duty_paragraph',
+        // },
         {
             title: '状态',
             dataIndex: 'riseStatus',
@@ -66,7 +68,7 @@ const InvoiceLookUp=(props:any)=>{
                 return(
                    <Space>
                        {record.riseStatus==2?'':<Button type='primary' onClick={()=>check(record)}>审核通过</Button>}
-                       <Button type='primary'>编辑</Button>
+                       <Button type='primary' onClick={()=>toedit(record)}>编辑</Button>
                        <Button type='primary' danger onClick={()=>deleteClick(record)}>删除</Button>
                    </Space>
                 )
@@ -89,6 +91,7 @@ const InvoiceLookUp=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props);
     }, [page]);
     // 搜索
     const suosou=()=>{
@@ -106,6 +109,7 @@ const InvoiceLookUp=(props:any)=>{
     };
     // 确定审核通过
     const onCheckOK=()=>{
+        setspinning(true);
         props.dispatch({
             type:'InvoiceLookUp/check',
             payload:{uid}
@@ -113,31 +117,41 @@ const InvoiceLookUp=(props:any)=>{
             if (res.ErrorCode==0){
                 message.success('审核通过');
                 setCheckOpen(false);
+                setspinning(false);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setCheckOpen(false);
+                setspinning(false);
             }
         })
     };
     // 删除的弹窗
     const deleteClick=(e)=>{
         setDid(e.id);
-        setDeleteOpen(false)
+        setDeleteOpen(true);
     };
     const onDeleteOk=()=>{
+        setspinning(true);
         props.dispatch({
             type:'InvoiceLookUp/remove',
-            payload:{did}
+            payload:did
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('删除成功');
-                setCheckOpen(false);
+                setDeleteOpen(false);
+                setspinning(false);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setDeleteOpen(false);
+                setspinning(false);
             }
         })
     };
+    const toedit=(e)=>{
+        history.push(`/enter/editInvoiceLookUp?id=${e.id}`);
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -189,14 +203,14 @@ const InvoiceLookUp=(props:any)=>{
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         {/*    审核的弹窗*/}
-            <Modal onOk={onCheckOK} open={checkOpen} title={'审核通过'} onCancel={()=>setCheckOpen(false)}>
+            <Modal onOk={onCheckOK} open={checkOpen} title={'审核通过'} onCancel={()=>setCheckOpen(false)} loading={spinning}>
                 <div>确定审核通过吗?</div>
             </Modal>
             {/*    删除的弹窗*/}
-            <Modal onOk={onDeleteOk} open={deleteOpen} title={'删除抬头'} onCancel={()=>setDeleteOpen(false)}>
+            <Modal onOk={onDeleteOk} open={deleteOpen} title={'删除抬头'} onCancel={()=>setDeleteOpen(false)} loading={spinning}>
                 <div>确定要删除吗?</div>
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

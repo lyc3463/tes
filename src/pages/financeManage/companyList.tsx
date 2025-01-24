@@ -48,7 +48,6 @@ const CompanyList=(props:any)=>{
     const toaddCompany=()=>{
         history.push('/financeManage/addCompany')
     };
-
     const determineDelete=()=>{
         props.dispatch({
             type:'Compan/remove',

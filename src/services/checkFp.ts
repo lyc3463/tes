@@ -6,7 +6,7 @@ export function fenye(vals:any) {
     return getData(1385, [vals.startDate,vals.endDate,vals.stutes,vals.openId]);
 }
 export function check(vals:any) {
-    return getData(1386, [vals.uid,vals.stutes]);
+    return getData(1386, [vals.uid,vals.stutes=2]);
 }
 export function one(vals:any) {
     return getData(1383, [vals]);

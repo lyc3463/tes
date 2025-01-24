@@ -23,9 +23,28 @@ const Kehulist=(props:any)=>{
             }
         },
         {
+            title: '备注',
+            dataIndex: 'remark',
+            key: 'remark',
+            align:'center',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.remark}
+                    </div>
+                )
+            }
+        },
+        {
             title: '姓名',
             dataIndex: 'custom_name',
             key: 'custom_name',
+            align:'center',
+        },
+        {
+            title: '联系方式',
+            dataIndex: 'custom_phone',
+            key: 'custom_phone',
             align:'center',
         },
         {
@@ -33,17 +52,156 @@ const Kehulist=(props:any)=>{
             dataIndex: 'visitor_type',
             key: 'visitor_type',
             align:'center',
-        },
-        {
-            title: '访客职位',
-            dataIndex: 'visitor_position',
-            key: 'visitor_position',
-            align:'center',
+            render:(text:any,record:any,)=>{
+                let consumptionTypeText;
+                switch (record.visitor_type) {
+                    case 1:
+                        consumptionTypeText = <Tag color='cyan'>办公</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag color='green'>商业</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag color='red'>未知类型</Tag>;
+                }
+                return (
+                    consumptionTypeText
+                );
+            }
         },
         {
             title: '公司名称',
             dataIndex: 'company_name',
             key: 'company_name',
+            align:'center',
+
+        },
+
+        {
+            title: '来访渠道',
+            dataIndex: 'visitor_channels',
+            key: 'visitor_channels',
+            align:'center',
+            render:(text:any,record:any,)=>{
+                let consumptionTypeText;
+                switch (record.visitor_channels) {
+                    case 1:
+                        consumptionTypeText = <Tag color='cyan'>中介</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag color='green'>自来</Tag>;
+                        break;
+                    case 3:
+                        consumptionTypeText = <Tag color='gold'>全民营销</Tag>;
+                        break;
+                    case 4:
+                        consumptionTypeText = <Tag color='geekblue'>线上</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag color='red'>未知类型</Tag>;
+                }
+                return (
+                    consumptionTypeText
+                );
+            }
+        },
+        {
+            title: '租赁原因',
+            dataIndex: 'reason_lease',
+            key: 'reason_lease',
+            align:'center',
+            render:(text:any,record:any,)=>{
+                let consumptionTypeText;
+                switch (record.demands) {
+                    case 1:
+                        consumptionTypeText = <Tag color='gold'>首次经营</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag color='lime'>平迁</Tag>;
+                        break;
+                    case 3:
+                        consumptionTypeText = <Tag color='green'>合同到期</Tag>;
+                        break;
+                    case 4:
+                        consumptionTypeText = <Tag color='cyan'>扩大</Tag>;
+                        break;
+                    case 5:
+                        consumptionTypeText = <Tag color='magenta'>缩小</Tag>;
+                        break;
+                    case 6:
+                        consumptionTypeText = <Tag color='gold'>开设分点</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag color='red'>未知类型</Tag>;
+                }
+                return (
+                    consumptionTypeText
+                );
+            }
+        },
+        {
+            title: '产品需求',
+            dataIndex: 'demands',
+            key: 'demands',
+            align:'center',
+            render:(text:any,record:any,)=>{
+                let consumptionTypeText;
+                switch (record.demands) {
+                    case 1:
+                        consumptionTypeText = <Tag color='gold'>精装修</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag color='lime'>简装</Tag>;
+                        break;
+                    case 3:
+                        consumptionTypeText = <Tag color='green'>毛坯</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag color='red'>未知类型</Tag>;
+                }
+                return (
+                    consumptionTypeText
+                );
+            }
+        },
+        {
+            title: '需求面积',
+            dataIndex: 'required_area',
+            key: 'required_area',
+            align:'center',
+            render:(text:any,record:any,)=>{
+                let consumptionTypeText;
+                switch (record.required_area) {
+                    case 1:
+                        consumptionTypeText = <Tag color='magenta'>100以下</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag color='volcano'>101-200</Tag>;
+                        break;
+                    case 3:
+                        consumptionTypeText = <Tag color='orange'>201-350</Tag>;
+                        break;
+                    case 4:
+                        consumptionTypeText = <Tag color='gold'>351-500</Tag>;
+                        break;
+                    case 5:
+                        consumptionTypeText = <Tag color='lime'>501-1000</Tag>;
+                        break;
+                    case 6:
+                        consumptionTypeText = <Tag color='green'>1000以上</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag color='red'>未知类型</Tag>;
+                }
+                return (
+                    consumptionTypeText
+                );
+            }
+        },
+        {
+            title: '访客职位',
+            dataIndex: 'visitor_position',
+            key: 'visitor_position',
             align:'center',
         },
         {
@@ -53,45 +211,15 @@ const Kehulist=(props:any)=>{
             align:'center',
         },
         {
-            title: '来访渠道',
-            dataIndex: 'visitor_channels',
-            key: 'visitor_channels',
-            align:'center',
-        },
-        {
-            title: '中介名称',
-            dataIndex: 'intermediary_name',
-            key: 'intermediary_name',
-            align:'center',
-        },
-        {
             title: '目前办公区域',
             dataIndex: 'office_area',
             key: 'office_area',
             align:'center',
         },
         {
-            title: '租赁原因',
-            dataIndex: 'reason_lease',
-            key: 'reason_lease',
-            align:'center',
-        },
-        {
-            title: '产品需求',
-            dataIndex: 'demands',
-            key: 'demands',
-            align:'center',
-        },
-        {
-            title: '需求面积',
-            dataIndex: 'required_area',
-            key: 'required_area',
-            align:'center',
-        },
-        {
-            title: '备注',
-            dataIndex: 'remark',
-            key: 'remark',
+            title: '录入人',
+            dataIndex: 'user_name',
+            key: 'user_name',
             align:'center',
         },
         {
@@ -103,7 +231,9 @@ const Kehulist=(props:any)=>{
             width: 100,
             render:(text:any,record:any,)=>{
                 return(
-                    <div>{text}次</div>
+                    <div>
+                        {text}次
+                    </div>
                 )
             }
         },
@@ -128,7 +258,7 @@ const Kehulist=(props:any)=>{
             key: 'cao',
             fixed: 'right',
             align:'center',
-            width: 100,
+            width: 200,
             render:(text:any,record:any,)=>{
                 return(
                     <div>
@@ -181,6 +311,7 @@ const Kehulist=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('客户列表',props);
     }, [page]);
     return (
         <div>
@@ -217,7 +348,7 @@ const Kehulist=(props:any)=>{
             <Table
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
-                scroll={{x:2000}} pagination={false}
+                scroll={{x:2000,y:'65vh'}} pagination={false}
                 rowKey={(columns) => columns.id}
                 dataSource={props.CheckCompanyList}
                 size='small'

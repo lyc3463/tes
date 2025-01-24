@@ -1,87 +1,106 @@
-import {Table} from "antd";
+import {Button, Input, InputNumber, List, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
+import {connect,history} from "umi";
+import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import dayjs from "dayjs";
 
-const HouseBill=()=>{
+const HouseBill=(props:any)=>{
+    const [name,setName]=useState('');
+    const [phone,setPhone]=useState('');
+    const [page,setPage]=useState(1);
+    const [count,setcount]=useState(1);
+    useEffect(() => {
+        logFenye();
+        shousuo();
+    }, []);
+    useEffect(() => {
+    }, [page]);
+    // 分页
+    const logFenye=()=>{
+        props.dispatch({
+            type:"Zuhu/fetch",
+            payload:{page,name,phone}
+        })
+    };
+    // 搜索按钮
+    const shousuo=()=>{
+        setPage(1);
+        props.dispatch({
+            type:'Zuhu/fenye',
+            payload:{name,phone}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setcount(res.Data.count)
+            }
+        });
+        logFenye()
+    };
+    const onChange=(val:number)=>{
+        setPage(val)
+    };
     const columns =[
         {
-            title: '序号',
-            dataIndex: 'xuhao',
-            key: 'xuhao',
+            title: '租户姓名',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
         },
         {
-            title: '标签',
-            dataIndex: 'biaoqian',
-            key: 'biaoqian',
+            title: '联系方式',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
         },
         {
-            title: '租户名',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
-            title: '状态',
-            dataIndex: 'stutes',
-            key: 'stutes',
-            render:(text:any,record:any,)=>{
+            title: '操作',
+            dataIndex: 'caoz',
+            key: 'caoz',
+            render: (text:any, record:any) => {
                 return(
-                    <div>
-                        {record.stutes?<span style={{color:'green'}}>已交</span>:<span style={{color:'red'}}>未交</span>}
-                    </div>
+                    <Space>
+                        <Button type='link' onClick={()=>toinfo(record.id)}>详情</Button>
+                    </Space>
                 )
             }
-        },
-        {
-            title: '合同总租金(元)',
-            dataIndex: 'zujin',
-            key: 'zujin',
-        },
-        {
-            title: '合同已交租金(元)',
-            dataIndex: 'yijiao',
-            key: 'yijiao',
-        },
-        {
-            title: '优惠金额(元)',
-            dataIndex: 'youhui',
-            key: 'youhui',
-        },
-        {
-            title: '分期',
-            dataIndex: 'fenqi',
-            key: 'fenqi',
-        },
-        {
-            title: '管理费',
-            dataIndex: 'mianji',
-            key: 'mianji',
-        },
-        {
-            title: '当前缴费金额',
-            dataIndex: 'mianji',
-            key: 'mianji',
-        },
-        {
-            title: '下个月缴费金额',
-            dataIndex: 'fangwu',
-            key: 'fangwu',
-        },
-        {
-            title: '详情',
-            dataIndex: 'cao',
-            key: 'cao',
-            render:()=>{
-                return(
-                    <div>
-
-                    </div>
-                )
-            }
-        },
-    ]
-
+        }
+    ];
+    const toinfo=(e)=>{
+        history.push(`/houseManage/tennerBill?id=${e}`)
+    };
     return(
         <div>
-            <Table columns={columns} style={{border:'1px solid #ddd',borderRadius:'4px'}}pagination={false} scroll={{x:1500}}/>
+            <List>
+                <List.Item>
+                    <Space>
+                        <Input
+                            addonBefore="姓名:"
+                            onChange={(e)=>setName(e.target.value)}
+                        />
+                        <Input
+                            addonBefore="手机号:"
+                            onChange={(e)=>setPhone(e.target.value)}
+                        />
+                        <Button type="primary" onClick={shousuo}>
+                            搜索
+                        </Button>
+                    </Space>
+                </List.Item>
+            </List>
+            <Table
+                style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                columns={columns}
+                size='small'
+                rowKey={(columns) => columns.id}
+                dataSource={props.ZuhuList}
+                scroll={{x:1500}}
+                pagination={false}
+            />
+           <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
         </div>
     )
 }
-export default HouseBill
+const mapStateToProps = (state: any) => {
+    return {
+        ZuhuList: state.Zuhu.list,
+
+    }
+};
+export default connect(mapStateToProps) (HouseBill)

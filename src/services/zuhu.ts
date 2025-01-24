@@ -18,8 +18,26 @@ export function one(vals:any) {
     return getData(1153, [vals]);
 }
 export function byzhuhu(vals:any) {
-    return getData(1151, [vals.uid,vals.unit_id,vals.electricity_id,vals.water_id,vals.open_id,vals.item_id,vals.label_id=1,vals.reserved_amount,vals.warn_amount,vals.minimum_recharge,vals.is_deduction,vals.reamrk]);
+    return getData(1151, [vals.uid,vals.unit_id,vals.tenant_phone,vals.item_id,vals.label_id=1,vals.reserved_amount,vals.warn_amount,vals.minimum_recharge,vals.is_deduction,vals.reamrk,vals.tenantAmount]);
 }
 export function fenye(vals:any) {
     return getData(1155, [vals.name,vals.phone]);
+}
+export function byfetch(vals:any) {
+    return getData(1424, [vals.page,vals.name,vals.phone]);
+}
+export function byfenye(vals:any) {
+    return getData(1425, [vals.name,vals.phone]);
+}
+export function jiebang(vals:any) {
+    return getData(1423, [vals.page,vals.name,vals.phone]);
+}
+export function depoList(itemName:string,uid:string) {
+    return getData(1454, [itemName,uid]);
+}
+export function editAbloue(vals:any) {
+    return getData(1456, [vals.uid,vals.minimum_recharge]);
+}
+export function depoListFenye(itemName:string,uid:string) {
+    return getData(1455, [itemName,uid]);
 }

@@ -1,98 +1,177 @@
-import {Button, DatePicker, Input, List, Pagination, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Space, Table, Tag} from "antd";
 import {connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
+import * as CableService from '@/services/cable';
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const WaterJournaling=(props)=>{
     const [page,setpage]=useState(1);
-    const [collector_id,setcollector_id]=useState('');
-    const [tenantName,settenantName]=useState('');
-    const [startDate,setstartDate]=useState('2000-01-01');
-    const [endDate,setendDate]=useState('2099-01-01');
-    // 分页
-    const logFenye=()=>{
-        props.dispatch({
-            type:"Journaling/fetch",
-            payload:{page,collector_id,tenantName,startDate,endDate}
-        })
-    };
+    const [collectorId,setcollectorId]=useState('');
+    // 列表
+    const [dataSource,setdataSource]=useState([]);
+    // 租户名称
+    const [name,setName]=useState('');
+    // 电表描述
+    const [remark,setremark]=useState('');
+    // 页码
+    const [count,setcount]=useState(0);
+    // 当前电量统计
+    const [c0Sum,setc0Sum]=useState(0);
+    //  积累用电量统计
+    const [eleNumSum,seteleNumSum]=useState(0);
+    // 总累计消耗金额统计
+    const [lossTotal,setlossTotal]=useState(0);
+    // 租户累计损耗统计
+    const [lossSum,setlossSum]=useState(0);
+    // 租户当前损耗金额统计
+    const [lossCycleOut,setlossCycleOut]=useState(0);
     const columns =[
         {
-            title: '抄表时间',
-            dataIndex: 'recordTime',
-            key: 'recordTime',
-            render: (text:any, record:any) => {
-                return(
-                    <div>
-                        {dayjs(text).format('YYYY-MM-DD HH:mm:ss')}
-                    </div>
-                )
-            },
-        },
-        {
-            title: '采集器编号',
-            dataIndex: 'collector_id',
-            key: 'collector_id',
-        },
-        {
-            title: '通讯地址',
+            title: '电表地址',
             dataIndex: 'address',
             key: 'address',
+        },
+        {
+            title: '描述',
+            dataIndex: 'remark',
+            key: 'remark',
         },
         {
             title: '租户',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
-        },
-        {
-            title: '抄表前电量',
-            dataIndex: 'energyOld',
-            key: 'energyOld',
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {text}kWh
+                        {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span>{record.tenant_name}</span>}
                     </div>
                 )
             },
         },
         {
-            title: '抄表后电量',
-            dataIndex: 'energyNew',
-            key: 'energyNew',
+            title: '积累用电量',
+            dataIndex: 'eleNumSum',
+            key: 'eleNumSum',
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {text}kWh
+                        {record.eleNumSum}kWh
                     </div>
                 )
             },
-        }
+        },
+        {
+            title: '当前用电量',
+            dataIndex: 'c0',
+            key: 'c0',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {record.c0}kWh
+                    </div>
+                )
+            },
+        },
+        {
+            title: '总累计消耗金额',
+            dataIndex: 'lossTotal',
+            key: 'lossTotal',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {record.lossTotal}元
+                    </div>
+                )
+            },
+        },
+        {
+            title: '租户累计损耗',
+            dataIndex: 'lossSum',
+            key: 'lossSum',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {record.lossSum}元
+                    </div>
+                )
+            },
+        },
+        {
+            title: '损耗',
+            dataIndex: 'loss',
+            key: 'loss',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {record.loss}元每度
+                    </div>
+                )
+            },
+        },
+        {
+            title: '未交损耗度数',
+            dataIndex: 'lossCycleOut',
+            key: 'lossCycleOut',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {record.lossCycleOut}kwh
+                    </div>
+                )
+            },
+        },
+        {
+            title: '租户当前损耗金额',
+            dataIndex: 'lossCycleOut',
+            key: 'lossCycleOut',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {(record.lossCycleOut*record.loss).toFixed(3)}元
+                    </div>
+                )
+            },
+        },
     ];
-    // 监听日期
-    const changeDate=(_:any,data:string[])=>{
-        if (data.length === 2 && data[0] === '' && data[1] === '') {
-            setstartDate('2000-01-01');
-            setendDate('2099-01-01');
-        } else {
-            setstartDate(data[0]);
-            setendDate(data[1]);
-        }
+    // 获取电表报表列表
+    const getCableList=()=>{
+        CableService.fetch({page,collectorId,name,remark}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setdataSource(res.Data);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
+    // 获取分页信息
+    const getCableListFenye=()=>{
+        CableService.fenye({collectorId,name,remark}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setc0Sum(res.Data.c0Sum);
+                setcount(res.Data.count);
+                seteleNumSum(res.Data.eleNumSum);
+                setlossTotal(res.Data.lossTotal);
+                setlossSum(res.Data.lossSum);
+                setlossCycleOut(res.Data.lossCycleOut);
+            }else {
+                message.error(res.Data);
+            }
+        })
     };
     const sousuo=()=>{
         setpage(1);
-        props.dispatch({
-            type:"Journaling/fenye",
-            payload:{collector_id,tenantName,startDate,endDate}
-        })
-        logFenye();
+        getCableListFenye();
+        getCableList();
     };
     const onChange=(e)=>{
       setpage(e);
     };
     useEffect(() => {
-        logFenye();
-        console.log(props)
+        getCableListFenye();
+    }, []);
+    useEffect(() => {
+        getCableList();
     }, [page]);
     return(
         <div>
@@ -100,26 +179,17 @@ const WaterJournaling=(props)=>{
                 <List.Item>
                     <Space>
                         <Input
-                            addonBefore="采集器编号:"
-                            onChange={(e)=>setcollector_id(e.target.value)}
+                            addonBefore="电表地址:"
+                            onChange={(e)=>setcollectorId(e.target.value)}
                         />
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                日期:
-                            </div>
-                            <DatePicker.RangePicker showTime onChange={changeDate}/>
-                        </Space.Compact>
+                        <Input
+                            addonBefore="电表描述:"
+                            onChange={(e)=>setremark(e.target.value)}
+                        />
+                        <Input
+                            addonBefore="租户名称:"
+                            onChange={(e)=>setName(e.target.value)}
+                        />
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -129,23 +199,51 @@ const WaterJournaling=(props)=>{
             <Table
                 columns={columns}
                 rowKey={(columns) => columns.id}
-                dataSource={props.JournalingList}
+                dataSource={dataSource}
                 pagination={false}
                 size='small'
                 scroll={{y:'60vh'}}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}>
+                                {eleNumSum}kwh
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}>
+                                {c0Sum}kwh
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}>
+                                {lossTotal}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>
+                                {lossSum}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>
+                                {lossCycleOut}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-
+            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
         </div>
     )
 }
-const mapStateToProps = (state: any) => {
-    return {
-        JournalingList: state.Journaling.list,
-        count: state.Journaling.count,
-    }
-};
-export default connect(mapStateToProps) (WaterJournaling)
+
+export default connect() (WaterJournaling)

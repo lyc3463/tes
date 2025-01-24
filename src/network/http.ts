@@ -2,7 +2,7 @@ import { info_event } from '@/Event/EventEnum';
 import { EventMgr } from '@/Event/EventMgr';
 import { getSendStr } from './utils';
 import { StaticInfo } from '@/StaticInfo';
-import { createSearchParams } from 'umi';
+import {createSearchParams, history} from 'umi';
 import {message} from "antd";
 
 
@@ -22,10 +22,17 @@ export async function getData(ActionId: number, canshus: any[]) {
                     StaticInfo.userState = false;
                     sessionStorage.removeItem('userState')
                     EventMgr.event(info_event.cuowu9999, res.Data);
+                    setTimeout(()=>{
+                        location.pathname = '/login';
+                    },500)
                 }else if (res.ErrorCode==-1300){
                     message.error('账号已在其他地方登录，为了账户安全请修改密码')
-                }
-                else {
+                }else if (res.ErrorCode==-1201){
+                    message.error('登录信息验证错误，请重新登录');
+                    setTimeout(()=>{
+                        location.pathname = '/login';
+                    },500)
+                } else {
                     if (res.Data != null) {
                         EventMgr.event(info_event.Error, res.Data);
                     }
@@ -38,9 +45,12 @@ export async function getData(ActionId: number, canshus: any[]) {
     ).catch(() => {
         StaticInfo.userState = false;
         // EventMgr.event(info_event.ExitHttpLogin, '网络异常，请求超时，请重新登录');
+        setTimeout(()=>{
+            location.pathname = '/login';
+        },500)
         return {
             ErrorCode: 20001,
-            Data: '网络异常，请求超时'
+            Data: '网络异常，请求超时，请重新登录'
         }
     });
 }

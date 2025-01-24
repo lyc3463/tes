@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {Button, Image, Input, List, message, Modal, Space, Spin, Table, Tag} from "antd";
 import {connect,history} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {remove} from "@/services/wenjuan";
 
 const WenjuanList=(props)=>{
     const [loading, setLoading] = useState(false);
@@ -12,6 +13,10 @@ const WenjuanList=(props)=>{
     const [isOpen,setIsOpen]=useState(false);
     // 停用的弹窗
     const [isopenT,setisopenT]=useState(false);
+    // 删除的id
+    const [did,setDid]=useState(0);
+    // 删除的弹窗
+    const [dopen,setDopen]=useState(false);
     const toadd=()=>{
         history.push('/appletManage/addWenjuan');
     };
@@ -51,7 +56,7 @@ const WenjuanList=(props)=>{
             render: (_: any, record: any) => (
                 <Space>
                     {record.is_enable==0?<Button type='primary' onClick={()=>onOn(record.id)}>启用</Button>:<Button type='primary' onClick={()=>onoff(record.id)}>停用</Button>}
-                    <Button type='primary' danger>删除</Button>
+                    <Button type='primary' danger onClick={()=>inDel(record.id)}>删除</Button>
                     <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
                 </Space>
             ),
@@ -60,7 +65,10 @@ const WenjuanList=(props)=>{
     const onOn=(e:number)=>{
         setUid(e);
         setIsOpen(true);
-
+    };
+    const inDel=(e)=>{
+        setDid(e);
+        setDopen(true);
     };
     // 启用的协议
     const onOnoK=()=>{
@@ -102,6 +110,24 @@ const WenjuanList=(props)=>{
             }
         })
     };
+    // 确定删除的按钮
+    const onDok=()=>{
+      setLoading(true);
+      props.dispatch({
+          type:'Wenjuan/remove',
+          payload:did
+      }).then((res:TypeErrorCode)=>{
+          if (res.ErrorCode==0){
+              message.success('删除成功');
+              setLoading(false);
+              setDopen(false);
+          }else {
+              message.error(res.Data);
+              setLoading(false);
+              setDopen(false);
+          }
+      })
+    };
     return(
         <Spin spinning={loading}>
             <List>
@@ -137,6 +163,10 @@ const WenjuanList=(props)=>{
             {/*停用的弹窗*/}
             <Modal open={isopenT} onOk={onoffok} onCancel={()=>setisopenT(false)}>
                 是否要停用问卷
+            </Modal>
+        {/*    删除的弹窗*/}
+            <Modal open={dopen} onCancel={()=>setDopen(false)} onOk={onDok} loading={loading}>
+                是否要删除?
             </Modal>
         </Spin>
     )

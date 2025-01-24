@@ -17,7 +17,10 @@ export function add(vals:any) {
         vals.reason_lease,
         vals.demands,
         vals.required_area,
-        vals.remark
+        vals.remark,
+        vals.intermediary_company,
+        vals.intermediary_phone
+
     ]);
 }
 export function edit(vals:any) {
@@ -36,12 +39,14 @@ export function edit(vals:any) {
         vals.reason_lease,
         vals.demands,
         vals.required_area,
-        vals.remark
+        vals.remark,
+        vals.intermediary_company,
+        vals.intermediary_phone
     ]);
 }
 
 export function remove(vals:any) {
-    // return getData(1050, [vals]);
+    return getData(1125, [vals]);
 }
 export function one(vals:any) {
     return getData(1126, [vals]);

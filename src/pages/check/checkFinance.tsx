@@ -1,8 +1,9 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {processBills} from "@/utils/OpenTool";
 
 const CheckFinance=(props:any)=>{
     const [uid,setUid]=useState(0);
@@ -19,7 +20,10 @@ const CheckFinance=(props:any)=>{
     const [companyList,setCompanyList]=useState([]);
     const [subjList,setSubjList]=useState([]);
     const [projectlist,setProjectlist]=useState([]);
+    const [spinning,setspinning]=useState(false);
     const [account_card,setaccount_card]=useState('');
+    // 账单列表
+    const [billList,setBillList]=useState([]);
     // 一键审核弹窗
     const [allOpen,setAllOpen]=useState(false);
     const columns =[
@@ -138,7 +142,15 @@ const CheckFinance=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <Space>
-                        <span style={{fontWeight:700}}>{record.balance}</span><span>(元)</span>
+                        {/*{getRdc(record.balance)}*/}
+                        {
+                            record.bill_status==0?<>
+                                <span style={{fontWeight:700}}>{(record.accountBalance).toFixed(2)}</span><span>(元)</span>
+                            </>:<>
+                                <span style={{fontWeight:700}}>{(record.balance).toFixed(2)}</span><span>(元)</span>
+                            </>
+                        }
+
                     </Space>
                 )
             }
@@ -194,16 +206,20 @@ const CheckFinance=(props:any)=>{
     };
     // 确定审核提交
     const openOk=()=>{
+        setspinning(true);
         props.dispatch({
             type:'Bill/check',
             payload:uid,
         }).then((res:any)=>{
             if (res.ErrorCode==0){
+                setspinning(false);
                 message.success('审核通过');
                 setIsOpen(false);
+                logFenye();
             }else {
                 message.error(res.Data);
                 setIsOpen(false);
+                setspinning(false);
             }
         })
     };
@@ -225,6 +241,11 @@ const CheckFinance=(props:any)=>{
         props.dispatch({
             type:"Bill/fetch",
             payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let newdata=processBills(res.Data);
+                setBillList(res.Data);
+            }
         })
     };
     // 监听页数
@@ -289,7 +310,6 @@ const CheckFinance=(props:any)=>{
         getProjectList();
         getSubjectList();
         getCompanList();
-        console.log(props)
     }, []);
     // 监听公司id
     const changeCompany=(e:number)=>{
@@ -342,20 +362,24 @@ const CheckFinance=(props:any)=>{
     };
     // 确定一键审核
     const allOk=()=>{
-        // props.dispatch({
-        //     type:'Bill/allCheck',
-        // }).then((res:any)=>{
-        //     if (res.ErrorCode==0){
-        //         message.success('一键审核通过');
-        //         setAllOpen(false);
-        //     }else {
-        //         message.error(res.Data);
-        //         setAllOpen(false);
-        //     }
-        // })
+        setspinning(true);
+        props.dispatch({
+            type:'Bill/allCheck',
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('一键审核通过');
+                setAllOpen(false);
+                setspinning(false);
+                logFenye();
+            }else {
+                message.error(res.Data);
+                setAllOpen(false);
+                setspinning(false);
+            }
+        })
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -408,8 +432,15 @@ const CheckFinance=(props:any)=>{
                             <Select
                                 onChange={changeCompany}
                                 defaultValue={companyId}
-                                style={{ width: 120 }}
+                                style={{ width: 240 }}
                                 options={companyList}
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = companyList.find(unit => unit.value == option.value);
+                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
+                                }}
                             >
                             </Select>
                         </Space.Compact>
@@ -431,8 +462,15 @@ const CheckFinance=(props:any)=>{
                             <Select
                                 onChange={changeProject}
                                 defaultValue={projectId}
-                                style={{ width: 120 }}
+                                style={{ width: 240 }}
                                 options={projectlist}
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = projectlist.find(unit => unit.value == option.value);
+                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
+                                }}
                             >
                             </Select>
                         </Space.Compact>
@@ -454,8 +492,15 @@ const CheckFinance=(props:any)=>{
                             <Select
                                 onChange={changeSubject}
                                 defaultValue={subjectId}
-                                style={{ width: 120 }}
+                                style={{ width: 240 }}
                                 options={subjList}
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = subjList.find(unit => unit.value == option.value);
+                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
+                                }}
                             >
                             </Select>
                         </Space.Compact>
@@ -501,7 +546,7 @@ const CheckFinance=(props:any)=>{
                     size='small'
                     scroll={{y:'70vh'}}
                     rowKey={(columns) => columns.id}
-                    dataSource={props.BillList}
+                    dataSource={billList}
                     summary={(columns) => (
                       <Table.Summary fixed>
                         <Table.Summary.Row>
@@ -522,8 +567,10 @@ const CheckFinance=(props:any)=>{
                           </Table.Summary.Cell>
                           <Table.Summary.Cell index={0}>
                           </Table.Summary.Cell>
+                           <Table.Summary.Cell index={0}>
+                          </Table.Summary.Cell>
                           <Table.Summary.Cell
-                            index={7}
+                            index={8}
                           >
                               {props.count?props.count.moneySum:''}元
                           </Table.Summary.Cell>
@@ -533,16 +580,16 @@ const CheckFinance=(props:any)=>{
                 />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             {/*    审核通过弹窗*/}
-            <Modal open={isOpen} onOk={openOk} onCancel={()=>setIsOpen(false)}>
+            <Modal open={isOpen} onOk={openOk} onCancel={()=>setIsOpen(false)} loading={spinning}>
                 <div>
                     确定要审核通过吗？
                 </div>
             </Modal>
         {/*    一键审核弹窗*/}
-            <Modal open={allOpen} onOk={allOk} onCancel={()=>setAllOpen(false)}>
+            <Modal open={allOpen} onOk={allOk} onCancel={()=>setAllOpen(false)} loading={spinning}>
                 <div>是否一键审核？</div>
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

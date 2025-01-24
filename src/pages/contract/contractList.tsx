@@ -1,9 +1,9 @@
 import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
-import {connect} from 'umi'
-import {useEffect} from "react";
+import {connect,history} from 'umi'
+import {useEffect, useState} from "react";
 import dayjs from "dayjs";
-import {history} from "@@/core/history";
 const ContractList=(props:any)=>{
+    const [page,setPage]=useState(1);
     useEffect(() => {
         console.log(props)
     }, []);
@@ -20,12 +20,12 @@ const ContractList=(props:any)=>{
             key: 'customName',
             align:'center',
         },
-        {
-            title: '单元',
-            dataIndex: 'unitName',
-            key: 'unitName',
-            align:'center',
-        },
+        // {
+        //     title: '单元',
+        //     dataIndex: 'unitName',
+        //     key: 'unitName',
+        //     align:'center',
+        // },
         {
             title: '起租日',
             dataIndex: 'beginTime',
@@ -58,7 +58,7 @@ const ContractList=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        合同类型1
+                        {record.templateType==1?<Tag color='cyan'>定金合同</Tag>:<Tag color='purple'>正式合同</Tag>}
                     </div>
                 )
             }
@@ -80,7 +80,6 @@ const ContractList=(props:any)=>{
                     </div>
                 )
             }
-
         },
         // {
         //     title: '线上签合同',
@@ -110,7 +109,11 @@ const ContractList=(props:any)=>{
     ];
     const toInfo=(e:number)=>{
         history.push(`/check/contracteInfo?id=${e}`)
-    }
+    };
+    // 监听页数
+    const onChange=(e:number)=>{
+        setPage(e);
+    };
     return(
         <div>
             <List>
@@ -170,13 +173,14 @@ const ContractList=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            <Pagination/>
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
-        CheckHetongList: state.CheckHetong.list
+        CheckHetongList: state.CheckHetong.list,
+        count: state.CheckHetong.count
     }
 };
 export default connect(mapStateToProps) (ContractList)

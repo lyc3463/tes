@@ -32,6 +32,7 @@ export interface InvoiceLookUpInterface {
         fenye:Effect;
         check:Effect;
         remove:Effect;
+        edit:Effect;
     };
     reducers: {
         list: Reducer<TypeInvoiceLookUp[]>;
@@ -74,6 +75,12 @@ const InvoiceLookUpModel: InvoiceLookUpInterface = {
         },
         *remove({ payload, callback }, { call, put, take }): any {
             const result = yield call(InvoiceLookUpService.remove, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *edit({ payload, callback }, { call, put, take }): any {
+            const result = yield call(InvoiceLookUpService.edit, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result

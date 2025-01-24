@@ -16,6 +16,9 @@ let pl={
     name:'',
     startDate:'2000-01-01',
     endDate:'2099-01-01',
+    tenantId:0,
+    recordStatus:'扣费成功',
+    remark:''
 }
 
 export interface CableRateCountState {

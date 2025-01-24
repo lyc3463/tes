@@ -9,7 +9,7 @@ export function add(vals:any) {
 }
 
 export function edit(vals:any) {
-    // return getData(1146, [vals.uid,vals.item_name,vals.itemType,vals.item_interval,vals.deduction_method,vals.monthly_amount,vals.count_method,vals.price,vals.remark,vals.prepaidAmount]);
+    return getData(1176, [vals.uid,vals.house_id,vals.deviceSn,vals.position]);
 }
 
 export function remove(vals:any) {
@@ -17,10 +17,13 @@ export function remove(vals:any) {
 }
 
 export function one(vals:any) {
-    // return getData(1148, [vals]);
+    return getData(1178, [vals]);
 }
 export function fenye(vals:any) {
     return getData(1180, [vals.deviceSn]);
+}
+export function synchronous() {
+    return getData(1430, []);
 }
 
 

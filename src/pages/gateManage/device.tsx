@@ -11,13 +11,14 @@ import {
     Select,
     Space,
     Table,
+    Spin,
     Tag
 } from "antd";
 import  {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import * as TestService from '@/services/test';
 import MyQRCodeComponent from '@/components/Myqrcode';
-import {StaticInfo} from "@/StaticInfo"
+import {StaticInfo} from "@/StaticInfo";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const Device=(props)=>{
@@ -25,13 +26,15 @@ const Device=(props)=>{
     const [page,setPage]=useState(1);
     // 闸机编号
     const [deviceSn,setDeviceSn]=useState('');
-    // 二维码图片
-    const [img,setImg]=useState('');
     // 二维码弹窗
     const [open,setOpen]=useState(false);
     const [code,setCode]=useState('');
     const [timestamp,setTimestamp]=useState(0);
-    const [title,setTitle]=useState('')
+    const [title,setTitle]=useState('');
+    // 同步数据弹窗
+    const [synchronousOpen,setsynchronousOpen]=useState(false);
+    //转圈
+    const [spinning,setspinning]=useState(false);
     const columns = [
         {
             title: '闸机编号',
@@ -51,12 +54,25 @@ const Device=(props)=>{
             render: (text: any, record: any) => (
                 <Space>
                     <Button type='primary' onClick={()=>kaimen(record)}>开门</Button>
+                    <Button type='primary' onClick={()=>toedit(record)}>修改</Button>
+
                 </Space>
             ),
         },
     ];
+    // 添加闸机
     const toadd=()=>{
         history.push('/gateManage/addDevice');
+    };
+    // 修改闸机
+    const toedit=(record)=>{
+        history.push(`/gateManage/editdevice?id=${record.id}`);
+    };
+    // 同步数据弹窗
+    const synchronousData=()=>{
+        TestService.text().then((res:TypeErrorCode)=>{
+
+        })
     };
     // 生成二维码
     const onOK=()=>{
@@ -64,7 +80,7 @@ const Device=(props)=>{
         TestService.testQrCode(JSON.stringify(obj)).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setCode(res.Data);
-                setTitle('请截图或者拍照保留通行二维码')
+                setTitle('请截图或者拍照保留通行二维码');
             }else {
                 message.error(res.Data);
             }
@@ -80,7 +96,6 @@ const Device=(props)=>{
             }
         });
     };
-
     // 获取闸机列表
     const getGeteList=()=>{
       props.dispatch({
@@ -89,7 +104,7 @@ const Device=(props)=>{
       })
     };
     useEffect(() => {
-        getGeteList()
+        getGeteList();
     }, [page]);
     // 搜索
     const sousuo=()=>{
@@ -107,8 +122,24 @@ const Device=(props)=>{
         // 精确到秒的时间戳
         setTimestamp(Date.parse(item)/1000);
     };
+    const synchronousOK=()=>{
+      setspinning(true);
+      props.dispatch({
+          type:'Gate/synchronous',
+          payload:{}
+      }).then((res:TypeErrorCode)=>{
+          if (res.ErrorCode==0){
+              setspinning(false);
+              setsynchronousOpen(false);
+          }else {
+              message.error(res.Data);
+              setsynchronousOpen(false);
+              setspinning(false);
+          }
+      })
+    };
     return(
-        <div>
+        <Spin spinning={spinning} style={{zIndex:'10000'}}>
             <List>
                 <List.Item>
                     <Space>
@@ -118,6 +149,7 @@ const Device=(props)=>{
                         <Button type="primary" onClick={()=>setOpen(true)}>
                             生成访客二维码
                         </Button>
+                        {/*<Button type='primary' onClick={()=>synchronousData()} danger>测试</Button>*/}
                     </Space>
                     <Space>
                         <Input
@@ -142,13 +174,14 @@ const Device=(props)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-            <Modal title='访客二维码' onOk={onOK} open={open} onCancel={()=>setOpen(false)}>
+            {/*访客二维码*/}
+            <Modal title='访客二维码' onOk={onOK} open={open} onCancel={()=>setOpen(false)} loading={spinning}>
                 <Form>
                     <Form.Item label='选择到期时间' >
                         <DatePicker showTime onChange={changeDate}/>
                     </Form.Item>
                 </Form>
-                <div>
+                <div style={{textAlign:'center'}}>
                     {code?
                         <div>
                             <MyQRCodeComponent value={code}/>
@@ -157,7 +190,13 @@ const Device=(props)=>{
                         :''}
                 </div>
             </Modal>
-        </div>
+            {/*  同步闸机数据弹窗  */}
+            <Modal title='同步数据' onOk={synchronousOK} open={synchronousOpen} onCancel={()=>setsynchronousOpen(false)}>
+                <div>
+                    确定要同步数据吗？
+                </div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

@@ -1,105 +1,183 @@
-import {Button, Image, Input, List, Pagination, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
 import {connect,history} from "umi";
 import AppUserType from '@/ModelTypes/TypeAppUser'
 import {useEffect, useState} from "react";
+import dayjs from "dayjs";
 const ManualRecharge=(props)=>{
-    const [uid,setUid]=useState<number|undefined>();
     const [page,setPage]=useState(1);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    // 状态 0全部，1未审核，2审核通过
+    const [stutes,setStutes]=useState(0);
+    // 开始时间
+    const [startDate,setStartDate]=useState('2000-01-01');
+    // 结束时间
+    const [endDate,setEndDate]=useState('2099-01-01');
+
     const columns =[
         {
-            title: '微信呢称',
+            title: '充值时间',
+            dataIndex: 'created',
+            key: 'created',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {dayjs(record.created).format("YYYY-MM-DD")}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '微信头像',
+            dataIndex: 'appUser_image',
+            key: 'appUser_image',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        <Image src={record.appUser_image} style={{width:'50px',height:'50px'}}/>
+                    </div>
+                )
+            }
+        },
+        {
+            title: '联系方式',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
+        },
+        {
+            title: '微信昵称',
             dataIndex: 'appUser_name',
             key: 'appUser_name',
         },
         {
-            title: '微信号',
-            dataIndex: 'appUser_account',
-            key: 'appUser_account',
+            title: '公司名称',
+            dataIndex: 'tenantCompany',
+            key: 'tenantCompany',
         },
         {
-            title: '用户手机号',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
-        },
-        {
-            title: '余额',
-            dataIndex: 'appUser_balance',
-            key: 'appUser_balance',
-        },
-        {
-            title: '积分',
-            dataIndex: 'appUser_integral',
-            key: 'appUser_integral',
-        },
-        {
-            title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
+            title: '充值类型',
+            dataIndex: 'handType',
+            key: 'handType',
             render:(text:any,record:any,)=>{
                 return(
-                    <Space>
-                        <Button type='primary' onClick={()=>{addjifen(record.id)}}>手动充值积分</Button>
-                        <Button type='primary'>手动充值余额</Button>
-                    </Space>
+                    <div>
+                        {record.handType==1?<Tag color="red">金额</Tag>:<Tag color="green">积分</Tag>}
+                    </div>
                 )
             }
         },
+        {
+            title: '充值金额/积分',
+            dataIndex: 'handAmount',
+            key: 'handAmount',
+        },
+        {
+            title: '状态',
+            dataIndex: 'handStatus',
+            key: 'handStatus',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.handStatus==2?<Tag color="green">已审核</Tag>:<Tag color="red">未审核</Tag>}
+                    </div>
+                )
+            }
+        },
+
     ];
-    const addjifen=(e:AppUserType)=>{
-        setUid(e.id);
-    };
-    // 监听手机号
-    const changePhone=(e)=>{
-        setPhone(e.target.value)
-    };
-    // 监听名字
-    const changeName=(e)=>{
-        setName(e.target.value)
-    };
     // 搜索按钮
     const shousuo=()=>{
         setPage(1);
         props.dispatch({
-            type:'AppUser/fetch',
-            payload:{page,name,phone}
+            type:'ManualRecharge/fenye',
+            payload:{startDate,endDate,stutes}
         });
         logFenye()
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
-            type:"AppUser/fetch",
-            payload:{page,name,phone}
+            type:"ManualRecharge/fetch",
+            payload:{page,startDate,endDate,stutes}
         })
     };
     // 监听页数
     const onChange=(page)=>{
         setPage(page);
-        logFenye();
+
     };
     useEffect(() => {
+        logFenye();
+        console.log('手动充值记录',props)
     }, [page]);
     const toadd=()=>{
       history.push('/billLog/addChongzhi')
     };
+    // 时间选择
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+        }
+    };
+    // 监听状态
+    const changeStutes=(e:number)=>{
+        setStutes(e);
+    };
     return(
         <div>
-            <List style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
+            <List>
                 <List.Item>
                     <div>
-                        <Button type='primary' onClick={toadd}>去充值</Button>
+                        <Button type="primary" onClick={toadd}>
+                            去充值
+                        </Button>
                     </div>
                     <Space>
-                        <Input
-                            addonBefore="手机号:"
-                            onChange={changePhone}
-                        />
-                        <Input
-                            addonBefore="姓名:"
-                            onChange={changeName}
-                        />
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                日期:
+                            </div>
+                            <DatePicker.RangePicker onChange={changeDate}/>
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={changeStutes}
+                                defaultValue={stutes}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '未审核' },
+                                    { value:2, label: '已审核' },
+                                ]}
+                            />
+                        </Space.Compact>
                         <Button type="primary" onClick={shousuo}>
                             搜索
                         </Button>

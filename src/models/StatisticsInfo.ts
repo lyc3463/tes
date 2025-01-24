@@ -18,7 +18,8 @@ let pl={
     cid:'',
     name:'',
     startDate:dayjs(startOfDay).format("YYYY-MM-DD HH:mm:ss"),
-    endDate:dayjs(endOfDay).format("YYYY-MM-DD HH:mm:ss")
+    endDate:dayjs(endOfDay).format("YYYY-MM-DD HH:mm:ss"),
+    tenantId:0
 }
 export interface StatisticsInfoCountState {
     count: number;

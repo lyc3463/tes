@@ -10,11 +10,14 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import UnitType from '@/ModelTypes/TypeNuit';
 import { fixPathname } from '@/utils/common';
+import {remove} from "@/services/unit";
 let pl = {
     page:1,
     name: '',
     beginRents:0,
-    endRents:9999999999
+    endRents:9999999999,
+    status:0,
+    house_id:0
 };
 
 export interface NuitCountState {
@@ -55,6 +58,7 @@ const UnitModel: UnitInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.Unit.list);
@@ -77,15 +81,11 @@ const UnitModel: UnitInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload }, { call, put }): any {
+        *remove({ payload }, { call, put ,take}): any {
             const result = yield call(UnitService.remove, payload);
-            if (result.status !== 'ok') {
-                alert('cuowu');
-            }
             yield put({ type: 'fetch', payload: pl });
-            UmiHistorty.replace({
-                pathname: '../user/list',
-            });
+            yield take('fetch/@@end');
+            return result
         },
         *fetchFenye({ type, payload }, { put, call, select }): any {
             const res = yield call(UnitService.fetchFenye, payload?payload:pl);

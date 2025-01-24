@@ -1,6 +1,6 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    return getData(1143, [vals.cname,vals.priceType]);
+    return getData(1143, [vals.cname,vals.priceType,vals.we_type]);
 }
 
 export function add(vals:any) {
@@ -74,7 +74,7 @@ export function edit(vals:any) {
 }
 
 export function remove(vals:any) {
-    // return getData(1032, [vals]);
+    return getData(1142, [vals]);
 }
 
 export function one(vals:string) {

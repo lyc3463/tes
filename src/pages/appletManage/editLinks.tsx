@@ -77,7 +77,7 @@ const EditLinks=(props:any)=>{
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
-                        添加
+                        编辑
                     </Button>
                 </Form.Item>
             </Form>

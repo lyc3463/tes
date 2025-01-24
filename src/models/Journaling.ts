@@ -51,6 +51,7 @@ const JournalingModel: JournalingInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(JournalingService.fenye,payload?payload: pl);
@@ -91,7 +92,7 @@ const JournalingModel: JournalingInterface = {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
 
-                if (StaticInfo.userId > 0 && pathname === '/waterCableTrade/waterJournaling') {
+                if (StaticInfo.userId > 0 && pathname === '/waterCableTrade/waterJournaling/') {
                     dispatch({
                         type: 'fenye',
                         payload: location.state,

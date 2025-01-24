@@ -12,7 +12,8 @@ import CableParameterType from '@/ModelTypes/TypeCableParameter';
 import { fixPathname } from '@/utils/common';
 let pl={
     cname:'',
-    priceType:0
+    priceType:0,
+    we_type:0
 }
 
 export interface CableParameterCountState {
@@ -49,7 +50,6 @@ const CableParameterModels: CableParameterInterface = {
             //   GongsiService.fetchcount,
             //   _.omit(pl, ['page']),
             // );
-            console.log(res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -58,6 +58,7 @@ const CableParameterModels: CableParameterInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.Cable.list);
@@ -80,15 +81,11 @@ const CableParameterModels: CableParameterInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload }, { call, put }): any {
+        *remove({ payload }, { call, put,take }): any {
             const result = yield call(CableParameterService.remove, payload);
-            if (result.status !== 'ok') {
-                alert('cuowu');
-            }
-            yield put({ type: 'fetch', payload: { page: 1 } });
-            UmiHistorty.replace({
-                pathname: '../user/list',
-            });
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
         *sousuo({ type, payload }, { put, call, select }): any {
             const res = yield call(CableParameterService.fetch,payload);

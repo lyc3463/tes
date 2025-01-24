@@ -63,7 +63,6 @@ const TravelRecord=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log(props)
     }, [page]);
     const onChange=(e)=>{
       setPage(e)

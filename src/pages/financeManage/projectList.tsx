@@ -3,17 +3,21 @@ import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import * as ProjectService from '@/services/project';
 import {getContainInfo, remove} from "@/services/project";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const ProjectList=(props:any)=>{
     // 删除的弹窗
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
-    // 展示当前项目下包含的科目
-    const [iskemuList,setiskemuList]=useState([]);
     // 展示当前项目下包含的账户
     const [iszhList,setiszhList]=useState([]);
     // 需要删除的id
     const [uid,setUid]=useState();
+    // 项目名字
     const [name,setName]=useState('');
+    // 公司id
+    const [companyId,setCompanyId]=useState(0);
+    // 公司列表
+    const [companyList,setCompanyList]=useState([]);
     const columns =[
         {
             title: '项目名称',
@@ -45,7 +49,7 @@ const ProjectList=(props:any)=>{
         setUid(e);
         let res:any=await ProjectService.getContainInfo(e)
         if (res?.ErrorCode==0){
-            console.log("res",res)
+            console.log("res",res);
             setIsDeleteOpen(true)
             // setiskemuList(res.Data)
             setiszhList(res.Data)
@@ -69,8 +73,6 @@ const ProjectList=(props:any)=>{
                 }
             })
         }
-
-
     };
     const toProject=()=>{
         history.push('/financeManage/addProject')
@@ -81,14 +83,42 @@ const ProjectList=(props:any)=>{
     const getList=()=>{
         props.dispatch({
             type:'Project/fetch',
-            payload:{name}
+            payload:{name,companyId}
         })
     };
     useEffect(() => {
         getList();
+        getCompanList();
     }, []);
     const sousuo=()=>{
-        getList()
+        getList();
+    };
+    // 监听公司id
+    const changeCompany=(e:number)=>{
+        setCompanyId(e);
+    };
+    // 公司拼接
+    const conterCompay=(item)=>{
+        let oldarr=[ {label:'全部',value:0}];
+        let newarr=item.map((item:any)=>{
+            return {
+                label:item.company_name,
+                value:item.id
+            }
+        });
+        setCompanyList(oldarr.concat(newarr));
+    };
+    // 获取公司列表
+    const getCompanList=()=>{
+        props.dispatch({
+            type:'Compan/fetch',
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                conterCompay(res.Data)
+            }else {
+                conterCompay([])
+            }
+        })
     };
     return(
         <div>
@@ -104,7 +134,36 @@ const ProjectList=(props:any)=>{
                             addonBefore="项目名称:"
                             onChange={(e)=>setName(e.target.value)}
                         />
-
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                公司:
+                            </div>
+                            <Select
+                                onChange={changeCompany}
+                                defaultValue={companyId}
+                                style={{ width: 240 }}
+                                options={companyList}
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = companyList.find(unit => unit.value == option.value);
+                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
+                                }}
+                            >
+                            </Select>
+                        </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>

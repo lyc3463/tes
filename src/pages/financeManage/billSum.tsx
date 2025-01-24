@@ -7,17 +7,29 @@ import {exportDataToExcel} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const BillSum=(props:any)=>{
     const [page,setPage]=useState(1);
+    // 账单编号
     const [billAbstract,setBillAbstract]=useState('');
+    // 开始时间
     const [billBgeinTime,setBillBgeinTime]=useState('2000-01-01');
+    // 结束时间
     const [billEndTime,setBillEndTime]=useState('2099-01-01');
+    // 账单状态 0 未审核 1已审核 2全查
     const [billStatus,setBillStatus]=useState(1);
+    // 账单类型   1支出 0收入 2全部
     const [billMoneyType,setBillMoneyType]=useState(2);
+    // 公司id
     const [companyId,setCompanyId]=useState(0);
+    // 项目id
     const [projectId,setProjectId]=useState(0);
+    // 科目id
     const [subjectId,setSubjectId]=useState(0);
+    // 公司列表
     const [companyList,setCompanyList]=useState([]);
+    // 科目项目
     const [subjList,setSubjList]=useState([]);
+    // 项目列表
     const [projectlist,setProjectlist]=useState([]);
+    // 账户卡号
     const [account_card,setaccount_card]=useState('');
     const columns =[
         {
@@ -32,7 +44,6 @@ const BillSum=(props:any)=>{
                 )
             }
         },
-
         {
             title: '摘要',
             dataIndex: 'billAbstract',
@@ -136,7 +147,7 @@ const BillSum=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <Space>
-                        <span style={{fontWeight:700}}>{record.balance}</span><span>(元)</span>
+                        <span style={{fontWeight:700}}>{(record.balance).toFixed(2)}</span><span>(元)</span>
                     </Space>
                 )
             }
@@ -193,7 +204,6 @@ const BillSum=(props:any)=>{
         getProjectList();
         getSubjectList();
         getCompanList();
-        console.log("详情信息",props)
     }, [page]);
     const onChange=(e)=>{
       setPage(e);
@@ -238,7 +248,7 @@ const BillSum=(props:any)=>{
             type:'Compan/fetch',
         }).then((res:TypeErrorCode)=>{
            if (res.ErrorCode==0){
-               conterCompay(res.Data)
+               conterCompay(res.Data);
            }else {
                conterCompay([])
            }
@@ -248,6 +258,19 @@ const BillSum=(props:any)=>{
     const getProjectList=()=>{
         props.dispatch({
             type:'Project/fetch',
+            payload:{name:'',companyId}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                conterproject(res.Data);
+            }else {
+                conterproject([]);
+            }
+        });
+    };
+    const ChangeProjectList=(e:number)=>{
+        props.dispatch({
+            type:'Project/fetch',
+            payload:{name:'',companyId:e}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 conterproject(res.Data);
@@ -271,6 +294,7 @@ const BillSum=(props:any)=>{
     // 监听公司id
     const changeCompany=(e:number)=>{
         setCompanyId(e);
+        ChangeProjectList(e);
     };
     // 监听项目id
     const changeProject=(e:number)=>{
@@ -349,7 +373,6 @@ const BillSum=(props:any)=>{
                 </List.Item>
                 <List.Item>
                     <Space>
-
                         <Space.Compact>
                             <div
                                 style={{
@@ -368,8 +391,15 @@ const BillSum=(props:any)=>{
                             <Select
                                 onChange={changeCompany}
                                 defaultValue={companyId}
-                                style={{ width: 120 }}
+                                style={{ width: 240 }}
                                 options={companyList}
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = companyList.find(unit => unit.value == option.value);
+                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
+                                }}
                             >
                             </Select>
                         </Space.Compact>
@@ -391,8 +421,15 @@ const BillSum=(props:any)=>{
                             <Select
                                 onChange={changeProject}
                                 defaultValue={projectId}
-                                style={{ width: 120 }}
+                                style={{ width: 240 }}
                                 options={projectlist}
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = projectlist.find(unit => unit.value == option.value);
+                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
+                                }}
                             >
                             </Select>
                         </Space.Compact>
@@ -414,8 +451,15 @@ const BillSum=(props:any)=>{
                             <Select
                                 onChange={changeSubject}
                                 defaultValue={subjectId}
-                                style={{ width: 120 }}
+                                style={{ width: 240 }}
                                 options={subjList}
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = subjList.find(unit => unit.value == option.value);
+                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
+                                }}
                             >
                             </Select>
                         </Space.Compact>
@@ -468,6 +512,8 @@ const BillSum=(props:any)=>{
                                 index={1}
                             >
                                 统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>

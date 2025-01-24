@@ -1,106 +1,45 @@
-import {Button, DatePicker, Input, List, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, Pagination, Space, Table, Tabs, Tag} from "antd";
 import {connect} from "umi";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
+import dayjs from "dayjs";
+import ZuList from "@/pages/billLog/zuList";
+import AllList from "@/pages/billLog/allList";
+import ServerList from "@/pages/billLog/serverList";
+import CableKoufeiList from "@/pages/billLog/cableKoufeiList";
+import WaterKoufeiList from "@/pages/billLog/waterKoufeiList";
 
 const MonthlyBill=(props:any)=>{
-    useEffect(() => {
-        console.log(props)
-    }, []);
-    const columns =[
-        {
-            title: '日期',
-            dataIndex: 'data',
-            key: 'data',
-        },
-        {
-            title: '交租日期',
-            dataIndex: 'jiaozuData',
-            key: 'jiaozuData',
-        },
-        {
-            title: '姓名',
-            dataIndex: 'fuzeren',
-            key: 'fuzeren',
-        },
-        {
-            title: '类型',
-            dataIndex: 'type',
-            key: 'type',
-        },
-        {
-            title: '缴费金额(元)',
-            dataIndex: 'zujin',
-            key: 'zujin',
-        },
-        {
-            title: '违约金(元)',
-            dataIndex: 'zujin',
-            key: 'zujin',
-        },
-        {
-            title: '已交金额(元)',
-            dataIndex: 'zujin',
-            key: 'zujin',
-        },
-        {
-            title: '操作',
-            dataIndex: '',
-            key: '',
-            render:(text:any)=>{
-                return(
-                    <div>
-                        <a style={{marginRight:'10px'}}>详情</a>
-                    </div>
-                )
-            }
-        },
-    ];
+    const [activeKey, setActiveKey] = useState(sessionStorage.getItem('zdActive') || '1');
+    const onChange = (key) => {
+        setActiveKey(key);
+        sessionStorage.setItem('zdActive', key);
+    };
     return(
         <div>
-            <List>
-                <List.Item>
-                    <Space>
-                        <Input
-                            addonBefore="租户姓名:"
-                        />
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                日期:
-                            </div>
-                            <DatePicker.RangePicker />
-                        </Space.Compact>
-                        <Button type="primary">
-                            搜索
-                        </Button>
-                    </Space>
-                </List.Item>
-            </List>
-            <Table
-                columns={columns}
-                rowKey={(columns) => columns.id}
-                size='small'
-                pagination={false}
-                rowClassName={(record, index) =>
-                    index % 2 === 1 ? 'tbodd' : 'tbeven'
-                }
-            />
+            <Tabs activeKey={activeKey} onChange={onChange}>
+                <Tabs.TabPane tab='租金/管理费' key='1'>
+                    <ZuList/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='公共缴费' key='2'>
+                    <AllList/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='服务费' key='3'>
+                    <ServerList/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='电费账单' key='4'>
+                    <CableKoufeiList/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='水费账单' key='5'>
+                    <WaterKoufeiList/>
+                </Tabs.TabPane>
+            </Tabs>
         </div>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
-        MonthlyBillList: state.MonthlyBill.list
+        MonthlyBillList: state.MonthlyBill.list,
+        count: state.MonthlyBill.count,
     }
 };
 export default connect(mapStateToProps) (MonthlyBill)

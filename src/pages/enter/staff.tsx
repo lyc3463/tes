@@ -9,7 +9,7 @@ const Staff=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     // 审核状态 0全部  1未审核 2已审核
-    const [contractStatus,setContractStatus]=useState(0);
+    const [contractStatus,setContractStatus]=useState(1);
     // 合同编号
     const [identifier,setIdentifier]=useState('');
     // 合同类型
@@ -18,30 +18,30 @@ const Staff=(props:any)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
+    // 租户姓名
+    const [name,setName]=useState('');
     const columns =[
         {
             title: '合同编号',
             dataIndex: 'identifier',
             key: 'identifier',
-            align:'center',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.identifier}
+                    </div>
+                )
+            }
         },
         {
             title: '租户',
             dataIndex: 'customName',
             key: 'customName',
-            align:'center',
-        },
-        {
-            title: '单元',
-            dataIndex: 'unitName',
-            key: 'unitName',
-            align:'center',
         },
         {
             title: '起租日',
             dataIndex: 'beginTime',
             key: 'beginTime',
-            align:'center',
             render: (text:any, record:any) => {
                 return(
                     <div>
@@ -51,16 +51,29 @@ const Staff=(props:any)=>{
             }
         },
         {
-            title: '租金',
+            title: '租金(元)',
             dataIndex: 'zuMoney',
             key: 'zuMoney',
-            align:'center',
         },
         {
-            title: '押金',
+            title: '合同押金(元)',
             dataIndex: 'deposit',
             key: 'deposit',
-            align:'center',
+        },
+        {
+            title: '管理费(元)',
+            dataIndex: 'manageFee',
+            key: 'manageFee',
+        },
+        {
+            title: '预付费(元)',
+            dataIndex: 'prepayment',
+            key: 'prepayment',
+        },
+        {
+            title: '管理费押金(元)',
+            dataIndex: 'depositFee',
+            key: 'depositFee',
         },
         {
             title: '合同类型',
@@ -74,16 +87,10 @@ const Staff=(props:any)=>{
                 )
             }
         },
-        // {
-        //     title: '免租期',
-        //     dataIndex: 'mianzu',
-        //     key: 'mianzu',
-        // },
         {
             title: '状态',
             dataIndex: 'contractStatus',
             key: 'contractStatus',
-            align:'center',
             render: (text:any, record:any) => {
                 return(
                     <div>
@@ -93,23 +100,22 @@ const Staff=(props:any)=>{
             }
 
         },
-        // {
-        //     title: '线上签合同',
-        //     dataIndex: 'xianshang',
-        //     key: 'xianshang',
-        //
-        // },
-        // {
-        //     title: '线下签合同',
-        //     dataIndex: 'xianxia',
-        //     key: 'xianxia',
-        //
-        // },
+        {
+            title: '下载',
+            dataIndex: 'zuMoney',
+            key: 'zuMoney',
+            render: (text:any, record:any) => {
+                return(
+                    <Space>
+                        <Button type='link' onClick={()=>{toxiazai(record)}}>下载</Button>
+                    </Space>
+                )
+            }
+        },
         {
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',
-            align:'center',
             render: (text:any, record:any) => {
                 return(
                     <Space>
@@ -117,8 +123,11 @@ const Staff=(props:any)=>{
                             <>
                                 <Button type='link' onClick={()=>toedit(record)}>编辑</Button>
                                 <Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>
-                            </>:''}
-                        {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
+                                <Button type='link' onClick={()=>toInfo(record)}>详情</Button>
+                            </>:
+                            <Button type='link' onClick={()=>{toxiazai(record)}}>详情</Button>
+                        }
+
                     </Space>
                 )
             }
@@ -128,8 +137,13 @@ const Staff=(props:any)=>{
         history.push('/enter/addStaff/');
     };
     // 去详情页面
-    const toInfo=(e:number)=>{
-        history.push(`/check/contracteInfo?id=${e}`);
+    const toInfo=(e:any)=>{
+        if (e.templateType==1){
+            history.push(`/check/dingjinInfo?id=${e.id}`);
+        }else if (e.templateType==2){
+            history.push(`/check/contracteInfo?id=${e.id}`);
+        }
+        // history.push(`/check/contracteInfo?id=${e}`);
     };
     // 编辑
     const toedit=(e:any)=>{
@@ -158,32 +172,36 @@ const Staff=(props:any)=>{
             }
         })
     };
+    // 分页信息
+    const getListFenye=()=>{
+        props.dispatch({
+            type:'Staff/fenye',
+            payload:{identifier,contractType,contractStatus,startDate,endDate,name}
+        });
+    };
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'Staff/fenye',
-            payload:{identifier,contractType,contractStatus,startDate,endDate}
-        });
+        getListFenye();
         logFenye();
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"Staff/fetch",
-            payload:{page,identifier,contractType,contractStatus,startDate,endDate}
+            payload:{page,identifier,contractType,contractStatus,startDate,endDate,name}
         })
     };
     // 监听页数
     const onChange=(e:number)=>{
         setPage(e);
     };
-    // 监听状态
-    const changeStutes=(e:number)=>{
-        setContractStatus(e);
-    };
+    useEffect(() => {
+        getListFenye();
+    }, []);
     useEffect(() => {
         logFenye();
+        console.log("props",props);
     }, [page]);
     // 监听合同编号
     const changeIdentifier=(e)=>{
@@ -203,6 +221,18 @@ const Staff=(props:any)=>{
             setEndDate(data[1]);
         }
     };
+    // 下载页面
+    const toxiazai=(e)=>{
+        if (e.contractStatus==1&&e.templateType==1){
+            history.push(`/check/nocheckDJcontractez?id=${e.id}`);
+        }else if (e.contractStatus==1&&e.templateType==2){
+            history.push(`/check/nocheckZScontractez?id=${e.id}`);
+        } else if (e.templateType==2){
+            history.push(`/check/contractez?id=${e.id}`);
+        }else {
+            history.push(`/check/checkdingjin?id=${e.id}`);
+        }
+    };
     return(
         <div>
             <List>
@@ -216,6 +246,10 @@ const Staff=(props:any)=>{
                         <Input
                             onChange={changeIdentifier}
                             addonBefore="合同编号:"
+                        />
+                        <Input
+                            onChange={(e)=>setName(e.target.value)}
+                            addonBefore="租户姓名:"
                         />
                         <Space.Compact>
                             <div
@@ -261,32 +295,32 @@ const Staff=(props:any)=>{
                         {/*        ]}*/}
                         {/*    />*/}
                         {/*</Space.Compact>*/}
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                状态:
-                            </div>
-                            <Select
-                                onChange={changeStutes}
-                                defaultValue={contractStatus}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value:0, label: '全部' },
-                                    { value:1, label: '未审核' },
-                                    { value:2, label: '已审核' },
-                                ]}
-                            />
-                        </Space.Compact>
+                        {/*<Space.Compact>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            borderStartEndRadius: 0,*/}
+                        {/*            borderEndEndRadius: 0,*/}
+                        {/*            padding: '0 11px',*/}
+                        {/*            border: '1px solid #d9d9d9',*/}
+                        {/*            display: 'flex',*/}
+                        {/*            alignItems: 'center',*/}
+                        {/*            borderInlineEnd: 0,*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        状态:*/}
+                        {/*    </div>*/}
+                        {/*    <Select*/}
+                        {/*        onChange={changeStutes}*/}
+                        {/*        defaultValue={contractStatus}*/}
+                        {/*        style={{ width: 120 }}*/}
+                        {/*        options={[*/}
+                        {/*            { value:0, label: '全部' },*/}
+                        {/*            { value:1, label: '未审核' },*/}
+                        {/*            { value:2, label: '已审核' },*/}
+                        {/*        ]}*/}
+                        {/*    />*/}
+                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -301,6 +335,19 @@ const Staff=(props:any)=>{
                 pagination={false}
                 rowKey={(columns) => columns.id}
                 dataSource={props.StaffList}
+                summary={(columns) => (
+                    <Table.Summary >
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}>{props.count?props.count.zuMoney:''}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>{props.count?props.count.deposit:''}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>{props.count?props.count.manageFee:''}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}>{props.count?props.count.prepayment:''}元</Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             <Modal open={isDeltOpen} onCancel={()=>setIsDeleteOpen(false)} title='删除合同' onOk={onOk}>

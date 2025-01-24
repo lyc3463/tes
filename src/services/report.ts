@@ -9,7 +9,7 @@ export function add(vals:any) {
 }
 
 export function edit(vals:any) {
-    // return getData(1087, [vals.uid,vals.subject_name,vals.company_id,vals.project_id]);
+    return getData(1203, [vals.OnId,vals.stutes=2]);
 }
 
 export function remove(vals:any) {

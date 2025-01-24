@@ -11,8 +11,8 @@ const MoonStatistics=(props:any)=>{
     const oneMonthAgo = today.subtract(30, 'day').format("YYYY-MM-DD HH:mm:ss");
     const oneMonthAgoEndDate = today.startOf('day').subtract(1, 'second').format("YYYY-MM-DD HH:mm:ss");
     // 设置状态，使用年月日格式
-    const [startDate, setStartDate] = useState('2024-01-01');
-    const [endDate, setEndDate] = useState('2024-12-01');
+    const [startDate, setStartDate] = useState(oneMonthAgo);
+    const [endDate, setEndDate] = useState(oneMonthAgoEndDate);
     // 详情的时间
     const [infoDate,setInfoDate]=useState('');
     const [open,setOpen]=useState(false);
@@ -38,6 +38,16 @@ const MoonStatistics=(props:any)=>{
             ),
         },
         {
+            title: '积累用电',
+            dataIndex: 'eleNumSum',
+            render: (_: any, record: any) => (
+                <div>
+                    {record.eleNumSum}kWh
+                </div>
+
+            ),
+        },
+        {
             title: '总数量',
             dataIndex: 'hourCount',
         },
@@ -57,7 +67,6 @@ const MoonStatistics=(props:any)=>{
     };
     useEffect(() => {
         getList();
-        console.log(props);
     }, []);
     const toInfo=(e:string)=>{
         setInfoDate(e);
@@ -76,6 +85,7 @@ const MoonStatistics=(props:any)=>{
     const sousuo=()=>{
         getList();
     };
+
     return(
         <div>
             <List>
@@ -95,7 +105,7 @@ const MoonStatistics=(props:any)=>{
                         >
                             日期:
                         </div>
-                        <DatePicker.RangePicker showTime onChange={changeDate}/>
+                        <DatePicker.RangePicker picker='month'  onChange={changeDate} defaultValue={[dayjs(startDate), dayjs(endDate)]}/>
                     </Space.Compact>
                     <Button type="primary" onClick={sousuo}>
                         搜索

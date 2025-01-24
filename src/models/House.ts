@@ -13,7 +13,7 @@ import { fixPathname } from '@/utils/common';
 let pl = {
     name: '',
     beginRents:0,
-    endRents:9999999
+    endRents:9999999999
 };
 
 export interface HouseCountState {
@@ -53,6 +53,7 @@ const HouseModel: HouseInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.House.list);

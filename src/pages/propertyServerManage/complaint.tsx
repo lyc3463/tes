@@ -6,6 +6,12 @@ import dayjs from "dayjs";
 const Complaint=(props:any)=>{
     const [loading, setLoading] = useState(false);
     const [page,setPage]=useState(1);
+    const [name,setName]=useState('');
+    const [phoen,setPhone]=useState('');
+    const [state,setState]=useState(0);
+    const [startDate,setstartDate]=useState('2000-01-01');
+    const [endDate,setendDate]=useState('2099-01-01');
+    const [openID,setopenID]=useState('');
     const columns=[
         {
             title: '日期',
@@ -32,19 +38,31 @@ const Complaint=(props:any)=>{
                 <Input.TextArea value={record.complaint_content}>
 
                 </Input.TextArea>
-
             ),
         },
     ];
-    const isOK=(e:number)=>{
-
+    // 获取投诉建议列表
+    const getList=()=>{
+        props.dispatch({
+            type:'Tousu/fetch',
+            payload:{page,name,phoen,state,startDate,endDate,openID}
+        })
+    };
+    const getfenye=()=>{
+        props.dispatch({
+            type:'Tousu/fenye',
+            payload:{name,phoen,state,startDate,endDate,openID}
+        })
     };
     useEffect(() => {
-        console.log(props)
-    }, []);
+        getList();
+    }, [page]);
     const onChange=(e)=>{
 
     };
+    useEffect(() => {
+        getfenye();
+    }, []);
     return(
         <div>
             <Spin spinning={loading}>
@@ -65,7 +83,6 @@ const Complaint=(props:any)=>{
                 />
                 {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             </Spin>
-
         </div>
     )
 }

@@ -1,6 +1,6 @@
 import {connect,history} from "umi";
 import {useEffect, useRef, useState} from "react";
-import {Button, Form, Input, InputNumber, message, Radio} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio, Spin} from "antd";
 import * as GongsiService from "@/services/gongsi";
 
 const tailLayout = {
@@ -24,6 +24,7 @@ const EditShoufei=(props:any)=>{
     const [prepaidAmount,setPrepaidAmount]=useState();
     // 计量方式
     const [count_method,setCountMethod]=useState();
+    const [spinning,setspinning]=useState(false);
     const [form] = Form.useForm();
     // 收费类型
     const shoufeiType=(e:any)=>{
@@ -55,17 +56,21 @@ const EditShoufei=(props:any)=>{
         setCountMethod(e.target.value)
     };
     const onFinish = async (values: any) => {
+        setspinning(true);
         let res=await props.dispatch({
             type:'Gongsi/edit',
             payload:{...values,itemType,monthly_amount,deduction_method,item_interval,price,prepaidAmount,count_method,uid}
         })
         if (res.ErrorCode==0){
-            message.success('修改成功')
-            history.push('/xiangmu/gongsiguanli')
+            message.success('修改成功');
+            history.push('/xiangmu/gongsiguanli');
+            setspinning(false);
         }else {
             message.error(res.Data);
+            setspinning(false);
         }
     };
+    // 获取单个详情
     const getAccounOne=async (e:any)=>{
         let res:any=await GongsiService.one(e)
         if (res.ErrorCode==0){
@@ -79,15 +84,15 @@ const EditShoufei=(props:any)=>{
             setPrice(data.price);
             setCountMethod(data.count_method)
         }
-    }
+    };
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
-        setUid(id)
-        getAccounOne(id)
+        setUid(id);
+        getAccounOne(id);
     }, []);
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -96,7 +101,7 @@ const EditShoufei=(props:any)=>{
                 layout="horizontal"
                 size={'large'}
                 onFinish={onFinish}
-                style={{ marginTop: '1rem' }}
+                style={{marginTop: '1rem'}}
             >
                 <Form.Item label='收费项目名称' name='item_name' rules={[{required: true, message: '请输入收费项目名称'}]}>
                     <Input/>
@@ -110,8 +115,8 @@ const EditShoufei=(props:any)=>{
                 </Form.Item>
                 {
                     itemType==1?<><Form.Item label='收费间隔'>
-                        每<InputNumber controls={false} defaultValue={item_interval} onChange={changeJianGe}/>个月收费一次
-                        <p style={{color:'#555',fontSize:'12px'}}>注意：下方单价和固定金额为每月数额 。</p>
+                        每<InputNumber controls={false} defaultValue={item_interval} onChange={changeJianGe}/>天收费一次
+                        {/*<p style={{color:'#555',fontSize:'12px'}}>注意：下方单价和固定金额为每月数额 。</p>*/}
                     </Form.Item>
                         {/*<Form.Item label='扣款方式'>*/}
                         {/*    <Radio.Group onChange={koukuanType} defaultValue={deduction_method}>*/}
@@ -143,12 +148,12 @@ const EditShoufei=(props:any)=>{
                     monthly_amount==2?
                         <>
                             <Form.Item label='计量方式' name='count_method'>
-                                <Radio.Group onChange={changeCountMethod} defaultValue={count_method}>
-                                    <Radio value={1}>建筑面积</Radio>
-                                    <Radio value={2}>套内面积</Radio>
-                                    <Radio value={3}>公摊面积</Radio>
-                                    <Radio value={4}>按电费</Radio>
-                                    <Radio value={5}>按水费</Radio>
+                                <Radio.Group onChange={changeCountMethod} value={count_method}>
+                                    <Radio value={1}>合同面积</Radio>
+                                    {/*<Radio value={2}>套内面积</Radio>*/}
+                                    {/*<Radio value={3}>公摊面积</Radio>*/}
+                                    {/*<Radio value={2}>按电费</Radio>*/}
+                                    {/*<Radio value={3}>按水费</Radio>*/}
                                 </Radio.Group>
                             </Form.Item>
                         </>:''
@@ -156,7 +161,7 @@ const EditShoufei=(props:any)=>{
                 {
                     monthly_amount==2?
                         <Form.Item label='单价(元)'>
-                            <Input onChange={changePrice} defaultValue={price}/>
+                            <InputNumber onChange={changePrice} defaultValue={price}/>
                         </Form.Item>:''
                 }
                 <Form.Item label='添加备注' name='remark' rules={[{required: true, message: '请输入备注'}]}>
@@ -168,7 +173,7 @@ const EditShoufei=(props:any)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 export default connect()(EditShoufei)

@@ -13,6 +13,7 @@ const Finance=(props)=>{
     const [companyId,setcompanyId]=useState(0);
     const [projectId,setprojectId]=useState(0);
     const [subjectId,setsubjectId]=useState(0);
+    const [account_card,setaccount_card]=useState('');
     const columns =[
         {
             title: '日期',
@@ -27,34 +28,76 @@ const Finance=(props)=>{
             }
         },
         {
-            title: '编号',
-            dataIndex: 'number',
-            key: 'number',
-        },
-        {
             title: '摘要',
             dataIndex: 'billAbstract',
             key: 'billAbstract',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.billAbstract}
+                    </div>
+                )
+            }
         },
         {
             title: '公司',
             dataIndex: 'company_name',
             key: 'company_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.company_name}
+                    </div>
+                )
+            }
         },
         {
             title: '项目',
             dataIndex: 'project_name',
             key: 'project_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.project_name}
+                    </div>
+                )
+            }
         },
         {
             title: '科目',
             dataIndex: 'subject_name',
             key: 'subject_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.subject_name}
+                    </div>
+                )
+            }
         },
         {
             title: '账户',
             dataIndex: 'account_name',
             key: 'account_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.account_name}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '账户卡号',
+            dataIndex: 'account_card',
+            key: 'account_card',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.account_card}
+                    </div>
+                )
+            }
         },
         {
             title: '收入/支出',
@@ -87,7 +130,7 @@ const Finance=(props)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <Space>
-                        <span style={{fontWeight:700}}>{record.balance}</span><span>(元)</span>
+                        <span style={{fontWeight:700}}>{(record.balance).toFixed(2)}</span><span>(元)</span>
                     </Space>
                 )
             }
@@ -120,7 +163,7 @@ const Finance=(props)=>{
         setPage(1);
         props.dispatch({
             type:'Finance/fenye',
-            payload:{abstract,startDate,endDate,stutes,type,companyId,projectId,subjectId}
+            payload:{abstract,startDate,endDate,stutes,type,companyId,projectId,subjectId,account_card}
         });
         logFenye();
     };
@@ -128,7 +171,7 @@ const Finance=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Finance/fetch",
-            payload:{page,abstract,startDate,endDate,stutes,type,companyId,projectId,subjectId}
+            payload:{page,abstract,startDate,endDate,stutes,type,companyId,projectId,subjectId,account_card}
         })
     };
     // 监听页数
@@ -136,7 +179,6 @@ const Finance=(props)=>{
         setPage(e);
     };
     useEffect(() => {
-        console.log(props)
         logFenye();
     }, [page]);
     return(

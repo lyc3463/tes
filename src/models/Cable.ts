@@ -13,7 +13,9 @@ import { fixPathname } from '@/utils/common';
 import * as CheckCompanyService from "@/services/checkCompany";
 let pl={
     page:1,
-    collectorId:''
+    collectorId:'',
+    name:'',
+    remark:''
 }
 
 export interface CableCountState {
@@ -54,6 +56,7 @@ const CableModels: CableInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.Cable.list);

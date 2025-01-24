@@ -1,30 +1,47 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
+import * as RechargeRateService from '@/services/rechargeRate';
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const AllRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
-    const [type,setType]=useState(6);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [tenandId,settenandId]=useState(0);
+    const [count,setcount]=useState(0);
+    const [dataSource,setdataSource]=useState([]);
+    const [moneySum,setmoneySum]=useState(0);
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'RechargeRate/fenye',
-            payload:{name,phone,type,startDate,endDate}
-        });
-        logFenye();
+        getAllRate();
+        getAllRatefenye();
     };
-    // 分页
-    const logFenye=()=>{
-        props.dispatch({
-            type:"RechargeRate/fetch",
-            payload:{page,name,phone,type,startDate,endDate}
+    // 获取公共缴费记录
+    const getAllRate=()=>{
+        RechargeRateService.alljiaofei({page,name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setdataSource(res.Data);
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
+    // 公共缴费记录分页
+    const getAllRatefenye=()=>{
+        RechargeRateService.alljiaofeifenye({name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                console.log(res)
+                setcount(res.Data.count);
+                setmoneySum(res.Data.moneySum)
+            }else {
+                message.error(res.Data);
+            }
         })
     };
     // 监听页数
@@ -32,58 +49,57 @@ const AllRate=(props)=>{
         setPage(e);
     };
     useEffect(() => {
-        logFenye();
-        console.log(props)
+        getAllRate()
     }, [page]);
+    useEffect(() => {
+        getAllRatefenye();
+    }, []);
     const columns =[
         {
-            title: '日期',
-            dataIndex: 'estarttime',
-            key: 'estarttime',
+            title: '交租日期',
+            dataIndex: 'payrentDate',
+            key: 'payrentDate',
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {dayjs(record.estarttime).format('YYYY-MM-DD')}
+                        {dayjs(record.payrentDate).format('YYYY-MM-DD')}
                     </div>
                 )
             }
         },
         {
             title: '姓名',
-            dataIndex: 'appUser_name',
-            key: 'appUser_name',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                    </div>
+                )
+            },
         },
         {
             title: '手机号',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
         },
         {
-            title: '类型',
-            dataIndex: 'consumptionType',
-            key: 'consumptionType',
+            title: '扣费金额',
+            dataIndex: 'payAmount',
+            key: 'payAmount',
+        },
+        {
+            title: '状态',
+            dataIndex: 'billStatus',
+            key: 'billStatus',
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.consumptionType==1?<Tag color='green'>充值</Tag>:<Tag color='red'>未知</Tag>}
+                        {record.billStatus==1?<Tag color='red'>未交</Tag>:<Tag color='green'>已交</Tag>}
                     </div>
                 )
             }
-        },
-        {
-            title: '充值金额(元)',
-            dataIndex: 'consumptionMoney',
-            key: 'consumptionMoney',
-        },
-        {
-            title: '用户余额(元)',
-            dataIndex: 'appUser_balance',
-            key: 'appUser_balance',
-        },
-        {
-            title: '用户积分余额(分)',
-            dataIndex: 'appUser_integral',
-            key: 'appUser_integral',
         },
     ];
     // 监听日期
@@ -136,19 +152,34 @@ const AllRate=(props)=>{
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
-                dataSource={props.RechargeRateList}
+                dataSource={dataSource}
                 scroll={{y:'70vh'}}
                 rowKey={(columns) => columns.id}
                 size='small'
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {moneySum}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
         </div>
     )
 }
-const mapStateToProps = (state: any) => {
-    return {
-        RechargeRateList: state.RechargeRate.list,
-        count: state.RechargeRate.count,
-    }
-};
-export default connect(mapStateToProps) (AllRate)
+
+export default connect() (AllRate)

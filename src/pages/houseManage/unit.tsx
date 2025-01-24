@@ -1,24 +1,19 @@
-import {Button, Input, InputNumber, List, Pagination, Space, Table, Tag} from "antd";
+import {Button, Input, InputNumber, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Unit=(props:any)=>{
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
     const [beginRents,setBeginRents]=useState(0);
-    const [endRents,setEndRents]=useState(9999999999);
-
+    const [endRents,setEndRents]=useState(999999999);
+    const [status,setstatus]=useState(0);
+    const [house_id,sethouse_id]=useState(0);
+    const [uid,setUid]=useState(0);
+    const [open,setOpen]=useState(false);
+    const [spinning,setspinning]=useState(false);
     const columns =[
-        // {
-        //     title: 'ID',
-        //     dataIndex: 'id',
-        //     key: 'id',
-        //     render: (text:any, record:any) => {
-        //         return(
-        //            <Button type='link' onClick={()=>toedit(record.id)}>{text}</Button>
-        //         )
-        //     }
-        // },
         {
             title: '所属房屋',
             dataIndex: 'house_name',
@@ -60,22 +55,22 @@ const Unit=(props:any)=>{
             }
         },
         {
-            title: '单价',
-            dataIndex: 'price',
-            key: 'price',
+            title: '每平方单价',
+            dataIndex: 'rent',
+            key: 'rent',
             render: (_:any, record:any) => {
                 return(
-                    <span>{record.price}㎡/元</span>
+                    <span>{record.rent}㎡/元</span>
                 )
             }
         },
         {
             title: '租金',
-            dataIndex: 'rent',
-            key: 'rent',
+            dataIndex: 'price',
+            key: 'price',
             render: (_:any, record:any) => {
                 return(
-                    <span>{record.rent}元</span>
+                    <span>{record.price}元</span>
                 )
             }
         },
@@ -91,16 +86,7 @@ const Unit=(props:any)=>{
                 )
             }
         },
-        {
-            title: '可增面积㎡',
-            dataIndex: 'add_area',
-            key: 'add_area',
-            render: (_:any, record:any) => {
-                return(
-                    <span>{record.add_area}㎡</span>
-                )
-            }
-        },
+
         {
             title: '状态',
             dataIndex: 'status',
@@ -109,15 +95,15 @@ const Unit=(props:any)=>{
             width: 100,
             render: (text:any, record:any) => {
                 let statusText;
-                if (text === 1) {
+                if (text === 2) {
                     statusText = <Tag color="green">已租</Tag>; // 假设使用Ant Design的Tag组件来显示状态
-                } else if (text === 2) {
+                } else if (text === 1) {
                     statusText = <Tag color="blue">未租</Tag>;
                 } else if (text === 3) {
                     statusText = <Tag color="red">退租</Tag>;
                 } else {
                     // 处理未知状态，或显示原始文本
-                    statusText = <span>{text}</span>;
+                    statusText = <span>未知状态</span>;
                 }
                 return(
                     <div>
@@ -135,7 +121,7 @@ const Unit=(props:any)=>{
                 return(
                     <Space>
                         <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
-                        <Button type='primary' danger>删除</Button>
+                        <Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>
                     </Space>
                 )
             }
@@ -147,11 +133,15 @@ const Unit=(props:any)=>{
     const toedit=(e:number)=>{
         history.push(`/houseManage/editUnit?id=${e}`)
     };
+    const isdelete=(e)=>{
+      setUid(e);
+      setOpen(true);
+    };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"Unit/fetch",
-            payload:{page,name,beginRents,endRents}
+            payload:{page,name,beginRents,endRents,status,house_id}
         })
     };
     // 监听页数
@@ -170,7 +160,7 @@ const Unit=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:"Unit/fetchFenye",
-            payload:{name,beginRents,endRents}
+            payload:{name,beginRents,endRents,status,house_id}
         })
         logFenye();
     };
@@ -187,11 +177,31 @@ const Unit=(props:any)=>{
         }else if(e>0){
             setEndRents(e);
         }else {
-            setEndRents(999999);
+            setEndRents(999999999);
         }
     };
+    const onOK=()=>{
+      setspinning(true);
+      props.dispatch({
+          type:'Unit/remove',
+          payload:uid
+      }).then((res:TypeErrorCode)=>{
+          if (res.ErrorCode==0){
+              message.success('删除成功');
+              setspinning(false);
+              setOpen(false);
+          }else {
+              message.error(res.Data);
+              setspinning(false);
+              setOpen(false);
+          }
+      })
+    };
+    const changestatus=(e)=>{
+        setstatus(e);
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
@@ -213,6 +223,32 @@ const Unit=(props:any)=>{
                             onChange={changeEndRents}
                             addonBefore="最大租金:"
                         />
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                类型:
+                            </div>
+                            <Select
+                                onChange={changestatus}
+                                defaultValue={status}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value: 2, label: '已租' },
+                                    { value: 1, label: '未租' },
+                                    { value: 0, label: '全部' },
+                                ]}
+                            />
+                        </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -228,7 +264,12 @@ const Unit=(props:any)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            <Modal open={open} onCancel={()=>setOpen(false)} onOk={onOK} title='删除单元' loading={spinning}>
+                <div>
+                    是否要删除？
+                </div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

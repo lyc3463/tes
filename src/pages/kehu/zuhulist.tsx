@@ -23,26 +23,31 @@ const Zuhulist=(props:any)=>{
             key: 'tenant_card',
         },
         {
-            title: '余额',
-            dataIndex: 'appUser_balance',
-            key: 'appUser_balance',
+            title: '余额(元)',
+            dataIndex: 'balance',
+            key: 'balance',
         },
         {
-            title: '积分',
-            dataIndex: 'appUser_integral',
-            key: 'appUser_integral',
-
+            title: '积分(分)',
+            dataIndex: 'integral',
+            key: 'integral',
         },
         {
-            title: '账单',
-            dataIndex: 'appUser_bill',
-            key: 'appUser_bill',
-        }
+            title: '全部账单(元)',
+            dataIndex: 'billMoney',
+            key: 'billMoney',
+        },
+        {
+            title: '公共押金(元)',
+            dataIndex: 'deposit',
+            key: 'deposit',
+        },
     ];
     useEffect(() => {
         logFenye();
     }, []);
     useEffect(() => {
+        console.log('props',props);
     }, [page]);
     // 分页
     const logFenye=()=>{
@@ -54,14 +59,18 @@ const Zuhulist=(props:any)=>{
     // 搜索按钮
     const shousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'Zuhu/fetch',
-            payload:{page,name,phone}
-        });
+        logFenyeInfo();
         logFenye()
     };
     const onChange=(val:number)=>{
         setPage(val)
+    };
+    // 查看分页记录
+    const logFenyeInfo=()=>{
+        props.dispatch({
+            type:'Zuhu/fetch',
+            payload:{page,name,phone}
+        });
     };
     return(
         <div>
@@ -90,9 +99,40 @@ const Zuhulist=(props:any)=>{
                 dataSource={props.ZuhuList}
                 scroll={{x:1500}}
                 pagination={false}
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                                总人数:{props.count?props.count.count:''}人
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>
+                                {props.count?props.count.balanceSum:''}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>
+                                {props.count?props.count.integralSum:''}分
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {props.count?props.count.billMoneySum:''}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={8}
+                            >
+                                {props.count?props.count.depositSum:''}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-
         </div>
     )
 }

@@ -16,6 +16,7 @@ let pl={
     contractType:0,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
+    name:'',
 }
 
 export interface CheckHetongCountState {
@@ -103,9 +104,15 @@ const CheckHetongModels: CheckHetongInterface = {
                         payload: location.state,
                     });
                 }
-                if (StaticInfo.userId > 0 && pathname === '/enter/afterSales/') {
+                // if (StaticInfo.userId > 0 && pathname === '/enter/afterSales/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                if (StaticInfo.userId > 0 && pathname === '/contract/contractList/') {
                     dispatch({
-                        type: 'fetch',
+                        type: 'fenye',
                         payload: location.state,
                     });
                 }

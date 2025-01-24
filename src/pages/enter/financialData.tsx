@@ -1,23 +1,37 @@
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import {processBills} from '@/utils/OpenTool';
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-
 const FinancialData=(props:any)=>{
     const [page,setPage]=useState(1);
+    // 账单列表
+    const [billList,setBillList]=useState([]);
+    // 摘要
     const [billAbstract,setBillAbstract]=useState('');
+    // 开始时间
     const [billBgeinTime,setBillBgeinTime]=useState('2000-01-01');
+    // 结束时间
     const [billEndTime,setBillEndTime]=useState('2099-01-01');
+    // 账单状态
     const [billStatus,setBillStatus]=useState(2);
+    // 财务类型
     const [billMoneyType,setBillMoneyType]=useState(2);
+    // 所属公司
     const [companyId,setCompanyId]=useState(0);
+    // 所属项目
     const [projectId,setProjectId]=useState(0);
+    // 所属科目
     const [subjectId,setSubjectId]=useState(0);
+    // 下拉公司列表
     const [companyList,setCompanyList]=useState([]);
+    // 下拉科目列表
     const [subjList,setSubjList]=useState([]);
+    // 下拉项目列表
     const [projectlist,setProjectlist]=useState([]);
     const [uid,setUid]=useState(0);
+    // 账户卡号
     const [account_card,setaccount_card]=useState('');
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
@@ -72,18 +86,6 @@ const FinancialData=(props:any)=>{
             }
         },
         {
-            title: '科目',
-            dataIndex: 'subject_name',
-            key: 'subject_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.subject_name}
-                    </div>
-                )
-            }
-        },
-        {
             title: '账户',
             dataIndex: 'account_name',
             key: 'account_name',
@@ -103,6 +105,18 @@ const FinancialData=(props:any)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
                         {record.account_card}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '科目',
+            dataIndex: 'subject_name',
+            key: 'subject_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.subject_name}
                     </div>
                 )
             }
@@ -139,7 +153,14 @@ const FinancialData=(props:any)=>{
                 return(
                     <Space>
                         {/*{getRdc(record.balance)}*/}
-                        <span style={{fontWeight:700}}>{record.balance}</span><span>(元)</span>
+                        {
+                            record.bill_status==0?<>
+                                <span style={{fontWeight:700}}>{(record.accountBalance).toFixed(2)}</span><span>(元)</span>
+                            </>:<>
+                                <span style={{fontWeight:700}}>{(record.balance).toFixed(2)}</span><span>(元)</span>
+                            </>
+                        }
+
                     </Space>
                 )
             }
@@ -180,13 +201,13 @@ const FinancialData=(props:any)=>{
         },
     ];
     const toadd=()=>{
-        history.push('/enter/addFinancialData')
+        history.push('/enter/addFinancialData');
     };
     const toInfo=(id:number)=>{
-        history.push(`/enter/financialDataInfo?id=${id}`)
+        history.push(`/enter/financialDataInfo?id=${id}`);
     };
     const toedit=(id:number)=>{
-        history.push(`/enter/editFinancialData?id=${id}`)
+        history.push(`/enter/editFinancialData?id=${id}`);
     };
     // 监听摘要名称
     const changeName=(e)=>{
@@ -206,6 +227,11 @@ const FinancialData=(props:any)=>{
         props.dispatch({
             type:"Bill/fetch",
             payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let newdata=processBills(res.Data);
+                setBillList(res.Data);
+            }
         })
     };
     // 监听页数
@@ -224,7 +250,6 @@ const FinancialData=(props:any)=>{
     };
     // 监听类型
     const changeType=(e:number)=>{
-        console.log("类型",e)
         setBillMoneyType(e);
     };
     // 监听状态
@@ -233,10 +258,6 @@ const FinancialData=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-        getProjectList();
-        getCompanList();
-        getSubjectList();
-        console.log('props',props)
     }, [page]);
 
 // 获取公司列表
@@ -278,6 +299,7 @@ const FinancialData=(props:any)=>{
     // 监听公司id
     const changeCompany=(e:number)=>{
         setCompanyId(e);
+        ChangeProjectList(e);
     };
     // 监听项目id
     const changeProject=(e:number)=>{
@@ -333,15 +355,34 @@ const FinancialData=(props:any)=>{
             payload:uid
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setspinning(false);
+              setspinning(false);
               message.success('删除成功');
               setIsOpen(false);
+              logFenye();
             }else {
                 message.error(res.Data);
                 setspinning(false);
             }
         });
     };
+    const ChangeProjectList=(e:number)=>{
+        props.dispatch({
+            type:'Project/fetch',
+            payload:{name:'',companyId:e}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                conterproject(res.Data);
+            }else {
+                conterproject([]);
+            }
+        });
+    };
+    useEffect(() => {
+        getProjectList();
+        getCompanList();
+        getSubjectList();
+        console.log("props",props);
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>
@@ -352,7 +393,6 @@ const FinancialData=(props:any)=>{
                         </Button>
                     </div>
                     <Space>
-
                         <Input
                             onChange={changeName}
                             addonBefore="摘要:"
@@ -431,6 +471,13 @@ const FinancialData=(props:any)=>{
                                 defaultValue={companyId}
                                 style={{ width: 240 }}
                                 options={companyList}
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = companyList.find(unit => unit.value == option.value);
+                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
+                                }}
                             >
                             </Select>
                         </Space.Compact>
@@ -454,6 +501,13 @@ const FinancialData=(props:any)=>{
                                 defaultValue={projectId}
                                 style={{ width: 250 }}
                                 options={projectlist}
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = projectlist.find(unit => unit.value == option.value); // 您可能需要优化这个查找过程
+                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
+                                }}
                             >
                             </Select>
                         </Space.Compact>
@@ -476,8 +530,15 @@ const FinancialData=(props:any)=>{
                             <Select
                                 onChange={changeSubject}
                                 defaultValue={subjectId}
-                                style={{ width: 120 }}
+                                style={{ width: 250 }}
                                 options={subjList}
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = subjList.find(unit => unit.value == option.value);
+                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
+                                }}
                             >
                             </Select>
                         </Space.Compact>
@@ -519,7 +580,7 @@ const FinancialData=(props:any)=>{
                     pagination={false}
                     scroll={{y:'60vh'}}
                     rowKey={(columns) => columns.id}
-                    dataSource={props.BillList}
+                    dataSource={billList}
                     size='small'
                     summary={(columns) => (
                       <Table.Summary fixed>

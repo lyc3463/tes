@@ -1,4 +1,4 @@
-import {Button, Input, InputNumber, List, message, Modal, Select, Space, Table} from "antd";
+import {Button, Input, InputNumber, List, message, Modal, Select, Space, Spin, Table} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import HonuseType from '@/ModelTypes/TypeHouse'
@@ -9,8 +9,8 @@ const House=(props:any)=>{
     const [open,setOpne]=useState(false);
     const [uid,setUid]=useState(0);
     const [uname,setUname]=useState('');
+    const [spinning,setspinning]=useState(false);
     const columns =[
-
         {
             title: '房屋名称',
             dataIndex: 'house_name',
@@ -111,7 +111,7 @@ const House=(props:any)=>{
         }else if(e>0){
             setEndRents(e);
         }else {
-            setEndRents(999999);
+            setEndRents(9999999999);
         }
     };
     const toadd=()=>{
@@ -122,7 +122,6 @@ const House=(props:any)=>{
     };
     useEffect(() => {
         getList();
-        console.log(props)
     }, []);
     const getList=()=>{
         props.dispatch({
@@ -139,23 +138,26 @@ const House=(props:any)=>{
     const deleteOpen=(e:HonuseType)=>{
         setOpne(true);
         setUid(e.id);
-        setUname(e.house_name)
+        setUname(e.house_name);
     };
     const onOK=()=>{
+        setspinning(true);
         props.dispatch({
             type:'House/remove',
             payload:uid
         }).then((res:any)=>{
             if (res.ErrorCode==0){
+                setspinning(false);
                 message.success('删除成功');
                 setOpne(false);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setspinning(false);
             }
         })
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
@@ -191,12 +193,12 @@ const House=(props:any)=>{
                 dataSource={props.HouseList}
                 pagination={false}
             />
-            <Modal onOk={onOK} title='删除' onCancel={()=>setOpne(false)} open={open}>
+            <Modal onOk={onOK} title='删除' onCancel={()=>setOpne(false)} open={open} loading={spinning}>
                 <div>
                    <span>是否要删除:</span><span style={{color:'red'}}>{uname}</span>
                 </div>
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

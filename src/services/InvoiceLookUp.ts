@@ -5,14 +5,14 @@ export function fetch(vals:any) {
 }
 
 export function edit(vals:any) {
-    return getData(1130, [vals.uid,vals.house_name,vals.floor_area,vals.rentable_area,vals.rents,vals.price,vals.address,vals.floors,vals.residue_add_area]);
+    return getData(1349, [vals.uid,vals.rise_type,vals.rise_name,vals.duty_paragraph,vals.emailOrPhone,vals.is_default,vals.bankDeposit,vals.bankCard,vals.work_phone,vals.work_address]);
 }
 
 export function remove(vals:any) {
     return getData(1350, [vals]);
 }
 export function one(vals:any) {
-    return getData(1133, [vals]);
+    return getData(1351, [vals]);
 }
 export function fenye(vals:any) {
     return getData(1353, [vals.name,vals.stutes,vals.openID]);

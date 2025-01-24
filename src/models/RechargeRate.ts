@@ -16,7 +16,8 @@ let pl={
     phone:'',
     type:1,
     startDate:'2000-01-01',
-    endDate:'2099-01-01'
+    endDate:'2099-01-01',
+    userID:0
 }
 
 export interface PropertiesCountState {
@@ -56,6 +57,7 @@ const RechargeRateModel: QuestionnaireInterface = {
         },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(RechargeRateService.fenye,payload?payload:pl);
+            console.log('缴费统计记录',res);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'count',

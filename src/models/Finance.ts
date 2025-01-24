@@ -20,6 +20,7 @@ let pl={
     companyId:0,
     projectId:0,
     subjectId:0,
+    account_card:''
 
 }
 

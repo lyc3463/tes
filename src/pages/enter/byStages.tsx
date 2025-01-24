@@ -149,11 +149,6 @@ const ByStages=(props)=>{
         <div>
             <List>
                 <List.Item>
-                    <div>
-                        <Button type="primary" onClick={toadd}>
-                            分期录入
-                        </Button>
-                    </div>
                     <Space>
                         <Input
                             addonBefore="手机号:"

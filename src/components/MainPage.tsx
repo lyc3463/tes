@@ -22,7 +22,7 @@ import { EventMgr } from '@/Event/EventMgr';
 import { info_event } from '@/Event/EventEnum';
 import { fixPathname } from '@/utils/common';
 import { StaticInfo } from '@/StaticInfo';
-import { get1166 } from '@/services/common';
+import * as CommonService from '@/services/common';
 import { menuData } from '@/constants/menu/main';
 import TypeMenu from '@/ModelTypes/TypeMenu';
 import * as LoginService from '@/services/login';
@@ -131,14 +131,14 @@ class MainPage extends Component<any> {
   // editPawword=()=>{
   //   UmiHistory.push('/EditPassword')
   // };
-  // getList=()=>{
-  //   get1166(1,'','',1,'').then((res:any)=>{
-  //     if (res.ErrorCode==0){
-  //       console.log("res",res)
-  //       this.setState({list:res.Data});
-  //     }
-  //   })
-  // };
+  getList=()=>{
+    CommonService.get1166(1,'','',0).then((res:any)=>{
+      if (res.ErrorCode==0){
+        console.log("res",res);
+        this.setState({list:res.Data});
+      }
+    })
+  };
   columns=[
     {
       title: '日期',
@@ -194,20 +194,20 @@ class MainPage extends Component<any> {
                       .map((o: any) => ({ title: BreadcrumbMap[o] }))}
                   />
                 </Space>
-                {/*<Modal open={this.state.open} onOk={()=>this.setState({open:false})} onCancel={()=>this.setState({open:false})} title='消息'>*/}
-                {/*  {*/}
-                {/*    this.state.list.length>0&&this.state.list?this.state.list.map((item:any)=>{*/}
-                {/*      return(*/}
-                {/*          <Table columns={this.columns}/>*/}
-                {/*      )*/}
-                {/*    }):'暂无消息'*/}
-                {/*  }*/}
-                {/*</Modal>*/}
+                <Modal open={this.state.open} onOk={()=>this.setState({open:false})} onCancel={()=>this.setState({open:false})} title='消息'>
+                  {
+                    this.state.list.length>0&&this.state.list?this.state.list.map((item:any)=>{
+                      return(
+                          <Table columns={this.columns}/>
+                      )
+                    }):'暂无消息'
+                  }
+                </Modal>
                 <Space size="large">
-                  {/*<Button type="link" onClick={()=>this.setState({open:true})}>*/}
-                  {/*  {this.state.list.length}*/}
-                  {/*  <AlertFilled />*/}
-                  {/*</Button>*/}
+                  <Button type="link" onClick={()=>this.setState({open:true})}>
+                    {this.state.list.length}
+                    <AlertFilled />
+                  </Button>
                   <span>
                     用户姓名:{StaticInfo.username}
                   </span>

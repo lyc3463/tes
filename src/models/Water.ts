@@ -12,7 +12,9 @@ import WatertType from '@/ModelTypes/TypeWatert';
 import { fixPathname } from '@/utils/common';
 let pl={
     page:1,
-    name:''
+    name:'',
+    remark:'',
+    waterAddress:''
 }
 
 export interface WatertCountState {
@@ -30,6 +32,7 @@ export interface WatertInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
+        fenye: Effect;
     };
     reducers: {
         list: Reducer<WatertType[]>;
@@ -52,6 +55,20 @@ const WatertModels: WatertInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
+        },
+        *fenye({ type, payload }, { put, call, select }): any {
+            const res = yield call(WatertService.fenye, payload?payload:pl);
+            console.log('水表分页信息',res)
+            if (res.ErrorCode == 0) {
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
+                });
+            } else {
+                message.error(res.ErrorCode + res.Data);
+            }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.Watert.list);

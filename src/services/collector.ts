@@ -12,7 +12,7 @@ export function edit(vals:any) {
 }
 
 export function remove(vals:any) {
-    return getData(1050, [vals]);
+    return getData(1102, [vals]);
 }
 export function one(vals:any) {
     return getData(1103, [vals]);

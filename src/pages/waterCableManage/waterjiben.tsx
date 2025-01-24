@@ -1,7 +1,7 @@
 import {connect,history} from 'umi'
 import {useLocation} from "@@/exports";
 import {useEffect, useRef, useState} from "react";
-import {Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin} from "antd";
+import {Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin, Tag} from "antd";
 import * as WatertService from '@/services/watert';
 import {addkh} from "@/services/watert";
 const tailLayout = {
@@ -12,7 +12,7 @@ const Waterjiben=(props)=>{
     const [isSpinning,setIsSpinning]=useState(false);
     const formRef =useRef();
     // 路由参数
-    const [uid,setUid]=useState<string|undefined>();
+    const [uid,setUid]=useState('0');
     // 关阀弹窗
     const [lazha,setlazha]=useState(false);
     // 开阀弹窗
@@ -24,8 +24,10 @@ const Waterjiben=(props)=>{
     const [kh,setkh]=useState(false);
     // 远程清零弹窗
     const [qlOpen,setQlOpen]=useState(false);
+    // 水表状态 1 表示合闸/开阀， 0 表示拉闸/关阀
+    const [relay_state,setrelay_state]=useState(0);
     const offlazha=()=>{
-        setQlOpen(true);
+        setIsSpinning(true);
         WatertService.off({uid,stutes:0}).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('关阀成功');
@@ -39,17 +41,15 @@ const Waterjiben=(props)=>{
         })
     };
     const offhezha=()=>{
-        setQlOpen(true);
+        setIsSpinning(true);
         WatertService.off({uid,stutes:1}).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('开阀成功');
-                setlazha(false);
-                setIsSpinning(false);
+                sethezha(false);
                 setIsSpinning(false);
             }else {
                 message.error(res.Data);
-                setIsSpinning(false);
-                setIsSpinning(false);
+                sethezha(false);
             }
         })
     };
@@ -58,6 +58,7 @@ const Waterjiben=(props)=>{
         let res:any=await  WatertService.one(id);
         if (res?.ErrorCode==0){
             formRef.current.setFieldsValue(res?.Data);
+            setrelay_state(res.Data.relay_state);
         }else {
             message.error(res.Data)
         }
@@ -82,7 +83,7 @@ const Waterjiben=(props)=>{
             if (res.ErrorCode==0){
                 message.success('开户成功');
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
             }
         })
     };
@@ -93,12 +94,16 @@ const Waterjiben=(props)=>{
                 message.success('清零成功');
                 setIsSpinning(false);
                 setQlOpen(false);
+                getOneWater(uid);
             }else {
                 message.error(res.Data);
                 setIsSpinning(false);
                 setQlOpen(false);
             }
         })
+    };
+    const onLikai=()=>{
+      history.push('/waterCableManage/water')
     };
     return(
         <Spin spinning={isSpinning}>
@@ -138,13 +143,18 @@ const Waterjiben=(props)=>{
                         {/*<Button type='primary' onClick={()=>setCz(true)}>充值</Button>*/}
                         {/*<Button type='primary' onClick={()=>setkh(true)}>开户</Button>*/}
                     </Space>
+                    <Form.Item>
+                        <div>
+                           状态：{relay_state==1?<Tag color='green'>开阀</Tag>:<Tag color='red'>关阀</Tag>}
+                        </div>
+                    </Form.Item>
                 </Form.Item>
-                <Form.Item label='当前总用量' name='total_used_amount'>
+                <Form.Item label='当前总用量(m³)' name='total_used_amount'>
                     <InputNumber/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        保存
+                    <Button onClick={onLikai}>
+                        返回
                     </Button>
                 </Form.Item>
             </Form>

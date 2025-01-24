@@ -45,6 +45,9 @@ export function one(vals:string) {
 export function check(vals:string) {
     return getData(1198, [vals]);
 }
+export function allCheck() {
+    return getData(1418, []);
+}
 export function fenye(vals:any) {
     return getData(1092, [vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId,vals.account_card]);
 }

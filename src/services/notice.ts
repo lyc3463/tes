@@ -4,7 +4,7 @@ export function fetch(vals:any) {
     return getData(1071, [vals.allNoticeName,vals.beginTimeNotice,vals.endTimeNotice]);
 }
 export function add(vals:any) {
-    return getData(1068, [vals.notice_content,vals.park_status,vals.noticeDate]);
+    return getData(1068, [vals.notice_content,vals.park_status=1,vals.noticeDate]);
 }
 
 export function edit(vals:any) {
@@ -12,7 +12,7 @@ export function edit(vals:any) {
 }
 
 export function remove(vals:any) {
-    // return getData(1013, []);
+    return getData(1070, [vals]);
 }
 
 

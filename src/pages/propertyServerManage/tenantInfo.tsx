@@ -1,7 +1,8 @@
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import dayjs from "dayjs";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const TenantInfo=(props:any)=>{
     const [loading,setLoading]=useState(false)
@@ -14,7 +15,8 @@ const TenantInfo=(props:any)=>{
     const [openid,setOpenid]=useState('');
     const [phone,setPhone]=useState('');
     const [content,setContent]=useState('');
-
+    const [uid,setUid]=useState(0);
+    const [dopen,setdopen]=useState(false);
     const columns =[
         {
             title: '日期',
@@ -41,24 +43,24 @@ const TenantInfo=(props:any)=>{
                 </Input.TextArea>
             )
         },
-        {
-            title: '状态',
-            dataIndex: 'messageStatus',
-            key: 'messageStatus',
-            render:(text:any,record:any)=>(
-                <>
-                    {record.messageStatus==0?<Tag color='red'>未读</Tag>:<Tag color='green'>已读</Tag>}
-                </>
-            )
-        },
+        // {
+        //     title: '状态',
+        //     dataIndex: 'messageStatus',
+        //     key: 'messageStatus',
+        //     render:(text:any,record:any)=>(
+        //         <>
+        //             {record.messageStatus==0?<Tag color='red'>未读</Tag>:<Tag color='green'>已读</Tag>}
+        //         </>
+        //     )
+        // },
         {
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',
             render:(text:any,record:any)=>(
                 <Space>
-                   <Button type='primary' danger>删除</Button>
-                   <Button type='primary'>编辑</Button>
+                   <Button type='primary' danger onClick={()=>onDelete(record)}>删除</Button>
+                   {/*<Button type='primary'>编辑</Button>*/}
                 </Space>
             )
         }
@@ -69,7 +71,11 @@ const TenantInfo=(props:any)=>{
     useEffect(() => {
         logFenye();
     }, [page]);
-
+    // 删除的弹窗
+    const onDelete=(record:any)=>{
+      setUid(record.id);
+      setdopen(true);
+    };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -96,6 +102,24 @@ const TenantInfo=(props:any)=>{
     };
     const onChange=(e:any)=>{
       setPage(e)
+    };
+    // 确定删除
+    const onOk=()=>{
+        setLoading(true);
+        props.dispatch({
+            type:"TenantInfo/remove",
+            payload:uid
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setLoading(false);
+                setdopen(false);
+            }else {
+                message.error(res.Data);
+                setLoading(false);
+                setdopen(false);
+            }
+        });
     };
     return(
         <Spin spinning={loading}>
@@ -124,32 +148,6 @@ const TenantInfo=(props:any)=>{
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                状态:
-                            </div>
-                            <Select
-                                onChange={(e)=>setStutes(e)}
-                                defaultValue={stutes}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value:0, label: '全部' },
-                                    { value:1, label: '未读' },
-                                    { value:2, label: '已读' },
-                                ]}
-                            />
-                        </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -160,12 +158,16 @@ const TenantInfo=(props:any)=>{
                 columns={columns}
                 rowKey={(columns) => columns.id}
                 pagination={false}
+                size='small'
                 dataSource={props.TenantInfoList}
                 // rowClassName={(record, index) =>
                 //     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 // }
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            <Modal title='删除租户消息' open={dopen} loading={loading} onOk={onOk} onCancel={()=>setdopen(false)}>
+                <div>是否要删除</div>
+            </Modal>
         </Spin>
     )
 }

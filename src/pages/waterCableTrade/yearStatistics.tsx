@@ -5,14 +5,12 @@ import {useEffect, useState} from "react";
 import MyTable from "@/components/MyTable";
 
 const YearStatistics=(props:any)=>{
-    // 获取当前日期
-    const today = dayjs();
     // 获取当前日期往前一个月的日期（仅年月日）
-    const oneMonthAgo = today.subtract(30, 'day').format("YYYY-MM-DD HH:mm:ss");
-    const oneMonthAgoEndDate = today.startOf('day').subtract(1, 'second').format("YYYY-MM-DD HH:mm:ss");
+    const oneMonthAgo = dayjs().startOf('year').format("YYYY-MM-DD"); // 获取当前年份的第一天
+    const oneMonthAgoEndDate = dayjs().endOf('year').format("YYYY-MM-DD");// 获取当前年份的最后一天
     // 设置状态，使用年月日格式
-    const [startDate, setStartDate] = useState('2024-01-01');
-    const [endDate, setEndDate] = useState('2024-12-01');
+    const [startDate, setStartDate] = useState(oneMonthAgo);
+    const [endDate, setEndDate] = useState(oneMonthAgoEndDate);
     // 详情的时间
     const [infoDate,setInfoDate]=useState('');
     const [open,setOpen]=useState(false);
@@ -38,6 +36,16 @@ const YearStatistics=(props:any)=>{
             ),
         },
         {
+            title: '积累用电',
+            dataIndex: 'eleNumSum',
+            render: (_: any, record: any) => (
+                <div>
+                    {record.eleNumSum}kWh
+                </div>
+
+            ),
+        },
+        {
             title: '总数量',
             dataIndex: 'hourCount',
         },
@@ -45,7 +53,7 @@ const YearStatistics=(props:any)=>{
             title: '操作',
             dataIndex: 'complaint_content',
             render: (_: any, record: any) => (
-                <Button onClick={()=>toInfo(record.recordTimes)}>详情</Button>
+                <Button onClick={()=>toInfo(record.recordTimes)} type='primary'>详情</Button>
             ),
         },
     ];
@@ -57,10 +65,6 @@ const YearStatistics=(props:any)=>{
     };
     useEffect(() => {
         getList();
-    }, []);
-    useEffect(() => {
-        console.log(startDate)
-        console.log(endDate)
     }, []);
     const toInfo=(e:string)=>{
         setInfoDate(e);
@@ -98,7 +102,7 @@ const YearStatistics=(props:any)=>{
                         >
                             日期:
                         </div>
-                        <DatePicker.RangePicker showTime onChange={changeDate}/>
+                        <DatePicker.RangePicker  onChange={changeDate} defaultValue={[dayjs(startDate), dayjs(endDate)]}/>
                     </Space.Compact>
                     <Button type="primary" onClick={sousuo}>
                         搜索

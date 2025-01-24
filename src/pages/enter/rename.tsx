@@ -109,11 +109,7 @@ const Rename=(props)=>{
         <div>
             <List>
                 <List.Item>
-                    <div>
-                        <Button type="primary" onClick={toadd}>
-                            录入更名
-                        </Button>
-                    </div>
+
                     <Space>
                         <Input
                             addonBefore="原手机号:"

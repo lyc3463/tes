@@ -1,19 +1,21 @@
-import {Button, Form, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, Form, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import  {history,connect} from 'umi'
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
-import * as CollectorService from '@/services/collector';
 import {getRandomNumber, getTimeDifference} from "@/utils/OpenTool";
-import {fenye} from "@/services/collector";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 const Collector=(props:any)=>{
     const [page,setPage]=useState(1);
     const [collector_number,setCollector_number]=useState('');
     const [stutes,setStutes]=useState(2);
+    const [uid,setUid]=useState(0);
+    const [isOpen,setIsOpen]=useState(false);
+    const [spinning,setspinning]=useState(false);
     const toedit=(e)=>{
-        history.push(`/waterCableManage/editCollector?id=${e}`)
+        history.push(`/waterCableManage/editCollector?id=${e}`);
     };
     const columns =[
-
         {
             title: '采集器ID',
             dataIndex: 'collectorid',
@@ -24,18 +26,18 @@ const Collector=(props:any)=>{
                 )
             }
         },
-        {
-            title: '状态',
-            dataIndex: 'collector_status',
-            key: 'collector_status',
-            render: (text:any, record:any) => {
-                return(
-                    <div>
-                        {record.collector_status==1?<span style={{color:'green'}}>已连接</span>:<span style={{color:'red'}}>未连接</span>}
-                    </div>
-                )
-            }
-        },
+        // {
+        //     title: '状态',
+        //     dataIndex: 'collector_status',
+        //     key: 'collector_status',
+        //     render: (text:any, record:any) => {
+        //         return(
+        //             <div>
+        //                 {record.collector_status==1?<span style={{color:'green'}}>已连接</span>:<span style={{color:'red'}}>未连接</span>}
+        //             </div>
+        //         )
+        //     }
+        // },
         {
             title: '连接质量',
             dataIndex: 'linkQuality',
@@ -56,16 +58,16 @@ const Collector=(props:any)=>{
                 )
             }
         },
-        {
-            title: '表数量',
-            dataIndex: 'tableNum',
-            key: 'tableNum',
-            render: (text:any, record:any) => {
-                return(
-                    <span>{record.tableNum}(只)</span>
-                )
-            }
-        },
+        // {
+        //     title: '表数量',
+        //     dataIndex: 'tableNum',
+        //     key: 'tableNum',
+        //     render: (text:any, record:any) => {
+        //         return(
+        //             <span>{record.tableNum}(只)</span>
+        //         )
+        //     }
+        // },
         {
             title: '备注',
             dataIndex: 'remark',
@@ -94,13 +96,20 @@ const Collector=(props:any)=>{
             key: 'cao',
             render:(text:any,record:any)=>{
                 return(
-                    <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
+                    <Space>
+                        <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
+                        <Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>
+                    </Space>
                 )
             }
         },
-    ]
+    ];
     const toadd=()=>{
         history.push('/waterCableManage/addCollector')
+    };
+    const isdelete=(e)=>{
+        setUid(e);
+        setIsOpen(true);
     };
     // 分页
     const logFenye=()=>{
@@ -130,9 +139,27 @@ const Collector=(props:any)=>{
             payload:{collector_number,stutes}
         })
         logFenye();
-    }
+    };
+    // 删除确定按钮
+    const onOk=()=>{
+      setspinning(true);
+      props.dispatch({
+          type:"Collector/remove",
+          payload:uid
+      }).then((res:TypeErrorCode)=>{
+          if (res.ErrorCode==0){
+              setspinning(false);
+              setIsOpen(false);
+              message.success('删除成功');
+          }else {
+              setspinning(false);
+              setIsOpen(false);
+              message.error(res.Data);
+          }
+      })
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
@@ -186,7 +213,10 @@ const Collector=(props:any)=>{
                 rowKey={(columns) => columns.id}
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            <Modal onOk={onOk} open={isOpen} onCancel={()=>setIsOpen(false)} loading={spinning}>
+                <div>是否要删除该采集器</div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

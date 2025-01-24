@@ -1,4 +1,4 @@
-import {Button, Input, List, message, Pagination, Select, Space, Table} from "antd";
+import {Button, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
@@ -9,6 +9,8 @@ const MovementCable=(props:any)=>{
     const [name,setName]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [tenant,settenant]=useState(0);
+    const [spinning,setspinning]=useState(false);
     const columns =[
         {
             title: '抄表时间',
@@ -23,19 +25,26 @@ const MovementCable=(props:any)=>{
             },
         },
         {
-            title: '采集器编号',
+            title: '电表地址',
             dataIndex: 'collector_id',
             key: 'collector_id',
         },
-        {
-            title: '通讯地址',
-            dataIndex: 'address',
-            key: 'address',
-        },
+        // {
+        //     title: '电表描述',
+        //     dataIndex: 'remark',
+        //     key: 'remark',
+        // },
         {
             title: '租户',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {record.tenant_name==null?<Tag color='red'>未绑定租户</Tag>:<Tag color='green'>{record.tenant_name}</Tag>}
+                    </div>
+                )
+            },
         },
         {
             title: '抄表前电量',
@@ -64,13 +73,16 @@ const MovementCable=(props:any)=>{
     ];
     // 手动抄表
     const shoudong=()=>{
+        setspinning(true);
         props.dispatch({
             type:'MovementCable/shoudong'
         }).then((res:any)=>{
             if (res.ErrorCode==0){
-                message.success('抄表成功')
+                message.success('抄表成功');
+                setspinning(false);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setspinning(false);
             }
         })
     };
@@ -79,7 +91,7 @@ const MovementCable=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'MovementCable/fenye',
-            payload:{collector_id,name,startDate,endDate}
+            payload:{collector_id,name,startDate,endDate,tenant}
         });
         logFenye()
     };
@@ -87,18 +99,19 @@ const MovementCable=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"MovementCable/fetch",
-            payload:{page,collector_id,name,startDate,endDate}
+            payload:{page,collector_id,name,startDate,endDate,tenant}
         })
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props)
     }, [page]);
     // 监听页数
     const onChange=(e:number)=>{
       setPage(e)
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
@@ -108,7 +121,7 @@ const MovementCable=(props:any)=>{
                     </div>
                     <Space>
                         <Input
-                            addonBefore="采集器编号:"
+                            addonBefore="电表地址:"
                             onChange={(e)=>setCollector_id(e.target.value)}
                         />
                         <Input
@@ -133,7 +146,7 @@ const MovementCable=(props:any)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

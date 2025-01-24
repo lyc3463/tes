@@ -1,6 +1,6 @@
 import {connect} from "umi";
 import {useState,useEffect} from "react";
-import {Button, DatePicker, Form, Input, InputNumber, List, Modal, Pagination, Select, Space, Table} from "antd";
+import {Button, DatePicker, Form, Input, InputNumber, List, Modal, Pagination, Select, Space, Table, Tag} from "antd";
 import dayjs from "dayjs";
 
 const PayReportForms=(props)=>{
@@ -10,26 +10,36 @@ const PayReportForms=(props)=>{
     const [type,setType]=useState(0);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [userID,setuserID]=useState(0);
     const columns =[
         {
             title: '日期',
             dataIndex: 'consumptionDate',
             key: 'consumptionDate',
-            render: (text:any, record:any) => {
+            render:(text:any,record:any)=>{
                 return(
-                    <div>{dayjs(record.consumptionDate).format('YYYY-MM-DD')}</div>
+                    <div>
+                        {dayjs(record.consumptionDate).format('YYYY-MM-DD')}
+                    </div>
                 )
             }
         },
         {
             title: '姓名',
-            dataIndex: 'appUser_name',
-            key: 'appUser_name',
+            dataIndex: 'user_name',
+            key: 'user_name',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.user_name==null?<Tag color='red'>未绑定租户</Tag>:<Tag>{record.user_name}</Tag>}
+                    </div>
+                )
+            }
         },
         {
-            title: '联系方式',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
+            title: '手机号',
+            dataIndex: 'phone',
+            key: 'phone',
         },
         {
             title: '类型',
@@ -39,67 +49,65 @@ const PayReportForms=(props)=>{
                 let consumptionTypeText;
                 switch (item.consumptionType) {
                     case 1:
-                        consumptionTypeText = '充值';
+                        consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>充值</Tag>;
                         break;
                     case 2:
-                        consumptionTypeText = '租金';
+                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金</Tag>;
                         break;
                     case 3:
-                        consumptionTypeText = '电费';
+                        consumptionTypeText = <Tag style={{ color: '#2196F3' }}>电费</Tag>;
                         break;
                     case 4:
-                        consumptionTypeText = '水费';
+                        consumptionTypeText = <Tag style={{ color: '#FFC107' }}>水费</Tag>;
                         break;
                     case 5:
-                        consumptionTypeText = '公共缴费';
+                        consumptionTypeText = <Tag style={{ color: '#9C27B0' }}>公共缴费</Tag>;
                         break;
                     case 6:
-                        consumptionTypeText = '违约金';
+                        consumptionTypeText = <Tag style={{ color: '#E91E63' }}>手动充值</Tag>;
                         break;
                     case 7:
-                        consumptionTypeText = '物业管理费';
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>损耗</Tag>;
                         break;
                     case 8:
-                        consumptionTypeText = '物业管理费';
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
                         break;
                     default:
-                        consumptionTypeText = '未知类型';
+                        consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
                 return (
-                    <div>
-                        {consumptionTypeText}
-                    </div>
+                    consumptionTypeText
                 );
             }
         },
         {
-            title: '金额(元)/积分(分)',
+            title: '金额(元)',
             dataIndex: 'consumptionMoney',
             key: 'consumptionMoney',
         },
         {
-            title: '小程序用户金钱余额(元)',
-            dataIndex: 'appUser_balance',
-            key: 'appUser_balance',
+            title: '原余额(元)',
+            dataIndex: 'oldMoney',
+            key: 'oldMoney',
         },
         {
-            title: '小程序用户积分余额(分)',
-            dataIndex: 'appUser_integral',
-            key: 'appUser_integral',
+            title: '余额(元)',
+            dataIndex: 'newMoney',
+            key: 'newMoney',
         },
     ];
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"PayReportForms/fetch",
-            payload:{page,name,phone,type,startDate,endDate}
+            payload:{page,name,phone,type,startDate,endDate,userID}
         })
     };
     const sousuo=()=>{
         setPage(1);
         props.dispatch({
             type:'PayReportForms/fenye',
-            dispatch:{name,phone,type,startDate,endDate}
+            dispatch:{name,phone,type,startDate,endDate,userID}
         });
         logFenye();
     };
@@ -178,9 +186,9 @@ const PayReportForms=(props)=>{
                                     { value:3, label: '电费' },
                                     { value:4, label: '水费' },
                                     { value:5, label: '公共缴费' },
-                                    { value:6, label: '违约金' },
-                                    { value:7, label: '物业管理费' },
-                                    { value:8, label: '积分' },
+                                    { value:6, label: '手动充值' },
+                                    { value:7, label: '损耗' },
+                                    { value:8, label: '违约金' },
                                 ]}
                             />
                         </Space.Compact>

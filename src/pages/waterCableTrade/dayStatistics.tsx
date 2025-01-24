@@ -34,11 +34,21 @@ const DayStatistics=(props:any)=>{
             ),
         },
         {
-            title: '用电',
+            title: '总用电',
             dataIndex: 'energyUsages',
             render: (_: any, record: any) => (
                 <div>
                     {record.energyUsages}kWh
+                </div>
+
+            ),
+        },
+        {
+            title: '积累用电',
+            dataIndex: 'eleNumSum',
+            render: (_: any, record: any) => (
+                <div>
+                    {record.eleNumSum}kWh
                 </div>
 
             ),
@@ -51,7 +61,7 @@ const DayStatistics=(props:any)=>{
             title: '操作',
             dataIndex: 'complaint_content',
             render: (_: any, record: any) => (
-                <Button onClick={()=>toInfo(record.recordTimes)}>详情</Button>
+                <Button onClick={()=>toInfo(record.recordTimes)} type='primary'>详情</Button>
             ),
         },
     ];

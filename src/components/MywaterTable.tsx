@@ -46,7 +46,7 @@ const MyTable=(props:any)=>{
         }
     };
     const getList=(vals:string,vals2:string)=>{
-        StatisticsService.fetch(page,'','',vals,vals2).then((res:any)=>{
+        StatisticsService.fetch(page,'','',vals,vals2,0).then((res:any)=>{
             if (res.ErrorCode==0){
                 console.log(res);
                 setList(res.Data)

@@ -40,30 +40,18 @@ const Wcxuserlist=(props:any)=>{
         },
         {
             title: '余额(元)',
-            dataIndex: 'appUser_balance',
-            key: 'appUser_balance',
+            dataIndex: 'balance',
+            key: 'balance',
         },
         {
-            title: '账单',
-            dataIndex: 'appUser_bill',
-            key: 'appUser_bill',
+            title: '账单(元)',
+            dataIndex: 'billMoney',
+            key: 'billMoney',
         },
         {
             title: '积分',
-            dataIndex: 'appUser_integral',
-            key: 'appUser_integral',
-        },
-        {
-            title: '状态',
-            dataIndex: 'appUserStatus',
-            key: 'appUserStatus',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.appUserStatus==1?<Tag color='green'>已绑定</Tag>:<Tag color='red'>未绑定</Tag>}
-                    </div>
-                )
-            }
+            dataIndex: 'integral',
+            key: 'integral',
         },
         {
             title: '权限',
@@ -104,9 +92,11 @@ const Wcxuserlist=(props:any)=>{
     // 监听页数
     const onChange=(page)=>{
         setPage(page);
-        logFenye();
+
     };
     useEffect(() => {
+        logFenye();
+        console.log('props',props);
     }, [page]);
     // 弹窗信息
     const editInfo=(vla:any)=>{
@@ -131,6 +121,7 @@ const Wcxuserlist=(props:any)=>{
     const onOk=()=>{
         setIsSpinning(true);
         let joinqx=selected.join('');
+        // console.log(joinqx)
         props.dispatch({
             type:'AppUser/edit',
             payload:{openID,joinqx}
@@ -141,6 +132,7 @@ const Wcxuserlist=(props:any)=>{
                 setIsOpen(false);
             }else {
                 message.error(res.Data);
+                setIsOpen(false);
                 setIsSpinning(false);
             }
         })
@@ -197,13 +189,40 @@ const Wcxuserlist=(props:any)=>{
                 pagination={false}
                 dataSource={props.AppUserList}
                 size='small'
+                scroll={{y:'60vh'}}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                                总人数:{props.count?props.count.count:''}人
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>
+                                {props.count?props.count.balanceSum:''}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}>
+                                {props.count?props.count.billMoneySum:''}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>
+                                {props.count?props.count.integralSum:''}分
+                            </Table.Summary.Cell>
+
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             {/*编辑权限弹窗*/}
-            <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk}>
+            <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk} loading={isSpinning}>
                 <Space>
                     <Button type='primary' onClick={()=>setSelected(Array(346).fill('1'))}>全选</Button>
                     <Button type='primary' onClick={()=>setSelected(Array(346).fill('0'))}>反选</Button>

@@ -24,19 +24,23 @@ const Zuhuguanlian=(props:any)=>{
         },
         {
             title: '余额(元)',
-            dataIndex: 'appUser_balance',
-            key: 'appUser_balance',
+            dataIndex: 'balance',
+            key: 'balance',
         },
         {
             title: '积分(分)',
-            dataIndex: 'appUser_integral',
-            key: 'appUser_integral',
+            dataIndex: 'integral',
+            key: 'integral',
         },
-
         {
-            title: '账单',
-            dataIndex: 'appUser_bill',
-            key: 'appUser_bill',
+            title: '全部账单(元)',
+            dataIndex: 'billMoney',
+            key: 'billMoney',
+        },
+        {
+            title: '公共押金(元)',
+            dataIndex: 'deposit',
+            key: 'deposit',
         },
         {
             title: '关联状态',
@@ -46,7 +50,7 @@ const Zuhuguanlian=(props:any)=>{
                 return(
                     <Space>
                         {
-                            record.open_id?<Tag color='green'>已关联</Tag>:<Tag color='red'>未关联</Tag>
+                            record.open_id?<Tag color='green'>已关联</Tag>:<Tag color='red'>用户未登录</Tag>
                         }
                     </Space>
                 )
@@ -60,6 +64,7 @@ const Zuhuguanlian=(props:any)=>{
                 return(
                     <Space>
                         <Button type='link' onClick={()=>toguanlian(record.id)}>关联</Button>
+                        <Button type='link' onClick={()=>toyajinlist(record.id)}>押金列表</Button>
                     </Space>
                 )
             }
@@ -69,27 +74,39 @@ const Zuhuguanlian=(props:any)=>{
     const toguanlian=(e:number)=>{
         history.push(`/kehu/byzhuhu?id=${e}`)
     };
+    // 去关联页面
+    const toyajinlist=(e:number)=>{
+        history.push(`/kehu/yajinlist?id=${e}`)
+    };
     useEffect(() => {
         logFenye();
     }, [page]);
+    useEffect(() => {
+        logFenyeInfo();
+        console.log('props',props);
+    }, []);
     // 分页
     const logFenye=()=>{
         props.dispatch({
-            type:"Zuhu/fetch",
+            type:"BYZhuhu/fetch",
             payload:{page,name,phone}
         })
     };
     // 搜索按钮
     const shousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'Zuhu/fetch',
-            payload:{page,name,phone}
-        });
+        logFenyeInfo();
         logFenye()
     };
+    // 查看分页记录
+    const logFenyeInfo=()=>{
+        props.dispatch({
+            type:'BYZhuhu/fetch',
+            payload:{page,name,phone}
+        });
+    };
     const onChange=(val:number)=>{
-        setPage(val)
+        setPage(val);
     };
     return(
         <div>
@@ -116,18 +133,49 @@ const Zuhuguanlian=(props:any)=>{
                 size='small'
                 rowKey={(columns) => columns.id}
                 dataSource={props.ZuhuList}
-                scroll={{x:1500}}
+                scroll={{x:1500,y:'60vh'}}
                 pagination={false}
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                                总人数:{props.count?props.count.count:''}人
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>
+                                {props.count?props.count.balanceSum:''}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>
+                                {props.count?props.count.integralSum:''}分
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {props.count?props.count.billMoneySum:''}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={8}
+                            >
+                                {props.count?props.count.depositSum:''}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-
         </div>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
-        ZuhuList: state.Zuhu.list,
-        count: state.Zuhu.count,
+        ZuhuList: state.BYZhuhu.list,
+        count: state.BYZhuhu.count,
     }
 };
 export default connect(mapStateToProps) (Zuhuguanlian)

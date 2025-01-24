@@ -6,6 +6,9 @@ const UserManage=(props:any)=>{
     const [did,setDid]=useState(0);
     const [isspinning,setisspinning]=useState(false);
     const [isopen,setisopen]=useState(false);
+    const [page,setPage]=useState(1);
+    const [name,setName]=useState('');
+    const [phone,setPhone]=useState('');
     const columns =[
         {
             title: '用户姓名',
@@ -38,11 +41,18 @@ const UserManage=(props:any)=>{
         history.push(`/systemManage/editUser?id=${e}`)
     };
     useEffect(() => {
-        console.log(props)
+        console.log(props);
     }, []);
     const isDelete=(e:number)=>{
         setisopen(true);
         setDid(e);
+    };
+    // 获取用户列表
+    const getUserList=()=>{
+      props.dispatch({
+          type:'/Usersfetch',
+          payload:{page,name,}
+      })
     };
     const onOk=()=>{
         setisspinning(true);

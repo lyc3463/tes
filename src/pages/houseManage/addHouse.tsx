@@ -1,25 +1,30 @@
-import {Button, Form, Input, InputNumber, message} from "antd";
+import {Button, Form, Input, InputNumber, message, Spin} from "antd";
 import {connect, history} from "umi";
+import {useState} from "react";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddHouse=(props:any)=>{
     const [form] = Form.useForm();
+    const [spinning,setspinning]=useState(false);
     const onFinish=async (values:any)=>{
+        setspinning(true);
         let res=await props.dispatch({
             type:'House/add',
             payload:values
         })
         if (res.ErrorCode==0){
+            setspinning(false);
             message.success('添加成功')
             history.push('/houseManage/houseList')
         }else {
-            message.error(res.Data)
+            message.error(res.Data);
+            setspinning(false);
         }
     }
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -59,7 +64,7 @@ const AddHouse=(props:any)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 export default connect() (AddHouse)

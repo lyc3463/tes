@@ -1,10 +1,12 @@
 import {useEffect, useRef, useState} from "react";
 import {connect,history,useLocation} from "umi";
 import * as EmpServer from "@/services/emp";
-import {Button, DatePicker, Form, Image, Input, message, Radio, Select, Space, Upload} from "antd";
+import {Button, DatePicker, Form, Image, Input, message, Radio, Select, Space, Spin, Upload} from "antd";
 import dayjs from "dayjs";
 import CmpImageUploader from "@/components/ImageUploader";
 import {filterAndUpdateList} from "@/utils/OpenTool";
+import * as GroupingServer from "@/services/grouping";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -21,15 +23,24 @@ const EditYuangong=(props:any)=>{
     const [eendtime,seteendtime]=useState('');
     // 图片原本的名字
     const [oldImgName,setOldImgName]=useState('');
+    // 转圈
+    const [spinning,setspinning]=useState(false);
+    // 闸机原始列表列表
+    const [gateList,setGateList]=useState([]);
+    // 选择闸机列表
+    const [obtain,setobtain]=useState([]);
     const location=useLocation();
     const getOneEmp=async (id:string)=>{
         let res:any=await  EmpServer.one(id);
         if (res.ErrorCode==0){
+            console.log('res',res);
             formRef.current.setFieldsValue(res.Data);
             setFileBase64(res.Data.avatarBase64);
             setOldImgName(res.Data.empFileName);
-            seteendtime(dayjs(res.Data.eendtime).format('YYYY-MM-DD HH:mm:ss'));
-            setEstarttime(dayjs(res.Data.estarttime).format('YYYY-MM-DD HH:mm:ss'));
+            let splicegateIds=res.Data.gateIds.split("|").map(Number);
+            setobtain(splicegateIds);
+            seteendtime(dayjs(res.Data.eendtime).format('YYYY-MM-DD'));
+            setEstarttime(dayjs(res.Data.estarttime).format('YYYY-MM-DD'));
         }else {
             message.error(res.Data)
         }
@@ -40,19 +51,23 @@ const EditYuangong=(props:any)=>{
         setUid(id);
         getOneEmp(id);
         getGroupingList();
+        getGeteList();
     },[]);
     // 修改上传
     const onFinisn=(values:any)=>{
+        setspinning(true);
+        let jsonObtain=obtain.join("|");
         props.dispatch({
             type:'Emp/edit',
-            payload:{...values,uid,estarttime,eendtime,oldImgName}
+            payload:{...values,uid,estarttime,eendtime,oldImgName,jsonObtain}
         }).then((res)=>{
             if (res.ErrorCode==0){
-                message.success('修改成功')
-                history.push('/enter/yuangonglData')
+                message.success('修改成功');
+                setspinning(false);
+                history.push('/enter/yuangonglData');
             }else {
-                message.error(res.Data)
-
+                message.error(res.Data);
+                setspinning(false);
             }
         })
     };
@@ -70,8 +85,46 @@ const EditYuangong=(props:any)=>{
             type:'Grouping/fetch'
         })
     };
+    // 选择闸机
+    const changeGrouping=(e:number)=>{
+        GroupingServer.one(e).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let newArr :any[]=mapArrList(res.Data[1]);
+                setobtain(newArr);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
+    // 遍历数组
+    const mapArrList=(item:any[])=>{
+        let arr=item.map((item:any)=>{
+            return item.id
+        })
+        return arr
+    };
+    const changeGate=(e)=>{
+        setobtain(e);
+    };
+    // 获取闸机列表
+    const getGeteList=()=>{
+        props.dispatch({
+            type:'Gate/fetch',
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                console.log("res",res)
+                setGateList(res.Data);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
+    const changeData=(_,item)=>{
+        setEstarttime(item[0]);
+        seteendtime(item[1]);
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -83,7 +136,7 @@ const EditYuangong=(props:any)=>{
             >
                 <Form.Item label='授权开始/结束时间'>
                     {
-                        eendtime&&estarttime?<DatePicker.RangePicker showTime  defaultValue={[dayjs(estarttime), dayjs(eendtime)]}/>:''
+                        eendtime&&estarttime?<DatePicker.RangePicker  defaultValue={[dayjs(estarttime), dayjs(eendtime)]} onChange={changeData}/>:''
                     }
                 </Form.Item>
                 <Form.Item label='员工姓名' name='name'>
@@ -98,8 +151,8 @@ const EditYuangong=(props:any)=>{
                 <Form.Item label='所在公司' name='companyName'>
                     <Input placeholder='员工所在公司'/>
                 </Form.Item>
-                <Form.Item label='闸机分组' name='groupId'>
-                    <Select>
+                <Form.Item label='闸机分组'>
+                    <Select onChange={changeGrouping} mode="multiple">
                         {props.GroupingList&&props.GroupingList.length>0?props.GroupingList.map((item:any,index:any)=>{
                             return(
                                 <Select.Option value={item.id} key={index}>
@@ -107,6 +160,17 @@ const EditYuangong=(props:any)=>{
                                 </Select.Option>
                             )
                         }):''}
+                    </Select>
+                </Form.Item>
+                <Form.Item label='闸机列表'>
+                    <Select onChange={changeGate} value={obtain} mode="multiple">
+                        {gateList.map((item:any,index:any)=>{
+                            return(
+                                <Select.Option value={item.id} key={index}>
+                                    {item.position}
+                                </Select.Option>
+                            )
+                        })}
                     </Select>
                 </Form.Item>
                 <Form.Item label='员工人脸'>
@@ -121,7 +185,7 @@ const EditYuangong=(props:any)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

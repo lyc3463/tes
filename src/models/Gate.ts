@@ -32,6 +32,7 @@ export interface GateInterface {
         edit: Effect;
         remove: Effect;
         fenye: Effect;
+        synchronous: Effect;
     };
     reducers: {
         list: Reducer<GateType[]>;
@@ -54,6 +55,7 @@ const GateModels: GateInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.Gate.list);
@@ -70,9 +72,15 @@ const GateModels: GateInterface = {
             yield take('fetch/@@end');
             return result
         },
+        *synchronous({ payload }, { call, put,take }): any {
+            const result = yield call(GateService.synchronous, payload);
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
+            return result
+        },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(GateService.edit, payload);
-            yield put({ type: 'fetch', payload: {pl} });
+            yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },

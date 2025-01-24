@@ -1,4 +1,4 @@
-import {Button, Form, Input, InputNumber, message, Radio} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio, Spin} from "antd";
 import {useEffect, useState} from "react";
 import {connect, history} from "umi";
 const tailLayout = {
@@ -16,7 +16,7 @@ const AddCableParameter=(props:any)=>{
     // 损耗
     const [loss,setLoss]=useState(0)
     // 损耗每多少小时扣费
-    const [every_price,setEvery_price]=useState(0)
+    const [every_price,setEvery_price]=useState(1)
     // 第一阶梯单价总数=阶梯1基础价+阶梯1附加单价
     const [stepPrice1,setStepPrice1]=useState(0)
     // 阶梯1基础价格
@@ -76,6 +76,7 @@ const AddCableParameter=(props:any)=>{
 
     const [minute_price,setMinute_price]=useState(0)
     const [form] = Form.useForm();
+    const [spinning,setspinning]=useState(false);
     // 监听水价基础价
     const listenbasicPrice=(e)=>{
         setBase_price1(e)
@@ -122,7 +123,7 @@ const AddCableParameter=(props:any)=>{
     }
     // 监听每多少小时扣费
     const changPrice=(e)=>{
-        setEvery_price(e*24*60)
+        setEvery_price(e)
     }
     // 监听阶梯值1
     const changeStep_value1=(e)=>{
@@ -217,6 +218,7 @@ const AddCableParameter=(props:any)=>{
     ])
 
     const onFinish = async (values: any) => {
+        setspinning(true);
         let res=await props.dispatch({
             type:'CableParameter/add',
             payload:{...values,
@@ -249,14 +251,16 @@ const AddCableParameter=(props:any)=>{
             }
         })
         if (res.ErrorCode==0){
+            setspinning(false);
             message.success('添加成功');
             history.push('/waterCableManage/parameter')
         }else {
-            message.error(res.Data)
+            message.error(res.Data);
+            setspinning(false);
         }
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -283,15 +287,20 @@ const AddCableParameter=(props:any)=>{
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>(元/kWh) =基础价
                             <InputNumber style={{width:'80px'}} min={0} onChange={listenbasicPrice}/>+附加单价
                             <InputNumber style={{width:'80px'}} min={0}  onChange={listenadditionalPrice}/>
-                            (每<InputNumber step={1} precision={0} min={0} style={{width:'80px'}} onChange={changeMinute}/>小时收费一次)
+                            {/*(每<InputNumber step={1} precision={0} min={0} style={{width:'80px'}} onChange={changeMinute}/>小时收费一次)*/}
+                            <span style={{fontSize:'12px',color:'#555'}}>(每1小时收费一次)</span>
                         </Form.Item>
-                        <Form.Item label='损耗'>
-                            <InputNumber defaultValue={loss} style={{width:'80px'}} onChange={changeLoss}/>
-                            (kWh)<span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                            每<InputNumber style={{width:'80px'}} step={1} precision={0} min={0} onChange={changPrice}/>天收费一次
-                        </Form.Item>
+
                     </>
                     :''}
+                {changeValue===3||changeValue===4||changeValue===5?
+                    <Form.Item label='损耗'>
+                        <InputNumber value={loss} style={{width:'80px'}} onChange={changeLoss}/>
+                        (元/kWh)<span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
+                        每<InputNumber value={every_price} style={{width:'80px'}} step={1} precision={0} min={1} onChange={changPrice}/>天收费一次
+                        {/*<span style={{fontSize:'12px',color:'#555'}}>(每1天收费一次)</span>*/}
+                    </Form.Item>:''
+                }
                 {
                     changeValue===4?<>
                         <Form.Item label='尖单价'>
@@ -375,7 +384,7 @@ const AddCableParameter=(props:any)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 export default connect() (AddCableParameter)

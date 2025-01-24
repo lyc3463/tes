@@ -1,8 +1,23 @@
-import {Button, DatePicker, Image, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Image,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag
+} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as EmpService from "@/services/emp";
 import {history,connect} from "umi";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const CheckStaff=(props:any)=>{
     const [uid,setUid]=useState<number>(0);
@@ -17,7 +32,20 @@ const CheckStaff=(props:any)=>{
     const [nickname,setNickname]=useState('');
     // 手机号
     const [phone,setPhone]=useState('');
+    const [spinning,setspinning]=useState(false);
     const columns =[
+        {
+            title: '登记日期',
+            dataIndex: 'begintime',
+            key: 'begintime',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {dayjs(record.begintime).format('YYYY-MM-DD')}
+                    </div>
+                )
+            }
+        },
         {
             title: '到期时间',
             dataIndex: 'eendtime',
@@ -25,7 +53,7 @@ const CheckStaff=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        {dayjs(record.estarttime).format('YYYY-MM-DD')}
+                        {dayjs(record.eendtime).format('YYYY-MM-DD')}
                     </div>
                 )
             }
@@ -88,7 +116,7 @@ const CheckStaff=(props:any)=>{
                                 <Space>
                                     {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
                                     <Button type='link' onClick={()=>check(record)}>审核通过</Button>
-                                    <Button type='link' color='red'>删除</Button>
+                                    {/*<Button type='link' color='red'>删除</Button>*/}
                                 </Space>
                         }
                     </div>
@@ -108,15 +136,19 @@ const CheckStaff=(props:any)=>{
     };
     // 弹窗确定
     const OK=()=>{
+        setspinning(true);
         props.dispatch({
-            type:'Emp/checkOK',
+            type:'CheckEmp/checkOK',
             payload:{uid}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('已通过,等待闸机服务器响应');
                 setOpen(false);
+                setspinning(false);
             }else {
                 message.error(res.Data);
+                setOpen(false);
+                setspinning(false);
             }
         });
     };
@@ -124,15 +156,15 @@ const CheckStaff=(props:any)=>{
     const sousuo=()=>{
         setPage(1);
         props.dispatch({
-            type:'Emp/fenye',
+            type:'CheckEmp/fenye',
             payload:{cname,nickname,phone,stutes}
-        });
+        })
         logFenye();
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
-            type:"Emp/fetch",
+            type:"CheckEmp/fetch",
             payload:{page,cname,nickname,phone,stutes}
         })
     };
@@ -147,6 +179,7 @@ const CheckStaff=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props)
     }, [page]);
     // 监听员工姓名
     const changeName=(e)=>{
@@ -160,9 +193,8 @@ const CheckStaff=(props:any)=>{
     const changePhone=(e)=>{
         setPhone(e.target.value);
     };
-
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -198,9 +230,9 @@ const CheckStaff=(props:any)=>{
                                 defaultValue={stutes}
                                 style={{ width: 120 }}
                                 options={[
-                                    { value:2, label: '全部' },
-                                    { value:0, label: '未审核' },
-                                    { value:1, label: '已审核' },
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '未审核' },
+                                    { value:2, label: '已审核' },
                                 ]}
                             />
                         </Space.Compact>
@@ -221,16 +253,16 @@ const CheckStaff=(props:any)=>{
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             {/*    审核弹窗*/}
-            <Modal onOk={OK} onCancel={()=>setOpen(false)} open={isopen} title='是否通过'>
+            <Modal onOk={OK} onCancel={()=>setOpen(false)} open={isopen} title='是否通过' loading={spinning}>
                 <div>确定要通过吗？</div>
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
-        EmpList: state.Emp.list,
-        count: state.Emp.count,
+        EmpList: state.CheckEmp.list,
+        count: state.CheckEmp.count,
     }
 };
 export default  connect(mapStateToProps) (CheckStaff)

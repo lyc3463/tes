@@ -13,7 +13,7 @@ import { fixPathname } from '@/utils/common';
 let pl={
     page:1,
     name:'',
-    type:2,
+    billtype:0,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
     tenantId:0
@@ -59,7 +59,7 @@ const MonthlyBillModel: MonthlyBillInterface = {
             }
         },
         *fenye({ type, payload }, { put, call, select }): any {
-            const res = yield call(MonthlyBillService.fenye, pl);
+            const res = yield call(MonthlyBillService.fenye, payload?payload:pl);
             // const resc = yield call(
             //   GongsiService.fetchcount,
             //   _.omit(pl, ['page']),
@@ -99,12 +99,12 @@ const MonthlyBillModel: MonthlyBillInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/billLog/monthlyBill/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/billLog/monthlyBill/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
                 if (StaticInfo.userId > 0 && pathname === '/billLog/monthlyBill/') {
                     dispatch({
                         type: 'fenye',

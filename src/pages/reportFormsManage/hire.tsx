@@ -8,6 +8,8 @@ const Hire=(props:any)=>{
     const [name,setName]=useState('');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
+    const [stutes,setstutes]=useState(0);
+    const [house_id,sethouse_id]=useState(0);
     const columns =[
         {
             title: '所属房屋',
@@ -99,9 +101,9 @@ const Hire=(props:any)=>{
             width: 100,
             render: (text:any, record:any) => {
                 let statusText;
-                if (text === 1) {
+                if (text === 2) {
                     statusText = <Tag color="green">已租</Tag>; // 假设使用Ant Design的Tag组件来显示状态
-                } else if (text === 2) {
+                } else if (text === 1) {
                     statusText = <Tag color="blue">未租</Tag>;
                 } else if (text === 3) {
                     statusText = <Tag color="red">退租</Tag>;
@@ -125,7 +127,7 @@ const Hire=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Hire/fetch",
-            payload:{page,name,phone,beginRents,endRents}
+            payload:{page,name,phone,beginRents,endRents,stutes,house_id}
         })
     };
     // 搜索按钮
@@ -133,7 +135,7 @@ const Hire=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'Hire/fenye',
-            payload:{name,phone,beginRents,endRents}
+            payload:{name,phone,beginRents,endRents,stutes,house_id}
         });
         logFenye()
     };

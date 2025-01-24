@@ -1,14 +1,26 @@
-import {Button, DatePicker, Image, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Image,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag
+} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
-import * as EmpService from '@/services/emp';
-
 const YuangonglData=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
-    // 审核状态 2全部  0未审核 1已审核
-    const [stutes,setStutes]=useState(0);
+    // 审核状态 0全部  1未审核 2已审核
+    const [stutes,setStutes]=useState(1);
     // 姓名
     const [cname,setCname]=useState('');
     // 昵称
@@ -19,17 +31,18 @@ const YuangonglData=(props:any)=>{
     const [uid,setUid]=useState(0);
     // 删除的名称
     const [uname,setUname]=useState('');
+    const [spinning,setspinning]=useState(false);
 
     const [isOpen,setIsOpen]=useState(false);
     const columns =[
         {
             title: '登记日期',
-            dataIndex: 'estarttime',
-            key: 'estarttime',
+            dataIndex: 'begintime',
+            key: 'begintime',
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        {dayjs(record.estarttime).format('YYYY-MM-DD')}
+                        {dayjs(record.begintime).format('YYYY-MM-DD')}
                     </div>
                 )
             }
@@ -69,7 +82,7 @@ const YuangonglData=(props:any)=>{
             key: 'phone',
         },
         {
-            title: '公司名称',
+            title: '公司名称/单元号',
             dataIndex: 'companyName',
             key: 'companyName',
         },
@@ -151,6 +164,7 @@ const YuangonglData=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props);
     }, [page]);
     // 监听员工姓名
     const changeName=(e)=>{
@@ -166,20 +180,24 @@ const YuangonglData=(props:any)=>{
     };
     // 删除的确定按钮
     const onOk=()=>{
+        setspinning(true);
         props.dispatch({
             type:'Emp/delete',
             payload:uid
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('删除成功');
-                setIsOpen(false)
+                setIsOpen(false);
+                setspinning(false);
             }else {
                 message.error(res.Data);
+                setspinning(false);
+                setIsOpen(false);
             }
         })
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
@@ -242,12 +260,12 @@ const YuangonglData=(props:any)=>{
                     size='small'
                 />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-            <Modal onOk={onOk} open={isOpen} title={'删除人脸'} onCancel={()=>setIsOpen(false)}>
+            <Modal onOk={onOk} open={isOpen} title={'删除人脸'} onCancel={()=>setIsOpen(false)} loading={spinning}>
                 <div>
                     <span>是否要删除：<span style={{color:"red"}}>{uname}</span></span>
                 </div>
             </Modal>
-        </div>
+        </Spin>
     )
 }
 

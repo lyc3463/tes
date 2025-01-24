@@ -66,52 +66,52 @@ const Batch=()=>{
                 )
             },
         }
-    ]
+    ];
     const toadd=()=>{
-        history.push('/MeterReading/addBatch')
-    }
+        history.push('/MeterReading/addBatch');
+    };
     return(
         <div>
             <List>
                 <List.Item>
-                    <div>
-                        <Button type="primary" onClick={toadd}>
-                            创建批量任务
-                        </Button>
-                    </div>
-                    <Space>
-                        <Input
-                            addonBefore="批量任务名称:"
-                        />
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                任务类型:
-                            </div>
-                            <Select
-                                defaultValue="255"
-                                style={{ width: 120 }}
+                    {/*<div>*/}
+                    {/*    <Button type="primary" onClick={toadd}>*/}
+                    {/*        创建批量任务*/}
+                    {/*    </Button>*/}
+                    {/*</div>*/}
+                    {/*<Space>*/}
+                    {/*    <Input*/}
+                    {/*        addonBefore="批量任务名称:"*/}
+                    {/*    />*/}
+                    {/*    <Space.Compact>*/}
+                    {/*        <div*/}
+                    {/*            style={{*/}
+                    {/*                borderRadius: '6px',*/}
+                    {/*                borderStartEndRadius: 0,*/}
+                    {/*                borderEndEndRadius: 0,*/}
+                    {/*                padding: '0 11px',*/}
+                    {/*                border: '1px solid #d9d9d9',*/}
+                    {/*                display: 'flex',*/}
+                    {/*                alignItems: 'center',*/}
+                    {/*                borderInlineEnd: 0,*/}
+                    {/*            }}*/}
+                    {/*        >*/}
+                    {/*            任务类型:*/}
+                    {/*        </div>*/}
+                    {/*        <Select*/}
+                    {/*            defaultValue="255"*/}
+                    {/*            style={{ width: 120 }}*/}
 
-                                options={[
-                                    { value: '255', label: '全部' },
+                    {/*            options={[*/}
+                    {/*                { value: '255', label: '全部' },*/}
 
-                                ]}
-                            />
-                        </Space.Compact>
-                        <Button type="primary">
-                            搜索
-                        </Button>
-                    </Space>
+                    {/*            ]}*/}
+                    {/*        />*/}
+                    {/*    </Space.Compact>*/}
+                    {/*    <Button type="primary">*/}
+                    {/*        搜索*/}
+                    {/*    </Button>*/}
+                    {/*</Space>*/}
                 </List.Item>
             </List>
             <Table

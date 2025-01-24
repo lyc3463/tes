@@ -51,6 +51,7 @@ const AppUserModels: AppUserInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(AppUserService.edit, payload);
@@ -107,36 +108,14 @@ const AppUserModels: AppUserInterface = {
                         payload: location.state,
                     });
                 }
-                if (StaticInfo.userId > 0 && pathname === '/kehu/byzhuhu/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/kehu/editByzhuhu/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
+
                 if (StaticInfo.userId > 0 && pathname === '/propertyServerManage/addTenantInfo/') {
                     dispatch({
                         type: 'fetch',
                         payload: location.state,
                     });
                 }
-                if (StaticInfo.userId > 0 && pathname === '/billLog/manualRecharge/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/billLog/manualRecharge/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+            
 
             });
         },

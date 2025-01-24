@@ -1,62 +1,114 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
+import * as dateWaterService from '@/services/dateWater';
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+
 
 const WaterRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    // 租户姓名
     const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
-    const [type,setType]=useState(4);
+    // 表地址
+    const [cid,setCid]=useState('');
+    // 开始时间
     const [startDate,setStartDate]=useState('2000-01-01');
+    // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
+    // 租户ID
+    const [tenantId,settenantId]=useState(0);
+    // 水费扣费列表
+    const [waterRatelist,setwaterRateList]=useState([]);
+    // 总条数
+    const [count,setcount]=useState(0);
+    const [spinning,setspinning]=useState(false);
+    // 水费扣费统计
+    const [moneySum,setmoneySum]=useState(0);
+    // 扣费状态
+    const [recordStatus,setrecordStatus]=useState('扣费成功');
+    // 消耗度数累加
+    const [energyUsage,setenergyUsage]=useState(0);
+    // 水表备注
+    const [remark,setremark]=useState('');
+    // 获取水表扣费记录
+    const getwaterRateList=()=>{
+        setspinning(true);
+        dateWaterService.fetch(page,cid,name,startDate,endDate,tenantId,recordStatus,remark).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setspinning(false);
+                setwaterRateList(res.Data);
+            }else {
+                setspinning(false);
+                message.error(res.Data);
+            }
+        })
+    };
+    // 获取水表扣费记录分页
+    const getwaterFenye=()=>{
+        dateWaterService.fenye(cid,name,startDate,endDate,tenantId,recordStatus,remark).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                console.log("水费扣费分页信息",res)
+                setcount(res.Data.count);
+                setmoneySum(res.Data.moneySum);
+                setenergyUsage(res.Data.energyUsage);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'RechargeRate/fenye',
-            payload:{name,phone,type,startDate,endDate}
-        });
-        logFenye();
-    };
-    // 分页
-    const logFenye=()=>{
-        props.dispatch({
-            type:"RechargeRate/fetch",
-            payload:{page,name,phone,type,startDate,endDate}
-        })
+        getwaterRateList();
+        getwaterFenye();
     };
     // 监听页数
     const onChange=(e:number)=>{
         setPage(e);
     };
     useEffect(() => {
-        logFenye();
-        console.log(props)
+        getwaterRateList();
+        getwaterFenye();
+    }, []);
+    useEffect(() => {
+        getwaterRateList();
     }, [page]);
     const columns =[
         {
             title: '日期',
-            dataIndex: 'estarttime',
-            key: 'estarttime',
+            dataIndex: 'recordTime',
+            key: 'recordTime',
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {dayjs(record.estarttime).format('YYYY-MM-DD')}
+                        {dayjs(record.recordTime).format('YYYY-MM-DD HH:mm:ss')}
                     </div>
                 )
             }
         },
         {
-            title: '姓名',
-            dataIndex: 'appUser_name',
-            key: 'appUser_name',
+            title: '租户',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                    </div>
+                )
+            },
         },
         {
-            title: '手机号',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
+            title: '水表地址',
+            dataIndex: 'address',
+            key: 'address',
+        },
+        {
+            title: '电表描述',
+            dataIndex: 'remark',
+            key: 'remark',
         },
         {
             title: '类型',
@@ -65,25 +117,71 @@ const WaterRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.consumptionType==1?<Tag color='green'>充值</Tag>:<Tag color='red'>未知</Tag>}
+                        <Tag  color='green'>水费</Tag>
                     </div>
                 )
             }
         },
         {
-            title: '充值金额(元)',
-            dataIndex: 'consumptionMoney',
-            key: 'consumptionMoney',
+            title: '度数',
+            dataIndex: 'energyNew',
+            key: 'energyNew',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        <Tag  color='warning'>{record.energyNew-record.energyOld}m³</Tag>
+                    </div>
+                )
+            }
         },
+
+        // {
+        //     title: '旧度数',
+        //     dataIndex: 'energyOld',
+        //     key: 'energyOld',
+        //     render:(text:any,record:any)=>{
+        //         return(
+        //             <div>
+        //                 <Tag  color='warning'>{record.energyOld}m³</Tag>
+        //             </div>
+        //         )
+        //     }
+        // },
         {
-            title: '用户余额(元)',
-            dataIndex: 'appUser_balance',
-            key: 'appUser_balance',
+            title: '消耗度数',
+            dataIndex: 'energyUsage1',
+            key: 'energyUsage1',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        <Tag  color='warning'>{record.energyNew-record.energyOld}m³</Tag>
+                    </div>
+                )
+            }
         },
+        // {
+        //     title: '倍率',
+        //     dataIndex: 'rate',
+        //     key: 'rate',
+        //     render:(text:any,record:any)=>{
+        //         return(
+        //             <div>
+        //                 <Tag  color='cyan'>{record.rate}倍</Tag>
+        //             </div>
+        //         )
+        //     }
+        // },
         {
-            title: '用户积分余额(分)',
-            dataIndex: 'appUser_integral',
-            key: 'appUser_integral',
+            title: '扣费金额',
+            dataIndex: 'energyUsage',
+            key: 'energyUsage',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        <Tag  color='blue'>{record.energyUsage}元</Tag>
+                    </div>
+                )
+            }
         },
     ];
     // 监听日期
@@ -97,17 +195,21 @@ const WaterRate=(props)=>{
         }
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
                             onChange={(e)=>setName(e.target.value)}
-                            addonBefore="姓名:"
+                            addonBefore="租户姓名:"
                         />
                         <Input
-                            onChange={(e)=>setPhone(e.target.value)}
-                            addonBefore="手机号:"
+                            onChange={(e)=>setCid(e.target.value)}
+                            addonBefore="水表地址:"
+                        />
+                        <Input
+                            onChange={(e)=>setremark(e.target.value)}
+                            addonBefore="水表备注:"
                         />
                         <Space.Compact>
                             <div
@@ -136,19 +238,44 @@ const WaterRate=(props)=>{
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
-                dataSource={props.RechargeRateList}
+                dataSource={waterRatelist}
                 scroll={{y:'70vh'}}
                 rowKey={(columns) => columns.id}
                 size='small'
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+
+                            <Table.Summary.Cell index={5}>
+                                {energyUsage}m³
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={6}
+                            >
+                                {moneySum}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+        </Spin>
     )
 }
-const mapStateToProps = (state: any) => {
-    return {
-        RechargeRateList: state.RechargeRate.list,
-        count: state.RechargeRate.count,
-    }
-};
-export default connect(mapStateToProps) (WaterRate)
+
+export default connect() (WaterRate)

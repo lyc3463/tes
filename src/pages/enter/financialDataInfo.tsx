@@ -4,10 +4,11 @@ import {useEffect, useRef, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 import * as BillService from '@/services/bill';
 import dayjs from "dayjs";
-import {history} from "@@/core/history";
 import * as AccountService from "@/services/account";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-
+const tailLayout = {
+    wrapperCol: { offset: 4 },
+};
 
 const FinancialDataInfo=(props:any)=>{
     const formRef=useRef();
@@ -157,6 +158,10 @@ const FinancialDataInfo=(props:any)=>{
         });
         setSubjList(newarr);
     };
+    // 返回上一层
+    const togoBack=()=>{
+        window.history.back();
+    };
     return(
         <div style={{display:'flex',justifyContent:'space-around'}}>
             <Form
@@ -253,7 +258,9 @@ const FinancialDataInfo=(props:any)=>{
                 <Form.Item label='摘要' name='billAbstract' >
                     <Input.TextArea />
                 </Form.Item>
-
+                <Form.Item  {...tailLayout}>
+                    <Button onClick={togoBack} type='primary'>返回</Button>
+                </Form.Item>
             </Form>
         </div>
     )

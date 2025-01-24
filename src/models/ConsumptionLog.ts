@@ -17,6 +17,7 @@ let pl={
     type:0,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
+    userID:0,
 }
 
 export interface ConsumptionLogState {
@@ -59,7 +60,7 @@ const ConsumptionLogModel: ConsumptionLogInterface = {
             }
         },
         *fenye({ type, payload }, { put, call, select }): any {
-            const res = yield call(ConsumptionLogService.fenye, pl);
+            const res = yield call(ConsumptionLogService.fenye, payload?payload:pl);
             // const resc = yield call(
             //   GongsiService.fetchcount,
             //   _.omit(pl, ['page']),

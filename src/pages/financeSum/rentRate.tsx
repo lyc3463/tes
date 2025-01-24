@@ -1,30 +1,51 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
+import * as RechargeRateService from '@/services/rechargeRate';
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {alljiaofeifenye} from "@/services/ArrearsBill";
+import {zujinList} from "@/services/rechargeRate";
 
 const RentRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
-    const [type,setType]=useState(2);
+    const [tenandId,settenandId]=useState(0);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
+    // 总页码
+    const [count,setcount]=useState(0);
+    // 列表
+    const [dataSource,setdataSource]=useState([]);
+    // 租金管理费统计
+    const [moneySum,setmoneySum]=useState(0);
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'RechargeRate/fenye',
-            payload:{name,phone,type,startDate,endDate}
-        });
+        getzujinList();
         logFenye();
+    };
+    // 查看租金缴费列表
+    const getzujinList=()=>{
+        RechargeRateService.zujinList({page,name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setdataSource(res.Data);
+            }else {
+                message.error(res.Data);
+            }
+        })
     };
     // 分页
     const logFenye=()=>{
-        props.dispatch({
-            type:"RechargeRate/fetch",
-            payload:{page,name,phone,type,startDate,endDate}
+        RechargeRateService.zujinListFenye({name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setcount(res.Data.count);
+                setmoneySum(res.Data.moneySum);
+            }else {
+                message.error(res.Data);
+            }
         })
     };
     // 监听页数
@@ -33,82 +54,10 @@ const RentRate=(props)=>{
     };
     useEffect(() => {
         logFenye();
+    }, []);
+    useEffect(() => {
+        getzujinList();
     }, [page]);
-    const columns =[
-        {
-            title: '日期',
-            dataIndex: 'estarttime',
-            key: 'estarttime',
-            render:(text:any,record:any)=>{
-                return(
-                    <div>
-                        {dayjs(record.estarttime).format('YYYY-MM-DD')}
-                    </div>
-                )
-            }
-        },
-        {
-            title: '姓名',
-            dataIndex: 'appUser_name',
-            key: 'appUser_name',
-        },
-        {
-            title: '手机号',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
-        },
-        {
-            title: '类型',
-            dataIndex: 'consumptionType',
-            key: 'consumptionType',
-            render:(_:any,item:any)=>{
-                let consumptionTypeText;
-                switch (item.consumptionType) {
-                    case 1:
-                        consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>充值</Tag>;
-                        break;
-                    case 2:
-                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金</Tag>;
-                        break;
-                    case 3:
-                        consumptionTypeText = <Tag style={{ color: '#2196F3' }}>电费</Tag>;
-                        break;
-                    case 4:
-                        consumptionTypeText = <Tag style={{ color: '#FFC107' }}>水费</Tag>;
-                        break;
-                    case 5:
-                        consumptionTypeText = <Tag style={{ color: '#9C27B0' }}>公共缴费</Tag>;
-                        break;
-                    case 6:
-                        consumptionTypeText = <Tag style={{ color: '#E91E63' }}>违约金</Tag>;
-                        break;
-                    case 7:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>物业管理费</Tag>;
-                        break;
-                    default:
-                        consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
-                }
-                return (
-                    consumptionTypeText
-                );
-            }
-        },
-        {
-            title: '充值金额(元)',
-            dataIndex: 'consumptionMoney',
-            key: 'consumptionMoney',
-        },
-        {
-            title: '用户余额(元)',
-            dataIndex: 'appUser_balance',
-            key: 'appUser_balance',
-        },
-        {
-            title: '用户积分余额(分)',
-            dataIndex: 'appUser_integral',
-            key: 'appUser_integral',
-        },
-    ];
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -119,6 +68,85 @@ const RentRate=(props)=>{
             setEndDate(data[1]);
         }
     };
+    const columns =[
+        {
+            title: '日期',
+            dataIndex: 'payrentDate',
+            key: 'payrentDate',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {dayjs(record.payrentDate).format('YYYY-MM-DD')}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '姓名',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
+        },
+        {
+            title: '手机号',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
+        },
+        {
+            title: '租金/管理费',
+            dataIndex: 'payAmount',
+            key: 'payAmount',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        <Tag color='green'>{record.payAmount}元</Tag>
+                    </div>
+                )
+            }
+        },
+        {
+            title: '违约金',
+            dataIndex: 'defaultAmount',
+            key: 'defaultAmount',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        <Tag color='red'>{record.defaultAmount}元</Tag>
+                    </div>
+                )
+            }
+        },
+        {
+            title: '缴费状态',
+            dataIndex: 'billStatus',
+            key: 'billStatus',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.billStatus==1?<Tag color='red'>未交</Tag>:<Tag color='green'>已交</Tag>}
+                    </div>
+                )
+            }
+        },
+        // {
+        //     title: '已交金额',
+        //     dataIndex: 'stopAmount',
+        //     key: 'stopAmount',
+        // },
+        //
+        // {
+        //     title: '状态',
+        //     dataIndex: 'billStatus',
+        //     key: 'billStatus',
+        //     render:(text:any,record:any)=>{
+        //         return(
+        //             <div>
+        //                 {record.billStatus==2?<Tag color='green'>已交</Tag>:<Tag color='reg'>未交</Tag>}
+        //             </div>
+        //         )
+        //     }
+        // },
+    ];
+
     return(
         <div>
             <List>
@@ -159,19 +187,34 @@ const RentRate=(props)=>{
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
-                dataSource={props.RechargeRateList}
+                dataSource={dataSource}
                 scroll={{y:'70vh'}}
                 rowKey={(columns) => columns.id}
                 size='small'
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {moneySum}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
         </div>
     )
 }
-const mapStateToProps = (state: any) => {
-    return {
-        RechargeRateList: state.RechargeRate.list,
-        count: state.RechargeRate.count,
-    }
-};
-export default connect(mapStateToProps) (RentRate)
+
+export default connect() (RentRate)

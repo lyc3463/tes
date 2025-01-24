@@ -1,4 +1,4 @@
-import {Button, Input, List, message, Pagination, Space, Table} from "antd";
+import {Button, Input, List, message, Pagination, Space, Spin, Table, Tag} from "antd";
 import {connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
@@ -8,7 +8,8 @@ const WaterCable=(props:any)=>{
     const [collector_id,setCollector_id]=useState('');
     const [name,setName]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01')
+    const [endDate,setEndDate]=useState('2099-01-01');
+    const [spinning,setspinning]=useState(false);
     const columns =[
         {
             title: '抄表时间',
@@ -23,19 +24,31 @@ const WaterCable=(props:any)=>{
             },
         },
         {
+            title: '表地址',
+            dataIndex: 'address',
+            key: 'address',
+        },
+        {
             title: '采集器编号',
             dataIndex: 'collector_id',
             key: 'collector_id',
         },
         {
-            title: '通讯地址',
-            dataIndex: 'address',
-            key: 'address',
+            title: '水表描述',
+            dataIndex: 'remark',
+            key: 'remark',
         },
         {
             title: '租户',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {record.tenant_name==null?<Tag color='red'>未绑定租户</Tag>:<Tag color='green'>{record.tenant_name}</Tag>}
+                    </div>
+                )
+            },
         },
         {
             title: '抄表前水量',
@@ -64,13 +77,16 @@ const WaterCable=(props:any)=>{
     ];
     // 手动抄表
     const shoudong=()=>{
+        setspinning(true);
         props.dispatch({
             type:'WaterCable/shoudong'
         }).then((res:any)=>{
             if (res.ErrorCode==0){
-                message.success('抄表成功')
+                setspinning(false);
+                message.success('抄表成功');
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setspinning(false);
             }
         })
     };
@@ -81,7 +97,7 @@ const WaterCable=(props:any)=>{
             type:'WaterCable/fenye',
             payload:{collector_id,name,startDate,endDate}
         });
-        logFenye()
+        logFenye();
     };
     // 分页
     const logFenye=()=>{
@@ -92,13 +108,14 @@ const WaterCable=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props)
     }, [page]);
     // 监听页数
     const onChange=(e:number)=>{
-        setPage(e)
+        setPage(e);
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
@@ -108,7 +125,7 @@ const WaterCable=(props:any)=>{
                     </div>
                     <Space>
                         <Input
-                            addonBefore="采集器编号:"
+                            addonBefore="表地址:"
                             onChange={(e)=>setCollector_id(e.target.value)}
                         />
                         <Input
@@ -132,7 +149,7 @@ const WaterCable=(props:any)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

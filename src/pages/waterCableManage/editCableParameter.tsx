@@ -229,7 +229,7 @@ const EditCableParameter=(props)=>{
             let Data=res.Data;
             formRef.current.setFieldsValue(res?.Data);
             // 损耗 多少天收费
-            setEvery_price(Data.every_price/24/60);
+            setEvery_price(Data.every_price);
             // 损耗 单价
             setLoss(Data.loss);
             //价钱类型
@@ -277,7 +277,7 @@ const EditCableParameter=(props)=>{
                 base_price1,
                 additional_price1,
                 loss,
-                every_price:every_price*24*60,
+                every_price,
                 base_price2,
                 additional_price2,
                 base_price3,
@@ -302,7 +302,7 @@ const EditCableParameter=(props)=>{
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 setIsSpinning(false);
-                message.success('添加成功');
+                message.success('修改成功');
                 history.push('/waterCableManage/parameter')
             }else {
                 message.error(res.Data);
@@ -338,18 +338,23 @@ const EditCableParameter=(props)=>{
                     <>
                         <Form.Item label='价格'>
                             <InputNumber  style={{width:'80px'}} value={totalPrice}  disabled/>
-                            <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>(kWh) =基础价
+                            <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>(元/kWh) =基础价
                             <InputNumber style={{width:'80px'}} value={base_price1} min={0} onChange={listenbasicPrice}/>+附加单价
                             <InputNumber style={{width:'80px'}} value={additional_price1} min={0}  onChange={listenadditionalPrice}/>
-                            (每<InputNumber step={1} precision={0} min={0} style={{width:'80px'}} onChange={changeMinute}/>小时收费一次)
-                        </Form.Item>
-                        <Form.Item label='损耗'>
-                            <InputNumber value={loss} style={{width:'80px'}} onChange={changeLoss}/>
-                            (m³)<span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                            每<InputNumber value={every_price} style={{width:'80px'}} step={1} precision={0} min={0} onChange={changPrice}/>天收费一次
+                            {/*(每<InputNumber step={1} precision={0} min={0} style={{width:'80px'}} onChange={changeMinute}/>小时收费一次)*/}
+                            <span style={{fontSize:'12px',color:'#555'}}>(每1小时收费一次)</span>
                         </Form.Item>
                     </>
                     :''}
+                {price_type===3||price_type===4||price_type===5?
+                    <Form.Item label='损耗'>
+                        <InputNumber value={loss} style={{width:'80px'}} onChange={changeLoss}/>
+                        (元/kWh)<span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
+                        每<InputNumber value={every_price} style={{width:'80px'}} step={1} precision={0} min={1} onChange={changPrice}/>天收费一次
+                        {/*<span style={{fontSize:'12px',color:'#555'}}>(每1天收费一次)</span>*/}
+                    </Form.Item>:''
+                }
+
                 {
                     price_type===4?<>
                         <Form.Item label='尖单价'>

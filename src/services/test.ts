@@ -9,6 +9,9 @@ export function testQrCode(str:string) {
     return getData(1192, [str]);
 }
 
+export function text() {
+    return getData(1449, []);
+}
 
 
 

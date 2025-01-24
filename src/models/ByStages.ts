@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import ByStagesType from '@/ModelTypes/TypeByStages';
 import { fixPathname } from '@/utils/common';
-import * as PreferentialService from "@/services/preferential";
 let pl={
     page:1,
     phone:'',

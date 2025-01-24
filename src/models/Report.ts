@@ -15,7 +15,7 @@ let pl={
     page:1,
     name:'',
     phone:'',
-    state:1,
+    state:0,
     openID:'',
     startDate:'2000-01-01',
     endDate:'2099-01-01',
@@ -97,12 +97,13 @@ const ReportModels: ReportInterface = {
             const res = yield call(ReportService.fenye, payload?payload:pl);
             if (res.ErrorCode == 0) {
                 yield put({
-                    type: 'list',
+                    type: 'count',
                     payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fenpei({ payload, callback }, { call, put, take }): any {
             const result = yield call(ReportService.fenpei, payload);

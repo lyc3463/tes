@@ -54,6 +54,7 @@ const AccountModels: CollectorInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.Collector.list);
@@ -76,15 +77,11 @@ const AccountModels: CollectorInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload }, { call, put }): any {
+        *remove({ payload }, { call, put ,take}): any {
             const result = yield call(CollectorService.remove, payload);
-            if (result.status !== 'ok') {
-                alert('cuowu');
-            }
-            yield put({ type: 'fetch', payload: { page: 1 } });
-            UmiHistorty.replace({
-                pathname: '../user/list',
-            });
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(CollectorService.fenye,payload?payload:pl);

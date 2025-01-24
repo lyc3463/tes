@@ -68,6 +68,7 @@ const StatisticsModel: StatisticsInterface = {
         },
         *dayfetch({ type, payload }, { put, call, select }): any {
             const res = yield call(StatisticsService.dayfetch, payload);
+
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'daylist',

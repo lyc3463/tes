@@ -1,10 +1,10 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    return getData(1115, [vals.page,vals.collectorId]);
+    return getData(1115, [vals.page,vals.collectorId,vals.name,vals.remark]);
 }
 
 export function add(vals:any) {
-    return getData(1111, [vals.label_id=0, vals.cid, vals.collectorid, vals.electricity_type, vals.address, vals.priceid, vals.rate, vals.remark]);
+    return getData(1111, [vals.cid, vals.collectorid, vals.electricity_type, vals.address, vals.priceid, vals.rate, vals.remark]);
 }
 
 
@@ -16,7 +16,7 @@ export function remove(vals:any) {
     return getData(1113, [vals]);
 }
 export function fenye(vals:any) {
-    return getData(1116, [vals.collectorId]);
+    return getData(1116, [vals.collectorId,vals.name,vals.remark]);
 }
 
 export function one(vals:string) {
@@ -32,4 +32,6 @@ export function addcz(vals:any){
 export function ql(vals:any){
     return getData(1400,[vals])
 }
-
+export function cableList(vals:any) {
+    return getData(1448, [vals.remark]);
+}

@@ -40,6 +40,7 @@ export interface BiaoqianInterface {
         remove: Effect;
         check: Effect;
         fenye:Effect;
+        allCheck:Effect;
     };
     reducers: {
         list: Reducer<BillType[]>;
@@ -62,6 +63,7 @@ const BannerModel: BiaoqianInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.Bill.list);
@@ -86,6 +88,12 @@ const BannerModel: BiaoqianInterface = {
         },
         *check({ payload, callback }, { call, put, take }): any {
             const result = yield call(BillService.check, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *allCheck({ payload, callback }, { call, put, take }): any {
+            const result = yield call(BillService.allCheck, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
