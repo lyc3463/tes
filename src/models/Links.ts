@@ -63,20 +63,23 @@ const LinkModel: LinksInterface = {
                 payload: { one },
             });
         },
-        *add({ payload }, { call, put }): any {
+        *add({ payload }, { call, put,take }): any {
             const result = yield call(LinksService.add, payload);
             yield put({ type: 'fetch', payload: {name:''} });  // 重新加载数据
+            yield take('fetch/@@end');
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(LinksService.edit, payload);
             yield put({ type: 'fetch', payload: {name:''} });  // 重新加载数据
+            yield take('fetch/@@end');
             return result
 
         },
-        *remove({ payload }, { call, put }): any {
+        *remove({ payload }, { call, put,take }): any {
             const result = yield call(LinksService.remove, payload);
             yield put({ type: 'fetch', payload: { name:'' } });
+            yield take('fetch/@@end');
             return result
         },
     },
@@ -104,13 +107,12 @@ const LinkModel: LinksInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/appletManage/links/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-
+                // if (StaticInfo.userId > 0 && pathname === '/appletManage/links/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
                 //
                 // // 添加房源获取楼盘列表
                 // if (StaticInfo.userId > 0 && pathname === '/appletManage/addResources/') {

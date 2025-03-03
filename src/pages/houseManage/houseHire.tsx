@@ -7,7 +7,7 @@ const HouseHire=(props)=>{
     const [name,setName]=useState('');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
-    const [status,setstatus]=useState(0);
+    const [status,setstatus]=useState(2);
     const [house_id,sethouse_id]=useState(0);
 
     const columns =[
@@ -103,9 +103,9 @@ const HouseHire=(props)=>{
             render: (text:any, record:any) => {
                 let statusText;
                 if (text === 1) {
-                    statusText = <Tag color="green">未租</Tag>; // 假设使用Ant Design的Tag组件来显示状态
+                    statusText = <Tag color="blue">未租</Tag>; // 假设使用Ant Design的Tag组件来显示状态
                 } else if (text === 2) {
-                    statusText = <Tag color="blue">已租</Tag>;
+                    statusText = <Tag color="green">已租</Tag>;
                 } else if (text === 3) {
                     statusText = <Tag color="red">退租</Tag>;
                 } else {
@@ -134,7 +134,6 @@ const HouseHire=(props)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props);
     }, [page]);
     const changeName=(e:any)=>{
         setName(e.target.value);

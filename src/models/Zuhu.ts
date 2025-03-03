@@ -34,6 +34,8 @@ export interface ZuhuInterface {
         byzhuhu: Effect;
         fenye: Effect;
         editAbloue: Effect;
+        newbyzhuhu: Effect;
+        newbyappuser: Effect;
     };
     reducers: {
         list: Reducer<ZuhuType[]>;
@@ -90,6 +92,18 @@ const WatertModels: ZuhuInterface = {
         },
         *byzhuhu({ payload, callback }, { call, put, take }): any {
             const result = yield call(ZuhuService.byzhuhu, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *newbyzhuhu({ payload, callback }, { call, put, take }): any {
+            const result = yield call(ZuhuService.newbyzhuhu, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *newbyappuser({ payload, callback }, { call, put, take }): any {
+            const result = yield call(ZuhuService.newbyappuser, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result

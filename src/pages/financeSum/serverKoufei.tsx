@@ -43,9 +43,9 @@ const ServerKoufei=()=>{
             },
         },
         {
-            title: '手机号',
-            dataIndex: 'tenant_phone',
-            key: 'tenant_phone',
+            title: '电表地址',
+            dataIndex: 'address',
+            key: 'address',
         },
         {
             title: '扣费金额',
@@ -73,21 +73,27 @@ const ServerKoufei=()=>{
     };
     // 获取公共缴费记录
     const getAllRate=()=>{
+        setspinning(true);
         RechargeRateService.sunhaoList({page,name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                setspinning(false);
                 setdataSource(res.Data);
             }else {
+                setspinning(false);
                 message.error(res.Data);
             }
         })
     };
     // 公共缴费记录分页
     const getAllRatefenye=()=>{
+        setspinning(true);
         RechargeRateService.sunhaoListFenye({name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                setspinning(false);
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
             }else {
+                setspinning(false);
                 message.error(res.Data);
             }
         })
@@ -123,7 +129,7 @@ const ServerKoufei=()=>{
                         />
                         <Input
                             onChange={(e)=>setPhone(e.target.value)}
-                            addonBefore="手机号:"
+                            addonBefore="电表地址:"
                         />
                         <Space.Compact>
                             <div

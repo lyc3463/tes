@@ -42,7 +42,8 @@ const ElectricityBasicBusiness=(props:any)=>{
                  getOneCable(uid);
                  setlazha(false);
              }else {
-                 message.error(res.Data)
+                 message.error(res.Data);
+                 setlazha(false);
              }
          })
     };

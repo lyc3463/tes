@@ -58,6 +58,7 @@ const SumHounsBlii=(props:any)=>{
     const getBillList=()=>{
         SumHounsBliiService.fenye(startDate).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('全部列表',res)
                 settenntrList(res.Data);
             }else {
                 message.error(res.Data);

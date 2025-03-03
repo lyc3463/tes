@@ -12,7 +12,6 @@ import UsersType from '@/ModelTypes/TypeUsers';
 import { fixPathname } from '@/utils/common';
 let pl={
     page:1,
-    name:'',
     phone:''
 }
 

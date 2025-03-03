@@ -5,7 +5,7 @@ export function fetch(vals:any) {
 }
 
 export function add(vals:any) {
-    return getData(1164, [vals.conten,vals.openID,vals.upimg,vals.mouny=0]);
+    return getData(1164, [vals.conten,vals.tenantId,vals.upimg,vals.mouny=0]);
 }
 
 export function edit(vals:any) {
@@ -21,6 +21,12 @@ export function one(vals:any) {
 
 export function fenye(vals:any) {
     return getData(1167, [vals.content,vals.phone,vals.startDate,vals.endDate,vals.stutes,vals.openid]);
+}
+export function userList() {
+    return getData(1489, []);
+}
+export function addFp(vals:any) {
+    return getData(1387, [vals.appId,vals.upimg,vals.conten]);
 }
 
 

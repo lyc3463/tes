@@ -68,7 +68,7 @@ const Zuhulist=(props:any)=>{
     // 查看分页记录
     const logFenyeInfo=()=>{
         props.dispatch({
-            type:'Zuhu/fetch',
+            type:'Zuhu/fenye',
             payload:{page,name,phone}
         });
     };
@@ -97,34 +97,34 @@ const Zuhulist=(props:any)=>{
                 size='small'
                 rowKey={(columns) => columns.id}
                 dataSource={props.ZuhuList}
-                scroll={{x:1500}}
+                scroll={{x:1500,y:'60vh'}}
                 pagination={false}
                 summary={(columns) => (
                     <Table.Summary fixed>
                         <Table.Summary.Row>
                             <Table.Summary.Cell
-                                index={1}
+                                index={0}
                             >
                                 统计
                             </Table.Summary.Cell>
-                            <Table.Summary.Cell index={0}>
+                            <Table.Summary.Cell index={1}>
                                 总人数:{props.count?props.count.count:''}人
                             </Table.Summary.Cell>
-                            <Table.Summary.Cell index={0}>
+                            <Table.Summary.Cell index={2}>
                             </Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}>
+                            <Table.Summary.Cell index={3}>
                                 {props.count?props.count.balanceSum:''}元
                             </Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}>
+                            <Table.Summary.Cell index={4}>
                                 {props.count?props.count.integralSum:''}分
                             </Table.Summary.Cell>
                             <Table.Summary.Cell
-                                index={7}
+                                index={5}
                             >
                                 {props.count?props.count.billMoneySum:''}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell
-                                index={8}
+                                index={6}
                             >
                                 {props.count?props.count.depositSum:''}元
                             </Table.Summary.Cell>

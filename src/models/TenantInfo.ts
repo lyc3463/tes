@@ -17,7 +17,7 @@ let pl={
     startDate:'2000-01-01',
     endDate:'2099-01-01',
     stutes:0,
-    openid:''
+    openid:0
 }
 
 export interface TenantInfoState {
@@ -36,6 +36,7 @@ export interface TenantInfoInterface {
         edit: Effect;
         remove: Effect;
         fenye: Effect;
+        addFp: Effect;
     };
     reducers: {
         list: Reducer<TenantInfoType[]>;
@@ -70,6 +71,12 @@ const TenantInfoModels: TenantInfoInterface = {
         },
         *add({ payload }, { call, put,take }): any {
             const result = yield call(TenantInfoService.add, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *addFp({ payload }, { call, put,take }): any {
+            const result = yield call(TenantInfoService.addFp, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result

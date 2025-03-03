@@ -447,7 +447,7 @@ const EditStaff=(props:any)=>{
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
                 ref={formRef}
-                initialValues={{remark: '',prepayment:0,decorationCost:0,customCard:'',depositFee:0}}
+                initialValues={{remark: '',prepayment:0,decorationCost:0,customCard:'',depositFee:0,legalPerson:''}}
                 onFinish={onFinish}
                 layout="horizontal"
                 size={'large'}
@@ -516,7 +516,7 @@ const EditStaff=(props:any)=>{
                             </Form.Item>:''
                         }
                         <Form.Item label='单元'  style={{width:'30rem'}}>
-                            <Select placeholder='单元'
+                            <Select placeholder='请选择单元,注:选择第一个单元决定合同用途'
                                     mode="multiple"
                                     onChange={changeunit}
                                     disabled={unitStutes}
@@ -578,13 +578,16 @@ const EditStaff=(props:any)=>{
                     contractType==2?(<>
                         <Form.Item style={{display:'flex'}}>
                             <Space size='large'>
-                                <Form.Item label='经营主体' name='businessEntity' style={{width:'20rem'}}>
+                                <Form.Item label='经营主体' name='businessEntity' style={{width:'17rem'}}>
                                     <Input/>
                                 </Form.Item>
-                                <Form.Item label='经营范围' name='businessScope' style={{width:'20rem'}}>
+                                <Form.Item label='经营范围' name='businessScope' style={{width:'17rem'}}>
                                     <Input/>
                                 </Form.Item>
-                                <Form.Item label='面积'  style={{width:'20rem'}}>
+                                <Form.Item label='法定代表人'  style={{width:'15rem'}} name='legalPerson'>
+                                    <Input/>
+                                </Form.Item>
+                                <Form.Item label='面积'  style={{width:'10rem'}}>
                                     <InputNumber value={mianji} disabled/>
                                 </Form.Item>
                                 <Form.Item label='预付费' name='prepayment' rules={[{required: true, message:'请填写预付费'}]}>

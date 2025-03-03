@@ -57,6 +57,16 @@ const CheckRename=(props:any)=>{
             key: 'rephone',
         },
         {
+            title: '原身份证',
+            dataIndex: 'customCard',
+            key: 'customCard',
+        },
+        {
+            title: '更改后身份证',
+            dataIndex: 'reCard',
+            key: 'reCard',
+        },
+        {
             title: '状态',
             dataIndex: 'renameStatus',
             key: 'renameStatus',
@@ -202,7 +212,7 @@ const CheckRename=(props:any)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 size='small'
-                scroll={{y:'70vh'}}
+                scroll={{y:'70vh',x:1500}}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }

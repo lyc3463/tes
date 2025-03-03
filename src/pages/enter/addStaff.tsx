@@ -449,7 +449,7 @@ const AddStaff=(props:any)=>{
                 form={form}
                 layout="horizontal"
                 size={'large'}
-                initialValues={{remark: '',prepayment:0,decorationCost:0,customCard:'',depositFee:0}}
+                initialValues={{remark: '',prepayment:0,decorationCost:0,customCard:'',depositFee:0,legalPerson:''}}
                 onFinish={onFinish}
                 style={{ marginTop:'1rem',paddingLeft:"10rem"}}
             >
@@ -524,7 +524,7 @@ const AddStaff=(props:any)=>{
                                 </Form.Item>:''
                         }
                         <Form.Item label='单元'  style={{width:'30rem'}}>
-                            <Select placeholder='请选择房屋后再选择单元'
+                            <Select placeholder='请选择单元,注:选择第一个单元决定合同用途'
                                     mode="multiple"
                                     onChange={changeunit}
                                     disabled={unitStutes}
@@ -560,10 +560,10 @@ const AddStaff=(props:any)=>{
                 </Form.Item>
                 <Form.Item style={{display:'flex'}}>
                     <Space size='large'>
-                        <Form.Item label='租金/月(元)' name='zuMoney' style={{width:'15rem'}}>
+                        <Form.Item label='租金/月(元)' name='zuMoney' style={{width:'11rem'}}>
                             <InputNumber min={minzujin}/>
                         </Form.Item>
-                        <Form.Item label='租金押金(元)' name='deposit' style={{width:'15rem'}}>
+                        <Form.Item label='租金押金(元)' name='deposit' style={{width:'11rem'}}>
                             <InputNumber/>
                         </Form.Item>
                         {
@@ -587,10 +587,13 @@ const AddStaff=(props:any)=>{
                         <>
                             <Form.Item style={{display:'flex'}}>
                                 <Space size='large'>
-                                    <Form.Item label='经营主体' name='businessEntity' style={{width:'20rem'}}   rules={[{required: true, message:''}]}>
+                                    <Form.Item label='经营主体' name='businessEntity' style={{width:'17rem'}}   rules={[{required: true, message:''}]}>
                                         <Input/>
                                     </Form.Item>
-                                    <Form.Item label='经营范围' name='businessScope' style={{width:'20rem'}}>
+                                    <Form.Item label='经营范围' name='businessScope' style={{width:'17rem'}}>
+                                        <Input/>
+                                    </Form.Item>
+                                    <Form.Item label='法定代表人'  style={{width:'15rem'}} name='legalPerson'>
                                         <Input/>
                                     </Form.Item>
                                     <Form.Item label='面积'  style={{width:'10rem'}}>

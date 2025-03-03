@@ -9,7 +9,7 @@ const PayCount=(props)=>{
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
-    // 消费类型 0全部 1充值、2租金、3电费、4水费、5公共缴费、6手动充值、7物业管理费、违约金
+    // 消费类型 0全部 1充值、2租金、3电费、4水费、5公共缴费、6手动充值、7物业管理费、8违约金
     const [type,setType]=useState(0);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
@@ -43,7 +43,6 @@ const PayCount=(props)=>{
     }, [page]);
     useEffect(() => {
         fenye();
-        console.log('props',props);
     }, []);
     const columns =[
         {

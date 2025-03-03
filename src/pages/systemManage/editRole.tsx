@@ -15,7 +15,7 @@ const EditRole=(props)=>{
     const treeData = buildTree(qxTree);
     const location=useLocation();
     const formRef =useRef();
-    const [selected, setSelected] = useState<string[]>(Array(346).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(362).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{

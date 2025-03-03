@@ -1,7 +1,6 @@
 import {Button, Form, Input, message, Select, DatePicker, Upload, Radio, Image, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
 import {connect,history} from "umi";
-import {filterAndUpdateList, getBase64} from "@/utils/OpenTool";
 import CmpImageUploader from "@/components/ImageUploader";
 import * as GroupingServer from "@/services/grouping";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";

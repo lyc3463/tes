@@ -12,8 +12,10 @@ const TenantInfo=(props:any)=>{
     const [endDate,setEndDate]=useState('2099-01-01');
     const [page,setPage]=useState(1);
     const [stutes,setStutes]=useState(0);
-    const [openid,setOpenid]=useState('');
+    const [openid,setOpenid]=useState(0);
+    // 租户手机号
     const [phone,setPhone]=useState('');
+    // 发送内容
     const [content,setContent]=useState('');
     const [uid,setUid]=useState(0);
     const [dopen,setdopen]=useState(false);

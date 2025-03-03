@@ -50,6 +50,7 @@ const Waterjiben=(props)=>{
             }else {
                 message.error(res.Data);
                 sethezha(false);
+                setIsSpinning(false);
             }
         })
     };

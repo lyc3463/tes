@@ -11,7 +11,7 @@ const Complaint=(props:any)=>{
     const [state,setState]=useState(0);
     const [startDate,setstartDate]=useState('2000-01-01');
     const [endDate,setendDate]=useState('2099-01-01');
-    const [openID,setopenID]=useState('');
+    const [openID,setopenID]=useState(0);
     const columns=[
         {
             title: '日期',

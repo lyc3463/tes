@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
@@ -56,6 +56,26 @@ const CheckOutRent=(props)=>{
             )
         },
         {
+            title: '类型',
+            dataIndex: 'refundType',
+            key: 'refundType',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>{record.refundType==2?<Tag color='red'>强制退租</Tag>:<Tag color='blue'>正常退租</Tag>}</div>
+                )
+            }
+        },
+        {
+            title: '状态',
+            dataIndex: 'renameStatus',
+            key: 'renameStatus',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>{record.renameStatus==2?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}</div>
+                )
+            }
+        },
+        {
             title: '退租原因',
             dataIndex: 'refundReason',
             key: 'refundReason',
@@ -65,16 +85,7 @@ const CheckOutRent=(props)=>{
                 </div>
             )
         },
-        {
-            title: '状态',
-            dataIndex: 'renameStatus',
-            key: 'renameStatus',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>{record.renameStatus==2?"已通过":"未审核"}</div>
-                )
-            }
-        },
+
         {
             title: '操作',
             dataIndex: 'cao',
@@ -119,6 +130,7 @@ const CheckOutRent=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props)
     }, [page]);
     // 搜索
     const suosou=()=>{

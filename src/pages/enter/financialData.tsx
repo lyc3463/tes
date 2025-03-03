@@ -5,6 +5,8 @@ import {processBills} from '@/utils/OpenTool';
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const FinancialData=(props:any)=>{
+    // 展示total
+    const [isfenye,setisfenye]=useState(true);
     const [page,setPage]=useState(1);
     // 账单列表
     const [billList,setBillList]=useState([]);
@@ -213,17 +215,23 @@ const FinancialData=(props:any)=>{
     const changeName=(e)=>{
         setBillAbstract(e.target.value);
     };
-    // 搜索
-    const sousuo=()=>{
-        setPage(1);
+    // 获取分页信息
+    const getBillFenye=()=>{
         props.dispatch({
             type:'Bill/fenye',
             payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
         });
+    }
+    // 搜索
+    const sousuo=()=>{
+        setisfenye(true);
+        setPage(1);
+        getBillFenye();
         logFenye();
     };
     // 分页
     const logFenye=()=>{
+        setspinning(true);
         props.dispatch({
             type:"Bill/fetch",
             payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
@@ -231,8 +239,31 @@ const FinancialData=(props:any)=>{
             if (res.ErrorCode==0){
                 let newdata=processBills(res.Data);
                 setBillList(res.Data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
             }
         })
+    };
+    // 录入数据不分页
+    const isduizhang=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:"Bill/fetchNo",
+            payload:{page,billAbstract,billBgeinTime,billEndTime,billMoneyType,companyId,projectId,subjectId,account_card}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let newdata=processBills(res.Data);
+                setBillList(res.Data);
+                setspinning(false);
+                setisfenye(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+        getBillFenye();
     };
     // 监听页数
     const onChange=(e:number)=>{
@@ -387,11 +418,12 @@ const FinancialData=(props:any)=>{
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
-                    <div>
+                    <Space>
                         <Button type="primary" onClick={toadd}>
                             财务数据录入
                         </Button>
-                    </div>
+
+                    </Space>
                     <Space>
                         <Input
                             onChange={changeName}
@@ -444,12 +476,17 @@ const FinancialData=(props:any)=>{
                                 ]}
                             />
                         </Space.Compact>
+                        <Button type="primary" onClick={isduizhang}>
+                            对账
+                        </Button>
                     </Space>
                 </List.Item>
                 <List.Item>
-                    <div>
+                    <Space>
+                        <div>
 
-                    </div>
+                        </div>
+                    </Space>
                     <Space>
                         <Space.Compact>
                             <div
@@ -613,7 +650,7 @@ const FinancialData=(props:any)=>{
                       </Table.Summary>
                     )}
                 />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count&&isfenye?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOK}>
                 <div>是否要删除？</div>
             </Modal>

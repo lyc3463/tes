@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as StaffServer from "@/services/staff";
 import dayjs from "dayjs";
 import { connect } from "umi";
-import {Form, Input, InputNumber, message, Select, DatePicker, Button, Table, Image, Modal, Space} from "antd";
+import {Form, Input, InputNumber, message, Select, DatePicker, Button, Table, Image, Modal, Space,Radio} from "antd";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import styles from "@/pages/contract/endContran.less";
@@ -17,7 +17,7 @@ import {
     getUserNamesById,
     calculateTotalRentalDays,
     getUseraddNameById,
-    getUserphoneById, calculateYearsAndMonths
+    getUserphoneById, calculateYearsAndMonths, getUseraddRessById, getunitTypeById
 
 } from "@/utils/OpenTool";
 const NocheckZScontractez=(props)=>{
@@ -35,7 +35,7 @@ const NocheckZScontractez=(props)=>{
     const [openBank,setopenBank]=useState('');
     // 银行账号
     const [bankCard,setbankCard]=useState('');
-    // 法定人
+    // 甲方法定人
     const [legalPerson,setlegalPerson]=useState('');
     // 联系电话
     const [phone,setphone]=useState('');
@@ -105,6 +105,8 @@ const NocheckZScontractez=(props)=>{
     const [dispatchName,setdispatchName]=useState('');
     // 乙方派遣人身份证
     const [dispatchCard,setdispatchCard]=useState('');
+    // 乙方法定代表人
+    const [legalPerson2,setlegalPerson2]=useState('');
     // 单元面积
     const [mianji,setmianji]=useState(0);
     // 装修费用
@@ -115,7 +117,6 @@ const NocheckZScontractez=(props)=>{
     const getZSOne=()=>{
         ContractTypeService.one(templateType).then((res:TypeErrorCode)=> {
             if (res.ErrorCode == 0) {
-                console.log('正式合同模板', res);
                 setCompanyName(res.Data.companyName);
                 setCompanyAddress(res.Data.companyAddress);
                 setopenName(res.Data.openName);
@@ -143,11 +144,12 @@ const NocheckZScontractez=(props)=>{
     const getOneStaff= (id:string)=>{
         StaffServer.one(id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('合同内容详情',res.Data[3]);
+                console.log('合同内容详情',res);
                 setEndDate(dayjs(res.Data[0].endTime).format('YYYY-MM-DD'));
                 setStartDate(dayjs(res.Data[0].beginTime).format('YYYY-MM-DD'));
                 setFormItems(res.Data[2]);
                 setmzFormItems(res.Data[1]);
+                setlegalPerson2(res.Data[0].legalPerson)
                 setzuMoney(res.Data[0].zuMoney);
                 setdepositFee(res.Data[0].depositFee);
                 setdecorationCost(res.Data[0].decorationCost);
@@ -156,9 +158,9 @@ const NocheckZScontractez=(props)=>{
                 setmanageFee(res.Data[0].manageFee);
                 setmanageFeeRent(res.Data[0].manageFeeRent);
                 setdeposit(res.Data[0].deposit);
-                let documentBase64Split=res.Data[0].documentBase64.split('|')
+                let documentBase64Split=res.Data[0].documentBase64.split('|');
                 setczB64(documentBase64Split);
-                let unitBase64Split=res.Data[0].unitBase64.split('|')
+                let unitBase64Split=res.Data[0].unitBase64.split('|');
                 setuintB64(unitBase64Split);
                 setDeliveryDate(res.Data[0].deliveryDate);
                 setbusinessEntity(res.Data[0].businessEntity);
@@ -172,7 +174,6 @@ const NocheckZScontractez=(props)=>{
                 // changecontractType(res.Data[0].contractType);
                 let mzqSum=calculateTotalRentalDays(res.Data[1]);
                 setMzq(mzqSum);
-
             }else {
                 message.error(res.Data);
             }
@@ -203,14 +204,13 @@ const NocheckZScontractez=(props)=>{
         getOneStaff(id);
         getZSOne();
     }, []);
-    // 筛选过滤掉的租金跟面积
-
     // 获取单元列表
     const getUnitList=()=>{
         props.dispatch({
             type:'Unit/fetch',
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('单元列表',res)
                 setUnitList(res.Data);
             }else {
                 message.error(res.Data)
@@ -223,6 +223,7 @@ const NocheckZScontractez=(props)=>{
             type:'CheckCompany/fetch'
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('客户列表',res)
                 setclientList(res.Data);
             }
         });
@@ -309,10 +310,10 @@ const NocheckZScontractez=(props)=>{
                     <p className={styles.linheP}  >联系人：{contacts}</p>
                     <p className={styles.linheP} style={{ marginTop: '30px' }}></p>
                     <p className={styles.linheP}  >承租方(乙方): {getUserNamesById(clientList,clientId)}</p>
-                    <p className={styles.linheP}  >地址：{getUseraddNameById(clientList,clientId)}</p>
-                    <p className={styles.linheP}  >法定代表人：{getUserNamesById(clientList,clientId)}</p>
+                    <p className={styles.linheP}  >地址：{getUseraddRessById(clientList,clientId)}</p>
+                    <p className={styles.linheP}  >法定代表人：{legalPerson2}</p>
                     <p className={styles.linheP}  >联系电话：{getUserphoneById(clientList,clientId)}</p>
-                    <p className={styles.linheP}  >联系人：{getUserNamesById(clientList,clientId)}</p>
+                    <p className={styles.linheP}  >联系人：{legalPerson2}</p>
                     <p className={styles.linheP}   >根据《中华人民共和国民法典》及相关法律法规，就乙方承租甲方房屋事宜，甲、乙双方在自愿、平等和互利的基础上，经协商一致，签订本合同并共同遵守。</p>
                     <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第一条：房屋状况</p>
                     <p className={styles.linheP}  >
@@ -329,7 +330,7 @@ const NocheckZScontractez=(props)=>{
                     </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>4.</span>
-                        本合同租赁物用途为{}。乙方在租赁物从事经营的主体名称是{businessEntity}，其经营范围或业务范围为{businessScope}。
+                        本合同租赁物用途为{getunitTypeById(unitList,unitarrList[0])==1?'商业':'办公'}。乙方在租赁物从事经营的主体名称是{businessEntity}，其经营范围或业务范围为{businessScope}。
                         如乙方需变更在租赁物从事经营主体、经营范围或业务范围的，需要事先征得甲方书面同意；涉及须经政府主管部门批准或办理登记手续的，乙方应自行办理。未经甲方书面同意，乙方不得将租赁物用于本条规定以外的其他用途。
                     </p>
                     <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第二条：租赁期限</p>
@@ -361,13 +362,13 @@ const NocheckZScontractez=(props)=>{
                     <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第四条：租赁费用</p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>1.</span>
-                        租赁保证金：本租赁合同的租赁保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
+                        租赁保证金：本租赁合同的租赁保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
                         如乙方违反本合同之规定，甲方有权将租赁保证金没收或做相应扣除，乙方在接到甲方扣除通知后的十五日内将甲方扣除的租赁保证金补足给甲方。
                     </p>
 
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>2.</span>
-                        租金：租赁物租金第1年起为每月{zuMoney}元。以此类推。合同租金明细如下:
+                        租金：租赁物租金第1年起为每月{zuMoney}元。第2年起每年租金将在上年的基础上递增，合同租金递增明细如下:
                         <Table columns={columns} dataSource={formItems}  rowKey={(columns) => columns.id} size='small' pagination={false}/>
                     </p>
                     <p className={styles.linheP}  >
@@ -380,7 +381,7 @@ const NocheckZScontractez=(props)=>{
                     </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>(1)</span>
-                        物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
+                        物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
                     </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>(2)</span>
@@ -633,63 +634,62 @@ const NocheckZScontractez=(props)=>{
                         甲、乙双方同意，有下列情形之一的，甲方可就本合同行使单方解除权，书面通知乙方提前解除本合同，乙方已支付的全部费用包括但不限于租金、物业服务费（无论该等费用对应的租赁期间是否届满）、合同保证金、物业费保证金等甲方有权不予退还，并且乙方还需向甲方支付相当于解除时二个月租金的违约金；若该等前述费用不足抵付甲方损失的，甲方有权继续向乙方追偿
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(1)</span>
-                        乙方未能按时接收租赁物超过十五天的；
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}></span>
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(2)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(1)</span>
                         乙方逾期支付租金或其他应付费用连续超过三十日或累计超过四十五日的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(3)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(2)</span>
                         乙方提前终止本合同的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(4)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(3)</span>
                         乙方未征得甲方书面同意改变租赁物用途，或未经相关政府部门批准从事非法经营活动；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(5)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(4)</span>
                         因乙方原因造成租赁物主体结构损坏的，或未征得甲方书面同意改变房屋结构的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(6)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(5)</span>
                         乙方擅自转租或与他人交换各自承租的房屋的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(7)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(6)</span>
                         乙方违反本合同约定给甲方造成损失，且经甲方书面催告后五日内拒不改正违约行为的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(8)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(7)</span>
                         乙方将租赁物用于任何非法目的或乙方将租赁物用于乙方营业执照所列经营范围以外之目的的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(9)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(8)</span>
                         乙方破产或进入清算程序的，或乙方之财产被强制执行，或乙方被接管人接收的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(10)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(9)</span>
                         乙方因违法经营、债权债务等原因致使政府有关部门、法院或仲裁机构责令其停止营业或查封扣押租赁房屋及其内财物的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(11)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(10)</span>
                         乙方被指侵害他人合法权益，使甲方被卷入诉讼或行政查处案件的；债权人上门追讨债务，影响本项目全部或部分正常营业的或造成甲方和物业管理方名誉受损的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(12)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(11)</span>
                         乙方因不正当竞争或虚假宣传等被消费者围堵，影响本项目全部或部分正常营业的或造成甲方和物业管理方名誉受损的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(13)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(12)</span>
                         乙方承租期间，如在本项目物业范围内，发生针对乙方或乙方关联方的群体性社会事件，社会群体围堵聚集本项目物业或乙方租赁物业，影响本项目物业正常营业的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(14)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(13)</span>
                         除上述情形外，乙方其他行为影响本项目全部或部分正常营业、对其他业户造成不良影响或造成甲方和物业管理方名誉受损，甲方和物业管理方要求限期改正而仍未改正的；
                     </p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(15)</span>
+                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>(14)</span>
                         其他归因于乙方，法律允许甲方单方解除合同之情形的。
                     </p>
                     <p className={styles.linheP}  >
@@ -718,8 +718,7 @@ const NocheckZScontractez=(props)=>{
                     </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>6.</span>
-                        因乙方违约导致甲方依据本合同约定解除合同时，乙方须协助甲方开具红字发票等事宜。如因此造成甲方损失的（包括但不限于不配合办理开具红字增值税专用发票、无法抵扣增值税、多缴增值税等），乙方须承担赔偿责任。
-                    </p>
+                        若因政府有关法律法规的修改或政府征收等行为（乙方因自身原因以及违法行为导致政府的行政处罚除外）导致双方无法继续履行本合同时，本合同自行终止，甲方将剩余保证金退还给乙方，双方互不追究责任。                    </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>7.</span>
                         乙方未按本合同规定履行其安全生产职责的，甲方有权立即制止乙方的违法、违约行为，要求乙方立即予以整改，如乙方拒不停止或拒不改正的，甲方有权解除租赁合同，收回租赁租赁物，履约保证金及其他乙方已付费用归甲方享有无需退还乙方。乙方或其聘用的第三方的原因造成的安全事故或造成的第三方人身伤害或财产损失，均由乙方承担全部责任，如因此给甲方造成损失（包括但不限于财产损失）的，乙方应赔偿甲方的损失。
@@ -730,7 +729,7 @@ const NocheckZScontractez=(props)=>{
                     </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>9.</span>
-                        租赁期内，因乙方原因导致租赁合同提前解除或终止，最后一个计租周期不足一个月的，乙方应当按照一个月的标准向甲方支付租金。
+                        乙方须按照一个月的标准向甲方支付租金、物业费。
                     </p>
                     <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第十一条：保险</p>
                     <p className={styles.linheP}  >
@@ -745,19 +744,11 @@ const NocheckZScontractez=(props)=>{
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>3.</span>
                         如果乙方发生财产保险条款规定之意外，甲方可协助乙方向保险公司索赔，受益人为乙方，赔付金额以保险公司核定赔付为准，乙方不得再向甲方提出额外赔偿。
                     </p>
-                    <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第十三条：免责条款</p>
+                    <p  style={{    fontWeight: 500, fontSize: '24px' }}>第十二条:争议解决</p>
                     <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>1.</span>
-                        若因政府有关法律法规的修改或政府行为（乙方因自身原因以及违法行为导致政府的行政处罚除外）导致双方无法继续履行本合同时，本合同自行终止，甲方将合同保证金退还给乙方，双方互不追究责任。
+                        本合同订立、履行、解释、争议的解决等与本合同有关的所有事宜均适用中华人民共和国法律。在履行本合同过程中发生争议，双方应友好协商解决。协商不成，双方均可以向租赁物所在地人民法院提起诉讼。
                     </p>
-                    <p className={styles.linheP}  >
-                        <span style={{ fontSize: "1rem", fontWeight: 400 }}>2.</span>
-                        凡因发生严重的自然灾害或其他不可抗力的因素，导致任何一方不能履行本合同时，本合同自行终止，甲方将合同保证金退还给乙方，双方互不追究责任。
-                    </p>
-                    <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第十四条：合同争议</p>
-                    <p className={styles.linheP}  >
-                        本合同订立、履行、解释、争议的解决等与本合同有关的所有事宜均适用中华人民共和国法律。在履行本合同过程中发生争议，双方应友好协商解决。协商不成，双方均有权向租赁物所在地人民法院提起诉讼。                    </p>
-                    <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第十五条：通知和送达</p>
+                    <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第十三条：通知和送达</p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>1.</span>
                         甲方指定如下人员为与乙方的联系人，负责转达甲方的指示和要求，提供文件和资料，接收乙方向甲方送达的通知、文件和资料等，甲方更换联系人应当及时书面通知乙方：
@@ -767,7 +758,7 @@ const NocheckZScontractez=(props)=>{
                             <p className={styles.gridItem}>地址</p>
                             <p className={styles.gridItem}>{attract}</p>
                             <p className={styles.gridItem}>{attractPhone}</p>
-                            <p className={styles.gridItem}>{attractWXNumber}</p>
+                            <p className={styles.gridItem}>{rentAddress}</p>
                         </form>
                     </p>
                     <p className={styles.linheP}  >
@@ -775,11 +766,11 @@ const NocheckZScontractez=(props)=>{
                         乙方指定如下人员为与甲方的联系人，负责转达乙方的指示和要求，提供文件和资料，接收甲方向乙方送达的通知、文件和资料等，乙方更换联系人应当及时书面通知甲方：
                         <form className={styles.gridForm}>
                             <p className={styles.gridItem}>乙方指派人员</p>
-                            <p className={styles.gridItem}>身份证</p>
+                            <p className={styles.gridItem}>联系方式</p>
                             <p className={styles.gridItem}>微信号</p>
                             <p className={styles.gridItem}>{dispatchName}</p>
-                            <p className={styles.gridItem}>{dispatchCard}</p>
-                            <p className={styles.gridItem}>{}</p>
+                            <p className={styles.gridItem}>{getUserphoneById(clientList,clientId)}</p>
+                            <p className={styles.gridItem}>{getUserphoneById(clientList,clientId)}</p>
                         </form>
                     </p>
                     <p className={styles.linheP}  >
@@ -790,7 +781,7 @@ const NocheckZScontractez=(props)=>{
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>4.</span>
                         甲方及甲方指定的本项目物业管理公司在本项目适当的公共范围设置告示板，以张贴管理规则及其他规定的通知及布告，通知或布告在告示板上连续张贴3天后，即构成对乙方的有效通知。
                     </p>
-                    <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第十六条：其他条款</p>
+                    <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第十四条：其他条款</p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>1.</span>
                         双方确认，甲方已经将租赁物的情况详细告知乙方，乙方对租赁物的情况已经充分了解（包括租赁物周边市政设施配套情况等）。
@@ -848,9 +839,9 @@ const NocheckZScontractez=(props)=>{
                         【签署页  无正文】
                     </p>
 
-                    <p className={styles.linheP}   ><span style={{ marginRight: '100px' }}>甲方（签署）:{companyName}</span><span>乙方（签署）:{getUseraddNameById(clientList,clientId)}</span></p>
-                    <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>法定代表人:{legalPerson}</span><span>法定代表人:{getUserNamesById(clientList,clientId)}</span></p>
-                    <p className={styles.linheP}   ><span style={{ marginRight: '300px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
+                    <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                    <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>法定代表人:</span><span>法定代表人:</span></p>
+                    <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
 
                     <p  >
                         <h3>
@@ -868,18 +859,14 @@ const NocheckZScontractez=(props)=>{
                     </p>
                     <p  >
                         <h3>
-                            附件二：1、房屋内交付标准
+                            附件二：1、房屋内交付标准及物品清单
                         </h3>
                         <p>
                             <Table columns={wupinTab} rowKey={(columns) => columns.key} dataSource={wupinList} size='small' style={{width:'600px'}}  pagination={false}/>
 
                         </p>
                     </p>
-                    <p  >
-                        <h3>
-                            2、物品清单
-                        </h3>
-                    </p>
+
                     <p  >
                         <h3>
                             附件三：交接确认书
@@ -893,7 +880,7 @@ const NocheckZScontractez=(props)=>{
                         甲方：{companyName}
                     </p>
                     <p className={styles.linheP}  >
-                        乙方：{getUseraddNameById(clientList,clientId)}
+                        乙方：{getUserNamesById(clientList,clientId)}
                     </p>
                     <p className={styles.linheP}  >
                         鉴于：双方于{dayjs(deliveryDate).format("YYYY-MM-DD")}日就位于{rentAddress}{getUnitNamesByIds(unitList,unitarrList)}房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于{startDate}日之前按照合同约定向乙方交付租赁房地产。
@@ -912,8 +899,8 @@ const NocheckZScontractez=(props)=>{
                     <p className={styles.linheP}  >
                         本确认书经双方签署之日起生效。
                     </p>
-                    <p className={styles.linheP}   ><span style={{ marginRight: '100px' }}>甲方（签署）:{companyName}</span><span>乙方（签署）:{getUseraddNameById(clientList,clientId)}</span></p>
-                    <p className={styles.linheP}   ><span style={{ marginRight: '300px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
+                    <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                    <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
                     <p  >
                         <h3>
                             附件四：廉洁诚信承诺书
@@ -1047,7 +1034,7 @@ const NocheckZScontractez=(props)=>{
                         </h3>
                     </p>
                     <p className={styles.linheP}  >
-                        签收人:{getUseraddNameById(clientList,clientId)}
+                        签收人:
                     </p>
                     <p className={styles.linheP}  >
                         租赁单元:{rentAddress}{getUnitNamesByIds(unitList,unitarrList)}号房
@@ -1069,7 +1056,7 @@ const NocheckZScontractez=(props)=>{
                         为了积极贯彻执行国家和本省、本市有关安全生产、消防、治安保卫、劳动保护等法律法规和相关标准，包括但不限于《中华人民共和国安全生产法》《中华人民共和国消防法》《中华人民共和国劳动法》《中华人民共和国反恐怖主义法》《中华人民共和国治安管理处罚法》《中华人民共和国环境保护法》《广东省安全生产条例》、广东省实施《中华人民共和国消防法》办法、《广东省公共安全视频图像信息系统管理办法》《广州市安全生产条例》《广州市安全生产管理规定》《仓库防火安全管理规则》《建筑内部装修设计防火规范》等。安全生产工作实行管行业必须管安全、管业务必须管安全、管生产经营必须管安全，强化和落实生产经营单位主体责任。
                     </p>
                     <p className={styles.linheP}  >
-                        一、现由{getUseraddNameById(clientList,clientId)}先生/小姐，（身份证：{dispatchCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
+                        一、现由{legalPerson2}先生/小姐，（身份证：{dispatchCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
                     </p>
                     <p className={styles.linheP}  >
                         二、生产经营单位的主要负责人是本单位安全生产第一责任人，对本单位的安全生产工作全面负责。
@@ -1299,10 +1286,10 @@ const NocheckZScontractez=(props)=>{
                             <p className={styles.linheP}  >联系人：{contacts}</p>
                             <p className={styles.linheP} style={{ marginTop: '30px' }}></p>
                             <p className={styles.linheP}  style={{fontWeight:'600' }}>承租方(乙方): {getUserNamesById(clientList,clientId)}</p>
-                            <p className={styles.linheP}  >地址：{getUseraddNameById(clientList,clientId)}</p>
-                            <p className={styles.linheP}  >法定代表人：{getUserNamesById(clientList,clientId)}</p>
+                            <p className={styles.linheP}  >地址：{getUseraddRessById(clientList,clientId)}</p>
+                            <p className={styles.linheP}  >法定代表人：{legalPerson2}</p>
                             <p className={styles.linheP}  >联系电话：{getUserphoneById(clientList,clientId)}</p>
-                            <p className={styles.linheP}  >联系人：{getUserNamesById(clientList,clientId)}</p>
+                            <p className={styles.linheP}  >联系人：{legalPerson2}</p>
                             <p className={styles.linheP}   >根据《中华人民共和国民法典》及相关法律法规，就乙方承租甲方房屋事宜，甲、乙双方在自愿、平等和互利的基础上，经协商一致，签订本合同并共同遵守。</p>
                             <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第一条：房屋状况</p>
                             <p className={styles.linheP}  >
@@ -1319,7 +1306,7 @@ const NocheckZScontractez=(props)=>{
                             </p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'20px'}}>4.</span>
-                                本合同租赁物用途为{}。乙方在租赁物从事经营的主体名称是{businessEntity}，其经营范围或业务范围为{businessScope}。
+                                本合同租赁物用途为{getunitTypeById(unitList,unitarrList[0])==1?'商业':'办公'}。乙方在租赁物从事经营的主体名称是{businessEntity}，其经营范围或业务范围为{businessScope}。
                                 如乙方需变更在租赁物从事经营主体、经营范围或业务范围的，需要事先征得甲方书面同意；涉及须经政府主管部门批准或办理登记手续的，乙方应自行办理。未经甲方书面同意，乙方不得将租赁物用于本条规定以外的其他用途。
                             </p>
                         </p>
@@ -1348,12 +1335,12 @@ const NocheckZScontractez=(props)=>{
                             <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第四条：租赁费用</p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'20px'}}>1.</span>
-                                租赁保证金：本租赁合同的租赁保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
+                                租赁保证金：本租赁合同的租赁保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
                                 如乙方违反本合同之规定，甲方有权将租赁保证金没收或做相应扣除，乙方在接到甲方扣除通知后的十五日内将甲方扣除的租赁保证金补足给甲方。
                             </p>
                             <p className={styles.linheP}>
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'20px'}}>2.</span>
-                                租金：租赁物租金第1年起为每月{zuMoney}元。以此类推。合同租金明细如下:
+                                租金：租赁物租金第1年起为每月{zuMoney}元。第2年起每年租金将在上年的基础上递增，合同租金递增明细如下:
                             </p>
                             <p>
                                 <Table columns={columns} dataSource={formItems}  rowKey={(columns) => columns.id} size='small' pagination={false}/>
@@ -1370,7 +1357,7 @@ const NocheckZScontractez=(props)=>{
                             </p>
                             <p className={styles.linheP}>
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(1)</span>
-                                物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
+                                物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
                             </p>
                             <p className={styles.linheP}>
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(2)</span>
@@ -1629,63 +1616,63 @@ const NocheckZScontractez=(props)=>{
                                 甲、乙双方同意，有下列情形之一的，甲方可就本合同行使单方解除权，书面通知乙方提前解除本合同，乙方已支付的全部费用包括但不限于租金、物业服务费（无论该等费用对应的租赁期间是否届满）、合同保证金、物业费保证金等甲方有权不予退还，并且乙方还需向甲方支付相当于解除时二个月租金的违约金；若该等前述费用不足抵付甲方损失的，甲方有权继续向乙方追偿
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(1)</span>
-                                乙方未能按时接收租赁物超过十五天的；
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}></span>
+                                {/*乙方未能按时接收租赁物超过十五天的；*/}
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(2)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(1)</span>
                                 乙方逾期支付租金或其他应付费用连续超过三十日或累计超过四十五日的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(3)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(2)</span>
                                 乙方提前终止本合同的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400,marginLeft:'40px' }}>(4)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400,marginLeft:'40px' }}>(3)</span>
                                 乙方未征得甲方书面同意改变租赁物用途，或未经相关政府部门批准从事非法经营活动；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(5)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(4)</span>
                                 因乙方原因造成租赁物主体结构损坏的，或未征得甲方书面同意改变房屋结构的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(6)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(5)</span>
                                 乙方擅自转租或与他人交换各自承租的房屋的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(7)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(6)</span>
                                 乙方违反本合同约定给甲方造成损失，且经甲方书面催告后五日内拒不改正违约行为的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400,marginLeft:'40px' }}>(8)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400,marginLeft:'40px' }}>(7)</span>
                                 乙方将租赁物用于任何非法目的或乙方将租赁物用于乙方营业执照所列经营范围以外之目的的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400,marginLeft:'40px' }}>(9)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400,marginLeft:'40px' }}>(8)</span>
                                 乙方破产或进入清算程序的，或乙方之财产被强制执行，或乙方被接管人接收的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(10)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(9)</span>
                                 乙方因违法经营、债权债务等原因致使政府有关部门、法院或仲裁机构责令其停止营业或查封扣押租赁房屋及其内财物的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(11)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(10)</span>
                                 乙方被指侵害他人合法权益，使甲方被卷入诉讼或行政查处案件的；债权人上门追讨债务，影响本项目全部或部分正常营业的或造成甲方和物业管理方名誉受损的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(12)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(11)</span>
                                 乙方因不正当竞争或虚假宣传等被消费者围堵，影响本项目全部或部分正常营业的或造成甲方和物业管理方名誉受损的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(13)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(12)</span>
                                 乙方承租期间，如在本项目物业范围内，发生针对乙方或乙方关联方的群体性社会事件，社会群体围堵聚集本项目物业或乙方租赁物业，影响本项目物业正常营业的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(14)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(13)</span>
                                 除上述情形外，乙方其他行为影响本项目全部或部分正常营业、对其他业户造成不良影响或造成甲方和物业管理方名誉受损，甲方和物业管理方要求限期改正而仍未改正的；
                             </p>
                             <p className={styles.linheP}  >
-                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(15)</span>
+                                <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(14)</span>
                                 其他归因于乙方，法律允许甲方单方解除合同之情形的。
                             </p>
                             <p className={styles.linheP}  >
@@ -1716,7 +1703,7 @@ const NocheckZScontractez=(props)=>{
                             </p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'20px'}}>6.</span>
-                                因乙方违约导致甲方依据本合同约定解除合同时，乙方须协助甲方开具红字发票等事宜。如因此造成甲方损失的（包括但不限于不配合办理开具红字增值税专用发票、无法抵扣增值税、多缴增值税等），乙方须承担赔偿责任。
+                                若因政府有关法律法规的修改或政府征收等行为（乙方因自身原因以及违法行为导致政府的行政处罚除外）导致双方无法继续履行本合同时，本合同自行终止，甲方将剩余保证金退还给乙方，双方互不追究责任。
                             </p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400,marginLeft:'20px' }}>7.</span>
@@ -1728,7 +1715,7 @@ const NocheckZScontractez=(props)=>{
                             </p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'20px'}}>9.</span>
-                                租赁期内，因乙方原因导致租赁合同提前解除或终止，最后一个计租周期不足一个月的，乙方应当按照一个月的标准向甲方支付租金。
+                                乙方须按照一个月的标准向甲方支付租金、物业费。
                             </p>
                             <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第十一条：保险</p>
                             <p className={styles.linheP}  >
@@ -1759,7 +1746,7 @@ const NocheckZScontractez=(props)=>{
                                     <p className={styles.gridItem}>地址</p>
                                     <p className={styles.gridItem}>{attract}</p>
                                     <p className={styles.gridItem}>{attractPhone}</p>
-                                    <p className={styles.gridItem}>{attractWXNumber}</p>
+                                    <p className={styles.gridItem}>{rentAddress}</p>
                                 </form>
                             </p>
                             <p className={styles.linheP}  >
@@ -1767,11 +1754,11 @@ const NocheckZScontractez=(props)=>{
                                 乙方指定如下人员为与甲方的联系人，负责转达乙方的指示和要求，提供文件和资料，接收甲方向乙方送达的通知、文件和资料等，乙方更换联系人应当及时书面通知甲方：
                                 <form className={styles.gridForm}>
                                     <p className={styles.gridItem}>乙方指派人员</p>
-                                    <p className={styles.gridItem}>身份证</p>
+                                    <p className={styles.gridItem}>联系电话</p>
                                     <p className={styles.gridItem}>微信号</p>
                                     <p className={styles.gridItem}>{dispatchName}</p>
-                                    <p className={styles.gridItem}>{dispatchCard}</p>
-                                    <p className={styles.gridItem}>{}</p>
+                                    <p className={styles.gridItem}>{getUserphoneById(clientList,clientId)}</p>
+                                    <p className={styles.gridItem}>{getUserphoneById(clientList,clientId)}</p>
                                 </form>
                             </p>
                             <p className={styles.linheP}  >
@@ -1844,9 +1831,9 @@ const NocheckZScontractez=(props)=>{
                                 【签署页  无正文】
                             </p>
 
-                            <p className={styles.linheP}   ><span style={{ marginRight: '100px' }}>甲方（签署）:{companyName}</span><span>乙方（签署）:{getUseraddNameById(clientList,clientId)}</span></p>
-                            <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>法定代表人:{legalPerson}</span><span>法定代表人:{getUserNamesById(clientList,clientId)}</span></p>
-                            <p className={styles.linheP}   ><span style={{ marginRight: '300px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
+                            <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                            <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>法定代表人:</span><span>法定代表人:</span></p>
+                            <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
 
                         </p>
 
@@ -1870,18 +1857,14 @@ const NocheckZScontractez=(props)=>{
                         <p style={{height:"1030px"}}>
                             <p >
                                 <h3>
-                                    附件二：1、房屋内交付标准
+                                    附件二：1、房屋内交付标准及物品清单
                                 </h3>
                                 <p>
                                     <Table columns={wupinTab} rowKey={(columns) => columns.key} dataSource={wupinList} size='small' style={{width:'600px'}}  pagination={false}/>
 
                                 </p>
                             </p>
-                            <p  >
-                                <h3>
-                                    2、物品清单
-                                </h3>
-                            </p>
+
                         </p>
                         <p style={{height:'1030px'}}>
                             <p>
@@ -1896,7 +1879,7 @@ const NocheckZScontractez=(props)=>{
                                 甲方：{companyName}
                             </p>
                             <p className={styles.linheP}  >
-                                乙方：{getUseraddNameById(clientList,clientId)}
+                                乙方：{getUserNamesById(clientList,clientId)}
                             </p>
                             <p className={styles.linheP}  >
                                 鉴于：双方于{dayjs(deliveryDate).format("YYYY-MM-DD")}日就位于{rentAddress}{getUnitNamesByIds(unitList,unitarrList)}房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于{startDate}日之前按照合同约定向乙方交付租赁房地产。
@@ -1915,8 +1898,8 @@ const NocheckZScontractez=(props)=>{
                             <p className={styles.linheP}>
                                 本确认书经双方签署之日起生效。
                             </p>
-                            <p className={styles.linheP}><span style={{ marginRight: '100px' }}>甲方（签署）:{companyName}</span><span>乙方（签署）:{getUseraddNameById(clientList,clientId)}</span></p>
-                            <p className={styles.linheP}><span style={{ marginRight: '300px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
+                            <p className={styles.linheP}><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                            <p className={styles.linheP}><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
                         </p>
                         <p style={{  height:'1030px'}}>
                             <p>
@@ -1994,9 +1977,9 @@ const NocheckZScontractez=(props)=>{
                             <p className={styles.linheP}>
                                 <h4>
                                     1、承租方证照文件
-                                    <p style={{display:'flex'}}>
+                                    <p style={{display:'flex',flexWrap:'wrap'}}>
                                         {czb64.length>0 ?czb64.map((item:any,index:number)=><Space key={index}>
-                                                <Image src={item} style={{ width: '200px',height:'200px',margin:'5px'}} />
+                                                <Image src={item} style={{ width:'300px',margin:'5px'}} />
                                             </Space>
 
                                         ) : ''}
@@ -2004,13 +1987,27 @@ const NocheckZScontractez=(props)=>{
 
                                 </h4>
                             </p>
+                            {/*<p className={styles.linheP}>*/}
+                            {/*    <h4>*/}
+                            {/*        2、出租方证照文件*/}
+                            {/*    </h4>*/}
+                            {/*    <p style={{display:'flex'}}>*/}
+                            {/*        {b64.length>0 ?b64.map((item:any,index:number)=><Space key={index}>*/}
+                            {/*                <Image src={item} style={{ width: '200px',height:'200px',margin:'5px' }} />*/}
+                            {/*            </Space>*/}
+
+                            {/*        ) : ''}*/}
+                            {/*    </p>*/}
+                            {/*</p>*/}
+                        </p>
+                        <p style={{  height:'1030px'}}>
                             <p className={styles.linheP}>
                                 <h4>
                                     2、出租方证照文件
                                 </h4>
                                 <p style={{display:'flex'}}>
                                     {b64.length>0 ?b64.map((item:any,index:number)=><Space key={index}>
-                                            <Image src={item} style={{ width: '200px',height:'200px',margin:'5px' }} />
+                                            <Image src={item}  />
                                         </Space>
 
                                     ) : ''}
@@ -2061,7 +2058,7 @@ const NocheckZScontractez=(props)=>{
                               </h3>
                           </p>
                           <p className={styles.linheP}  >
-                              签收人:{getUseraddNameById(clientList,clientId)}
+                              签收人:
                           </p>
                           <p className={styles.linheP}  >
                               租赁单元:{rentAddress}{getUnitNamesByIds(unitList,unitarrList)}号房
@@ -2085,7 +2082,7 @@ const NocheckZScontractez=(props)=>{
                                为了积极贯彻执行国家和本省、本市有关安全生产、消防、治安保卫、劳动保护等法律法规和相关标准，包括但不限于《中华人民共和国安全生产法》《中华人民共和国消防法》《中华人民共和国劳动法》《中华人民共和国反恐怖主义法》《中华人民共和国治安管理处罚法》《中华人民共和国环境保护法》《广东省安全生产条例》、广东省实施《中华人民共和国消防法》办法、《广东省公共安全视频图像信息系统管理办法》《广州市安全生产条例》《广州市安全生产管理规定》《仓库防火安全管理规则》《建筑内部装修设计防火规范》等。安全生产工作实行管行业必须管安全、管业务必须管安全、管生产经营必须管安全，强化和落实生产经营单位主体责任。
                            </p>
                            <p className={styles.linheP}  >
-                               一、现由{getUseraddNameById(clientList,clientId)}先生/小姐，（身份证：{dispatchCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
+                               一、现由{legalPerson2}先生/小姐，（身份证：{dispatchCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
                            </p>
                            <p className={styles.linheP}  >
                                二、生产经营单位的主要负责人是本单位安全生产第一责任人，对本单位的安全生产工作全面负责。

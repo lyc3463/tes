@@ -24,3 +24,6 @@ export function bydian(uid:any,jsondata:string) {
 export function byshui(vals:any,jsondata:string) {
     return postData(1432, [vals],jsondata);
 }
+export function byItem(vals:any) {
+    return getData(1479, [vals.uid,vals.item_id]);
+}

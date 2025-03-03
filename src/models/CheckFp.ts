@@ -15,7 +15,7 @@ let pl={
     startDate:'2000-01-01',
     endDate:'2099-01-01',
     stutes:0,
-    openId:''
+    openId:0
 }
 
 export interface CheckFpCountState {
@@ -105,12 +105,7 @@ const CheckFpModels: CheckFpInterface = {
                 //         payload: location.state,
                 //     });
                 // }
-                if (StaticInfo.userId > 0 && pathname === '/check/checkFp/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+
             });
         },
     },

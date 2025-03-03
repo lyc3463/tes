@@ -2,6 +2,8 @@ import {Button, DatePicker, Form, Input, List, message, Modal, Pagination, Selec
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
+import * as StaffServer from "@/services/staff";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const CheckContracte=(props:any)=>{
     const [uid,setUid]=useState(0);
@@ -26,6 +28,10 @@ const CheckContracte=(props:any)=>{
     const [spinning,setspinning]=useState(false);
     // 发送小程序用户
     const [fId,setfId]=useState(0);
+    // 查看续租前合同列表
+    const [oldList,setOldList]=useState([]);
+    // 续租前合同列表
+    const [xuOpen,setxuOpen]=useState(false);
     const columns =[
         {
             title: '合同编号',
@@ -98,26 +104,29 @@ const CheckContracte=(props:any)=>{
             dataIndex: 'contractStatus',
             key: 'contractStatus',
             render: (text:any, record:any) => {
-                return(
-                    <div>
-                        {record.contractStatus==1?<Tag color='red'>未审核</Tag>:<Tag color='green'>已审核</Tag>}
-                    </div>
-                )
+                let consumptionTypeText;
+                switch (record.contractStatus) {
+                    case 1:
+                        consumptionTypeText = <Tag color='blue'>未审核</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag color='green'>已审核</Tag>;
+                        break;
+                    case 3:
+                        consumptionTypeText = <Tag color='red'>退租</Tag>;
+                        break;
+                    case 4:
+                        consumptionTypeText = <Tag color='orange'>续租</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
+                }
+                return (
+                    consumptionTypeText
+                );
+
             }
         },
-        // {
-        //     title: '下载',
-        //     dataIndex: 'zuMoney',
-        //     key: 'zuMoney',
-        //     align:'center',
-        //     render: (text:any, record:any) => {
-        //         return(
-        //             <Space>
-        //                 {record.contractStatus==2? <Button type='link' onClick={()=>{toxiazai(record)}}>下载</Button> :''}
-        //             </Space>
-        //         )
-        //     }
-        // },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -125,13 +134,15 @@ const CheckContracte=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        {record.contractStatus==1?
+                        {record.contractStatus==1||record.contractStatus==4?
                             <>
                                 {/*<Button type='link' onClick={()=>toedit(record)}>编辑</Button>*/}
                                 <Button type='link' onClick={()=>isCheck(record)}>审核</Button>
                                 <Button type='link' onClick={()=>toInfo(record)}>详情</Button>
-
-                            </>:<Button type='link' onClick={()=>{toxiazai(record)}}>详情</Button>
+                            </>:<>
+                                <Button type='link' onClick={()=>{toxiazai(record)}}>详情</Button>
+                                <Button type='link' onClick={()=>{toOldHetongList(record)}}>查看续租前合同</Button>
+                            </>
                         }
                     </Space>
                 )
@@ -144,7 +155,6 @@ const CheckContracte=(props:any)=>{
     };
     // 审核弹窗
     const isCheck=(e:any)=>{
-        console.log("点击审核通过详情",e);
         settemplateType(e.templateType);
         setUid(e.id);
         setIsOpen(true);
@@ -156,6 +166,18 @@ const CheckContracte=(props:any)=>{
         }else if (e.templateType==2){
             history.push(`/enter/editStaff?id=${e.id}`);
         }
+    };
+    // 查看以前合同
+    const toOldHetongList=(e:any)=>{
+        setxuOpen(true);
+        StaffServer.getOldList(e.id).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                console.log('列表',res);
+                setOldList(res.Data);
+            }else {
+                setOldList([]);
+            }
+        })
     };
     // 确定审核通过
     const checkOk=()=>{
@@ -239,6 +261,72 @@ const CheckContracte=(props:any)=>{
     const onFsOk=()=>{
         console.log('发送');
     };
+    const xucolumns=[
+        {
+            title: '合同编号',
+            dataIndex: 'identifier',
+            key: 'identifier',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.identifier}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '起租日',
+            dataIndex: 'beginTime',
+            key: 'beginTime',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>{dayjs(record.beginTime).format('YYYY-MM-DD')}</div>
+                )
+            }
+        },
+        {
+            title: '结束日',
+            dataIndex: 'endTime',
+            key: 'endTime',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>{dayjs(record.endTime).format('YYYY-MM-DD')}</div>
+                )
+            }
+        },
+        {
+            title: '租户名称',
+            dataIndex: 'customName',
+            key: 'customName',
+            render:(text:any,record:any)=>{
+                return (
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        {record.identifier}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '租户手机号',
+            dataIndex: 'customPhone',
+            key: 'customPhone',
+        },
+        {
+            title: '操作',
+            dataIndex: 'x',
+            key: 'x',
+            render:(text:any,record:any)=>{
+                return (
+                    <div>
+                       <Button type='primary' onClick={()=>tooldHetong(record.id)}>详情</Button>
+                    </div>
+                )
+            }
+        },
+    ];
+    const tooldHetong=(e)=>{
+        history.push(`/check/contractezold?id=${e}`);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -293,6 +381,8 @@ const CheckContracte=(props:any)=>{
                                     { value:0, label: '全部' },
                                     { value:1, label: '未审核' },
                                     { value:2, label: '已审核' },
+                                    { value:3, label: '已退租' },
+                                    { value:4, label: '续租中' },
                                 ]}
                             />
                         </Space.Compact>
@@ -329,9 +419,18 @@ const CheckContracte=(props:any)=>{
             <Modal title='审核合同' open={isOpen} onCancel={()=>setIsOpen(false)} onOk={checkOk} loading={spinning}>
                 <div>是否要审核通过？</div>
             </Modal>
-        {/*发送弹窗*/}
+            {/*发送弹窗*/}
             <Modal open={fsOpen} title='选择小程序用户' onCancel={()=>setFsOpen(false)} onOk={onFsOk} loading={spinning}>
 
+            </Modal>
+        {/*    续租前合同列表弹窗*/}
+            <Modal open={xuOpen} title={'续租前合同列表'} onCancel={()=>setxuOpen(false)} width={800}>
+                <Table
+                    columns={xucolumns}
+                    dataSource={oldList}
+                    pagination={false}
+                    rowKey={(columns) => columns.id}
+                />
             </Modal>
         </Spin>
     )

@@ -48,12 +48,13 @@ const Properties=(props:any)=>{
         console.log(props)
     }, []);
     const isDelete=async (e:number)=>{
-        setDeleteID(e)
+        setDeleteID(e);
+        setIsopen(true);
         let res:any=await PropertiesService.getHouse(e)
         if (res.ErrorCode==0){
             setFangyuanList(res.Data)
-        };
-        setIsopen(true);
+        }
+
     };
     const toadd=()=>{
         history.push('/appletManage/addProperties')
@@ -72,6 +73,7 @@ const Properties=(props:any)=>{
             }else {
                 message.error(res.Data);
                 setLoading(false);
+                setIsopen(false);
             }
         })
     };

@@ -74,15 +74,11 @@ const PropertiesModel: PropertiesInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload ,callback}, { call, put }): any {
+        *remove({ payload ,callback}, { call, put,take }): any {
             const result = yield call(PropertiesService.remove, payload);
-            if (result.ErrorCode==0){
-                yield put({ type: 'fetch', payload: pl });
-                message.success('删除成功')
-                return result
-            }else {
-                yield put({ type: 'fetch', payload: pl });
-            }
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
     },
     reducers: {

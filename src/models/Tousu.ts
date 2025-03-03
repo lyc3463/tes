@@ -17,7 +17,7 @@ let pl={
     state:0,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    openID:''
+    openID:0
 };
 
 export interface ProjectCountState {

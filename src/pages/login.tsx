@@ -27,7 +27,7 @@ import * as LoginService from '@/services/login';
 import CryptoUtils from '@/utils/Crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { sleep } from '@/utils/common';
-import {phonePattern, replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
+import {phonePattern, pwdPattern, replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
 
 type Fnc = () => void;
 const noop = () => { };
@@ -314,7 +314,7 @@ export default function Login() {
     // console.log("name",name);
     let type=1;
     let shebei='设备'
-    let res=await LoginService.loginYzm(valPhone,type,shebei);
+    let res=await LoginService.loginYzm(valPhone,type,shebei,1);
     if (res.ErrorCode==0){
       message.success('验证码已发送，请留意');
     }else {
@@ -345,7 +345,7 @@ export default function Login() {
     }
     let type=1;
     let shebei='设备'
-    let res:any=await LoginService.loginYzm(editpwdPhone,type,shebei);
+    let res:any=await LoginService.loginYzm(editpwdPhone,type,shebei,1);
     if (res.ErrorCode==0){
       message.success('验证码已发送，请留意');
     }else {
@@ -442,7 +442,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:1.7.5</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:1.9.5</p>
                 </div>
               </Form.Item>
             </Form>
@@ -484,7 +484,7 @@ export default function Login() {
             form={editForm}
             onFinish={onOKmm}
         >
-          <Form.Item label='输入密码' name='password' rules={[{required: true, message: '请输入密码' },{ min: 6, max: 12, message: '密码必须是6位数组成' }]}>
+          <Form.Item label='输入密码' name='password' rules={[{required: true, message: '请输入密码' },{pattern: pwdPattern, message: '密码必须包含HXtz@加后八位数'}]}>
             <Input.Password/>
           </Form.Item>
           <Form.Item

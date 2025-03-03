@@ -13,8 +13,8 @@ const Wcxuserlist=(props:any)=>{
     const [phone,setPhone]=useState('');
     // 弹窗
     const [isOpen,setIsOpen]=useState(false);
-    const [selected, setSelected] = useState<string[]>(Array(346).fill('0'));
-    const [openID,setOpenID]=useState('');
+    const [selected, setSelected] = useState<string[]>(Array(362).fill('0'));
+    const [appid,setAppid]=useState(0);
     const columns =[
         {
             title: '用户头像',
@@ -85,14 +85,13 @@ const Wcxuserlist=(props:any)=>{
     // 分页
     const logFenye=()=>{
         props.dispatch({
-            type:"AppUser/fetch",
+            type:"AppUser/fenye",
             payload:{page,name,phone}
         })
     };
     // 监听页数
     const onChange=(page)=>{
         setPage(page);
-
     };
     useEffect(() => {
         logFenye();
@@ -100,7 +99,7 @@ const Wcxuserlist=(props:any)=>{
     }, [page]);
     // 弹窗信息
     const editInfo=(vla:any)=>{
-        setOpenID(vla.openId);
+        setAppid(vla.id);
         setIsOpen(true);
         getOne(vla.id);
     };
@@ -119,12 +118,12 @@ const Wcxuserlist=(props:any)=>{
     };
     // 确定编辑权限
     const onOk=()=>{
-        setIsSpinning(true);
         let joinqx=selected.join('');
-        // console.log(joinqx)
+        console.log("勾选的权限",joinqx);
+        setIsSpinning(true);
         props.dispatch({
             type:'AppUser/edit',
-            payload:{openID,joinqx}
+            payload:{appid,joinqx}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('修改成功');
@@ -163,6 +162,7 @@ const Wcxuserlist=(props:any)=>{
         newSelected[id] = isChecked ? '1' : '0';
         // 设置新的选中状态
         setSelected(newSelected);
+        console.log("勾选的权限",newSelected)
     };
     return(
         <Spin spinning={isSpinning}>
@@ -224,8 +224,8 @@ const Wcxuserlist=(props:any)=>{
             {/*编辑权限弹窗*/}
             <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk} loading={isSpinning}>
                 <Space>
-                    <Button type='primary' onClick={()=>setSelected(Array(346).fill('1'))}>全选</Button>
-                    <Button type='primary' onClick={()=>setSelected(Array(346).fill('0'))}>反选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(362).fill('1'))}>全选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(362).fill('0'))}>反选</Button>
                 </Space>
                 <TreeMenu tree={treeData} selected={selected} setSelected={setSelected} />
             </Modal>

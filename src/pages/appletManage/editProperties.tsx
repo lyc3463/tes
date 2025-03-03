@@ -29,26 +29,32 @@ const EditProperties=(props:any)=>{
     },[]);
     const getOneProperties=async (id:string)=>{
         let res:any=await propertiesServer.one(id);
+        setIsLoading(true);
         if (res.ErrorCode==0){
+            setIsLoading(false);
             formRef.current.setFieldsValue(res?.Data)
             setImg(res?.Data.fileName);
             setImgs(res?.Data.fileNames.split(","));
             setFileData(res.Data.fileData);
             setHousing_image(res.Data.properties_image);
         }else {
-            message.error(res.Data)
+            setIsLoading(false);
+            message.error(res.Data);
         }
     };
     const onFinish=(values:any)=>{
+        setIsLoading(true);
         let singles=imgs.join(",");
         props.dispatch({
             type:'Properties/edit',
             payload:{...values,uid,img,singles}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                setIsLoading(false);
                 message.success('修改成功');
                 history.push('/appletManage/properties');
             }else {
+                setIsLoading(false);
                 message.error(res.Data);
             }
         })

@@ -19,12 +19,18 @@ const AddResources=(props:any)=>{
     const [imgs, setImgs] = useState([]);
     // 多图B64
     const [b64s,setB64s]=useState([]);
+    // 房源租金
+    const [rent,setrent]=useState(0);
+    // 房源单价
+    const [price,setprice]=useState(0);
+    // 房源面积
+    const [housing_extent,sethousing_extent]=useState(0);
     // 添加提交
     const onFinish=async (values)=>{
         let singles=imgs.join(',');
         let res=await props.dispatch({
             type:'Resources/add',
-            payload:{...values,single,singles}
+            payload:{...values,single,singles,price,rent,housing_extent}
         })
         if (res.ErrorCode==0){
             message.success('添加成功')
@@ -56,6 +62,9 @@ const AddResources=(props:any)=>{
         newB64.splice(index, 1);
         setB64s(newB64);
     };
+    useEffect(() => {
+        setrent(price*housing_extent);
+    }, [price,housing_extent]);
     return(
         <Spin spinning={isLoading}>
             <Form
@@ -87,14 +96,14 @@ const AddResources=(props:any)=>{
                         <Radio value={1}>商业</Radio>
                     </Radio.Group>
                 </Form.Item>
-                <Form.Item label="房源面积(m²)" name="housing_extent">
-                    <InputNumber min={0}/>
+                <Form.Item label="房源面积(m²)">
+                    <InputNumber min={0} value={housing_extent} onChange={(e)=>sethousing_extent(e)}/>
                 </Form.Item>
-                <Form.Item label="房源单价" name="price">
-                    <InputNumber min={0}/>
+                <Form.Item label="房源单价">
+                    <InputNumber min={0} value={price} onChange={(e)=>setprice(e)}/>
                 </Form.Item>
-                <Form.Item label="房源租金" name="rent">
-                    <InputNumber min={0}/>
+                <Form.Item label="房源租金" >
+                    <InputNumber min={0} value={rent} onChange={(e)=>setrent(e)}/>
                 </Form.Item>
                 <Form.Item label="付款方式" name="payment_method">
                     <Input placeholder="例:押一付一"/>
@@ -116,8 +125,8 @@ const AddResources=(props:any)=>{
                 </Form.Item>
                 <Form.Item label="状态" name="housing_status">
                    <Radio.Group>
-                       <Radio value={0}>上架</Radio>
-                       <Radio value={1}>下架</Radio>
+                       <Radio value={1}>上架</Radio>
+                       <Radio value={0}>下架</Radio>
                    </Radio.Group>
                 </Form.Item>
                 <Form.Item label="排序" name="sort">

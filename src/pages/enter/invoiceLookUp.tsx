@@ -6,7 +6,7 @@ const InvoiceLookUp=(props:any)=>{
     const [page,setPage]=useState(1);
     // 状态 0全部，1未审核，2审核通过
     const [stutes,setStutes]=useState(0);
-    const [openID,setOpenID]=useState('');
+    const [openID,setOpenID]=useState(0);
     const [name,setName]=useState('');
     const [checkOpen,setCheckOpen]=useState(false);
     // 审核id

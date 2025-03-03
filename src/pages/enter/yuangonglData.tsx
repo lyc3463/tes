@@ -16,6 +16,7 @@ import {
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
+import {compressBase64} from "@/utils/OpenTool";
 const YuangonglData=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);

@@ -41,15 +41,15 @@ const Rename=(props)=>{
             key: 'rename',
         },
         {
-            title: '原手机号',
+            title: '手机号',
             dataIndex: 'tenant_phone',
             key: 'tenant_phone',
         },
-        {
-            title: '更改后手机号',
-            dataIndex: 'rephone',
-            key: 'rephone',
-        },
+        // {
+        //     title: '更改后手机号',
+        //     dataIndex: 'rephone',
+        //     key: 'rephone',
+        // },
         {
             title: '状态',
             dataIndex: 'renameStatus',

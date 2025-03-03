@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
@@ -50,26 +50,35 @@ const OutRent=(props:any)=>{
             )
         },
         {
+            title: '类型',
+            dataIndex: 'refundType',
+            key: 'refundType',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>{record.refundType==1?<Tag color='blue'>正常退租</Tag>:<Tag color='red'>强制退租</Tag>}</div>
+                )
+            }
+        },
+        {
+            title: '状态',
+            dataIndex: 'renameStatus',
+            key: 'renameStatus',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>{record.renameStatus==2?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}</div>
+                )
+            }
+        },
+        {
             title: '退租原因',
             dataIndex: 'refundReason',
             key: 'refundReason',
             render:(_:any,record:any)=>(
-                <div>
+                <div style={{width:'200px'}}>
                     <Input.TextArea value={record.refundReason}/>
                 </div>
             )
         },
-        {
-            title: '状态',
-            dataIndex: 'sturs',
-            key: 'sturs',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>{record.sturs==1?"已通过":"未审核"}</div>
-                )
-            }
-        },
-
     ];
     const toadd=()=>{
         history.push('/enter/addOutRent')
@@ -119,7 +128,12 @@ const OutRent=(props:any)=>{
         <div>
             <List>
                 <List.Item>
+                    <Space>
+                        <Button type="primary" onClick={toadd}>
+                          录入强制退租
+                        </Button>
 
+                    </Space>
                     <Space>
                         <Input
                             addonBefore="原手机号:"

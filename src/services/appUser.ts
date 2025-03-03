@@ -7,7 +7,7 @@ export function fenye(vals:any) {
 }
 
 export function edit(vals:any) {
-    return getData(1292, [vals.openID,vals.joinqx]);
+    return getData(1292, [vals.appid,vals.joinqx]);
 }
 export function one(vals:any) {
     return getData(1159, [vals]);

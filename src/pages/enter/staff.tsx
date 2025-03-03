@@ -1,7 +1,9 @@
-import {Button, DatePicker, Form, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Form, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
+import * as StaffService from '@/services/staff';
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Staff=(props:any)=>{
     const [isDeltOpen,setIsDeleteOpen]=useState(false);
@@ -9,7 +11,7 @@ const Staff=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     // 审核状态 0全部  1未审核 2已审核
-    const [contractStatus,setContractStatus]=useState(1);
+    const [contractStatus,setContractStatus]=useState(0);
     // 合同编号
     const [identifier,setIdentifier]=useState('');
     // 合同类型
@@ -20,6 +22,22 @@ const Staff=(props:any)=>{
     const [endDate,setEndDate]=useState('2099-01-01');
     // 租户姓名
     const [name,setName]=useState('');
+    // 列表
+    const [staffList,setStaffList]=useState([]);
+    // 转圈
+    const [spinning,setspinning]=useState(false);
+    // 总页码
+    const [count,setcount]=useState(0);
+    // 租金总数
+    const [zuMoney,setzuMoney]=useState(0);
+    // 合同押金
+    const [deposit,setdeposit]=useState(0);
+    // 预付费
+    const [prepayment,setprepayment]=useState(0);
+    // 管理费押金
+    const [depositFee,setdepositFee]=useState(0);
+    // 管理费
+    const [manageFee,setmanageFee]=useState(0);
     const columns =[
         {
             title: '合同编号',
@@ -92,13 +110,28 @@ const Staff=(props:any)=>{
             dataIndex: 'contractStatus',
             key: 'contractStatus',
             render: (text:any, record:any) => {
-                return(
-                    <div>
-                        {record.contractStatus==1?<Tag color='red'>未审核</Tag>:<Tag color='green'>已审核</Tag>}
-                    </div>
-                )
-            }
+                let consumptionTypeText;
+                switch (record.contractStatus) {
+                    case 1:
+                        consumptionTypeText = <Tag color='blue'>未审核</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag color='green'>已审核</Tag>;
+                        break;
+                    case 3:
+                        consumptionTypeText = <Tag color='red'>退租</Tag>;
+                        break;
+                    case 4:
+                        consumptionTypeText = <Tag color='orange'>续租</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
+                }
+                return (
+                    consumptionTypeText
+                );
 
+            }
         },
         {
             title: '下载',
@@ -119,7 +152,7 @@ const Staff=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        {record.contractStatus==1?
+                        {record.contractStatus==1||record.contractStatus==4?
                             <>
                                 <Button type='link' onClick={()=>toedit(record)}>编辑</Button>
                                 <Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>
@@ -127,7 +160,6 @@ const Staff=(props:any)=>{
                             </>:
                             <Button type='link' onClick={()=>{toxiazai(record)}}>详情</Button>
                         }
-
                     </Space>
                 )
             }
@@ -160,6 +192,7 @@ const Staff=(props:any)=>{
     };
     // 确定删除按钮
     const onOk=()=>{
+        setspinning(true);
         props.dispatch({
             type:'Staff/remove',
             payload:uid
@@ -167,17 +200,37 @@ const Staff=(props:any)=>{
             if (res.ErrorCode==0){
                 message.success('删除成功');
                 setIsDeleteOpen(false);
+                setspinning(false);
+                logFenye();
+                getListFenye();
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setIsDeleteOpen(false);
+                setspinning(false);
             }
         })
     };
     // 分页信息
     const getListFenye=()=>{
-        props.dispatch({
-            type:'Staff/fenye',
-            payload:{identifier,contractType,contractStatus,startDate,endDate,name}
-        });
+        setspinning(true);
+        StaffService.getHTfFy({identifier,contractType,contractStatus,startDate,endDate,name}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setcount(res.Data.count);
+                setzuMoney(res.Data.zuMoney);
+                setdeposit(res.Data.deposit);
+                setprepayment(res.Data.prepayment);
+                setdepositFee(res.Data.depositFee);
+                setmanageFee(res.Data.manageFee);
+                setspinning(false);
+            }else {
+                setspinning(false);
+                message.error(res.Data);
+            }
+        })
+        // props.dispatch({
+        //     type:'Staff/fenye',
+        //     payload:{identifier,contractType,contractStatus,startDate,endDate,name}
+        // });
     };
     // 搜索
     const sousuo=()=>{
@@ -187,10 +240,20 @@ const Staff=(props:any)=>{
     };
     // 分页
     const logFenye=()=>{
-        props.dispatch({
-            type:"Staff/fetch",
-            payload:{page,identifier,contractType,contractStatus,startDate,endDate,name}
+        setspinning(true);
+        StaffService.getHT({page,identifier,contractType,contractStatus,startDate,endDate,name}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setStaffList(res.Data);
+                setspinning(false);
+            }else {
+                setspinning(false);
+                message.error(res.Data);
+            }
         })
+        // props.dispatch({
+        //     type:"Staff/fetch",
+        //     payload:{page,identifier,contractType,contractStatus,startDate,endDate,name}
+        // })
     };
     // 监听页数
     const onChange=(e:number)=>{
@@ -201,7 +264,6 @@ const Staff=(props:any)=>{
     }, []);
     useEffect(() => {
         logFenye();
-        console.log("props",props);
     }, [page]);
     // 监听合同编号
     const changeIdentifier=(e)=>{
@@ -234,7 +296,7 @@ const Staff=(props:any)=>{
         }
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
@@ -269,32 +331,32 @@ const Staff=(props:any)=>{
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
-                        {/*<Space.Compact>*/}
-                        {/*    <div*/}
-                        {/*        style={{*/}
-                        {/*            borderRadius: '6px',*/}
-                        {/*            borderStartEndRadius: 0,*/}
-                        {/*            borderEndEndRadius: 0,*/}
-                        {/*            padding: '0 11px',*/}
-                        {/*            border: '1px solid #d9d9d9',*/}
-                        {/*            display: 'flex',*/}
-                        {/*            alignItems: 'center',*/}
-                        {/*            borderInlineEnd: 0,*/}
-                        {/*        }}*/}
-                        {/*    >*/}
-                        {/*        合同类型:*/}
-                        {/*    </div>*/}
-                        {/*    <Select*/}
-                        {/*        onChange={changeType}*/}
-                        {/*        defaultValue={contractType}*/}
-                        {/*        style={{ width: 120 }}*/}
-                        {/*        options={[*/}
-                        {/*            { value:0, label: '全部' },*/}
-                        {/*            { value:1, label: '未审核' },*/}
-                        {/*            { value:2, label: '已审核' },*/}
-                        {/*        ]}*/}
-                        {/*    />*/}
-                        {/*</Space.Compact>*/}
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                合同类型:
+                            </div>
+                            <Select
+                                onChange={changeType}
+                                defaultValue={contractType}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '未审核' },
+                                    { value:4, label: '续租' },
+                                ]}
+                            />
+                        </Space.Compact>
                         {/*<Space.Compact>*/}
                         {/*    <div*/}
                         {/*        style={{*/}
@@ -334,32 +396,33 @@ const Staff=(props:any)=>{
                 scroll={{y:'60vh'}}
                 pagination={false}
                 rowKey={(columns) => columns.id}
-                dataSource={props.StaffList}
+                dataSource={staffList}
                 summary={(columns) => (
                     <Table.Summary >
                         <Table.Summary.Row>
                             <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={4}>{props.count?props.count.zuMoney:''}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}>{props.count?props.count.deposit:''}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}>{props.count?props.count.manageFee:''}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={7}>{props.count?props.count.prepayment:''}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}>{zuMoney}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>{deposit}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>{manageFee}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}>{prepayment}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}>{depositFee}元</Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
             <Modal open={isDeltOpen} onCancel={()=>setIsDeleteOpen(false)} title='删除合同' onOk={onOk}>
                 <div>确定要删除吗？</div>
             </Modal>
-        </div>
+        </Spin>
     )
 }
-const mapStateToProps = (state: any) => {
-    return {
-        StaffList: state.Staff.list,
-        count: state.Staff.count,
-    }
-};
-export default connect(mapStateToProps) (Staff)
+// const mapStateToProps = (state: any) => {
+//     return {
+//         StaffList: state.Staff.list,
+//         // count: state.Staff.count,
+//     }
+// };
+export default connect() (Staff)

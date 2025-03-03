@@ -45,6 +45,7 @@ const CableRate=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props)
     }, [page]);
     useEffect(() => {
         getLogFenyeInfo();
@@ -96,7 +97,6 @@ const CableRate=(props)=>{
                 )
             }
         },
-
         {
             title: '度数',
             dataIndex: 'energyNew',
@@ -211,6 +211,8 @@ const CableRate=(props)=>{
                                 index={1}
                             >
                                 统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>

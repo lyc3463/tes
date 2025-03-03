@@ -133,4 +133,7 @@ export const menuData: TypeMenu[] = [
     { id: 324, route: '/check/checkReacharge/', name: '手动充值审批', parentId: 71, authId: 324},
     { id: 330, route: '/check/checkFp/',name: '发票审批', parentId: 71, authId: 330},
     { id: 346, route: '/houseManage/sumHounsBlii/', name: '租金汇总', parentId: 35, authId: 346},
+    { id: 348, route: '/financeSum/outZuList', name: '退租扣费记录',parentId: 57, authId: 348},
+    { id: 349, route: '/financeSum/wyList', name: '违约金扣费记录',parentId: 57, authId: 349},
+    { id: 360 ,route: '/systemManage/allpz', name: '配置设置',parentId: 113, authId: 360},
 ]

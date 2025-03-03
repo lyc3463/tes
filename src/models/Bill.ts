@@ -41,6 +41,7 @@ export interface BiaoqianInterface {
         check: Effect;
         fenye:Effect;
         allCheck:Effect;
+        fetchNo:Effect;
     };
     reducers: {
         list: Reducer<BillType[]>;
@@ -114,6 +115,18 @@ const BannerModel: BiaoqianInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+        },
+        *fetchNo({ type, payload }, { put, call, select }): any {
+            const res = yield call(BillService.fetchNo, payload?payload:pl);
+            if (res.ErrorCode == 0) {
+                yield put({
+                    type: 'list',
+                    payload: { list: res.Data },
+                });
+            } else {
+                message.error(res.ErrorCode + res.Data);
+            }
+            return res
         },
     },
     reducers: {

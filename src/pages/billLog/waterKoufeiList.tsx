@@ -33,7 +33,7 @@ const WaterKoufeiList=()=>{
     // 获取水表扣费记录
     const getwaterRateList=()=>{
         setspinning(true);
-        dateWaterService.fetch(page,cid,name,startDate,endDate,tenantId,recordStatus).then((res:TypeErrorCode)=>{
+        dateWaterService.fetch(page,cid,name,startDate,endDate,tenantId,recordStatus,'').then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setspinning(false);
                 setwaterRateList(res.Data);
@@ -45,7 +45,7 @@ const WaterKoufeiList=()=>{
     };
     // 获取水表扣费记录分页
     const getwaterFenye=()=>{
-        dateWaterService.fenye(cid,name,startDate,endDate,tenantId,recordStatus).then((res:TypeErrorCode)=>{
+        dateWaterService.fenye(cid,name,startDate,endDate,tenantId,recordStatus,'').then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 console.log('res',res)
                 setcount(res.Data.count);

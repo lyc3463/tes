@@ -23,7 +23,7 @@ const TennerBill=(props:any)=>{
             type:'HouseBill/fetch',
             payload:{tenantId}
         }).then((res:TypeErrorCode)=>{
-            console.log(res);
+            console.log("房屋账单",res);
             if (res.ErrorCode==0){
                 setbillList(res.Data.data);
                 setidentifier(res.Data.identifier);
@@ -155,9 +155,24 @@ const TennerBill=(props:any)=>{
             dataIndex: 'billStatus',
             key: 'billStatus',
             render:(text:any,record:any)=>{
+                let consumptionTypeText;
+                switch (record.billStatus) {
+                    case 1:
+                        consumptionTypeText = <Tag color='blue'>未交</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag color='green'>已交</Tag>;
+                        break;
+                    case 3:
+                        consumptionTypeText = <Tag color='orange'>已退租</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag color='red'>未知类型</Tag>;
+                }
                 return(
                     <div>
-                        {record.billStatus==1?<Tag color='red'>未交</Tag>:<Tag color='green'>已交</Tag>}
+                        {consumptionTypeText}
+                        {/*{record.billStatus==1?<Tag color='red'>未交</Tag>:<Tag color='green'>已交</Tag>}*/}
                     </div>
                 )
             }

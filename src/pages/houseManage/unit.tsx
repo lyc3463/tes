@@ -86,7 +86,6 @@ const Unit=(props:any)=>{
                 )
             }
         },
-
         {
             title: '状态',
             dataIndex: 'status',
@@ -236,7 +235,7 @@ const Unit=(props:any)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                类型:
+                                出租状态:
                             </div>
                             <Select
                                 onChange={changestatus}

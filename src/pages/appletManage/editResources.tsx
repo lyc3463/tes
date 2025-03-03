@@ -20,7 +20,13 @@ const EditResources=(props:any)=>{
     // 显示的多图
     const [fileData,setFileData]=useState([]);
     // 需要修改的id
-    const [uid,setUid]=useState('')
+    const [uid,setUid]=useState('');
+    // 房源租金
+    const [rent,setrent]=useState(0);
+    // 房源单价
+    const [price,setprice]=useState(0);
+    // 房源面积
+    const [housing_extent,sethousing_extent]=useState(0);
 
     useEffect(()=>{
         const searchParams = new URLSearchParams(location.search);
@@ -30,15 +36,21 @@ const EditResources=(props:any)=>{
     },[]);
     // 修改的详情
     const getOneProperties=async (id:string)=>{
+        setIsLoading(true);
         let res:any=await resourcesServer.one(id);
         if (res?.ErrorCode==0){
+            setIsLoading(false);
             formRef.current.setFieldsValue(res?.Data)
             setImg(res?.Data.fileName);
             setImgs(res?.Data.fileNames.split(","));
             setFileData(res.Data.fileData);
             setHousing_image(res.Data.housing_image);
+            setprice(res.Data.price);
+            setrent(res.Data.rent);
+            sethousing_extent(res.Data.housing_extent);
         }else {
-            message.error(res.Data)
+            setIsLoading(false);
+            message.error(res.Data);
         }
     }
     // 单图名字
@@ -54,7 +66,7 @@ const EditResources=(props:any)=>{
         setIsLoading(true);
         let res:any=await props.dispatch({
             type:'Resources/edit',
-            payload:{...values,uid,img,singles}
+            payload:{...values,uid,img,singles,price,rent,housing_extent}
         });
         if (res.ErrorCode==0){
             message.success('修改成功');
@@ -81,6 +93,9 @@ const EditResources=(props:any)=>{
         newB64.splice(index, 1);
         setFileData(newB64);
     };
+    useEffect(() => {
+        setrent(price*housing_extent);
+    }, [price,housing_extent]);
     return(
         <Spin spinning={isLoading}>
             <Form
@@ -112,14 +127,14 @@ const EditResources=(props:any)=>{
                         <Radio value={1}>商业</Radio>
                     </Radio.Group>
                 </Form.Item>
-                <Form.Item label="房源面积(m²)" name="housing_extent">
-                    <InputNumber min={0}/>
+                <Form.Item label="房源面积(m²)">
+                    <InputNumber min={0} value={housing_extent} onChange={(e)=>sethousing_extent(e)}/>
                 </Form.Item>
-                <Form.Item label="房源单价" name="price">
-                    <InputNumber min={0}/>
+                <Form.Item label="房源单价">
+                    <InputNumber min={0} value={price} onChange={(e)=>setprice(e)}/>
                 </Form.Item>
-                <Form.Item label="房源租金" name="rent">
-                    <InputNumber min={0}/>
+                <Form.Item label="房源租金" >
+                    <InputNumber min={0} value={rent} onChange={(e)=>setrent(e)}/>
                 </Form.Item>
                 <Form.Item label="付款方式" name="payment_method">
                     <Input placeholder="例:押一付一"/>

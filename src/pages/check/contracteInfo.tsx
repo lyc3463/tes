@@ -354,7 +354,7 @@ const contracteInfo=(props:any)=>{
                             </Form.Item>:''
                         }
                         <Form.Item label='单元'  style={{width:'30rem'}}>
-                            <Select placeholder='单元'
+                            <Select placeholder='请选择单元,注:选择第一个单元决定合同用途'
                                     value={unitarrList}
                                     mode="multiple"
                                     disabled
@@ -410,13 +410,16 @@ const contracteInfo=(props:any)=>{
                     contractType==2?(<>
                         <Form.Item style={{display:'flex'}}>
                             <Space size='large'>
-                                <Form.Item label='经营主体' name='businessEntity' style={{width:'20rem'}}>
+                                <Form.Item label='经营主体' name='businessEntity' style={{width:'17rem'}}>
                                     <Input/>
                                 </Form.Item>
-                                <Form.Item label='经营范围' name='businessScope' style={{width:'20rem'}}>
+                                <Form.Item label='经营范围' name='businessScope' style={{width:'17rem'}}>
                                     <Input/>
                                 </Form.Item>
-                                <Form.Item label='面积'  style={{width:'20rem'}}>
+                                <Form.Item label='法定代表人'  style={{width:'15rem'}} name='legalPerson'>
+                                    <Input/>
+                                </Form.Item>
+                                <Form.Item label='面积'  style={{width:'10rem'}}>
                                     <InputNumber value={mianji} disabled/>
                                 </Form.Item>
                                 <Form.Item label='预付费' name='prepayment'>

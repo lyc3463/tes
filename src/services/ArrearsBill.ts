@@ -26,10 +26,18 @@ export function sunhaoListFenye(vals:any) {
     return getData(1442, [vals.name,vals.phone,vals.startDate,vals.endDate,vals.stutes=1,vals.tenandId]);
 }
 //电费账单
-export function eleList(page:number,cid:string,name:string,startDate:string,endDate:string,tenantId:number,recordStatus:string) {
-    return getData(1355, [page,cid,name,startDate,endDate,tenantId,recordStatus]);
+export function eleList(page:number,cid:string,name:string,startDate:string,endDate:string,tenantId:number,recordStatus:string,remake:string) {
+    return getData(1355, [page,cid,name,startDate,endDate,tenantId,recordStatus,remake]);
 }
 //电费账单分页
-export function eleListFenye(cid:string,name:string,startDate:string,endDate:string,tenantId:number,recordStatus:string) {
-    return getData(1356, [cid,name,startDate,endDate,tenantId,recordStatus]);
+export function eleListFenye(cid:string,name:string,startDate:string,endDate:string,tenantId:number,recordStatus:string,remake:string) {
+    return getData(1356, [cid,name,startDate,endDate,tenantId,recordStatus,remake]);
+}
+//违约金列表
+export function weiyueList(vals:any) {
+    return getData(1480, [vals.page,vals.name,vals.startDate,vals.endDate,vals.stutes=1,vals.tenandId]);
+}
+//违约金分页
+export function weiyueListFenye(vals:any) {
+    return getData(1481, [vals.name,vals.startDate,vals.endDate,vals.stutes=1,vals.tenandId]);
 }

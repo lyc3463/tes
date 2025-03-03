@@ -20,6 +20,9 @@ const ServerList=(props:any)=>{
     const [dataSource,setdataSource]=useState([]);
     // 服务费管理费统计
     const [moneySum,setmoneySum]=useState(0);
+    // 已交服务费统计
+    const [NotBillSum,setNotBillSum]=useState(0);
+
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -30,6 +33,8 @@ const ServerList=(props:any)=>{
     const getzujinList=()=>{
         ArrearsBillService.sunhaoList({page,name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('分页信息',res)
+
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -42,6 +47,8 @@ const ServerList=(props:any)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
+                setNotBillSum(res.Data.NotBillSum);
+
             }else {
                 message.error(res.Data);
             }
@@ -66,9 +73,9 @@ const ServerList=(props:any)=>{
             key: 'tenant_name',
         },
         {
-            title: '租户姓名',
-            dataIndex: 'tenant_phone',
-            key: 'tenant_phone',
+            title: '电表地址',
+            dataIndex: 'address',
+            key: 'address',
         },
         {
             title: '账单类型',
@@ -162,7 +169,7 @@ const ServerList=(props:any)=>{
                         />
                         <Input
                             onChange={(e)=>setPhone(e.target.value)}
-                            addonBefore="手机号:"
+                            addonBefore="电表地址:"
                         />
                         <Space.Compact>
                             <div
@@ -203,6 +210,7 @@ const ServerList=(props:any)=>{
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>{moneySum}元</Table.Summary.Cell>
+                            {/*<Table.Summary.Cell index={6}>{NotBillSum}元</Table.Summary.Cell>*/}
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}

@@ -10,12 +10,11 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import TypeInvoiceLookUp from '@/ModelTypes/TypeInvoiceLookUp';
 import { fixPathname } from '@/utils/common';
-import {remove} from "@/services/InvoiceLookUp";
 let pl = {
     page:1,
     name:'',
     stutes:0,
-    openID:'',
+    openID:0,
 };
 
 export interface InvoiceLookUpCountState {

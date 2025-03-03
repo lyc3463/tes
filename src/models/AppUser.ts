@@ -109,13 +109,6 @@ const AppUserModels: AppUserInterface = {
                     });
                 }
 
-                if (StaticInfo.userId > 0 && pathname === '/propertyServerManage/addTenantInfo/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-            
 
             });
         },

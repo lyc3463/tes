@@ -9,7 +9,7 @@ const ReportLog=(props:any)=>{
     const [name,setname]=useState('');
     const [state,setstate]=useState(0);
     const [phone,setPhone]=useState('');
-    const [openID,setopenID]=useState('');
+    const [openID,setopenID]=useState(0);
     const [startDate,setstartDate]=useState('2000-01-01');
     const [endDate,setendDate]=useState('2099-01-01');
     const [loading, setLoading] = useState(false);

@@ -12,15 +12,14 @@ export function get1038(token: string) {
     return getData(1038, [token])
 }
 
-export function loginYzm(phone:string,type:number,shebei:string) {
-    return getData(1059, [phone,type,shebei])
+export function loginYzm(phone:string,type:number,shebei:string,is_zb:number) {
+    return getData(1059, [phone,type,shebei,is_zb])
 }
-
 export function outLogin(id) {
     return getData(1005, [id])
 }
-export function editPwd(editpwdPhone,md5Pwd) {
-    return getData(1249, [editpwdPhone,md5Pwd])
+export function editPwd(editpwdPhone,md5Pwd,iszb=1) {
+    return getData(1249, [editpwdPhone,md5Pwd,iszb])
 }
 export function duanxinyanzhen(phone,yzm) {
     return getData(1256, [phone,yzm])

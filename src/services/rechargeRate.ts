@@ -37,3 +37,11 @@ export function sunhaoList(vals:any) {
 export function sunhaoListFenye(vals:any) {
     return getData(1442, [vals.name,vals.phone,vals.startDate,vals.endDate,vals.stutes=2,vals.tenandId]);
 }
+//违约金缴费记录
+export function wyList(vals:any) {
+    return getData(1480, [vals.page,vals.name,vals.startDate,vals.endDate,vals.stutes=2,vals.tenandId]);
+}
+//违约金缴费分页
+export function wyListfenye(vals:any) {
+    return getData(1481, [vals.name,vals.startDate,vals.endDate,vals.stutes=2,vals.tenandId]);
+}

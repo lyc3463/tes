@@ -7,9 +7,6 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import styles from "@/pages/contract/endContran.less";
 import "@/pages/contract/endContran.less";
-import * as ContractTypeService from "@/services/contractType";
-import * as CustomService from "@/services/custom";
-import * as UnitService from "@/services/unit";
 import html2pdf from "html2pdf.js";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {numberToRMB, calculateTotalRentalDays, calculateYearsAndMonths} from "@/utils/OpenTool";
@@ -44,7 +41,7 @@ const Contractez = () => {
     const [openBank, setopenBank] = useState('');
     // 银行账号
     const [bankCard, setbankCard] = useState('');
-    // 法定人
+    // 甲方法定人
     const [legalPerson, setlegalPerson] = useState('');
     // 联系电话
     const [phone, setphone] = useState('');
@@ -73,7 +70,7 @@ const Contractez = () => {
     // 单元可租面积
     const [rentable_area, setrentable_area] = useState(0);
     // 单元类型
-    const [unit_type, setunit_type] = useState(0);
+    const [unit_type, setunit_type] = useState('');
     // 主体
     const [businessEntity, setbusinessEntity] = useState('');
     // 经营范围
@@ -84,6 +81,8 @@ const Contractez = () => {
     const [dispatchCard, setdispatchCard] = useState('');
     // 乙方公司
     const [customcompany_name, setcustomcompany_name] = useState('');
+    // 乙方法人
+    const [legalPerson2, setlegalPerson2] = useState('');
     // 客户身份证
     const [customCard, setcustomCard] = useState('');
     // 电价
@@ -182,6 +181,7 @@ const Contractez = () => {
     const getContrantez=(oneID)=>{
         StaffServer.oneOne(oneID).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('审核后的合同模板',res)
                 setCompanyName(res.Data[0].companyName);
                 setCompanyAddress(res.Data[0].companyAddress);
                 setopenName(res.Data[0].openName);
@@ -189,7 +189,7 @@ const Contractez = () => {
                 setbankCard(res.Data[0].bankCard);
                 setlegalPerson(res.Data[0].legalPerson);
                 setphone(res.Data[0].phone);
-
+                setlegalPerson2(res.Data[0].legalPerson2)
                 setattractPhone(res.Data[0].attractPhone);
                 setattractWXNumber(res.Data[0].attractWXNumber);
                 setrentAddress(res.Data[0].rentAddress);
@@ -226,7 +226,7 @@ const Contractez = () => {
                 setunit_name(res.Data[0].unitName);
                 let sum=numReduce(res.Data[0].floor_area)
                 setrentable_area(sum);
-                setunit_type(res.Data[0].unit_type);
+                setunit_type(res.Data[0].unitType);
                 let unitImagesp=res.Data[0].unitImage.split('|');
                 setunitImage(unitImagesp);
                 let tenantImagesp=res.Data[0].tenantImage.split('|');
@@ -269,7 +269,6 @@ const Contractez = () => {
           <p className={styles.linheP} >
               <p className={styles.linheP} ><Button type='primary' onClick={()=>setisOpen(true)}>预览PDF</Button></p>
               <p  className="receipt-container" style={{fontSize:'14px'}}>
-
                 <h1 style={{ textAlign: 'center', paddingTop: '50px' }}>房屋租赁合同书</h1>
                   <p   className="receipt-info">
                           <p className={styles.linheP}  >出租方(甲方):{companyName}</p>
@@ -280,9 +279,9 @@ const Contractez = () => {
                           <p className={styles.linheP}  style={{ paddingTop: '30px' }}></p>
                           <p className={styles.linheP}  >承租方(乙方): {custom_name}</p>
                           <p className={styles.linheP}  >地址：{office_area}</p>
-                          <p className={styles.linheP}  >法定代表人：{custom_name}</p>
+                          <p className={styles.linheP}  >法定代表人：{legalPerson2}</p>
                           <p className={styles.linheP}  >联系电话：{yiphone}</p>
-                          <p className={styles.linheP}  >联系人：{custom_name}</p>
+                          <p className={styles.linheP}  >联系人：{legalPerson2}</p>
                           <p className={styles.linheP}   >根据《中华人民共和国民法典》及相关法律法规，就乙方承租甲方房屋事宜，甲、乙双方在自愿、平等和互利的基础上，经协商一致，签订本合同并共同遵守。</p>
                           <p className={styles.linheP}  style={{    fontWeight: 500, fontSize: '24px' }}>第一条：房屋状况</p>
                           <p className={styles.linheP}  >
@@ -300,14 +299,14 @@ const Contractez = () => {
 
                       <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 600 }}>4.</span>
-                        本合同租赁物用途为{unit_type == 1 ? '商业' : '办公'}。乙方在租赁物从事经营的主体名称是{businessEntity}，其经营范围或业务范围为{businessScope}。
+                        本合同租赁物用途为{unit_type.split('')[0] == '1' ? '商业' : '办公'}。乙方在租赁物从事经营的主体名称是{businessEntity}，其经营范围或业务范围为{businessScope}。
                         如乙方需变更在租赁物从事经营主体、经营范围或业务范围的，需要事先征得甲方书面同意；涉及须经政府主管部门批准或办理登记手续的，乙方应自行办理。未经甲方书面同意，乙方不得将租赁物用于本条规定以外的其他用途。
                     </p>
                       <p className={styles.linheP}  style={{    fontWeight: 500, fontSize: '24px' }}>第二条：租赁期限</p>
                       <p className={styles.linheP}  >
                         租赁期限为 {calculateYearsAndMonths(startDate,endDate)}，即从{startDate}-{endDate}止（含免租期）。租赁期限届满前1个月，如双方未就续约事宜达成一致的，甲方可带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的1个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
                     </p>
-                      <p  style={{    fontWeight: 500, fontSize: '24px' }}>第三条：免租期</p>
+                      <p  style={{fontWeight: 500, fontSize: '24px' }}>第三条：免租期</p>
                       <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 600 }}>1.</span>
                         租赁物的免租期为{calculateTotalRentalDays(mzq)}天,即从{
@@ -328,13 +327,13 @@ const Contractez = () => {
                       <p className={styles.linheP}  style={{    fontWeight: 500, fontSize: '24px' }} >第四条：租赁费用</p>
                       <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 600 }}>1.</span>
-                        合同保证金：本租赁合同的保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
+                        合同保证金：本租赁合同的保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
                         如乙方违反本合同之规定，甲方有权将租赁保证金没收或做相应扣除，乙方在接到甲方扣除通知后的十五日内将甲方扣除的租赁保证金补足给甲方。
                     </p>
 
                       <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 600 }}>2.</span>
-                        租金：租赁物租金第1年起为每月{zuMoney}元。以此类推。合同租金明细如下:
+                        租金：租赁物租金第1年起为每月{zuMoney}元第2年起每年租金将在上年的基础上递增，合同租金递增明细如下:
                         <Table columns={columns} dataSource={dz}  rowKey={(columns) => columns.id} size='small' pagination={false}/>
                     </p>
                       <p className={styles.linheP}  >
@@ -347,7 +346,7 @@ const Contractez = () => {
                     </p>
                       <p className={styles.linheP}     >
                         <span style={{ fontSize: "1rem", fontWeight: 600 }}>(1)</span>
-                        物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
+                        物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
                     </p>
                       <p className={styles.linheP}     >
                         <span style={{ fontSize: "1rem", fontWeight: 600 }}>(2)</span>
@@ -689,7 +688,7 @@ const Contractez = () => {
                     </p>
                       <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 600 }}>9.</span>
-                        租赁期内，因乙方原因导致租赁合同提前解除或终止，最后一个计租周期不足一个月的，乙方须按照一个月的标准向甲方支付租金、物业费。
+                          乙方须按照一个月的标准向甲方支付租金、物业费。
                     </p>
                       <p className={styles.linheP}  style={{    fontWeight: 500, fontSize: '24px' }}>第十一条：保险</p>
                       <p className={styles.linheP}  >
@@ -718,7 +717,7 @@ const Contractez = () => {
                               <p  className={styles.gridItem}>地址</p>
                               <p  className={styles.gridItem}>{attract}</p>
                               <p  className={styles.gridItem}>{attractPhone}</p>
-                              <p  className={styles.gridItem}>{attractWXNumber}</p>
+                              <p  className={styles.gridItem}>{rentAddress}</p>
                         </form>
                     </p>
                       <p className={styles.linheP}  >
@@ -726,10 +725,10 @@ const Contractez = () => {
                         乙方指定如下人员为与甲方的联系人，负责转达乙方的指示和要求，提供文件和资料，接收甲方向乙方送达的通知、文件和资料等，乙方更换联系人须及时书面通知甲方：
                         <form className={styles.gridForm}>
                               <p className={styles.gridItem}>乙方指派人员</p>
-                              <p className={styles.gridItem}>身份证</p>
+                              <p className={styles.gridItem}>联系方式</p>
                               <p className={styles.gridItem}>微信号</p>
                               <p className={styles.gridItem}>{dispatchName}</p>
-                              <p className={styles.gridItem}>{dispatchCard}</p>
+                              <p className={styles.gridItem}>{yiphone}</p>
                               <p className={styles.gridItem}>{yiphone}</p>
                         </form>
                     </p>
@@ -799,9 +798,9 @@ const Contractez = () => {
                         【签署页  无正文】
                     </p>
 
-                      <p className={styles.linheP}   ><span style={{ marginRight: '100px' }}>甲方（签署）:{companyName}</span><span>乙方（签署）:{customcompany_name}</span></p>
-                      <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>法定代表人:{legalPerson}</span><span>法定代表人:{custom_name}</span></p>
-                      <p className={styles.linheP}   ><span style={{ marginRight: '300px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
+                      <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                      <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>法定代表人:</span><span>法定代表人:</span></p>
+                      <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
 
                       <p className={styles.linheP}  >
                         <h3>
@@ -819,36 +818,12 @@ const Contractez = () => {
                     </p>
                       <p className={styles.linheP}  >
                         <h3>
-                            附件二：1、房屋内交付标准
+                            附件二：1、房屋内交付标准及物品清单
                         </h3>
                           <p className={styles.linheP} >
                             <Table columns={wupinTab} rowKey={(columns) => columns.key} dataSource={wupinList} size='small' style={{width:'600px'}}  pagination={false}/>
-                            {/*{wupinList.map((item:any,index:number) => (*/}
-                            {/*      <p className={styles.linheP}  style={{ display: 'flex'}} key={item.key}>*/}
-                            {/*        <Form.Item label="物品名称">*/}
-                            {/*            <Input*/}
-                            {/*                value={item.wupinName}*/}
-                            {/*            />*/}
-                            {/*        </Form.Item>*/}
-                            {/*        <Form.Item label="交付标准">*/}
-                            {/*            <Input*/}
-                            {/*                value={item.wupininfo}*/}
-                            {/*            />*/}
-                            {/*        </Form.Item>*/}
-                            {/*        <Form.Item label="数量">*/}
-                            {/*            <InputNumber*/}
-                            {/*                value={item.wupinNuber}*/}
-                            {/*            />*/}
-                            {/*        </Form.Item>*/}
-                            {/*    </p>*/}
 
-                            {/*))}*/}
                         </p>
-                    </p>
-                      <p className={styles.linheP}  >
-                        <h3>
-                            2、物品清单
-                        </h3>
                     </p>
                       <p className={styles.linheP}  >
                         <h3>
@@ -863,7 +838,7 @@ const Contractez = () => {
                         甲方：{companyName}
                     </p>
                       <p className={styles.linheP}  >
-                        乙方：{customcompany_name}
+                        乙方：{custom_name}
                     </p>
                       <p className={styles.linheP}  >
                         鉴于：双方于<span >{deliveryDate}</span>日就位于{rentAddress}{unit_name}房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于{startDate}日之前按照合同约定向乙方交付租赁房地产。
@@ -882,8 +857,8 @@ const Contractez = () => {
                       <p className={styles.linheP}     >
                         本确认书经双方签署之日起生效。
                     </p>
-                      <p className={styles.linheP}   ><span style={{ marginRight: '100px' }}>甲方（签署）:{companyName}</span><span>乙方（签署）:{customcompany_name}</span></p>
-                      <p className={styles.linheP}   ><span style={{ marginRight: '300px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
+                      <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                      <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
                       <p className={styles.linheP}  >
                         <h3>
                             附件四：廉洁诚信承诺书
@@ -1018,10 +993,10 @@ const Contractez = () => {
                         </h3>
                     </p>
                       <p className={styles.linheP}     >
-                        签收人:{custom_name}
+                        签收人:
                     </p>
                       <p className={styles.linheP}     >
-                        租赁单元:{unit_name}
+                        租赁单元:{companyAddress}{unit_name}
                     </p>
                       <p className={styles.linheP}     >
                         签收日期:
@@ -1040,7 +1015,7 @@ const Contractez = () => {
                         为了积极贯彻执行国家和本省、本市有关安全生产、消防、治安保卫、劳动保护等法律法规和相关标准，包括但不限于《中华人民共和国安全生产法》《中华人民共和国消防法》《中华人民共和国劳动法》《中华人民共和国反恐怖主义法》《中华人民共和国治安管理处罚法》《中华人民共和国环境保护法》《广东省安全生产条例》、广东省实施《中华人民共和国消防法》办法、《广东省公共安全视频图像信息系统管理办法》《广州市安全生产条例》《广州市安全生产管理规定》《仓库防火安全管理规则》《建筑内部装修设计防火规范》等。安全生产工作实行管行业必须管安全、管业务必须管安全、管生产经营必须管安全，强化和落实生产经营单位主体责任。
                     </p>
                       <p className={styles.linheP}  >
-                        一、现由{custom_name}先生/小姐，（身份证：{customCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
+                        一、现由{legalPerson2}先生/小姐，（身份证：{customCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
                     </p>
                       <p className={styles.linheP}  >
                         二、生产经营单位的主要负责人是本单位安全生产第一责任人，对本单位的安全生产工作全面负责。
@@ -1271,9 +1246,9 @@ const Contractez = () => {
                               <p className={styles.linheP}  style={{paddingTop: '30px' }}></p>
                               <p className={styles.linheP}  style={{fontWeight:'600' }}>承租方(乙方): {custom_name}</p>
                               <p className={styles.linheP}  >地址：{office_area}</p>
-                              <p className={styles.linheP}   >法定代表人：{custom_name}</p>
+                              <p className={styles.linheP}   >法定代表人：{legalPerson2}</p>
                               <p className={styles.linheP}  >联系电话：{yiphone}</p>
-                              <p className={styles.linheP}  >联系人：{custom_name}</p>
+                              <p className={styles.linheP}  >联系人：{legalPerson2}</p>
                               <p className={styles.linheP}   >根据《中华人民共和国民法典》及相关法律法规，就乙方承租甲方房屋事宜，甲、乙双方在自愿、平等和互利的基础上，经协商一致，签订本合同并共同遵守。</p>
                               <p  style={{    fontWeight: 500, fontSize: '24px' }} className={styles.linheP}>第一条：房屋状况</p>
                               <p className={styles.linheP}  >
@@ -1318,14 +1293,14 @@ const Contractez = () => {
                               <p style={{    fontWeight: 500, fontSize: '24px' }} className={styles.linheP} >第四条：租赁费用</p>
                               <p className={styles.linheP}   >
                                   <span style={{ fontSize: "1rem", fontWeight: 600,marginLeft:'20px' }}>1.</span>
-                                  合同保证金：本租赁合同的保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
+                                  合同保证金：本租赁合同的保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
                                   如乙方违反本合同之规定，甲方有权将租赁保证金没收或做相应扣除，乙方在接到甲方扣除通知后的十五日内将甲方扣除的租赁保证金补足给甲方。
                               </p>
                           </p>
                           <p style={{height:'1050px'}}>
                               <p className={styles.linheP}>
                                   <span style={{ fontSize: "1rem", fontWeight: 600 ,marginLeft:'20px'}}>2.</span>
-                                  租金：租赁物租金第1年起为每月{zuMoney}元。以此类推。合同租金明细如下:
+                                  租金：租赁物租金第1年起为每月{zuMoney}元第2年起每年租金将在上年的基础上递增,合同租金递增明细如下:
                               </p>
                               <p className={styles.linheP}   >
                                   <Table columns={columns} dataSource={dz}  rowKey={(columns) => columns.id} size='small' pagination={false}/>
@@ -1340,7 +1315,7 @@ const Contractez = () => {
                               </p>
                               <p className={styles.linheP}        >
                                   <span style={{ fontSize: "1rem", fontWeight: 600 ,marginLeft:'40px'}}>(1)</span>
-                                  物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
+                                  物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
                               </p>
                               <p className={styles.linheP}       >
                                   <span style={{ fontSize: "1rem", fontWeight: 600 ,marginLeft:'40px'}}>(2)</span>
@@ -1694,7 +1669,7 @@ const Contractez = () => {
                               </p>
                               <p className={styles.linheP}  >
                                   <span style={{ fontSize: "1rem", fontWeight: 600 ,marginLeft:'20px'}}>9.</span>
-                                  租赁期内，因乙方原因导致租赁合同提前解除或终止，最后一个计租周期不足一个月的，乙方须按照一个月的标准向甲方支付租金、物业费。
+                                  乙方须按照一个月的标准向甲方支付租金、物业费。
                               </p>
                               <p   style={{    fontWeight: 500, fontSize: '24px',paddingTop:'50px'}}>第十一条：保险</p>
                               <p className={styles.linheP}    >
@@ -1726,7 +1701,7 @@ const Contractez = () => {
                                       <p   className={styles.gridItem}>地址</p>
                                       <p   className={styles.gridItem}>{attract}</p>
                                       <p   className={styles.gridItem}>{attractPhone}</p>
-                                      <p   className={styles.gridItem}>{attractWXNumber}</p>
+                                      <p   className={styles.gridItem}>{rentAddress}</p>
                                   </form>
                               </p>
                               <p className={styles.linheP}  >
@@ -1734,10 +1709,10 @@ const Contractez = () => {
                                   乙方指定如下人员为与甲方的联系人，负责转达乙方的指示和要求，提供文件和资料，接收甲方向乙方送达的通知、文件和资料等，乙方更换联系人须及时书面通知甲方：
                                   <form className={styles.gridForm}>
                                       <p  className={styles.gridItem}>乙方指派人员</p>
-                                      <p  className={styles.gridItem}>身份证</p>
+                                      <p  className={styles.gridItem}>联系方式</p>
                                       <p  className={styles.gridItem}>微信号</p>
                                       <p  className={styles.gridItem}>{dispatchName}</p>
-                                      <p  className={styles.gridItem}>{dispatchCard}</p>
+                                      <p  className={styles.gridItem}>{yiphone}</p>
                                       <p  className={styles.gridItem}>{yiphone}</p>
                                   </form>
                               </p>
@@ -1812,12 +1787,12 @@ const Contractez = () => {
                               <p className={styles.linheP}  >
                                   【签署页  无正文】
                               </p>
-                              <p className={styles.linheP}><span style={{ marginRight: '100px' }}>甲方（签署）:{companyName}</span><span>乙方（签署）:{customcompany_name}</span></p>
-                              <p className={styles.linheP}><span style={{ marginRight: '200px' }}>法定代表人:{legalPerson}</span><span>法定代表人:{custom_name}</span></p>
-                              <p className={styles.linheP}><span style={{ marginRight: '300px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
+                              <p className={styles.linheP}><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                              <p className={styles.linheP}><span style={{ marginRight: '200px' }}>法定代表人:</span><span>法定代表人:</span></p>
+                              <p className={styles.linheP}><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
                         </p>
                           <p  style={{height:'1030px'}}>
-                              <h3 >
+                              <h3>
                                   附件一：《租赁物平面图》
                               </h3>
                               <p className={styles.linheP} >
@@ -1835,17 +1810,13 @@ const Contractez = () => {
                           <p style={{height:"1030px"}}>
                               <p className={styles.linheP}>
                                   <h3>
-                                      附件二：1、房屋内交付标准
+                                      附件二：1、房屋内交付标准及物品清单
                                   </h3>
                                   <p className={styles.linheP} >
                                       <Table columns={wupinTab} rowKey={(columns) => columns.key} dataSource={wupinList} size='small' style={{width:'600px'}}  pagination={false}/>
                                   </p>
                               </p>
-                              <p className={styles.linheP} >
-                                  <h3>
-                                      2、物品清单
-                                  </h3>
-                              </p>
+
                           </p>
                           <p style={{height:'1030px'}}>
                               <p className={styles.linheP} >
@@ -1860,7 +1831,7 @@ const Contractez = () => {
                                   甲方：{companyName}
                               </p>
                               <p className={styles.linheP}   >
-                                  乙方：{customcompany_name}
+                                  乙方：{custom_name}
                               </p>
                               <p className={styles.linheP}  >
                                   鉴于：双方于<span >{deliveryDate}</span>日就位于{rentAddress}{unit_name}房号的建筑物（以下简称“租赁物”）的租赁事宜签署了《房屋租赁合同书》。根据《房屋租赁合同书》约定，甲方应于{startDate}日之前按照合同约定向乙方交付租赁房地产。
@@ -1879,8 +1850,8 @@ const Contractez = () => {
                               <p className={styles.linheP}     >
                                   本确认书经双方签署之日起生效。
                               </p>
-                              <p className={styles.linheP}    ><span style={{ marginRight: '100px' }}>甲方（签署）:{companyName}</span><span>乙方（签署）:{customcompany_name}</span></p>
-                              <p className={styles.linheP}   ><span style={{ marginRight: '300px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
+                              <p className={styles.linheP}    ><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                              <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
                               <p className={styles.linheP} >
                               </p>
                           </p>
@@ -1957,9 +1928,9 @@ const Contractez = () => {
                                   <p >
                                       <h4>
                                           1、承租方证照文件
-                                          <div style={{display:'flex'}}>
+                                          <div style={{display:'flex',flexWrap:'wrap'}}>
                                               {b64.length>0 ?b64.map((item:any,index:number)=>  <Space   key={index}>
-                                                      <Image src={item} style={{ width: '200px',height:'200px',margin:'5px'}} />
+                                                      <Image src={item} style={{width:'300px',margin:'5px'}} />
                                                   </Space>
 
                                               ) : ''}
@@ -1967,18 +1938,32 @@ const Contractez = () => {
 
                                       </h4>
                                   </p>
-                                  <p className={styles.linheP}    >
-                                      <h4>
-                                          2、出租方证照文件
-                                      </h4>
-                                      <div style={{display:'flex'}}>
-                                          {documentImage.length>0 ?documentImage.map((item:any,index:number)=>  <Space   key={index}>
-                                                  <Image src={item} style={{ width: '200px',height:'200px',margin:'5px' }} />
-                                              </Space>
+                                  {/*<p className={styles.linheP}    >*/}
+                                  {/*    <h4>*/}
+                                  {/*        2、出租方证照文件*/}
+                                  {/*    </h4>*/}
+                                  {/*    <div style={{display:'flex'}}>*/}
+                                  {/*        {documentImage.length>0 ?documentImage.map((item:any,index:number)=>  <Space   key={index}>*/}
+                                  {/*                <Image src={item} style={{ width: '200px',height:'200px',margin:'5px' }} />*/}
+                                  {/*            </Space>*/}
 
-                                          ) : ''}
-                                      </div>
-                                  </p>
+                                  {/*        ) : ''}*/}
+                                  {/*    </div>*/}
+                                  {/*</p>*/}
+                              </p>
+                          </p>
+                          <p style={{height:'1030px'}}>
+                              <p className={styles.linheP}    >
+                                  <h4>
+                                      2、出租方证照文件
+                                  </h4>
+                                  <div style={{display:'flex'}}>
+                                      {documentImage.length>0 ?documentImage.map((item:any,index:number)=>  <Space   key={index}>
+                                              <Image src={item}  />
+                                          </Space>
+
+                                      ) : ''}
+                                  </div>
                               </p>
                           </p>
                           <p style={{height:'1030px'}}>
@@ -2027,10 +2012,10 @@ const Contractez = () => {
                                   </h3>
                               </p>
                               <p className={styles.linheP}      >
-                                  签收人:{custom_name}
+                                  签收人:
                               </p>
                               <p className={styles.linheP}     >
-                                  租赁单元:{unit_name}
+                                  租赁单元:{companyAddress}{unit_name}
                               </p>
                               <p className={styles.linheP}      >
                                   签收日期:
@@ -2052,7 +2037,7 @@ const Contractez = () => {
                                   为了积极贯彻执行国家和本省、本市有关安全生产、消防、治安保卫、劳动保护等法律法规和相关标准，包括但不限于《中华人民共和国安全生产法》《中华人民共和国消防法》《中华人民共和国劳动法》《中华人民共和国反恐怖主义法》《中华人民共和国治安管理处罚法》《中华人民共和国环境保护法》《广东省安全生产条例》、广东省实施《中华人民共和国消防法》办法、《广东省公共安全视频图像信息系统管理办法》《广州市安全生产条例》《广州市安全生产管理规定》《仓库防火安全管理规则》《建筑内部装修设计防火规范》等。安全生产工作实行管行业必须管安全、管业务必须管安全、管生产经营必须管安全，强化和落实生产经营单位主体责任。
                               </p>
                               <p className={styles.linheP}  >
-                                  一、现由{custom_name}先生/小姐，（身份证：{customCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
+                                  一、现由{legalPerson2}先生/小姐，（身份证：{customCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
                               </p>
                               <p className={styles.linheP}  >
                                   二、生产经营单位的主要负责人是本单位安全生产第一责任人，对本单位的安全生产工作全面负责。

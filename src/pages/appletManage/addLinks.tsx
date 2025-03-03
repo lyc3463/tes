@@ -60,6 +60,9 @@ const AddLinks=(props:any)=>{
                     <Form.Item label="链接地址" name="link_address" rules={[{required: true, message: '请输入链接地址'}]}>
                         <Input/>
                     </Form.Item>
+                    <Form.Item label="注意事项">
+                        <span style={{color:'red'}}>链接地址必须是小程序AppID才能跳转,如不清楚AppID请到</span><a href='https://mp.weixin.qq.com/' target='_blank'>点击此链接查看AppID</a>
+                    </Form.Item>
                     <Form.Item label="封面图" >
                         <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={handBase64}/>
                         {b64?<Image src={b64} style={{width:'80px',height:'80px'}}/>:''}

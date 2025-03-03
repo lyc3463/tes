@@ -2,15 +2,20 @@ import {useEffect, useRef, useState} from "react";
 import * as ZuhuServer from "@/services/zuhu";
 import dayjs from "dayjs";
 import {connect,history} from "umi";
-import {Button, DatePicker, Form, Input, InputNumber, Select, Radio, message, Spin, Space, Modal} from "antd";
+import {Button, DatePicker, Form, Input, InputNumber, Select, Radio, message, Spin, Space, Modal, Tabs} from "antd";
 import {filterAndUpdateList, phonePattern} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as ByStagesService from '@/services/byStages';
 import * as CableService from '@/services/cable';
+import Byele from "@/pages/kehu/byele";
+import Bymoney from "@/pages/kehu/bymoney";
+import Byappuser from "@/pages/kehu/byappuser";
+import Bywater from "@/pages/kehu/bywater";
+import Byitem from "@/pages/kehu/byitem";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
-
+import {StaticInfo} from '@/StaticInfo'
 const filteredArray =(e,cableList)=>{
     return  e.length === 0 ? [] : cableList.filter(item => e.includes(item.id));
 };
@@ -71,6 +76,7 @@ const Byzhuhu=(props:any)=>{
     const [tenantAmount,settenantAmount]=useState(0);
     // 最低充值金额
     const [minimum_recharge,setminimum_recharge]=useState(100);
+    const [uqx,setUqx]=useState([]);
     const getOneCustom=async (id:string)=>{
         let res:any=await  ZuhuServer.one(id);
         if (res.ErrorCode==0){
@@ -119,20 +125,21 @@ const Byzhuhu=(props:any)=>{
         const id = searchParams.get('id');
         setUid(id);
         getOneCustom(id);
-        getWatertList();
-        getCableList();
-        getGongsiList();
-        getUnitList();
+        // getWatertList();
+        // getCableList();
+        // getGongsiList();
+        // getUnitList();
     },[]);
     // useEffect(() => {
     // }, [temporaryEle,diandushuandID]);
     const onFinish=(valus:any)=>{
         let unit_id=unit_idz.join('|');
-        let item_id=item_idz.join('|');
+        // let item_id=item_idz.join('|');
         setIsSpinning(true);
         props.dispatch({
             type:'Zuhu/byzhuhu',
-            payload:{...valus,uid,unit_id,item_id,reserved_amount,warn_amount,tenantAmount}
+            // payload:{...valus,uid,unit_id,item_id,reserved_amount,warn_amount,tenantAmount}
+            payload:{...valus,uid,unit_id,reserved_amount,warn_amount,tenantAmount}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('绑定成功');
@@ -141,6 +148,22 @@ const Byzhuhu=(props:any)=>{
             }else {
                 setIsSpinning(false);
                 message.error(res.Data);
+            }
+        })
+    };
+    // 绑定收费项目
+    const okItemID=()=>{
+        setIsSpinning(true);
+        let item_id=item_idz.join('|');
+        ByStagesService.byItem({uid,item_id}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('绑定收费项目成功');
+                getOneCustom(uid);
+                setIsSpinning(false);
+            }else {
+                message.error(res.Data);
+                getOneCustom(uid);
+                setIsSpinning(false);
             }
         })
     };
@@ -312,6 +335,7 @@ const Byzhuhu=(props:any)=>{
         }));
         let obj={addWater,delWater}
         let jsondata=JSON.stringify(obj);
+        console.log('水表数据',jsondata);
         ByStagesService.byshui(uid,jsondata).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setelewaterList([]);
@@ -371,8 +395,35 @@ const Byzhuhu=(props:any)=>{
             }
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={isSpinning}>
+            <Tabs>
+                {uqx[254]=='1'?<Tabs.TabPane tab='修改最低充值' key='1'>
+                    <Bymoney id={uid}/>
+                </Tabs.TabPane>:''
+                }
+                {uqx[351]=='1'?<Tabs.TabPane tab='绑定小程序' key='2'>
+                    <Byappuser id={uid}/>
+                </Tabs.TabPane>:''
+                }
+                {uqx[352]=='1'? <Tabs.TabPane tab='绑定电表' key='3'>
+                    <Byele id={uid}/>
+                </Tabs.TabPane>:''
+                }
+                {uqx[353]=='1'?   <Tabs.TabPane tab='绑定水表' key='4'>
+                    <Bywater id={uid}/>
+                </Tabs.TabPane>:''
+                }
+                {uqx[354]=='1'?  <Tabs.TabPane tab='绑定公共缴费' key='5'>
+                    <Byitem id={uid}/>
+                </Tabs.TabPane>:''
+                }
+
+            </Tabs>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -383,177 +434,179 @@ const Byzhuhu=(props:any)=>{
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                {/*<Form.Item label='单元'>*/}
-                {/*    <Select  mode="multiple" disabled value={unit_idz} onChange={changeUint}>*/}
-                {/*        <Select.Option value={0} key="no-unit-associated">*/}
-                {/*            暂不关联*/}
-                {/*        </Select.Option>*/}
-                {/*        {props.UnitList?props.UnitList.map((item:any,index:any)=>{*/}
-                {/*            return(*/}
-                {/*                <Select.Option value={item.id} key={index}>*/}
-                {/*                    {item.unit_name}*/}
-                {/*                </Select.Option>*/}
-                {/*            )*/}
-                {/*        }):''}*/}
-                {/*    </Select>*/}
-                {/*</Form.Item>*/}
-                {/*<Form.Item label='合同'>*/}
-                {/*    <Select>*/}
-                {/*        <Select.Option value={0} key="no-unit-associated">*/}
-                {/*            暂不关联*/}
-                {/*        </Select.Option>*/}
-                {/*    </Select>*/}
-                {/*</Form.Item>*/}
-                <Form.Item label='电表'>
-                    <Select
-                        mode="multiple"
-                        value={electricity_idz}
-                        onChange={changeEle}
-                        placeholder='选填'
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) => {
-                            // 假设每个 option 都有一个与数据项对应的 value 属性
-                            const item = cableList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
-                            return item?.remark?.toLowerCase().includes(input.toLowerCase());
-                        }}
-                    >
-                        {cableList.map((item:any,index:any)=>{
-                            return(
-                                <Select.Option value={item.id} key={item.id}>
-                                    {item.remark}-{item.tenant_name}
-                                </Select.Option>
-                            )
-                        })}
-                    </Select>
-                </Form.Item>
-                <Form.Item {...tailLayout}>
-                    <Space style={{display:'flex',flexWrap:'wrap'}}>
-                        {
-                            eleList.map((item:any,index:number)=>{
-                                return(
-                                    <div  key={index}>
-                                        <span>{item.remark}</span>--
-                                        <span>
-                                            当前用电量:<InputNumber value={item.c0} style={{width:'100px'}} onChange={(e)=>changeelectricity(e,item.id)}/>
-                                        </span>
-                                    </div>
-                                )
-                            })
-                        }
-                    </Space>
-                    <Button type='primary' onClick={onguandiandian}>确定关联电表</Button>
-                </Form.Item>
-                <Form.Item label='水表'>
-                    <Select
-                        mode="multiple"
-                        value={water_idz}
-                        onChange={changeWater}
-                        placeholder='选填'
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) => {
-                            // 假设每个 option 都有一个与数据项对应的 value 属性
-                            const item = watertList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
-                            return item?.remark?.toLowerCase().includes(input.toLowerCase());
-                        }}
-                    >
-                        {watertList.map((item:any,index:any)=>{
-                            return(
-                                <Select.Option value={item.id} key={item.id}>
-                                    {item.remark}-{item.tenant_name}
-                                </Select.Option>
-                            )
-                        })}
-                    </Select>
-                </Form.Item>
-                <Form.Item {...tailLayout}>
-                    <Space style={{display:'flex',flexWrap:'wrap'}}>
-                        {
-                            elewaterList.map((item:any,index:number)=>{
-                                return(
-                                    <div  key={index}>
-                                        <span>{item.remark}</span>--
-                                        <span>
-                                            当前用水量:
-                                            <InputNumber value={item.total_used_amount} style={{width:'100px'}} onChange={(e)=>changewater_idz(e,item.id)}/>
-                                        </span>
-                                    </div>
-                                )
-                            })
-                        }
-                    </Space>
-                    <Button type='primary' onClick={onguandianshui}>确定关联水表</Button>
-                </Form.Item>
-                <Form.Item label='小程序手机号' name='tenant_phone' rules={[{required: true, message: '请输入手机号' },{pattern: phonePattern, message: '请输入有效的手机号'}]}>
-                    <Input/>
-                </Form.Item>
-                {/*<Form.Item label='小程序用户' name='open_id'>*/}
-                {/*    <Select>*/}
-                {/*        {props.AppUserList?props.AppUserList.map((item:any,index:any)=>{*/}
-                {/*            return(*/}
-                {/*                <Select.Option value={item.openId} key={item.id}>*/}
-                {/*                    {item.appUser_phone}*/}
-                {/*                </Select.Option>*/}
-                {/*            )*/}
-                {/*        }):''}*/}
-                {/*    </Select>*/}
-                {/*</Form.Item>*/}
-                <Form.Item label='收费项目'>
-                    <Select
-                        mode="multiple"
-                        value={item_idz}
-                        onChange={changeitem}
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) => {
-                            // 假设每个 option 都有一个与数据项对应的 value 属性
-                            const item = props.GongsiList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
-                            return item?.item_name?.toLowerCase().includes(input.toLowerCase());
-                        }}
-                    >
-                        <Select.Option
-                            value={0}
-                            key="no-unit-associated"
-                            placeholder='选填'>
-                            暂不关联
-                        </Select.Option>
-                        {props.GongsiList?props.GongsiList.map((item:any,index:any)=>{
-                            return(
-                                <Select.Option value={item.id} key={index}>
-                                    {item.item_name}
-                                </Select.Option>
-                            )
-                        }):''}
-                    </Select>
-                </Form.Item>
-                <Form.Item label='预留金额(元)'  rules={[{required: true, message: '请填写'}]}>
-                    <InputNumber min={0} value={reserved_amount} onChange={(e:number)=>setreserved_amount(e)}/><span style={{color:'#999',fontSize:'12px',marginLeft:'10px'}}>注意:用户余额低于预留金额会发消息到小程序提醒用户</span>
-                </Form.Item>
-                <Form.Item label='警告金额(元)' rules={[{required: true, message: '请填写'}]}>
-                    <InputNumber min={0} value={warn_amount} onChange={(e:number)=>setwarn_amount(e)}/><span style={{color:'#999',fontSize:'12px',marginLeft:'10px'}}>注意:用户余额低于警告金额会发短信到用户手机提醒用户</span>
-                </Form.Item>
-                <Form.Item label='最低充值(元)' name='minimum_recharge' rules={[{required: true, message: '请填写'},{min:1,transform: (value) => Number(value), message: '最低充值不能低于100'}]}>
-                    <Space>
-                        <InputNumber min={1} value={minimum_recharge} onChange={(e)=>setminimum_recharge(e)}/>
-                        <Button type='primary' onClick={byRearge}>确定修改</Button>
-                        <span style={{fontSize:'12px',color:'#999'}}>注:有账单欠费的情况下,只能通过该确定按钮修改最低充值,下面确定关联按钮修改不了最低充值</span>
-                    </Space>
-                </Form.Item>
-                <Form.Item label='是否自动扣款' name='is_deduction'>
-                   <Radio.Group>
-                       <Radio value={1}>是</Radio>
-                       <Radio value={0}>否</Radio>
-                   </Radio.Group>
-                </Form.Item>
-                <Form.Item label='备注' name='reamrk'>
-                    <Input.TextArea/>
-                </Form.Item>
-                <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        确定关联
-                    </Button>
-                </Form.Item>
+            {/*    /!*<Form.Item label='单元'>*!/*/}
+            {/*    /!*    <Select  mode="multiple" disabled value={unit_idz} onChange={changeUint}>*!/*/}
+            {/*    /!*        <Select.Option value={0} key="no-unit-associated">*!/*/}
+            {/*    /!*            暂不关联*!/*/}
+            {/*    /!*        </Select.Option>*!/*/}
+            {/*    /!*        {props.UnitList?props.UnitList.map((item:any,index:any)=>{*!/*/}
+            {/*    /!*            return(*!/*/}
+            {/*    /!*                <Select.Option value={item.id} key={index}>*!/*/}
+            {/*    /!*                    {item.unit_name}*!/*/}
+            {/*    /!*                </Select.Option>*!/*/}
+            {/*    /!*            )*!/*/}
+            {/*    /!*        }):''}*!/*/}
+            {/*    /!*    </Select>*!/*/}
+            {/*    /!*</Form.Item>*!/*/}
+            {/*    /!*<Form.Item label='合同'>*!/*/}
+            {/*    /!*    <Select>*!/*/}
+            {/*    /!*        <Select.Option value={0} key="no-unit-associated">*!/*/}
+            {/*    /!*            暂不关联*!/*/}
+            {/*    /!*        </Select.Option>*!/*/}
+            {/*    /!*    </Select>*!/*/}
+            {/*    /!*</Form.Item>*!/*/}
+            {/*    <Form.Item label='电表'>*/}
+            {/*        <Select*/}
+            {/*            mode="multiple"*/}
+            {/*            value={electricity_idz}*/}
+            {/*            onChange={changeEle}*/}
+            {/*            placeholder='选填'*/}
+            {/*            showSearch*/}
+            {/*            optionFilterProp="children"*/}
+            {/*            filterOption={(input, option) => {*/}
+            {/*                // 假设每个 option 都有一个与数据项对应的 value 属性*/}
+            {/*                const item = cableList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程*/}
+            {/*                return item?.remark?.toLowerCase().includes(input.toLowerCase());*/}
+            {/*            }}*/}
+            {/*        >*/}
+            {/*            {cableList.map((item:any,index:any)=>{*/}
+            {/*                return(*/}
+            {/*                    <Select.Option value={item.id} key={item.id}>*/}
+            {/*                        {item.remark}-{item.tenant_name}*/}
+            {/*                    </Select.Option>*/}
+            {/*                )*/}
+            {/*            })}*/}
+            {/*        </Select>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item {...tailLayout}>*/}
+            {/*        <Space style={{display:'flex',flexWrap:'wrap'}}>*/}
+            {/*            {*/}
+            {/*                eleList.map((item:any,index:number)=>{*/}
+            {/*                    return(*/}
+            {/*                        <div  key={index}>*/}
+            {/*                            <span>{item.remark}</span>--*/}
+            {/*                            <span>*/}
+            {/*                                当前用电量:<InputNumber value={item.c0} style={{width:'100px'}} onChange={(e)=>changeelectricity(e,item.id)}/>*/}
+            {/*                            </span>*/}
+            {/*                        </div>*/}
+            {/*                    )*/}
+            {/*                })*/}
+            {/*            }*/}
+            {/*        </Space>*/}
+            {/*        <Button type='primary' onClick={onguandiandian}>确定关联电表</Button>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item label='水表'>*/}
+            {/*        <Select*/}
+            {/*            mode="multiple"*/}
+            {/*            value={water_idz}*/}
+            {/*            onChange={changeWater}*/}
+            {/*            placeholder='选填'*/}
+            {/*            showSearch*/}
+            {/*            optionFilterProp="children"*/}
+            {/*            filterOption={(input, option) => {*/}
+            {/*                // 假设每个 option 都有一个与数据项对应的 value 属性*/}
+            {/*                const item = watertList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程*/}
+            {/*                return item?.remark?.toLowerCase().includes(input.toLowerCase());*/}
+            {/*            }}*/}
+            {/*        >*/}
+            {/*            {watertList.map((item:any,index:any)=>{*/}
+            {/*                return(*/}
+            {/*                    <Select.Option value={item.id} key={item.id}>*/}
+            {/*                        {item.remark}-{item.tenant_name}*/}
+            {/*                    </Select.Option>*/}
+            {/*                )*/}
+            {/*            })}*/}
+            {/*        </Select>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item {...tailLayout}>*/}
+            {/*        <Space style={{display:'flex',flexWrap:'wrap'}}>*/}
+            {/*            {*/}
+            {/*                elewaterList.map((item:any,index:number)=>{*/}
+            {/*                    return(*/}
+            {/*                        <div  key={index}>*/}
+            {/*                            <span>{item.remark}</span>--*/}
+            {/*                            <span>*/}
+            {/*                                当前用水量:*/}
+            {/*                                <InputNumber value={item.total_used_amount} style={{width:'100px'}} onChange={(e)=>changewater_idz(e,item.id)}/>*/}
+            {/*                            </span>*/}
+            {/*                        </div>*/}
+            {/*                    )*/}
+            {/*                })*/}
+            {/*            }*/}
+            {/*        </Space>*/}
+            {/*        <Button type='primary' onClick={onguandianshui}>确定关联水表</Button>*/}
+            {/*    </Form.Item>*/}
+            {/*    /!*<Form.Item label='小程序用户' name='open_id'>*!/*/}
+            {/*    /!*    <Select>*!/*/}
+            {/*    /!*        {props.AppUserList?props.AppUserList.map((item:any,index:any)=>{*!/*/}
+            {/*    /!*            return(*!/*/}
+            {/*    /!*                <Select.Option value={item.openId} key={item.id}>*!/*/}
+            {/*    /!*                    {item.appUser_phone}*!/*/}
+            {/*    /!*                </Select.Option>*!/*/}
+            {/*    /!*            )*!/*/}
+            {/*    /!*        }):''}*!/*/}
+            {/*    /!*    </Select>*!/*/}
+            {/*    /!*</Form.Item>*!/*/}
+            {/*    <Form.Item label='收费项目'>*/}
+            {/*        <Select*/}
+            {/*            mode="multiple"*/}
+            {/*            value={item_idz}*/}
+            {/*            onChange={changeitem}*/}
+            {/*            showSearch*/}
+            {/*            optionFilterProp="children"*/}
+            {/*            filterOption={(input, option) => {*/}
+            {/*                // 假设每个 option 都有一个与数据项对应的 value 属性*/}
+            {/*                const item = props.GongsiList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程*/}
+            {/*                return item?.item_name?.toLowerCase().includes(input.toLowerCase());*/}
+            {/*            }}*/}
+            {/*        >*/}
+            {/*            <Select.Option*/}
+            {/*                value={0}*/}
+            {/*                key="no-unit-associated"*/}
+            {/*                placeholder='选填'>*/}
+            {/*                暂不关联*/}
+            {/*            </Select.Option>*/}
+            {/*            {props.GongsiList?props.GongsiList.map((item:any,index:any)=>{*/}
+            {/*                return(*/}
+            {/*                    <Select.Option value={item.id} key={index}>*/}
+            {/*                        {item.item_name}*/}
+            {/*                    </Select.Option>*/}
+            {/*                )*/}
+            {/*            }):''}*/}
+            {/*        </Select>*/}
+            {/*        <Button type='primary' onClick={okItemID}>确定关联收费项目</Button>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item label='小程序手机号' name='tenant_phone' rules={[{required: true, message: '请输入手机号' },{pattern: phonePattern, message: '请输入有效的手机号'}]}>*/}
+            {/*        <Input/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item label='预留金额(元)'  rules={[{required: true, message: '请填写'}]}>*/}
+            {/*        <InputNumber min={0} value={reserved_amount} onChange={(e:number)=>setreserved_amount(e)}/><span style={{color:'#999',fontSize:'12px',marginLeft:'10px'}}>注意:用户余额低于预留金额会发消息到小程序提醒用户</span>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item label='警告金额(元)' rules={[{required: true, message: '请填写'}]}>*/}
+            {/*        <InputNumber min={0} value={warn_amount} onChange={(e:number)=>setwarn_amount(e)}/><span style={{color:'#999',fontSize:'12px',marginLeft:'10px'}}>注意:用户余额低于警告金额会发短信到用户手机提醒用户</span>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item label='最低充值(元)' name='minimum_recharge' rules={[{required: true, message: '请填写'},{min:1,transform: (value) => Number(value), message: '最低充值不能低于100'}]}>*/}
+            {/*        <Space>*/}
+            {/*            <InputNumber min={1} value={minimum_recharge} onChange={(e)=>setminimum_recharge(e)}/>*/}
+            {/*            /!*<Button type='primary' onClick={byRearge}>确定修改</Button>*!/*/}
+            {/*            /!*<span style={{fontSize:'12px',color:'#999'}}>注:有账单欠费的情况下,只能通过该确定按钮修改最低充值,下面确定关联按钮修改不了最低充值</span>*!/*/}
+            {/*            <span style={{fontSize:'12px',color:'#999'}}>租户最低充值金额</span>*/}
+            {/*        </Space>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item label='是否自动扣款' name='is_deduction'>*/}
+            {/*       <Radio.Group>*/}
+            {/*           <Radio value={1}>是</Radio>*/}
+            {/*           <Radio value={0}>否</Radio>*/}
+            {/*       </Radio.Group>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item label='备注' name='reamrk'>*/}
+            {/*        <Input.TextArea/>*/}
+            {/*    </Form.Item>*/}
+            {/*    <Form.Item {...tailLayout}>*/}
+            {/*        <Button type="primary" htmlType="submit">*/}
+            {/*            确定关联*/}
+            {/*        </Button>*/}
+            {/*    </Form.Item>*/}
             </Form>
             {/*取消电表关联的弹窗*/}
             <Modal

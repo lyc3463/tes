@@ -15,7 +15,7 @@ let pl={
     page:1,
     identifier:'',
     contractType:0,
-    contractStatus:2,
+    contractStatus:0,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
     name:''

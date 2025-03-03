@@ -50,8 +50,8 @@ const UserManage=(props:any)=>{
     // 获取用户列表
     const getUserList=()=>{
       props.dispatch({
-          type:'/Usersfetch',
-          payload:{page,name,}
+          type:"Users/fetch",
+          payload:{phone}
       })
     };
     const onOk=()=>{
@@ -71,6 +71,15 @@ const UserManage=(props:any)=>{
             }
         })
     };
+    const sousuo=()=>{
+      props.dispatch({
+          type:"Users/fetch",
+          payload:{phone}
+      })
+    };
+    useEffect(() => {
+        getUserList();
+    }, []);
     return(
         <Spin spinning={isspinning}>
             <List>
@@ -83,8 +92,9 @@ const UserManage=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="手机号码:"
+                            onChange={(e)=>setPhone(e.target.value)}
                         />
-                        <Button type="primary">
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -94,6 +104,7 @@ const UserManage=(props:any)=>{
                 rowKey={(columns) => columns.id}
                 columns={columns}
                 size='small'
+                scroll={{y:'60vh'}}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 dataSource={props.UsersList}

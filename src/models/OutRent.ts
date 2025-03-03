@@ -35,6 +35,7 @@ export interface OutRentInterface {
         edit: Effect;
         remove: Effect;
         fenye: Effect;
+        check: Effect;
     };
     reducers: {
         list: Reducer<OutRentType[]>;
@@ -48,7 +49,6 @@ const OutRentModel: OutRentInterface = {
     state: {},
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
-
             const res = yield call(outRentService.fetch, payload?payload:pl);
             // const resc = yield call(
             //   GongsiService.fetchcount,
@@ -86,6 +86,12 @@ const OutRentModel: OutRentInterface = {
         },
         *remove({ payload }, { call, put,take}): any {
             const result = yield call(outRentService.remove, payload);
+            yield put({ type: 'fetch', payload:pl});
+            yield take('fetch/@@end');
+            return result
+        },
+        *check({ payload }, { call, put,take}): any {
+            const result = yield call(outRentService.check, payload);
             yield put({ type: 'fetch', payload:pl});
             yield take('fetch/@@end');
             return result

@@ -134,12 +134,12 @@ const CableModels: CableInterface = {
                         payload: location.state,
                     });
                 }
-                if (StaticInfo.userId > 0 && pathname === '/kehu/byzhuhu/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/kehu/byzhuhu/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
                 if (StaticInfo.userId > 0 && pathname === '/kehu/editByzhuhu/') {
                     dispatch({
                         type: 'fetch',

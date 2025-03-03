@@ -6,23 +6,41 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {processBills} from "@/utils/OpenTool";
 
 const CheckFinance=(props:any)=>{
+    // 展示total
+    const [isfenye,setisfenye]=useState(true);
+    // 唯一id
     const [uid,setUid]=useState(0);
+    // 审核弹窗
     const [isOpen,setIsOpen]=useState(false);
+    // 页码
     const [page,setPage]=useState(1);
+    // 摘要
     const [billAbstract,setBillAbstract]=useState('');
+    // 开始时间
     const [billBgeinTime,setBillBgeinTime]=useState('2000-01-01');
+    // 结束时间
     const [billEndTime,setBillEndTime]=useState('2099-01-01');
+    // 状态  0 未审核  1已审核  2全部
     const [billStatus,setBillStatus]=useState(2);
+    // 类型   1 支出  2全部  0收入
     const [billMoneyType,setBillMoneyType]=useState(2);
+    // 公司ID
     const [companyId,setCompanyId]=useState(0);
+    // 项目ID
     const [projectId,setProjectId]=useState(0);
+    // 科目ID
     const [subjectId,setSubjectId]=useState(0);
+    // 公司列表
     const [companyList,setCompanyList]=useState([]);
+    // 科目列表
     const [subjList,setSubjList]=useState([]);
+    // 项目列表
     const [projectlist,setProjectlist]=useState([]);
+    // 加载转圈
     const [spinning,setspinning]=useState(false);
+    // 账户卡号
     const [account_card,setaccount_card]=useState('');
-    // 账单列表
+    // 财务账单列表
     const [billList,setBillList]=useState([]);
     // 一键审核弹窗
     const [allOpen,setAllOpen]=useState(false);
@@ -190,7 +208,10 @@ const CheckFinance=(props:any)=>{
             }
         },
     ];
-
+    // 监听状态
+    const changeStutes=(e:number)=>{
+        setBillStatus(e);
+    };
     // 详情页面
     const toInfo=(id:number)=>{
         history.push(`/enter/financialDataInfo?id=${id}`)
@@ -229,12 +250,17 @@ const CheckFinance=(props:any)=>{
     };
     // 搜索
     const sousuo=()=>{
+        setisfenye(true);
         setPage(1);
+        getBillFenye();
+        logFenye();
+    };
+    // 分页信息
+    const getBillFenye=()=>{
         props.dispatch({
             type:'Bill/fenye',
             payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
         });
-        logFenye();
     };
     // 分页
     const logFenye=()=>{
@@ -378,11 +404,33 @@ const CheckFinance=(props:any)=>{
             }
         })
     };
+    // 录入数据不分页
+    const isduizhang=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:"Bill/fetchNo",
+            payload:{page,billAbstract,billBgeinTime,billEndTime,billMoneyType,companyId,projectId,subjectId,account_card}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let newdata=processBills(res.Data);
+                setBillList(res.Data);
+                setspinning(false);
+                setisfenye(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+        getBillFenye();
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
+                        <Button type="primary" onClick={isduizhang}>
+                            对账
+                        </Button>
                         <Input
                             onChange={changeName}
                             style={{ width: 300 }}
@@ -409,6 +457,32 @@ const CheckFinance=(props:any)=>{
                                 时间:
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={changeStutes}
+                                defaultValue={billStatus}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value: 0, label: '未审核' },
+                                    { value: 1, label: '已审核' },
+                                    { value: 2, label: '全部' },
+                                ]}
+                            />
                         </Space.Compact>
                     </Space>
                 </List.Item>
@@ -544,7 +618,7 @@ const CheckFinance=(props:any)=>{
                     style={{border:'1px solid #ddd',borderRadius:'4px'}}
                     pagination={false}
                     size='small'
-                    scroll={{y:'70vh'}}
+                    scroll={{y:'60vh'}}
                     rowKey={(columns) => columns.id}
                     dataSource={billList}
                     summary={(columns) => (
@@ -578,7 +652,7 @@ const CheckFinance=(props:any)=>{
                       </Table.Summary>
                     )}
                 />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count&&isfenye?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             {/*    审核通过弹窗*/}
             <Modal open={isOpen} onOk={openOk} onCancel={()=>setIsOpen(false)} loading={spinning}>
                 <div>

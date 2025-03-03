@@ -18,9 +18,9 @@ const AfterSales=()=>{
                 <Tabs.TabPane tab='更名录入' key='1'>
                     <Rename/>
                 </Tabs.TabPane>
-                <Tabs.TabPane tab='转让录入' key='2'>
-                    <Transference/>
-                </Tabs.TabPane>
+                {/*<Tabs.TabPane tab='转让录入' key='2'>*/}
+                {/*    <Transference/>*/}
+                {/*</Tabs.TabPane>*/}
                 <Tabs.TabPane tab='续租录入' key='3'>
                     <Renew/>
                 </Tabs.TabPane>

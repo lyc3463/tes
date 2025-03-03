@@ -44,7 +44,7 @@ const CableKoufeiList=()=>{
     };
     // 查看电费扣费失败记录
     const getzujinList=()=>{
-        ArrearsBillService.eleList(page,name,cid,startDate,endDate,tenantId,recordStatus).then((res:TypeErrorCode)=>{
+        ArrearsBillService.eleList(page,name,cid,startDate,endDate,tenantId,recordStatus,remake).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setdataSource(res.Data);
             }else {
@@ -54,7 +54,7 @@ const CableKoufeiList=()=>{
     };
     // 分页
     const logFenye=()=>{
-        ArrearsBillService.eleListFenye(name,cid,startDate,endDate,tenantId,recordStatus).then((res:TypeErrorCode)=>{
+        ArrearsBillService.eleListFenye(name,cid,startDate,endDate,tenantId,recordStatus,remake).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setenergyUsage(res.Data.energyUsage)
                 setmoneySum(res.Data.moneySum)

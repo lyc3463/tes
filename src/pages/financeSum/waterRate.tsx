@@ -129,7 +129,7 @@ const WaterRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag  color='warning'>{record.energyNew-record.energyOld}m³</Tag>
+                        <Tag  color='warning'>{record.energyNew}m³</Tag>
                     </div>
                 )
             }
@@ -154,7 +154,7 @@ const WaterRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag  color='warning'>{record.energyNew-record.energyOld}m³</Tag>
+                        <Tag  color='warning'>{(record.energyNew-record.energyOld).toFixed(2)}m³</Tag>
                     </div>
                 )
             }

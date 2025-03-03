@@ -83,7 +83,6 @@ const Zuhuguanlian=(props:any)=>{
     }, [page]);
     useEffect(() => {
         logFenyeInfo();
-        console.log('props',props);
     }, []);
     // 分页
     const logFenye=()=>{
@@ -101,7 +100,7 @@ const Zuhuguanlian=(props:any)=>{
     // 查看分页记录
     const logFenyeInfo=()=>{
         props.dispatch({
-            type:'BYZhuhu/fetch',
+            type:'BYZhuhu/fenye',
             payload:{page,name,phone}
         });
     };

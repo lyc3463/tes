@@ -31,7 +31,6 @@ export interface CheckHetongInterface {
     effects: {
         fetch: Effect;
         fenye: Effect;
-
     };
     reducers: {
         list: Reducer<CheckHetongType[]>;
@@ -58,6 +57,7 @@ const CheckHetongModels: CheckHetongInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res;
         },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(CheckHetongService.fenye, payload?payload:pl);

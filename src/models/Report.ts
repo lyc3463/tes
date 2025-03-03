@@ -16,7 +16,7 @@ let pl={
     name:'',
     phone:'',
     state:0,
-    openID:'',
+    openID:0,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
 };

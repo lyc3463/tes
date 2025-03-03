@@ -4,9 +4,13 @@ import {qxTree} from "@/constants/qxMenu/index";
 import {message} from "antd";
 import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween'; // 引入插件
+import Compressor from 'compressorjs';
 
 dayjs.extend(isBetween);
 export  const phonePattern = /^1(3|4|5|6|7|8|9)\d{9}$/;
+
+export const pwdPattern=/^HXtz@\w{8}$/;
+
 // 验证密码
 export  const mmPattern =/^.{6,}$/;
 
@@ -93,8 +97,42 @@ export function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// 压缩图片
+export async function compressBase64(base64: any) {
+    const options = {
+        quality: 0.8, // 压缩质量
+        maxWidth: 700, // 最大宽度
+        maxHeight: 350, // 最大高度
+    };
+    // 将 base64 转换为 Blob 对象
+    const byteString = atob(base64.split(',')[1]);
+    const mimeString = base64.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([ab], { type: mimeString });
 
-
+    // 使用 Compressorjs 库进行压缩处理
+    return new Promise((resolve, reject) => {
+        new Compressor(blob, {
+            ...options,
+            success(result) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const compressedDataUrl = e.target.result;
+                    resolve(compressedDataUrl); // 返回压缩后的 base64 字符串
+                };
+                reader.readAsDataURL(result);
+            },
+            error(err) {
+                console.error('压缩失败:', err.message);
+                reject(err);
+            },
+        });
+    });
+}
 // base64
 export  const getBase64 = file =>
     new Promise((resolve, reject) => {
@@ -103,8 +141,6 @@ export  const getBase64 = file =>
         reader.onload = e => resolve(e.target.result);
         reader.onerror = error => reject(error);
     });
-
-
 // 导出Excel
  export function exportDataToExcel(ws_data) {
     // 创建一个工作簿
@@ -263,7 +299,7 @@ export function numberToRMB(n) {
     }
 
     // 拼接完整的人民币大写（圆替代元）
-    result += '圆';  // 确保整数部分后面有“圆”而不是“元”
+    result += '元';  // 确保整数部分后面有“圆”而不是“元”
     result += parts.join(''); // 加上小数部分的“角分”
 
     // 如果小数部分为空，去掉“零”
@@ -623,6 +659,16 @@ export function getUnitNamesByIds(data, ids) {
     // 使用join方法将数组转换为逗号分隔的字符串
     return matchingUnitNames.join(',');
 }
+// 过滤单元类型
+// export function getUnitNamesByIds(data, ids) {
+//     // 使用filter方法过滤数组，然后使用map方法提取unit_name
+//     const matchingUnitNames = data
+//         .filter(item => ids.includes(item.id))
+//         .map(item => item.unit_name);
+//
+//     // 使用join方法将数组转换为逗号分隔的字符串
+//     return matchingUnitNames.join(',');
+// }
 // 过滤客户名字  例如:[{"id": 2,"custom_name": "301",},{"id": 1,"custom_name": "123"}],[1] 返回123
 export function getUserNamesById(data, id) {
     // 使用filter方法筛选出与给定ID匹配的对象，然后使用map方法提取user_name
@@ -630,13 +676,26 @@ export function getUserNamesById(data, id) {
         .filter(item => item.id === id) // 注意这里使用===来确保类型匹配（number与number）
         .map(item => item.custom_name);
 }
-
-// 过滤客户地址
+// 过滤单元类型用途
+export function getunitTypeById(data, id) {
+    // 使用filter方法筛选出与给定ID匹配的对象，然后使用map方法提取user_name
+    return data
+        .filter(item => item.id === id) // 注意这里使用===来确保类型匹配（number与number）
+        .map(item => item.unit_type);
+}
+// 过滤客户乙方
 export function getUseraddNameById(data, id) {
     // 使用filter方法筛选出与给定ID匹配的对象，然后使用map方法提取user_name
     return data
         .filter(item => item.id === id) // 注意这里使用===来确保类型匹配（number与number）
         .map(item => item.company_name);
+}
+// 过滤客户乙方地址
+export function getUseraddRessById(data, id) {
+    // 使用filter方法筛选出与给定ID匹配的对象，然后使用map方法提取user_name
+    return data
+        .filter(item => item.id === id) // 注意这里使用===来确保类型匹配（number与number）
+        .map(item => item.office_area);
 }
 
 // 过滤客户手机号

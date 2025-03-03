@@ -2,7 +2,9 @@ import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
     return getData(1038, [vals.page,vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId,vals.account_card]);
 }
-
+export function fetchNo(vals:any) {
+    return getData(1482, [vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus=0,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId,vals.account_card]);
+}
 export function add(vals:any) {
     return getData(1035, [
         vals.billDate,
@@ -17,8 +19,6 @@ export function add(vals:any) {
         vals.bill_status=0
     ]);
 }
-
-
 export function edit(vals:any) {
     return getData(1036, [
         vals.uid,

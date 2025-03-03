@@ -1,7 +1,9 @@
-import {Button, Form, Select, Input, Radio, message,Image} from "antd";
+import {Button, Form, Select, Input, Radio, message, Image, Spin} from "antd";
 import {connect,history} from "umi";
 import {useEffect, useState} from "react";
 import ImageUploader from "@/components/ImageUploader";
+import * as TenantInfoService from '@/services/tenantInfo';
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -10,31 +12,50 @@ const AddTenantInfo=(props)=>{
     const [form] = Form.useForm();
     const [upimg,setUpImg]=useState('');
     const [imgB64,setImgB64]=useState('');
+    const [spinning,setspinning]=useState(false);
+    // 用户列表
+    const [list,setList]=useState([]);
     const onFinish=(values)=>{
+        setspinning(true);
         props.dispatch({
             type:'TenantInfo/add',
             payload:{...values,upimg}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
+                setspinning(false);
                 message.success('添加成功');
                 history.push('/propertyServerManage/tenantInfo')
             }else {
-                message.error(res.Data)
+                setspinning(false);
+                message.error(res.Data);
             }
         })
     };
-    useEffect(() => {
-        console.log(props)
-    }, []);
     const onimgname=(item:string)=>{
         setUpImg(item);
     };
     const onb64=(item:string)=>{
         setImgB64(item);
-
     };
+    // 获取列表
+    const getUserList=()=>{
+        setspinning(true);
+        TenantInfoService.userList().then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setspinning(false);
+                setList(res.Data);
+                console.log('res',res)
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+    };
+    useEffect(() => {
+        getUserList();
+    }, []);
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -44,16 +65,16 @@ const AddTenantInfo=(props)=>{
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                <Form.Item label='选择租户' name='openID'>
+                <Form.Item label='选择租户' name='tenantId'>
                     <Select>
                         {
-                            props.AppUserList&&props.AppUserList.length>0?props.AppUserList.map((item:any,index:number)=>{
+                            list.map((item:any,index:number)=>{
                                 return(
-                                    <Select.Option value={item.openId} key={index}>
+                                    <Select.Option value={item.tenantId} key={index}>
                                         {item.appUser_phone}
                                     </Select.Option>
                                 )
-                            }):''
+                            })
                         }
                     </Select>
                 </Form.Item>
@@ -70,12 +91,7 @@ const AddTenantInfo=(props)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
-const mapStateToProps = (state: any) => {
-    return {
-        AppUserList: state.AppUser.list
-    }
-};
-export default connect(mapStateToProps) (AddTenantInfo)
+export default connect() (AddTenantInfo)

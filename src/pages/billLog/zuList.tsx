@@ -20,6 +20,8 @@ const ZuList=(props:any)=>{
     const [dataSource,setdataSource]=useState([]);
     // 租金管理费统计
     const [moneySum,setmoneySum]=useState(0);
+    // 租金已交费用统计
+    const [NotBillSum,setNotBillSum]=useState(0);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -30,6 +32,7 @@ const ZuList=(props:any)=>{
     const getzujinList=()=>{
         ArrearsBillService.zujinList({page,name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('未交租金列表',res);
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -42,6 +45,7 @@ const ZuList=(props:any)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
+                setNotBillSum(res.Data.NotBillSum);
             }else {
                 message.error(res.Data);
             }
@@ -49,13 +53,13 @@ const ZuList=(props:any)=>{
     };
     const columns =[
         {
-            title: '交租日期',
+            title: '账单周期',
             dataIndex: 'payrentDate',
             key: 'payrentDate',
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {dayjs(record.payrentDate).format("YYYY-MM-DD")}
+                        {dayjs(record.billBeginDate).format("YYYY-MM-DD")}至{dayjs(record.billEndDate).format("YYYY-MM-DD")}
                     </div>
                 )
             }
@@ -216,6 +220,7 @@ const ZuList=(props:any)=>{
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>{moneySum}元</Table.Summary.Cell>
+
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}

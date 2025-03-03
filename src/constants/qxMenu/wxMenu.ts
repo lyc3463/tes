@@ -342,6 +342,8 @@ export const qxTree: TypeMenu[] = [
     { id: 337, name: '修改发票', parentId: 330, authId: 337},
     { id: 338, name: '删除发票', parentId: 330, authId: 338},
     { id: 339, name: '发票列表', parentId: 330, authId: 339},
+    { id: 347, name: '服务费账单', parentId: 66, authId: 347},
+    { id: 355, name: '违约金账单', parentId: 66, authId: 355},
     // { id: 340, name: '审核发票', parentId: 330, authId: 340},
     // { id: 341, name: '发送发票', parentId: 330, authId: 341},
 
