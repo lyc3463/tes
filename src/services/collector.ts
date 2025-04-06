@@ -20,3 +20,8 @@ export function one(vals:any) {
 export function fenye(vals:any) {
     return getData(1105, [vals.collector_number,vals.stutes]);
 }
+
+// 无分页下拉
+export function fetchCtr() {
+    return getData(1505, []);
+}

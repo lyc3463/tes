@@ -27,22 +27,33 @@ const EditCheckFp=(props:any)=>{
     const [open,setOpen]=useState(false);
     const [upimg,setUpImg]=useState('');
     const [imgB64,setImgB64]=useState('');
+    const [email,setemail]=useState('');
+    const [phone,setphone]=useState('');
     const [isSpinning,setIsSpinning]=useState(false);
+    const [rise_name,setrise_name]=useState('');
+    const [invoiceType,setinvoiceType]=useState(0);
+    const [tenant_name,settenant_name]=useState('');
+
     // 获取发票详情
     const getOneCustom=async (id:string)=>{
         let res:any=await  CheckFpService.one(id);
         if (res.ErrorCode==0){
             let data=res.Data;
+            console.log("抬头审批",data)
             setRise_type(data[1].rise_type);
             setDuty_paragraph(data[1].duty_paragraph);
-            setEmailOrPhone(data[1].emailOrPhone);
-            setBankDeposit(data[1].bankDeposit);
-            setBankCard(data[1].bankCard);
             setWork_phone(data[1].work_phone);
             setWork_address(data[1].work_address);
+            setBankDeposit(data[1].bankDeposit);
+            setBankCard(data[1].bankCard);
+            setphone(data[1].phone);
+            setemail(data[1].email);
             setOpenid(data[0].openId);
             setConsumptionType(data[0].consumptionType);
             setConsumptionMoney(data[0].consumptionMoney);
+            setrise_name(data[1].rise_name);
+            settenant_name(data[1].tenant_name);
+            setinvoiceType(data[0].invoiceType);
         }else {
             message.error(res.Data);
         }
@@ -57,28 +68,31 @@ const EditCheckFp=(props:any)=>{
         let consumptionTypeText;
         switch (item) {
             case 1:
-                consumptionTypeText = <Input value='充值'/>;
+                consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>微信充值</Tag>;
                 break;
             case 2:
-                consumptionTypeText =<Input value='租金'/>;
+                consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金/管理费</Tag>;
                 break;
             case 3:
-                consumptionTypeText =<Input value='电费'/>;
+                consumptionTypeText = <Tag style={{ color: '#2196F3' }}>电费</Tag>;
                 break;
             case 4:
-                consumptionTypeText =<Input value='水费'/>;
+                consumptionTypeText = <Tag style={{ color: '#FFC107' }}>水费</Tag>;
                 break;
             case 5:
-                consumptionTypeText =<Input value='公共缴费'/>;
+                consumptionTypeText = <Tag style={{ color: '#9C27B0' }}>公共缴费</Tag>;
                 break;
             case 6:
-                consumptionTypeText =<Input value='违约金'/>;
+                consumptionTypeText = <Tag style={{ color: '#E91E63' }}>手动充值</Tag>;
                 break;
             case 7:
-                consumptionTypeText =<Input value='物业管理费'/>;
+                consumptionTypeText = <Tag style={{ color: '#795548' }}>损耗</Tag>;
+                break;
+            case 8:
+                consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
                 break;
             default:
-                consumptionTypeText =<Input value='未知类型'/>;
+                consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
         }
         return (
             consumptionTypeText
@@ -128,11 +142,20 @@ const EditCheckFp=(props:any)=>{
                 size={'large'}
                 style={{ marginTop: '1rem' }}
             >
+                <Form.Item label='租户姓名'>
+                    <Input value={tenant_name}/>
+                </Form.Item>
+                <Form.Item label='抬头名称'>
+                    <Input value={rise_name}/>
+                </Form.Item>
                 <Form.Item label='抬头类型'>
                     <Input value={rise_type==1?'企业':'个人'}/>
                 </Form.Item>
                 <Form.Item label='账单类型'>
                     {bianji(consumptionType)}
+                </Form.Item>
+                <Form.Item label='发票类型'>
+                    <Input value={invoiceType==1?'专票':'普票'}/>
                 </Form.Item>
                 <Form.Item label='开票金额(元)'>
                     <InputNumber placeholder='开票金额' value={consumptionMoney}/>
@@ -140,8 +163,11 @@ const EditCheckFp=(props:any)=>{
                 <Form.Item label='税号'>
                     <Input placeholder='税号' value={duty_paragraph}/>
                 </Form.Item>
-                <Form.Item label='手机/邮箱'>
-                    <Input placeholder='手机/邮箱' value={emailOrPhone}/>
+                <Form.Item label='邮箱'>
+                    <Input placeholder='手机/邮箱' value={email}/>
+                </Form.Item>
+                <Form.Item label='手机号'>
+                    <Input placeholder='手机/邮箱' value={phone}/>
                 </Form.Item>
                 <Form.Item label='(选填信息)'>
                 </Form.Item>

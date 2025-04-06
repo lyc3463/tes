@@ -1,7 +1,8 @@
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const CheckByStages=(props)=>{
     // 当前页数
@@ -14,6 +15,11 @@ const CheckByStages=(props)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
+    // 审核弹窗open
+    const [open,setOpen]=useState(false);
+    // 审核的id
+    const [uid,setUid]=useState(0);
+    const [spinning,setspinning]=useState(false);
     const columns =[
         {
             title: '日期',
@@ -41,78 +47,90 @@ const CheckByStages=(props)=>{
             key: 'tenant_phone',
         },
         {
-            title: '租金分期金额',
-            dataIndex: 'futureRent',
-            key: 'futureRent',
+            title: '分期周期',
+            dataIndex: 'qq',
+            key: 'qq',
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        <span style={{color:'red',fontSize:'18px'}}>{record.futureRent}</span>
+                        {dayjs(record.staBeginTime).format("YYYY-MM")}至{dayjs(record.staEndTime).format("YYYY-MM")}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '还款周期',
+            dataIndex: 'aa',
+            key: 'aa',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {dayjs(record.staBeginTime2).format("YYYY-MM")}至{dayjs(record.staEndTime2).format("YYYY-MM")}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '租金分期金额',
+            dataIndex: 'staRent',
+            key: 'staRent',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        <span style={{color:'red',fontSize:'18px'}}>{record.staRent}</span>
                         <span style={{fontSize:'12px',cursor:'#999'}}>元</span>
                     </div>
                 )
             }
         },
-        {
-            title: '分期',
-            dataIndex: 'stages',
-            key: 'stages',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        <span style={{color:'red',fontSize:'18px'}}>{record.stages}</span>
-                        <span style={{fontSize:'12px',cursor:'#999'}}>期</span>
-                    </div>
-                )
-            }
-        },
-        {
-            title: '还款日期',
-            dataIndex: 'repaymentDate',
-            key: 'repaymentDate',
-            render:(text:any,record:any,)=>{
-                let dateStr = '';
-                switch (record.repaymentDate) {
-                    case 1:
-                        dateStr = '每月10号';
-                        break;
-                    case 2:
-                        dateStr = '每月15号';
-                        break;
-                    case 3:
-                        dateStr = '每月20号';
-                        break;
-                    default:
-                        dateStr = '未知还款日期';
-                        break;
-                }
-                return <div>{dateStr}</div>;
-            }
-        },
+
         {
             title: '状态',
-            dataIndex: 'sturs',
-            key: 'sturs',
+            dataIndex: 'renameStatus',
+            key: 'renameStatus',
             render:(text:any,record:any,)=>{
                 return(
-                    <div>{record.sturs==1?"已通过":"未审核"}</div>
+                    <div>{record.renameStatus==2?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}</div>
                 )
             }
         },
         {
             title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
+            dataIndex: 'c',
+            key: 'c',
             render:(text:any,record:any,)=>{
                 return(
                     <Space>
-                        <Button type='link'>详情</Button>
-                        {record.sturs==2?'':<Button type='link'>编辑</Button>}
+                        {/*<Button type='link'>详情</Button>*/}
+                        {record.renameStatus==2?'':<Button type='primary' onClick={()=>checkOpen(record.id)}>审核</Button>}
                     </Space>
                 )
             }
         }
     ];
+    // 审核弹窗
+    const checkOpen=(e)=>{
+        setUid(e);
+        setOpen(true);
+    }
+    // 审核确定按钮
+    const onOK=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:"ByStages/check",
+            payload:uid
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('审核成功');
+                setspinning(false);
+                setOpen(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+                setOpen(false);
+            }
+        })
+    };
     // 监听页数
     const onChange=(page)=>{
         setPage(page);
@@ -144,18 +162,25 @@ const CheckByStages=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props)
     }, [page]);
     // 搜索
     const suosou=()=>{
         setPage(1);
+        fenyeinfo();
+        logFenye();
+    };
+    const fenyeinfo=()=>{
         props.dispatch({
             type:'ByStages/fenye',
             payload:{phone,stutes,startDate,endDate}
         })
-        logFenye();
     };
+    useEffect(() => {
+        fenyeinfo();
+    }, []);
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -217,14 +242,18 @@ const CheckByStages=(props)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 size='small'
-                scroll={{y:'70vh'}}
+                scroll={{y:'70vh',x:1500}}
                 dataSource={props.ByStagesList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+        {/*    审核弹窗*/}
+            <Modal title={'审核'} loading={spinning} onOk={onOK} onCancel={()=>setOpen(false)} open={open}>
+                <div>确定要审核吗?</div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

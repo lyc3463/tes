@@ -35,6 +35,7 @@ export interface ByStagesInterface {
         edit: Effect;
         remove: Effect;
         fenye: Effect;
+        check: Effect;
     };
     reducers: {
         list: Reducer<ByStagesType[]>;
@@ -84,6 +85,12 @@ const ByStagesModel: ByStagesInterface = {
             yield take('fetch/@@end');
             return result
         },
+        *check({ payload, callback }, { call, put, take }): any {
+            const result = yield call(ByStagesService.check, payload);
+            yield put({ type: 'fetch', payload:pl });
+            yield take('fetch/@@end');
+            return result
+        },
         *remove({ payload }, { call, put,take}): any {
             const result = yield call(ByStagesService.remove, payload);
             yield put({ type: 'fetch', payload:pl});
@@ -127,30 +134,7 @@ const ByStagesModel: ByStagesInterface = {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
 
-                if (StaticInfo.userId > 0 && pathname === '/enter/afterSales/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/enter/afterSales/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/check/checkAfterSales/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/check/checkAfterSales/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+
             });
         },
     },

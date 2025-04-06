@@ -118,11 +118,14 @@ const OutRent=(props:any)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
+        fenyeinfo();
+        logFenye();
+    };
+    const fenyeinfo=()=>{
         props.dispatch({
             type:'OutRent/fenye',
             payload:{phone,stutes,startDate,endDate}
         })
-        logFenye();
     };
     return(
         <div>

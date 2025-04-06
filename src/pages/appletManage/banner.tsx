@@ -3,12 +3,15 @@ import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import BannerType from '@/ModelTypes/TypeBanner';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 const Banner=(props:any)=>{
     const [loading, setLoading] = useState(false);
     // 需要删除的id
     const [uid,setUid]=useState(0);
     const [isOpen,setIsOpen]=useState(false);
     const [name,setName]=useState('');
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns=[
         {
             title: '轮播图编号',
@@ -27,8 +30,8 @@ const Banner=(props:any)=>{
             dataIndex: 'operation',
             render: (_: any, record: any) => (
                 <Space>
-                    <Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>
-                    <Button type='primary'  onClick={()=>toEdit(record)}>编辑</Button>
+                    {uqx[121]=='1'?<Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button> :''}
+                    {uqx[122]=='1'?<Button type='primary'  onClick={()=>toEdit(record)}>编辑</Button> :''}
                 </Space>
             ),
         },
@@ -74,14 +77,16 @@ const Banner=(props:any)=>{
             payload:{name}
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={loading}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            新增轮播图
-                        </Button>
+                        {uqx[120]=='1'?<Button type="primary" onClick={toadd}>新增轮播图</Button> :''}
                     </div>
                     <Space>
                         <Input

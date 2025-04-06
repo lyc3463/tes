@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {connect,history} from "umi";
 import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Preferential=(props)=>{
     // 当前页数
@@ -14,6 +15,9 @@ const Preferential=(props)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [did,setdid]=useState(0);
+    const [dopen,setDopen]=useState(false);
+    const [spinning,setspinning]=useState(false);
     const columns =[
         {
             title: '日期',
@@ -41,6 +45,18 @@ const Preferential=(props)=>{
             key: 'tenant_phone',
         },
         {
+            title: '优惠周期',
+            dataIndex: 'preBeginTime',
+            key: 'preBeginTime',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {dayjs(record.preBeginTime).format("YYYY-MM")}月至{dayjs(record.preEndTime).format("YYYY-MM")}月租金
+                    </div>
+                )
+            }
+        },
+        {
             title: '申请优惠租金',
             dataIndex: 'preRen',
             key: 'preRen',
@@ -55,15 +71,32 @@ const Preferential=(props)=>{
         },
         {
             title: '状态',
-            dataIndex: 'sturs',
-            key: 'sturs',
+            dataIndex: 'renameStatus',
+            key: 'renameStatus',
             render:(text:any,record:any,)=>{
                 return(
-                    <div>{record.sturs==1?"已通过":"未审核"}</div>
+                    <div>
+                        {record.renameStatus==2?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}
+                    </div>
                 )
             }
         },
+        {
+            title: '操作',
+            dataIndex: 'cx',
+            key: 'cx',
+            render:(text:any,record:any,)=>{
+                return(
+                    <Space>
+                        {
+                            record.renameStatus==2?'':<> <Button type='primary'>编辑</Button>
+                                <Button type='primary' danger onClick={()=>IsDelOpen(record.id)}>删除</Button></>
+                        }
 
+                    </Space>
+                )
+            }
+        }
     ];
     const toadd=()=>{
         history.push('/enter/addPreferential')
@@ -99,18 +132,44 @@ const Preferential=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props)
     }, [page]);
     // 搜索
     const suosou=()=>{
         setPage(1);
+        fenyeinfo();
+        logFenye();
+    };
+    const fenyeinfo=()=>{
         props.dispatch({
             type:'Preferential/fenye',
             payload:{phone,stutes,startDate,endDate}
         })
-        logFenye();
+    };
+    const IsDelOpen=(e)=>{
+        setdid(e);
+        setDopen(true);
+    };
+    const onOK=()=>{
+      setspinning(true);
+        props.dispatch({
+            type:'Preferential/remove',
+            payload:did
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setspinning(false);
+                setDopen(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+                setDopen(false);
+            }
+
+        })
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
 
@@ -179,7 +238,10 @@ const Preferential=(props)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            <Modal title='删除' open={dopen} onOk={onOK} loading={spinning} onCancel={()=>setDopen(false)}>
+                <div>是否要删除?</div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

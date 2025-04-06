@@ -17,6 +17,7 @@ import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {compressBase64} from "@/utils/OpenTool";
+import {StaticInfo} from "@/StaticInfo";
 const YuangonglData=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
@@ -33,8 +34,9 @@ const YuangonglData=(props:any)=>{
     // 删除的名称
     const [uname,setUname]=useState('');
     const [spinning,setspinning]=useState(false);
-
     const [isOpen,setIsOpen]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '登记日期',
@@ -111,8 +113,8 @@ const YuangonglData=(props:any)=>{
                             record.emp_status==1?
                                 <Space>
                                     {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
-                                    <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
-                                    <Button type='link' onClick={()=>isDelete(record)}>删除</Button>
+                                    {uqx[188]=='1'?<Button type='link' onClick={()=>toedit(record.id)}>编辑</Button> :''}
+                                    {uqx[189]=='1'?<Button type='link' onClick={()=>isDelete(record)}>删除</Button>:''}
                                 </Space>:
                                 <>
                                     {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
@@ -197,14 +199,16 @@ const YuangonglData=(props:any)=>{
             }
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            员工登记
-                        </Button>
+                        {uqx[186]=='1'?<Button type="primary" onClick={toadd}>员工登记</Button> :''}
                     </div>
                     <Space>
                         <Input

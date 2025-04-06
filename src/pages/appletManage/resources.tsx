@@ -2,6 +2,7 @@ import {Button, Image, Input, List, message, Modal, Pagination, Radio, Select, S
 import {useEffect, useState} from "react";
 import {connect,history} from "umi";
 import * as ResourcesService from "@/services/resources";
+import {StaticInfo} from "@/StaticInfo";
 
 const Resources=(props)=>{
     const [loading, setLoading] = useState(false);
@@ -24,6 +25,8 @@ const Resources=(props)=>{
     const [houesID,setHouesID]=useState(0)
     // 删除的id
     const [did,setDid]=useState(0);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns=[
         {
             title: '房源名称',
@@ -63,8 +66,8 @@ const Resources=(props)=>{
             dataIndex: 'operation',
             render: (_: any, record: any) => (
                 <Space>
-                    <Button type='primary' danger onClick={()=>deleteOpen(record.id)}>删除</Button>
-                    <Button type="primary" onClick={()=>history.push(`/appletManage/editResources?id=${record.id}`)}>编辑</Button>
+                    {uqx[128]=='1'?<Button type='primary' danger onClick={()=>deleteOpen(record.id)}>删除</Button> :''}
+                    {uqx[127]=='1'?<Button type="primary" onClick={()=>history.push(`/appletManage/editResources?id=${record.id}`)}>编辑</Button> :''}
                 </Space>
             ),
         },
@@ -118,14 +121,16 @@ const Resources=(props)=>{
         })
       logFenye();
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={loading}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            新增房源
-                        </Button>
+                        {uqx[126]=='1'?<Button type="primary" onClick={toadd}>新增房源</Button> :''}
                     </div>
                     <Space>
                         <Space.Compact>

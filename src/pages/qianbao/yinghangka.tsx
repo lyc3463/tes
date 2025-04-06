@@ -2,6 +2,7 @@ import {Button, Input, List, message, Modal, Select, Space, Table, Tag} from "an
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const Yinghangka=(props:any)=>{
     const [page,setPage]=useState(1);
@@ -13,6 +14,8 @@ const Yinghangka=(props:any)=>{
     const [did,setDid]=useState(0);
     const [isOffOpen,setisOffOpen]=useState(false);
     const [isONOpen,setisONOpen]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '户名',
@@ -65,8 +68,8 @@ const Yinghangka=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
-                        <Button type='primary' danger onClick={()=>isdelete(record)}>删除</Button>
+                        {uqx[301]=='1'?<Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button> :''}
+                        {uqx[171]=='1'?<Button type='primary' danger onClick={()=>isdelete(record)}>删除</Button> :''}
                     </Space>
                 )
             }
@@ -150,14 +153,16 @@ const Yinghangka=(props:any)=>{
             }
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            新增银行卡
-                        </Button>
+                        {uqx[300]=='1'? <Button type="primary" onClick={toadd}>新增银行卡</Button>:''}
                     </div>
                     <Space>
                         <Input

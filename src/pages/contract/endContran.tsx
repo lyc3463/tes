@@ -197,6 +197,7 @@ const EndContran=()=>{
         ContractTypeService.edit(uid,companyName,companyAddress,rentAddress,openName,openBank,bankCard,templateType,legalPerson,phone,contacts,documentImage,attractPhone,attractWXNumber,reportPhone,reportEmail,attract,elePice,waterPice,eleloss).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('编辑成功');
+                getOne();
             }else {
                 message.error(res.Data);
             }

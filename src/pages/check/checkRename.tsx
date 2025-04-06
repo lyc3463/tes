@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import {StaticInfo} from "@/StaticInfo";
 
 const CheckRename=(props:any)=>{
     // 当前页数
@@ -124,11 +125,14 @@ const CheckRename=(props:any)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
+        fenyeinfo();
+        logFenye();
+    };
+    const fenyeinfo=()=>{
         props.dispatch({
             type:'Rename/fenye',
             payload:{phone,stutes,startDate,endDate}
         })
-        logFenye();
     };
     // 审核弹窗
     const isCheck=(e:any)=>{
@@ -149,6 +153,9 @@ const CheckRename=(props:any)=>{
             }
         })
     };
+    useEffect(() => {
+        fenyeinfo();
+    }, []);
     return(
         <div>
             <List>

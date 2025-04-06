@@ -1,6 +1,6 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    return getData(1154, [vals.page,vals.name,vals.phone]);
+    return getData(1154, [vals.page,vals.name,vals.phone,vals.pagecount,vals.pagecount]);
 }
 export function add(vals:any) {
     // return getData(1117, [vals.collector_id,vals.water_type,vals.remark,vals.waterAddress,]);
@@ -21,13 +21,13 @@ export function byzhuhu(vals:any) {
     return getData(1151, [vals.uid,vals.unit_id,vals.tenant_phone,vals.label_id=1,vals.reserved_amount,vals.warn_amount,vals.minimum_recharge,vals.is_deduction,vals.reamrk,vals.tenantAmount]);
 }
 export function fenye(vals:any) {
-    return getData(1155, [vals.name,vals.phone]);
+    return getData(1155, [vals.name,vals.phone,vals.pagecount,vals.pagecount]);
 }
 export function byfetch(vals:any) {
-    return getData(1424, [vals.page,vals.name,vals.phone]);
+    return getData(1424, [vals.page,vals.name,vals.phone,vals.pagecount]);
 }
 export function byfenye(vals:any) {
-    return getData(1425, [vals.name,vals.phone]);
+    return getData(1425, [vals.name,vals.phone,vals.pagecount]);
 }
 export function jiebang(vals:any) {
     return getData(1423, [vals.page,vals.name,vals.phone]);

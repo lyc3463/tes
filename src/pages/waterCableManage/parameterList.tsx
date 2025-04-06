@@ -2,6 +2,7 @@ import {connect, history} from 'umi'
 import {useEffect, useState} from "react";
 import {Button, Input, List, message, Modal, Select, Space, Spin, Table, Tag} from "antd";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 const ParameterList=(props:any)=>{
     const [loading, setLoading] = useState(false);
     // 删除的弹窗
@@ -13,6 +14,8 @@ const ParameterList=(props:any)=>{
     const [priceType,setPriceType]=useState(0);
     // 1水价 2电价 0全部
     const [we_type,setwe_type]=useState(0);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns = [
         {
             title: '名称',
@@ -50,12 +53,9 @@ const ParameterList=(props:any)=>{
             dataIndex: 'operation',
             render: (_: any, record: any) => (
                 <Space>
-                    <Button type="primary" danger onClick={()=>isDelete(record)}>
-                        删除
-                    </Button>
-                    <Button type="primary" onClick={()=>toedit(record.we_type,record.id)}>
-                        编辑
-                    </Button>
+                    {uqx[183]=='1'?<Button type="primary" danger onClick={()=>isDelete(record)}>删除</Button> :''}
+                    {uqx[181]=='1'?<Button type="primary" onClick={()=>toedit(record.we_type,record.id)}>编辑</Button> :''}
+
                 </Space>
 
             ),
@@ -114,27 +114,28 @@ const ParameterList=(props:any)=>{
           }
       })
     };
-
     useEffect(() => {
         sousuo();
     }, []);
     const changeWeType=(e)=>{
         setwe_type(e);
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <Spin spinning={loading}>
                 <List>
                     <List.Item>
                         <div>
-                          <Space>
-                              <Button type="primary" onClick={toaddshui}>
-                                  添加水价参数
-                              </Button>
-                              <Button type="primary" onClick={toadddian}>
-                                  添加电价参数
-                              </Button>
-                          </Space>
+                            {uqx[182]=='1'?<Space>
+                                            <Button type="primary" onClick={toaddshui}>添加水价参数</Button>
+                                            <Button type="primary" onClick={toadddian}>添加电价参数</Button>
+                                            </Space>
+                                        :''
+                            }
                         </div>
                         <Space>
                             <Input

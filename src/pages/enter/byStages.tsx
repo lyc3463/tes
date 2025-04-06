@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
@@ -44,61 +44,61 @@ const ByStages=(props)=>{
             key: 'tenant_phone',
         },
         {
-            title: '租金分期金额',
-            dataIndex: 'futureRent',
-            key: 'futureRent',
+            title: '分期周期',
+            dataIndex: 'qq',
+            key: 'qq',
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        <span style={{color:'red',fontSize:'18px'}}>{record.futureRent}</span>
+                        {dayjs(record.staBeginTime).format("YYYY-MM")}至{dayjs(record.staEndTime).format("YYYY-MM")}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '还款周期',
+            dataIndex: 'aa',
+            key: 'aa',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {dayjs(record.staBeginTime2).format("YYYY-MM")}至{dayjs(record.staEndTime2).format("YYYY-MM")}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '租金分期金额',
+            dataIndex: 'staRent',
+            key: 'staRent',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        <span style={{color:'red',fontSize:'18px'}}>{record.staRent}</span>
                         <span style={{fontSize:'12px',cursor:'#999'}}>元</span>
                     </div>
                 )
             }
         },
         {
-            title: '分期',
-            dataIndex: 'stages',
-            key: 'stages',
+            title: '状态',
+            dataIndex: 'renameStatus',
+            key: 'renameStatus',
             render:(text:any,record:any,)=>{
                 return(
-                    <div>
-                        <span style={{color:'red',fontSize:'18px'}}>{record.stages}</span>
-                        <span style={{fontSize:'12px',cursor:'#999'}}>期</span>
-                    </div>
+                    <div>{record.renameStatus==2?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}</div>
                 )
             }
         },
         {
-            title: '还款日期',
-            dataIndex: 'repaymentDate',
-            key: 'repaymentDate',
-            render:(text:any,record:any,)=>{
-                let dateStr = '';
-                switch (record.repaymentDate) {
-                    case 1:
-                        dateStr = '每月10号';
-                        break;
-                    case 2:
-                        dateStr = '每月15号';
-                        break;
-                    case 3:
-                        dateStr = '每月20号';
-                        break;
-                    default:
-                        dateStr = '未知还款日期';
-                        break;
-                }
-                return <div>{dateStr}</div>;
-            }
-        },
-        {
-            title: '状态',
-            dataIndex: 'sturs',
-            key: 'sturs',
+            title: '操作',
+            dataIndex: 'renameStatus',
+            key: 'renameStatus',
             render:(text:any,record:any,)=>{
                 return(
-                    <div>{record.sturs==1?"已通过":"未审核"}</div>
+                    <Space>
+
+                    </Space>
                 )
             }
         },
@@ -139,11 +139,14 @@ const ByStages=(props)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
+        fenyeinfo();
+        logFenye();
+    };
+    const fenyeinfo=()=>{
         props.dispatch({
             type:'ByStages/fenye',
             payload:{phone,stutes,startDate,endDate}
         })
-        logFenye();
     };
     return(
         <div>

@@ -1,9 +1,11 @@
 import {useEffect, useRef, useState} from "react";
-import {Button, Form, Input, List, message, Modal, Radio, Select, Space, Spin, Table} from "antd";
+import {Button, Form, Input, List, message, Modal, Radio, Select, Space, Spin, Table, Tabs} from "antd";
 import {history,connect} from "umi";
 import * as CharacteristicService from "@/services/characteristic";
 import CharacteristicType from "@/ModelTypes/TypeCharacteristic";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
+import Region from "@/pages/appletManage/region";
 const park_id=sessionStorage.getItem('park_id')
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -21,7 +23,9 @@ const Characteristic=(props:any)=>{
     // 删除的id
     const [did,setDid]=useState<number|undefined>()
     // form 实例
-    const formRef=useRef()
+    const formRef=useRef();
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns=[
 
         {
@@ -42,12 +46,12 @@ const Characteristic=(props:any)=>{
             dataIndex: 'operation',
             render: (_: any, record: any) => (
                 <Space>
-                    <Button type='primary' onClick={()=>isEdit(record)}>编辑</Button>
-                    <Button type='primary' danger onClick={()=>isDelete(record)}>删除</Button>
+                    {uqx[136]=='1'?<Button type='primary' onClick={()=>isEdit(record)}>编辑</Button>:''}
+                    {uqx[137]=='1'?<Button type='primary' danger onClick={()=>isDelete(record)}>删除</Button>:''}
                 </Space>
             ),
         },
-    ]
+    ];
     // 删除的弹窗
     const isDelete=async (record:CharacteristicType)=>{
         setDid(record.id)
@@ -102,15 +106,17 @@ const Characteristic=(props:any)=>{
             message.error(res.Data)
         }
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <Spin spinning={isLoading}>
                 <List>
                     <List.Item>
                         <div>
-                            <Button type="primary" onClick={toadd}>
-                                添加特色
-                            </Button>
+                            {uqx[135]=='1'?<Button type="primary" onClick={toadd}>添加特色</Button>:''}
                         </div>
                     </List.Item>
                 </List>

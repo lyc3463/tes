@@ -7,6 +7,7 @@ import {qxTree} from "@/constants/qxMenu";
 import TypeMenu from "@/ModelTypes/TypeMenu";
 import {StaticInfo} from "@/StaticInfo";
 import * as RoleService from "@/services/role";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -80,6 +81,7 @@ const EditUser=(props:any)=>{
             newSelected[318] = isChecked ? '1' : '0';
             newSelected[300] = isChecked ? '1' : '0';
             newSelected[7] = isChecked ? '1' : '0';
+            newSelected[350] = isChecked ? '1' : '0';
         }
         if (id === 13) {
             newSelected[253] = '1';
@@ -87,11 +89,24 @@ const EditUser=(props:any)=>{
             newSelected[176] = '1';
             newSelected[254] = isChecked ? '1' : '0';
             newSelected[168] =  '1' ;
+            newSelected[351] = isChecked ? '1' : '0';
+            newSelected[352] = isChecked ? '1' : '0';
+            newSelected[353] = isChecked ? '1' : '0';
+            newSelected[354] = isChecked ? '1' : '0';
         }
         if (id === 254) {
             newSelected[176] = '1';
             newSelected[13] = '1';
             newSelected[253] = '1';
+            newSelected[168] = '1';
+        }
+        if (id===352){
+            newSelected[176] = '1';
+        }
+        if (id===353){
+            newSelected[253] = '1';
+        }
+        if (id===354){
             newSelected[168] = '1';
         }
         if (id === 18 ){
@@ -165,6 +180,10 @@ const EditUser=(props:any)=>{
             newSelected[299] = isChecked ? '1' : '0';
             newSelected[256] = isChecked ? '1' : '0';
             newSelected[254] = isChecked ? '1' : '0';
+            newSelected[351] = isChecked ? '1' : '0';
+            newSelected[352] = isChecked ? '1' : '0';
+            newSelected[353] = isChecked ? '1' : '0';
+            newSelected[354] = isChecked ? '1' : '0';
             newSelected[176] = '1' ;
             newSelected[253] = '1';
             newSelected[168] = '1';
@@ -209,6 +228,8 @@ const EditUser=(props:any)=>{
             newSelected[247] = isChecked ? '1' : '0';
             newSelected[248] = isChecked ? '1' : '0';
             newSelected[249] = isChecked ? '1' : '0';
+            newSelected[346] = isChecked ? '1' : '0';
+            newSelected[256] = '1';
         }
         if (id === 40){
             newSelected[198] = isChecked ? '1' : '0';
@@ -421,6 +442,12 @@ const EditUser=(props:any)=>{
             newSelected[62] = isChecked ? '1' : '0';
             newSelected[63] = isChecked ? '1' : '0';
             newSelected[64] = isChecked ? '1' : '0';
+            newSelected[347] = isChecked ? '1' : '0';
+            newSelected[348] = isChecked ? '1' : '0';
+            newSelected[349] = isChecked ? '1' : '0';
+            newSelected[357] = isChecked ? '1' : '0';
+            newSelected[355] = isChecked ? '1' : '0';
+            newSelected[259] = isChecked ? '1' : '0';
         }
         if (id === 65){
             newSelected[66] = isChecked ? '1' : '0';
@@ -433,7 +460,18 @@ const EditUser=(props:any)=>{
             newSelected[259] = isChecked ? '1' : '0';
             newSelected[266] = isChecked ? '1' : '0';
             newSelected[267] = isChecked ? '1' : '0';
+            newSelected[356] = isChecked ? '1' : '0';
+            newSelected[358] = isChecked ? '1' : '0' ;
+            newSelected[359] = isChecked ? '1' : '0' ;
             newSelected[157] = '1' ;
+            newSelected[357] = '1' ;
+            newSelected[58] = '1' ;
+            newSelected[59] = '1' ;
+            newSelected[60] = '1' ;
+            newSelected[61] = '1' ;
+            newSelected[355] = '1' ;
+            newSelected[324] = '1' ;
+
         }
         if (id === 71){
             newSelected[72] = isChecked ? '1' : '0';
@@ -462,6 +500,10 @@ const EditUser=(props:any)=>{
             newSelected[222] =  '1' ;
             newSelected[223] =  '1' ;
             newSelected[224] =  '1' ;
+            newSelected[145] =  '1' ;
+            newSelected[149] =  '1' ;
+            newSelected[157] =  '1' ;
+            newSelected[161] =  '1' ;
             newSelected[321] =  isChecked ? '1' : '0' ;
             newSelected[322] =  isChecked ? '1' : '0' ;
             newSelected[323] =  isChecked ? '1' : '0' ;
@@ -570,6 +612,7 @@ const EditUser=(props:any)=>{
             newSelected[89] = isChecked ? '1' : '0' ;
             newSelected[90] = isChecked ? '1' : '0' ;
             newSelected[91] = isChecked ? '1' : '0' ;
+            newSelected[311] = isChecked ? '1' : '0' ;
         }
         if (id === 92){
             newSelected[93] = isChecked ? '1' : '0' ;
@@ -587,6 +630,121 @@ const EditUser=(props:any)=>{
             newSelected[209] = isChecked ? '1' : '0' ;
             newSelected[263] = isChecked ? '1' : '0' ;
             newSelected[98] = isChecked ? '1' : '0' ;
+            newSelected[304] = isChecked ? '1' : '0' ;
+            newSelected[305] = isChecked ? '1' : '0' ;
+            newSelected[306] = isChecked ? '1' : '0' ;
+            newSelected[307] = isChecked ? '1' : '0' ;
+        }
+        if (id === 2){
+            newSelected[1] = '1';
+            newSelected[118] = isChecked ? '1' : '0' ;
+            newSelected[119] = isChecked ? '1' : '0' ;
+        }
+        if (id === 3){
+            newSelected[1] = '1';
+            newSelected[315] = isChecked ? '1' : '0' ;
+            newSelected[317] = isChecked ? '1' : '0' ;
+        }
+        if (id === 5){
+            newSelected[1] = '1';
+            newSelected[300] = isChecked ? '1' : '0' ;
+            newSelected[301] = isChecked ? '1' : '0' ;
+            newSelected[302] = isChecked ? '1' : '0' ;
+            newSelected[303] = isChecked ? '1' : '0' ;
+        }
+        if (id === 7){
+            newSelected[1] = '1';
+            newSelected[318] = isChecked ? '1' : '0' ;
+        }
+        if (id === 46){
+            newSelected[45] = '1';
+            newSelected[285] = isChecked ? '1' : '0' ;
+        }
+        if (id === 47){
+            newSelected[45] = '1';
+            newSelected[344] = isChecked ? '1' : '0' ;
+        }
+        if (id === 48){
+            newSelected[45] = '1';
+            newSelected[335] = isChecked ? '1' : '0' ;
+            newSelected[334] = isChecked ? '1' : '0' ;
+            newSelected[332] = isChecked ? '1' : '0' ;
+            newSelected[333] = isChecked ? '1' : '0' ;
+        }
+        if (id === 82){
+            newSelected[83] = isChecked ? '1' : '0';
+        }
+        if (id === 101){
+            newSelected[102] = isChecked ? '1' : '0' ;
+            newSelected[103] = isChecked ? '1' : '0' ;
+            newSelected[144] = isChecked ? '1' : '0' ;
+            newSelected[297] = isChecked ? '1' : '0' ;
+            newSelected[319] = isChecked ? '1' : '0' ;
+            newSelected[320] = isChecked ? '1' : '0' ;
+        }
+        if (id === 104){
+            newSelected[105] = isChecked ? '1' : '0' ;
+            newSelected[106] = isChecked ? '1' : '0' ;
+            newSelected[107] = isChecked ? '1' : '0' ;
+            newSelected[314] = isChecked ? '1' : '0' ;
+        }
+        if (id === 108){
+            newSelected[109] = isChecked ? '1' : '0' ;
+            newSelected[120] = isChecked ? '1' : '0' ;
+            newSelected[121] = isChecked ? '1' : '0' ;
+            newSelected[122] = isChecked ? '1' : '0' ;
+            newSelected[110] = isChecked ? '1' : '0' ;
+            newSelected[111] = isChecked ? '1' : '0' ;
+            newSelected[112] = isChecked ? '1' : '0' ;
+            newSelected[210] = isChecked ? '1' : '0' ;
+            newSelected[211] = isChecked ? '1' : '0' ;
+            newSelected[212] = isChecked ? '1' : '0' ;
+            newSelected[126] = isChecked ? '1' : '0' ;
+            newSelected[127] = isChecked ? '1' : '0' ;
+            newSelected[128] = isChecked ? '1' : '0' ;
+            newSelected[129] = isChecked ? '1' : '0' ;
+            newSelected[130] = isChecked ? '1' : '0' ;
+            newSelected[131] = isChecked ? '1' : '0' ;
+            newSelected[132] = isChecked ? '1' : '0' ;
+            newSelected[133] = isChecked ? '1' : '0' ;
+            newSelected[134] = isChecked ? '1' : '0' ;
+            newSelected[135] = isChecked ? '1' : '0' ;
+            newSelected[136] = isChecked ? '1' : '0' ;
+            newSelected[137] = isChecked ? '1' : '0' ;
+            newSelected[123] = isChecked ? '1' : '0' ;
+            newSelected[124] = isChecked ? '1' : '0' ;
+            newSelected[125] = isChecked ? '1' : '0' ;
+            newSelected[115] = isChecked ? '1' : '0' ;
+            newSelected[116] = isChecked ? '1' : '0' ;
+            newSelected[117] = isChecked ? '1' : '0' ;
+            newSelected[277] = isChecked ? '1' : '0' ;
+            newSelected[278] = isChecked ? '1' : '0' ;
+            newSelected[279] = isChecked ? '1' : '0' ;
+            newSelected[280] = isChecked ? '1' : '0' ;
+            newSelected[281] = isChecked ? '1' : '0' ;
+            newSelected[282] = isChecked ? '1' : '0' ;
+            newSelected[283] = isChecked ? '1' : '0' ;
+            newSelected[141] = isChecked ? '1' : '0' ;
+            newSelected[142] = isChecked ? '1' : '0' ;
+            newSelected[143] = isChecked ? '1' : '0' ;
+            newSelected[138] = isChecked ? '1' : '0' ;
+            newSelected[139] = isChecked ? '1' : '0' ;
+            newSelected[140] = isChecked ? '1' : '0' ;
+            newSelected[345] = isChecked ? '1' : '0' ;
+        }
+        if (id === 113){
+            newSelected[114] = isChecked ? '1' : '0' ;
+            newSelected[214] = isChecked ? '1' : '0' ;
+            newSelected[215] = isChecked ? '1' : '0' ;
+            newSelected[216] = isChecked ? '1' : '0' ;
+            newSelected[217] = isChecked ? '1' : '0' ;
+            newSelected[218] = isChecked ? '1' : '0' ;
+            newSelected[295] = isChecked ? '1' : '0' ;
+            newSelected[292] = isChecked ? '1' : '0' ;
+            newSelected[293] = isChecked ? '1' : '0' ;
+            newSelected[294] = isChecked ? '1' : '0' ;
+            newSelected[360] = isChecked ? '1' : '0' ;
+            newSelected[361] = isChecked ? '1' : '0' ;
         }
         // 设置新的选中状态
         setSelected(newSelected);
@@ -605,8 +763,20 @@ const EditUser=(props:any)=>{
             }
         });
     };
+    // 获取角色列表
+    const getRoleList=()=>{
+        props.dispatch({
+            type:'Role/fetch'
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setRoleList(res.Data);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
     useEffect(() => {
-        filterAndUpdateList(props.RoleList, 'role_name', 'id', setRoleList);
+        getRoleList();
     }, []);
     // 下拉选择角色获取角色权限
     const change=(e)=>{
@@ -639,8 +809,8 @@ const EditUser=(props:any)=>{
                     <Select onChange={change}>
                         {roleList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.role_name}
                                 </Select.Option>
                             )
                         })}

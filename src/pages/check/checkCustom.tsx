@@ -3,6 +3,7 @@ import {connect, history} from "umi";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import CustomType from '@/ModelTypes/TypeCustom';
+import {StaticInfo} from "@/StaticInfo";
 
 const CheckCustom=(props)=>{
     const [uid,setUid]=useState(0);
@@ -17,6 +18,8 @@ const CheckCustom=(props)=>{
     const [customEndTime,setCustomEndTime]=useState('2099-01-01');
     // 审核状态  2全部，0未审核，1已审核
     const [customStatus,setCustomStatus]=useState(2);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
 
     const columns =[
         {
@@ -90,7 +93,7 @@ const CheckCustom=(props)=>{
             align:'center',
             render:(text:any,record:any,)=>{
                 let consumptionTypeText;
-                switch (record.demands) {
+                switch (record.reason_lease) {
                     case 1:
                         consumptionTypeText = <Tag color='gold'>首次经营</Tag>;
                         break;
@@ -241,7 +244,7 @@ const CheckCustom=(props)=>{
                         {
                             record.custom_sattus==0?
                                 <Space>
-                                    <Button type='link' onClick={()=>checkOpen(record.id)}>审核通过</Button>
+                                    {uqx[203]=='1'?<Button type='link' onClick={()=>checkOpen(record.id)}>审核通过</Button>:''}
                                     <Button type='link' onClick={()=>toinfo(record.id)}>详情</Button>
                                     <Button type='link' onClick={()=>toEdit(record.id)}>编辑</Button>
                                 </Space>:
@@ -321,7 +324,10 @@ const CheckCustom=(props)=>{
     useEffect(() => {
         logFenye();
     }, [page]);
-
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <List>

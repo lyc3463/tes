@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import * as StaffServer from "@/services/staff";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const CheckContracte=(props:any)=>{
     const [uid,setUid]=useState(0);
@@ -32,6 +33,8 @@ const CheckContracte=(props:any)=>{
     const [oldList,setOldList]=useState([]);
     // 续租前合同列表
     const [xuOpen,setxuOpen]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '合同编号',
@@ -137,7 +140,7 @@ const CheckContracte=(props:any)=>{
                         {record.contractStatus==1||record.contractStatus==4?
                             <>
                                 {/*<Button type='link' onClick={()=>toedit(record)}>编辑</Button>*/}
-                                <Button type='link' onClick={()=>isCheck(record)}>审核</Button>
+                                {uqx[208]=='1'? <Button type='link' onClick={()=>isCheck(record)}>审核</Button> :''}
                                 <Button type='link' onClick={()=>toInfo(record)}>详情</Button>
                             </>:<>
                                 <Button type='link' onClick={()=>{toxiazai(record)}}>详情</Button>
@@ -261,6 +264,10 @@ const CheckContracte=(props:any)=>{
     const onFsOk=()=>{
         console.log('发送');
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     const xucolumns=[
         {
             title: '合同编号',

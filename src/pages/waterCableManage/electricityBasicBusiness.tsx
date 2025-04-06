@@ -122,6 +122,12 @@ const ElectricityBasicBusiness=(props:any)=>{
                     <Input.TextArea/>
                 </Form.Item>
                 {/*<Form.Item label='互感器变化'>*/}
+                {/*    <InputNumber/>*/}
+                {/*</Form.Item>*/}
+                {/*<Form.Item label='负荷控制(kw)'>*/}
+                {/*    <InputNumber/>*/}
+                {/*</Form.Item>*/}
+                {/*<Form.Item label='互感器变化'>*/}
                 {/*    <Input/>*/}
                 {/*</Form.Item>*/}
                 <Form.Item label='其他操作'>

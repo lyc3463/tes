@@ -125,30 +125,30 @@ const AccountModels: CollectorInterface = {
                             payload: location.state,
                         });
                     }
-                if (StaticInfo.userId > 0 && pathname === '/waterCableManage/addCable/') {
-                        dispatch({
-                            type: 'fetch',
-                            payload: location.state,
-                        });
-                    }
-                if (StaticInfo.userId > 0 && pathname === '/waterCableManage/editCable/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/waterCableManage/addWater/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/waterCableManage/editWater/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/waterCableManage/addCable/') {
+                //         dispatch({
+                //             type: 'fetch',
+                //             payload: location.state,
+                //         });
+                //     }
+                // if (StaticInfo.userId > 0 && pathname === '/waterCableManage/editCable/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/waterCableManage/addWater/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/waterCableManage/editWater/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
                 if (StaticInfo.userId > 0 && pathname === '/waterCableManage/collector/') {
                     dispatch({
                         type: 'fenye',

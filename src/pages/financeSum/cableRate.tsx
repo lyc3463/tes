@@ -2,6 +2,7 @@ import {connect} from "umi";
 import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
+import {exportDataToExcel} from "@/utils/OpenTool";
 
 const CableRate=(props)=>{
     // 当前页数
@@ -156,6 +157,24 @@ const CableRate=(props)=>{
             setEndDate(data[1]);
         }
     };
+    const exportToExcel=()=>{
+        let headers=['日期','租户名称','电表地址','电表描述','类型','度数kwh','消耗度数kwh','倍率','扣费金额(元)'];
+        const ws_data = [
+            headers.map(header => ({ v: header, t: 's' })), // 表头
+            ...props.CableRateList.map(item => [
+                item.recordTime.split('T')[0], // 提取日期部分
+                item.tenant_name,
+                item.address,
+                item.remark,
+                item.consumptionType='电费',
+                item.energyNew,
+                item.energyUsage,
+                item.rate,
+                item.eleMoney,
+            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+        ];
+        exportDataToExcel(ws_data);
+    };
     return(
         <div>
             <List>
@@ -192,6 +211,9 @@ const CableRate=(props)=>{
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
+                        </Button>
+                        <Button type="primary" onClick={exportToExcel}>
+                            导出
                         </Button>
                     </Space>
                 </List.Item>

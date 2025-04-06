@@ -5,7 +5,7 @@ export function fetch(vals:any) {
 }
 
 export function edit(vals:any) {
-    return getData(1349, [vals.uid,vals.rise_type,vals.rise_name,vals.duty_paragraph,vals.emailOrPhone,vals.is_default,vals.bankDeposit,vals.bankCard,vals.work_phone,vals.work_address]);
+    return getData(1349, [vals.uid,vals.rise_type,vals.rise_name,vals.duty_paragraph,vals.phone,vals.is_default,vals.bankDeposit,vals.bankCard,vals.work_phone,vals.work_address,vals.email]);
 }
 
 export function remove(vals:any) {

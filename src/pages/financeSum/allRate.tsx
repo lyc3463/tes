@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as RechargeRateService from '@/services/rechargeRate';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {exportDataToExcel} from "@/utils/OpenTool";
 
 const AllRate=(props)=>{
     // 当前页数
@@ -112,6 +113,21 @@ const AllRate=(props)=>{
             setEndDate(data[1]);
         }
     };
+    const exportToExcel=()=>{
+        let headers=['日期','租户名称','手机号','类型','扣费金额(元)','状态'];
+        const ws_data = [
+            headers.map(header => ({ v: header, t: 's' })), // 表头
+            ...dataSource.map(item => [
+                item.payrentDate.split('T')[0], // 提取日期部分
+                item.tenant_name,
+                item.tenant_phone,
+                item.consumptionType='公共缴费',
+                item.payAmount,
+                item.billStatus==1?'未交':'已交',
+            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+        ];
+        exportDataToExcel(ws_data);
+    };
     return(
         <div>
             <List>
@@ -144,6 +160,9 @@ const AllRate=(props)=>{
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
+                        </Button>
+                        <Button type="primary" onClick={exportToExcel}>
+                            导出
                         </Button>
                     </Space>
                 </List.Item>

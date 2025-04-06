@@ -46,20 +46,25 @@ const Tixian=(props:any)=>{
                 )
             }
         },
-        {
-            title: '实际扣款',
-            dataIndex: 'tuijine',
-            key: 'tuijine',
-            render:(text,record)=>{
-                return(
-                    <div>{(record.withdAmount+(record.withdAmount*(record.commission/1000))).toFixed(2)}元</div>
-                )
-            }
-        },
+        // {
+        //     title: '实际扣款',
+        //     dataIndex: 'tuijine',
+        //     key: 'tuijine',
+        //     render:(text,record)=>{
+        //         return(
+        //             <div>{(record.withdAmount+(record.withdAmount*(record.commission/1000))).toFixed(2)}元</div>
+        //         )
+        //     }
+        // },
         {
             title: '到账金额(元)',
             dataIndex: 'withdAmount',
             key: 'withdAmount',
+            render:(text,record)=>{
+                return(
+                    <div>{(record.withdAmount-(record.withdAmount*0.006)).toFixed(2)}元</div>
+                )
+            }
         },
         {
             title: '交易说明',
@@ -127,10 +132,9 @@ const Tixian=(props:any)=>{
     }, [page]);
     return(
         <div>
-            <span style={{color:'red',fontSize:'12px'}}>实际扣款=提现金额+(提现金额*手续费比例)</span>
+            {/*<span style={{color:'red',fontSize:'12px'}}>实际扣款=提现金额+(提现金额*手续费比例)</span>*/}
             <List>
                 <List.Item>
-
                     <Space>
                         <Space.Compact>
                             <div

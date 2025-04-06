@@ -67,6 +67,7 @@ const GongsiModel: GongsiInterface = {
       });
     },
     *add({ payload, callback }, { call, put, take }): any {
+      console.log('添加的参数',payload)
       const result = yield call(GongsiService.add, payload);
       yield put({ type: 'fetch', payload: pl });
       yield take('fetch/@@end');

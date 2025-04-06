@@ -35,6 +35,8 @@ const Device=(props)=>{
     const [synchronousOpen,setsynchronousOpen]=useState(false);
     //转圈
     const [spinning,setspinning]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns = [
         {
             title: '闸机编号',
@@ -53,9 +55,8 @@ const Device=(props)=>{
             dataIndex: 'operation',
             render: (text: any, record: any) => (
                 <Space>
-                    <Button type='primary' onClick={()=>kaimen(record)}>开门</Button>
-                    <Button type='primary' onClick={()=>toedit(record)}>修改</Button>
-
+                    {uqx[209]=='1'?<Button type='primary' onClick={()=>kaimen(record)}>开门</Button> :''}
+                    {uqx[192]=='1'?<Button type='primary' onClick={()=>toedit(record)}>修改</Button>:''}
                 </Space>
             ),
         },
@@ -138,17 +139,17 @@ const Device=(props)=>{
           }
       })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={spinning} style={{zIndex:'10000'}}>
             <List>
                 <List.Item>
                     <Space>
-                        <Button type="primary" onClick={toadd}>
-                            新增闸机
-                        </Button>
-                        <Button type="primary" onClick={()=>setOpen(true)}>
-                            生成访客二维码
-                        </Button>
+                        {uqx[191]=='1'?<Button type="primary" onClick={toadd}>新增闸机</Button>:''}
+                        {uqx[263]=='1'?<Button type="primary" onClick={()=>setOpen(true)}>生成访客二维码</Button>:''}
                         {/*<Button type='primary' onClick={()=>synchronousData()} danger>测试</Button>*/}
                     </Space>
                     <Space>

@@ -7,6 +7,7 @@ import {
 import TypeGongsi from "@/ModelTypes/TypeGongsi";
 import {Button, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
+import {StaticInfo} from "@/StaticInfo";
 
 
 function Gongsiguanli(props: any) {
@@ -23,6 +24,8 @@ function Gongsiguanli(props: any) {
     const [uid,setUid]=useState(0);
     // 删除的名字
     const [uname,setUname]=useState('');
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns = [
         {
             title: '名称',
@@ -76,12 +79,9 @@ function Gongsiguanli(props: any) {
             dataIndex: 'operation',
             render: (_: any, record: any) => (
                 <Space>
-                    <Button type="primary" danger onClick={()=>deteleOpen(record)}>
-                        删除
-                    </Button>
-                    <Button type="link"  type="primary" onClick={()=>toedit(record.id)}>编辑</Button>
+                    {uqx[171]=='1'?<Button type="primary" danger onClick={()=>deteleOpen(record)}>删除</Button>:''}
+                    {uqx[170]=='1'?<Button type="primary" onClick={()=>toedit(record.id)}>编辑</Button>:''}
                 </Space>
-
             ),
         },
     ];
@@ -141,15 +141,17 @@ function Gongsiguanli(props: any) {
             }
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return (
         <>
             <Spin spinning={loading}>
                 <List>
                     <List.Item>
                         <div>
-                            <Button type="primary" onClick={tianjia}>
-                                创建收费项目
-                            </Button>
+                            {uqx[169]=='1'?<Button type="primary" onClick={tianjia}>创建收费项目</Button>:''}
                         </div> 
                         <Space>
                             <Input

@@ -14,7 +14,8 @@ import {byzhuhu} from "@/services/zuhu";
 let pl={
     page:1,
     name:'',
-    phone:''
+    phone:'',
+    pagecount:10
 }
 
 export interface ZuhuCountState {
@@ -56,6 +57,7 @@ const ByzuhuModels: ZuhuInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.Zuhu.list);
@@ -96,7 +98,6 @@ const ByzuhuModels: ZuhuInterface = {
         },
         *fenye({ payload }, { call, put,take }): any {
             const res = yield call(ZuhuService.byfenye, payload?payload:pl);
-
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'count',

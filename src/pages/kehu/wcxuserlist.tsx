@@ -119,7 +119,6 @@ const Wcxuserlist=(props:any)=>{
     // 确定编辑权限
     const onOk=()=>{
         let joinqx=selected.join('');
-        console.log("勾选的权限",joinqx);
         setIsSpinning(true);
         props.dispatch({
             type:'AppUser/edit',

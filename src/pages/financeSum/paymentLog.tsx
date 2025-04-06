@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {Button, DatePicker, Input, List, message, Pagination, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Table, Tag} from "antd";
 import * as PaymentLogService from '@/services/paymentLog';
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -16,9 +16,13 @@ const PaymentLog=()=>{
     const [dataSource,setdataSource]=useState([]);
     // 总条数
     const [count,setcount]=useState(0);
+    // 支付类型
+    const [type,setType]=useState(0);
+    // 支付状态
+    const [stutes,setStutes]=useState(-1);
     // 订单列表
     const getPaymentLogList=()=>{
-        PaymentLogService.fetch({page,orderNum,startDate,endDate}).then((res:TypeErrorCode)=>{
+        PaymentLogService.fetch({page,orderNum,startDate,endDate,type,stutes}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setdataSource(res.Data);
             }else {
@@ -28,7 +32,7 @@ const PaymentLog=()=>{
     };
     // 订单列表分页信息
     const getPaymentLogListfenye=()=>{
-        PaymentLogService.fenye({orderNum,startDate,endDate}).then((res:TypeErrorCode)=>{
+        PaymentLogService.fenye({orderNum,startDate,endDate,type,stutes}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
             }else {
@@ -129,6 +133,14 @@ const PaymentLog=()=>{
     useEffect(() => {
         getPaymentLogList();
     }, [page]);
+    // 监听支付状态
+    const changeStute=(e)=>{
+        setStutes(e);
+    };
+    // 监听支付类型
+    const changeType=(e)=>{
+        setType(e);
+    };
     return(
         <div>
             <List>
@@ -138,6 +150,65 @@ const PaymentLog=()=>{
                             onChange={(e)=>setorderNum(e.target.value)}
                             addonBefore="订单编号:"
                         />
+
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                支付状态:
+                            </div>
+                            <Select
+                                onChange={changeStute}
+                                defaultValue={stutes}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:-1, label: '全部' },
+                                    { value:0, label: '未支付' },
+                                    { value:1, label: '充值成功' },
+                                    { value:2, label: '充值失败' },
+                                    { value:3, label: '支付错误' },
+
+                                ]}
+                            />
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                订单类型:
+                            </div>
+                            <Select
+                                onChange={changeType}
+                                defaultValue={type}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '短信充值' },
+                                    { value:2, label: '微信充值' },
+                                    // { value:2, label: '充值失败' },
+                                    // { value:3, label: '支付错误' },
+
+                                ]}
+                            />
+                        </Space.Compact>
                         <Space.Compact>
                             <div
                                 style={{

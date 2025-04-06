@@ -10,7 +10,9 @@ export function add(vals:any) {
 export function edit(vals:any) {
     // return getData(1012, []);
 }
-
+export function check(vals:any) {
+    return getData(1278, [vals]);
+}
 export function remove(vals:any) {
     // return getData(1013, []);
 }

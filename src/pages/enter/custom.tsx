@@ -29,6 +29,8 @@ const Custom=(props:any)=>{
     // 删除的弹窗
     const [dopen,setDopen]=useState(false);
     const [spinning,setspinning]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     // 到访次数弹窗
     const onaddNum=(e:CustomType)=>{
         setAid(e.id);
@@ -156,7 +158,7 @@ const Custom=(props:any)=>{
             align:'center',
             render:(text:any,record:any,)=>{
                 let consumptionTypeText;
-                switch (record.demands) {
+                switch (record.reason_lease) {
                     case 1:
                         consumptionTypeText = <Tag color='gold'>首次经营</Tag>;
                         break;
@@ -308,9 +310,9 @@ const Custom=(props:any)=>{
                     <div>
                         <Space>
                             {record.custom_sattus==0?<>
-                                    <Button type='link' onClick={()=>onaddNum(record)}>增加到访次数</Button>
-                                    <Button type='link' onClick={()=>toEdit(record.id)}>编辑</Button>
-                                    <Button type='link' onClick={()=>isdel(record.id)}>删除</Button>
+                                    {uqx[155]=='1'?<Button type='link' onClick={()=>toEdit(record.id)}>编辑</Button>:''}
+                                    {uqx[156]=='1'?<Button type='link' onClick={()=>isdel(record.id)}>删除</Button>:''}
+                                    {uqx[342]=='1'?<Button type='link' onClick={()=>onaddNum(record)}>增加到访次数</Button>:''}
                                 </>
                                 :''}
                             <Button type='link' onClick={()=>toinfo(record.id)}>详情</Button>
@@ -393,14 +395,16 @@ const Custom=(props:any)=>{
     useEffect(() => {
         logFenye();
     }, [page]);
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            客户录入
-                        </Button>
+                        {uqx[154]=='1'?<Button type="primary" onClick={toadd}>客户录入</Button>:''}
                     </div>
                     <Space>
                         <Input

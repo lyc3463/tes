@@ -12,12 +12,14 @@ import {
     Tag,
     Pagination,
     Modal,
-    message, Spin
+    message,
+    Spin
 } from "antd";
 import {UploadOutlined} from "@ant-design/icons";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {connect} from "umi";
+import {StaticInfo} from "@/StaticInfo";
 
 const AccessControlPurview=(props:any)=>{
     // 当前页数
@@ -37,6 +39,8 @@ const AccessControlPurview=(props:any)=>{
     const [uid,setUid]=useState(0);
     // 加载转圈
     const [spinning,setspinning]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '登记日期',
@@ -96,7 +100,7 @@ const AccessControlPurview=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        <Button type='primary' onClick={()=>isDelete(record)}>删除</Button>
+                        {uqx[264]=='1'?<Button type='primary' onClick={()=>isDelete(record)}>删除</Button>:''}
                     </div>
                 )
             }
@@ -162,6 +166,10 @@ const AccessControlPurview=(props:any)=>{
           }
       })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>
@@ -179,7 +187,6 @@ const AccessControlPurview=(props:any)=>{
                             onChange={changePhone}
                             addonBefore="手机号:"
                         />
-
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>

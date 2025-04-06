@@ -1,7 +1,8 @@
-import {Button, Form, Input, List, message, Modal, Select, Space, Table} from "antd";
+import {Button, Form, Input, List, message, Modal, Select, Space, Table, Tabs} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import * as CompanService from "@/services/compan";
+import {StaticInfo} from "@/StaticInfo";
 
 const CompanyList=(props:any)=>{
     // 需要删除的id
@@ -11,6 +12,8 @@ const CompanyList=(props:any)=>{
     // 公司关联有的所有项目
     const [projectList,setProjectList]=useState([]);
     const [name,setName]=useState('');
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
 
         {
@@ -25,8 +28,8 @@ const CompanyList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        <Button onClick={()=>toedit(record.id)} type='primary'>编辑</Button>
-                        <Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>
+                        {uqx[147]=='1'?<Button onClick={()=>toedit(record.id)} type='primary'>编辑</Button>:''}
+                        {uqx[148]=='1'?<Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>:''}
                     </Space>
                 )
             }
@@ -73,15 +76,21 @@ const CompanyList=(props:any)=>{
     const sousuo=()=>{
         getList()
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
-
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary"  onClick={toaddCompany}>
-                            添加公司
-                        </Button>
+                        {uqx[146]=='1'?
+                            <Button type="primary"  onClick={toaddCompany}>
+                                添加公司
+                            </Button>
+                            :''}
+
                     </div>
                     <Space>
                         <Input

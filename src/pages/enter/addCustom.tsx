@@ -1,4 +1,4 @@
-import {Button, DatePicker, Form, Input, message, Select, Space, Spin} from "antd";
+import {Button, DatePicker, Form, Input, message, Select, Space, Spin, Tooltip} from "antd";
 import {useEffect, useState} from "react";
 import {connect, history} from "umi";
 import {getCurrentDate, phonePattern,replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
@@ -25,6 +25,10 @@ const AddCustom=(props:any)=>{
     const [disp,setDisp]=useState(false);
     const [remark,setremarks]=useState('');
     const [spinning,setspinning]=useState(false);
+    // 客户名字
+    const [custom_name,setcustom_name]=useState('');
+    // 公司名称
+    const [company_name,setcompany_name]=useState('');
     useEffect(() => {
         setCustom_date(getCurrentDate());
     }, []);
@@ -33,7 +37,7 @@ const AddCustom=(props:any)=>{
         setspinning(true);
         let res=await props.dispatch({
             type:'Custom/add',
-            payload:{...values,custom_date,visitor_channels,visitor_type,reason_lease,required_area,demands,remark}
+            payload:{...values,custom_date,visitor_channels,visitor_type,reason_lease,required_area,demands,remark,custom_name,company_name}
         });
         if (res.ErrorCode==0){
             setDisp(false);
@@ -80,7 +84,7 @@ const AddCustom=(props:any)=>{
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
                 form={form}
-                initialValues={{intermediary_company:'',required_area:1,visitor_position:'',company_name:'',industry:'',visitor_channels:1,intermediary_name:'',office_area:'',reason_lease:1,demands:1,remark:'',visitor_type:1,intermediary_phone:''}}
+                initialValues={{intermediary_company:'',required_area:1,visitor_position:'',industry:'',visitor_channels:1,intermediary_name:'',office_area:'',reason_lease:1,demands:1,remark:'',visitor_type:1,intermediary_phone:''}}
                 layout="horizontal"
                 size={'large'}
                 onFinish={onFinish}
@@ -91,8 +95,10 @@ const AddCustom=(props:any)=>{
                         <Form.Item label='登记日期' style={{width:'200px'}}>
                             <DatePicker onChange={getDataInfo} defaultValue={dayjs(custom_date)}/>
                         </Form.Item>
-                        <Form.Item label='客户姓名' name='custom_name' rules={[{required: true, message: '请输入客户姓名' }]} style={{width:'200px'}}>
-                            <Input placeholder='客户姓名'/>
+                        <Form.Item label='客户姓名' style={{width:'200px'}}>
+                            <Tooltip title={custom_name} >
+                                <Input placeholder='客户姓名' onChange={(e)=>setcustom_name(e.target.value)}/>
+                            </Tooltip>
                         </Form.Item>
                         <Form.Item label='联系方式' name='phone' rules={[{required: true, message: '请输入手机号' },{pattern: phonePattern, message: '请输入有效的手机号'}]} style={{width:'250px'}}>
                             <Input placeholder='联系方式'/>
@@ -109,8 +115,10 @@ const AddCustom=(props:any)=>{
                 </Form.Item>
                 <Form.Item style={{display:'flex'}} {...tailLayout}>
                     <Space size='large'>
-                        <Form.Item label='公司名称' name='company_name' style={{width:'200px'}}>
-                            <Input placeholder='请填写公司'/>
+                        <Form.Item label='公司名称' style={{width:'200px'}}>
+                            <Tooltip title={company_name} >
+                                <Input placeholder='请填写公司' onChange={(e)=>setcompany_name(e.target.value)}/>
+                            </Tooltip>
                         </Form.Item>
                         <Form.Item label='行业' name='industry' style={{width:'200px'}}>
                             <Input placeholder='行业'/>

@@ -9,7 +9,13 @@ import styles from "@/pages/contract/endContran.less";
 import "@/pages/contract/endContran.less";
 import html2pdf from "html2pdf.js";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {numberToRMB, calculateTotalRentalDays, calculateYearsAndMonths} from "@/utils/OpenTool";
+import {
+    numberToRMB,
+    calculateTotalRentalDays,
+    calculateYearsAndMonths,
+    contractsDz,
+    groupImages, getUserNamesById
+} from "@/utils/OpenTool";
 const tailLayout = {
     wrapperCol: { offset: 3 },
 };
@@ -144,12 +150,12 @@ const Contractez = () => {
         },
         {
             title: '月租金金额（人民币）',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'zuMoney',
+            key: 'zuMoney',
             render:(text:any,record:any,)=>{
                 return(
                       <p className={styles.linheP} >
-                        {(((record.incremental/100)*zuMoney)+zuMoney).toFixed(2)}元
+                        {record.zuMoney}元
                     </p>
                 )
             }
@@ -218,7 +224,7 @@ const Contractez = () => {
                 setelePrice(res.Data[0].elePrice);
                 setzuMoney(res.Data[0].zuMoney);
                 setmzq(res.Data[1]);
-                setdz(res.Data[2]);
+                setdz(contractsDz(res.Data[0].zuMoney,res.Data[2]));
                 setoffice_area(res.Data[0].customAddress);
                 setcustom_name(res.Data[0].customName);
                 setyiphone(res.Data[0].customPhone);
@@ -228,9 +234,12 @@ const Contractez = () => {
                 setrentable_area(sum);
                 setunit_type(res.Data[0].unitType);
                 let unitImagesp=res.Data[0].unitImage.split('|');
-                setunitImage(unitImagesp);
+                let newunitB64=groupImages(unitImagesp, 4);
+                console.log('单元平面图',newunitB64);
+                setunitImage(newunitB64);
                 let tenantImagesp=res.Data[0].tenantImage.split('|');
-                setB64(tenantImagesp);
+                let newczB64=groupImages(tenantImagesp, 4);
+                setB64(newczB64);
                 let documentImagesp=res.Data[0].documentImage.split('|');
                 setdocumentImage(documentImagesp);
                 let joinData=JSON.parse(res.Data[0].goodsJson);
@@ -263,6 +272,7 @@ const Contractez = () => {
         const arr = str.split(',');
         const numbers = arr.map(Number);
         sum = numbers.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        console.log("总计",sum);
         return sum
     };
     return (
@@ -286,7 +296,7 @@ const Contractez = () => {
                           <p className={styles.linheP}  style={{    fontWeight: 500, fontSize: '24px' }}>第一条：房屋状况</p>
                           <p className={styles.linheP}  >
                               <span style={{ fontSize: "1rem", fontWeight: 600 }}>1.</span>甲方将位于{rentAddress}{unit_name}房号的建筑物（以下简称“租赁物”）出租给乙方使用。经甲乙双
-                              方认可确定租赁物面积约为{rentable_area}1．平方米计（本合同与面积相关的费用计算均以此面积为基础，其他方式的测量均不影响对该租赁面积的确认，双方均不得以租赁面积与实际交付面积存在误差为由解除合同或要求对方支付补偿或赔偿）。签订本合同前，乙方已充分获悉租赁物的现场情况、土地性质、规划用途和消防、竣工及产权状况，本项目周边市政配套及道路等，乙方承诺在租赁期限内或本合同终止后，不再以前述任何理由要求解除本合同或调整租赁面积或要求甲方退还、减免租金、物业费等款项。
+                              方认可确定租赁物面积约为{rentable_area}平方米计（本合同与面积相关的费用计算均以此面积为基础，其他方式的测量均不影响对该租赁面积的确认，双方均不得以租赁面积与实际交付面积存在误差为由解除合同或要求对方支付补偿或赔偿）。签订本合同前，乙方已充分获悉租赁物的现场情况、土地性质、规划用途和消防、竣工及产权状况，本项目周边市政配套及道路等，乙方承诺在租赁期限内或本合同终止后，不再以前述任何理由要求解除本合同或调整租赁面积或要求甲方退还、减免租金、物业费等款项。
                           </p>
                           <p className={styles.linheP}  >
                               <span style={{ fontSize: "1rem", fontWeight: 600 }}>2.</span>
@@ -786,7 +796,7 @@ const Contractez = () => {
                         附件五 双方证照文件
                     </p>
                       <p className={styles.linheP}  >
-                        附件六 《关于钱市街小程序使用的告知书》
+                        附件六 《关于钱汇助手平台使用的协议书》
                     </p>
                       <p className={styles.linheP}  >
                         附件七 《安全生产责任书》
@@ -952,37 +962,36 @@ const Contractez = () => {
                     </p>
                       <p className={styles.linheP}  >
                         <h3>
-                            附件六：关于钱市街小程序使用的告知书
+                            附件六：关于钱汇助手平台使用的协议书
                         </h3>
                     </p>
-                      <p className={styles.linheP}  style={{   textAlign: 'center' }}>
-                        <h2>
-                            关于钱市街小程序使用的告知书
-                        </h2>
-                    </p>
+                      <p className={styles.linheP}  style={{   textAlign: 'center', margin:'20px 0' }}>
+                          <h2>
+                              关于钱汇助手平台使用的协议书
+                          </h2>
+                      </p>
                       <p className={styles.linheP}  >
-                        <h4>
-                            尊敬的商户：
-                        </h4>
+                          <h4>
+                              甲方：{companyName}
+                          </h4>
+                          <h4>
+                              乙方：{custom_name}
+                          </h4>
+                      </p>
+                      <p className={styles.linheP}  >
+                          为了提高服务效率，更及时反馈租户的费用信息，甲方委托广州欢逗八动漫科技有限公司开发了《钱汇助手》电子商务平台进行缴费管理，其中包含了短信提醒服务、账务管理以及欠费项目提示等诸多功能，乙方可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；乙方同意通过前述平台自助缴纳水电费、物业服务费、租金等相关费用并承诺合理安排缴费时间、金额，避免因拖欠水、电、物业服务费、租金等费用导致受限。
+                      </p>
+                      <p className={styles.linheP}     >
+                          乙方确认《钱汇助手》缴费流程如下：
                     </p>
                       <p className={styles.linheP}     >
-                        您好！
+                          使用微信搜索《钱汇助手》小程序，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。乙方可以自主在小程序根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。
                     </p>
                       <p className={styles.linheP}     >
-                        为了提高服务效率，更及时反馈商户的费用信息，我司统一采用《钱市街小程序》电子商务平台进行缴费管理，其中包含了微信提醒服务、账务管理以及欠费项目提示等诸多功能，各商户可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；请商户合理安排缴费时间、金额，避免因拖欠水电费用导致受限。
-                    </p>
-                      <p className={styles.linheP}     >
-                        缴费流程如下：
-                    </p>
-                      <p className={styles.linheP}     >
-                        请使用微信搜索《钱市街小程序》，关注公众号，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。各商户届时可以自主在公众号根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。谢谢！
-                    </p>
-                      <p className={styles.linheP}     >
-                        { companyName}
-                    </p>
-                      <p className={styles.linheP}     >
-                        日期:
-                    </p>
+                          本协议书经双方签署之日起生效。
+                      </p>
+                      <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                      <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
                       <p className={styles.linheP}  style={{ display: 'flex', justifyContent: 'center' }}>
                           <p className={styles.linheP}  style={{ width: '80%', borderBottom: '1px solid #000' }}>
                         </p>
@@ -1253,7 +1262,7 @@ const Contractez = () => {
                               <p  style={{    fontWeight: 500, fontSize: '24px' }} className={styles.linheP}>第一条：房屋状况</p>
                               <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 600 ,marginLeft:'20px'}}>1.</span>甲方将位于{rentAddress}{unit_name}房号的建筑物（以下简称“租赁物”）出租给乙方使用。
-                                经甲乙双方认可确定租赁物面积约为{rentable_area}1．平方米计（本合同与面积相关的费用计算均以此面积为基础，其他方式的测量均不影响对该租赁面积的确认，双方均不得以租赁面积与实际交付面积存在误差为由解除合同或要求对方支付补偿或赔偿）。签订本合同前，乙方已充分获悉租赁物的现场情况、土地性质、规划用途和消防、竣工及产权状况，本项目周边市政配套及道路等，乙方承诺在租赁期限内或本合同终止后，不再以前述任何理由要求解除本合同或调整租赁面积或要求甲方退还、减免租金、物业费等款项。
+                                经甲乙双方认可确定租赁物面积约为{rentable_area}平方米计（本合同与面积相关的费用计算均以此面积为基础，其他方式的测量均不影响对该租赁面积的确认，双方均不得以租赁面积与实际交付面积存在误差为由解除合同或要求对方支付补偿或赔偿）。签订本合同前，乙方已充分获悉租赁物的现场情况、土地性质、规划用途和消防、竣工及产权状况，本项目周边市政配套及道路等，乙方承诺在租赁期限内或本合同终止后，不再以前述任何理由要求解除本合同或调整租赁面积或要求甲方退还、减免租金、物业费等款项。
                             </p>
                               <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 600,marginLeft:'20px' }}>2.</span>
@@ -1296,15 +1305,33 @@ const Contractez = () => {
                                   合同保证金：本租赁合同的保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
                                   如乙方违反本合同之规定，甲方有权将租赁保证金没收或做相应扣除，乙方在接到甲方扣除通知后的十五日内将甲方扣除的租赁保证金补足给甲方。
                               </p>
-                          </p>
-                          <p style={{height:'1050px'}}>
                               <p className={styles.linheP}>
                                   <span style={{ fontSize: "1rem", fontWeight: 600 ,marginLeft:'20px'}}>2.</span>
                                   租金：租赁物租金第1年起为每月{zuMoney}元第2年起每年租金将在上年的基础上递增,合同租金递增明细如下:
                               </p>
                               <p className={styles.linheP}   >
-                                  <Table columns={columns} dataSource={dz}  rowKey={(columns) => columns.id} size='small' pagination={false}/>
+                                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                                      <thead>
+                                      <tr>
+                                          <th style={{ border: "1px solid #ddd",textAlign:'center'}}>租期</th>
+                                          <th style={{ border: "1px solid #ddd",textAlign:'center'}}>递增比例</th>
+                                          <th style={{ border: "1px solid #ddd",textAlign:'center'}}>月租金金额(人民币)</th>
+                                      </tr>
+                                      </thead>
+                                      <tbody>
+                                      {dz.map((row) => (
+                                          <tr key={row.id}>
+                                              <td style={{ border: "1px solid #ddd",textAlign:'center' }}>{dayjs(row.beginTime).format('YYYY-MM-DD')}至{dayjs(row.endTime).format('YYYY-MM-DD')}</td>
+                                              <td style={{ border: "1px solid #ddd",textAlign:'center'}}>{row.incremental}%</td>
+                                              <td style={{ border: "1px solid #ddd" ,textAlign:'center'}}>{row.zuMoney}</td>
+                                          </tr>
+                                      ))}
+                                      </tbody>
+                                  </table>
                               </p>
+                          </p>
+                          <p style={{height:'1050px'}}>
+
                               <p className={styles.linheP}   >
                                   <span style={{ fontSize: "1rem", fontWeight: 600 ,marginLeft:'20px'}}>3.</span>
                                   租金按月结算。乙方在本合同签署日支付首月租金给甲方；除首月租金外，乙方在每月二十八日前（按自然月计算）向甲方支付次月租金。
@@ -1776,7 +1803,7 @@ const Contractez = () => {
                                   附件五 双方证照文件
                               </p>
                               <p className={styles.linheP}     >
-                                  附件六 《关于钱市街小程序使用的告知书》
+                                  附件六 《关于钱汇助手平台使用的协议书》
                               </p>
                               <p className={styles.linheP}  >
                                   附件七 《安全生产责任书》
@@ -1791,19 +1818,47 @@ const Contractez = () => {
                               <p className={styles.linheP}><span style={{ marginRight: '200px' }}>法定代表人:</span><span>法定代表人:</span></p>
                               <p className={styles.linheP}><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
                         </p>
-                          <p  style={{height:'1030px'}}>
+                          <p>
                               <h3>
                                   附件一：《租赁物平面图》
                               </h3>
-                              <p className={styles.linheP} >
-                                  <div style={{display:'flex'}}>
-                                      {unitImage.length>0?
-                                          unitImage.map((item:any,index:any)=>{
-                                              return   <Space key={index}>
-                                                  <Image src={item} style={{width:'300px',height:'300px'}}/>
-                                              </Space>
-                                          })
-                                          :''}
+                              <p>
+                                  <div>
+                                      {unitImage.map((group, groupIndex) => (
+                                          <div
+                                              key={groupIndex}
+                                              style={{
+                                                  height: "1000px",
+                                                  display: "flex",
+                                                  flexDirection: "column",
+                                                  justifyContent: "flex-start",
+                                                  alignItems: "flex-start",
+                                                  pageBreakAfter: "always", // 用于打印时分页
+                                              }}
+                                          >
+                                              <h4>
+                                                  1.{groupIndex + 1}
+                                              </h4>
+                                              <div style={{ display: "flex", flexWrap: "wrap" }}>
+                                                  {group.map((item, index) => (
+                                                      <Space key={index}>
+                                                          <Image
+                                                              src={item}
+                                                              style={{ width: "300px", margin: "5px", maxHeight: "400px" }}
+                                                          />
+                                                      </Space>
+                                                  ))}
+                                              </div>
+                                          </div>
+                                      ))}
+
+                                      {/*{unitImage.length>0?*/}
+                                      {/*    unitImage.map((item:any,index:any)=>{*/}
+                                      {/*        return   <Space key={index}>*/}
+                                      {/*            <Image src={item} style={{width:'300px',height:'300px'}}/>*/}
+                                      {/*        </Space>*/}
+                                      {/*    })*/}
+                                      {/*    :''}*/}
                                   </div>
                               </p>
                           </p>
@@ -1813,7 +1868,25 @@ const Contractez = () => {
                                       附件二：1、房屋内交付标准及物品清单
                                   </h3>
                                   <p className={styles.linheP} >
-                                      <Table columns={wupinTab} rowKey={(columns) => columns.key} dataSource={wupinList} size='small' style={{width:'600px'}}  pagination={false}/>
+                                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                                          <thead>
+                                          <tr>
+                                              <th style={{ border: "1px solid #ddd",textAlign:'center'}}>物品名称</th>
+                                              <th style={{ border: "1px solid #ddd",textAlign:'center'}}>物品标准</th>
+                                              <th style={{ border: "1px solid #ddd",textAlign:'center'}}>物品数量</th>
+                                          </tr>
+                                          </thead>
+                                          <tbody>
+                                          {wupinList.map((row) => (
+                                              <tr key={row.id}>
+                                                  <td style={{textAlign:'center' }}>{row.wupinName}</td>
+                                                  <td style={{ textAlign:'center'}}>{row.wupininfo}</td>
+                                                  <td style={{textAlign:'center'}}>{row.wupinNuber}</td>
+                                              </tr>
+                                          ))}
+                                          </tbody>
+                                      </table>
+                                      {/*<Table columns={wupinTab} rowKey={(columns) => columns.key} dataSource={wupinList} size='small' style={{width:'600px'}}  pagination={false}/>*/}
                                   </p>
                               </p>
 
@@ -1920,38 +1993,40 @@ const Contractez = () => {
                                   签约日期:
                               </p>
                           </p>
-                          <p style={{height:'1030px'}}>
-                              <p >
-                                  <h3  >
+                          <p>
+                              <p>
+                                  <h3>
                                       附件五：双方证照文件
                                   </h3>
-                                  <p >
-                                      <h4>
-                                          1、承租方证照文件
-                                          <div style={{display:'flex',flexWrap:'wrap'}}>
-                                              {b64.length>0 ?b64.map((item:any,index:number)=>  <Space   key={index}>
-                                                      <Image src={item} style={{width:'300px',margin:'5px'}} />
-                                                  </Space>
-
-                                              ) : ''}
-                                          </div>
-
-                                      </h4>
-                                  </p>
-                                  {/*<p className={styles.linheP}    >*/}
-                                  {/*    <h4>*/}
-                                  {/*        2、出租方证照文件*/}
-                                  {/*    </h4>*/}
-                                  {/*    <div style={{display:'flex'}}>*/}
-                                  {/*        {documentImage.length>0 ?documentImage.map((item:any,index:number)=>  <Space   key={index}>*/}
-                                  {/*                <Image src={item} style={{ width: '200px',height:'200px',margin:'5px' }} />*/}
-                                  {/*            </Space>*/}
-
-                                  {/*        ) : ''}*/}
-                                  {/*    </div>*/}
-                                  {/*</p>*/}
                               </p>
                           </p>
+                          {b64.map((group, groupIndex) => (
+                              <div
+                                  key={groupIndex}
+                                  style={{
+                                      height: "1000px",
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      justifyContent: "flex-start",
+                                      alignItems: "flex-start",
+                                      pageBreakAfter: "always", // 用于打印时分页
+                                  }}
+                              >
+                                  <h4>
+                                      1.{groupIndex + 1}承租方证照文件
+                                  </h4>
+                                  <div style={{ display: "flex", flexWrap: "wrap" }}>
+                                      {group.map((item, index) => (
+                                          <Space key={index}>
+                                              <Image
+                                                  src={item}
+                                                  style={{ width: "300px", margin: "5px", maxHeight: "400px" }}
+                                              />
+                                          </Space>
+                                      ))}
+                                  </div>
+                              </div>
+                          ))}
                           <p style={{height:'1030px'}}>
                               <p className={styles.linheP}    >
                                   <h4>
@@ -1959,7 +2034,7 @@ const Contractez = () => {
                                   </h4>
                                   <div style={{display:'flex'}}>
                                       {documentImage.length>0 ?documentImage.map((item:any,index:number)=>  <Space   key={index}>
-                                              <Image src={item}  />
+                                              <Image src={item}  style={{ width:'300px',margin:'5px',maxHeight:'400px'}}/>
                                           </Space>
 
                                       ) : ''}
@@ -1970,58 +2045,42 @@ const Contractez = () => {
                               <p  >
                                   <p>
                                       <h3 >
-                                          附件六：关于钱市街小程序使用的告知书
+                                          附件六：关于钱汇助手平台使用的协议书
                                       </h3>
                                   </p>
                                   <p className={styles.linheP}  style={{   textAlign: 'center', margin:'20px 0' }}>
                                       <h2>
-                                          关于钱市街小程序使用的告知书
+                                          关于钱汇助手平台使用的协议书
                                       </h2>
                                   </p>
                                   <p className={styles.linheP}  >
                                       <h4>
-                                          尊敬的商户：
+                                          甲方：{companyName}
+                                      </h4>
+                                      <h4>
+                                          乙方：{custom_name}
                                       </h4>
                                   </p>
-                                  <p className={styles.linheP}     >
-                                      您好！
-                                  </p>
-                                  <p className={styles.linheP}      >
-                                      为了提高服务效率，更及时反馈商户的费用信息，我司统一采用《钱市街小程序》电子商务平台进行缴费管理，其中包含了微信提醒服务、账务管理以及欠费项目提示等诸多功能，各商户可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；请商户合理安排缴费时间、金额，避免因拖欠水电费用导致受限。
+                                  <p className={styles.linheP}  >
+                                      为了提高服务效率，更及时反馈租户的费用信息，甲方委托广州欢逗八动漫科技有限公司开发了《钱汇助手》电子商务平台进行缴费管理，其中包含了短信提醒服务、账务管理以及欠费项目提示等诸多功能，乙方可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；乙方同意通过前述平台自助缴纳水电费、物业服务费、租金等相关费用并承诺合理安排缴费时间、金额，避免因拖欠水、电、物业服务费、租金等费用导致受限。
                                   </p>
                                   <p className={styles.linheP}     >
-                                      缴费流程如下：
-                                  </p>
-                                  <p className={styles.linheP}      >
-                                      请使用微信搜索《钱市街小程序》，关注公众号，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。各商户届时可以自主在公众号根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。谢谢！
+                                      乙方确认《钱汇助手》缴费流程如下：
                                   </p>
                                   <p className={styles.linheP}     >
-                                      { companyName}
+                                      使用微信搜索《钱汇助手》小程序，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。乙方可以自主在小程序根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。
                                   </p>
-                                  <p className={styles.linheP}      >
-                                      日期:
+                                  <p className={styles.linheP}     >
+                                      本协议书经双方签署之日起生效。
                                   </p>
+                                  <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                                  <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
                               </p>
                               <p style={{ display: 'flex', justifyContent: 'center',margin:'100px 0' }}>
                                   <p   style={{ width: '80%', borderBottom: '1px solid #000' }}>
                                   </p>
                               </p>
-                              <p className={styles.linheP}  style={{   textAlign: 'center' }}>
-                                  <h3>
-                                      关于钱市街小程序使用的告知书——签收联
-                                  </h3>
-                              </p>
-                              <p className={styles.linheP}      >
-                                  签收人:
-                              </p>
-                              <p className={styles.linheP}     >
-                                  租赁单元:{companyAddress}{unit_name}
-                              </p>
-                              <p className={styles.linheP}      >
-                                  签收日期:
-                              </p>
                           </p>
-
                           <p style={{height:'1010px'}}>
                               <p className={styles.linheP}  >
                                   <h3>

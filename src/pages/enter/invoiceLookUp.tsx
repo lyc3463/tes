@@ -2,6 +2,7 @@ import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Spa
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import {StaticInfo} from "@/StaticInfo";
 const InvoiceLookUp=(props:any)=>{
     const [page,setPage]=useState(1);
     // 状态 0全部，1未审核，2审核通过
@@ -17,17 +18,19 @@ const InvoiceLookUp=(props:any)=>{
     const [deleteOpen,setDeleteOpen]=useState(false);
     // 删除的弹窗
     const [spinning,setspinning]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
-        {
-            title: '日期',
-            dataIndex: 'created',
-            key: 'created',
-            render:(_:any,record:any)=>(
-                <div>
-                    {dayjs(record.created).format("YYYY-MM-DD")}
-                </div>
-            )
-        },
+        // {
+        //     title: '日期',
+        //     dataIndex: 'created',
+        //     key: 'created',
+        //     render:(_:any,record:any)=>(
+        //         <div>
+        //             {dayjs(record.created).format("YYYY-MM-DD")}
+        //         </div>
+        //     )
+        // },
         {
             title: '抬头类型',
             dataIndex: 'rise_type',
@@ -45,11 +48,33 @@ const InvoiceLookUp=(props:any)=>{
             dataIndex: 'rise_name',
             key: 'rise_name',
         },
-        // {
-        //     title: '税号',
-        //     dataIndex: 'duty_paragraph',
-        //     key: 'duty_paragraph',
-        // },
+        {
+            title: '单元',
+            dataIndex: 'duty_paragraph',
+            key: 'duty_paragraph',
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '租户手机号',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
+        },
+        {
+            title: '租户姓名',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
+        },
         {
             title: '状态',
             dataIndex: 'riseStatus',
@@ -69,7 +94,7 @@ const InvoiceLookUp=(props:any)=>{
                    <Space>
                        {record.riseStatus==2?'':<Button type='primary' onClick={()=>check(record)}>审核通过</Button>}
                        <Button type='primary' onClick={()=>toedit(record)}>编辑</Button>
-                       <Button type='primary' danger onClick={()=>deleteClick(record)}>删除</Button>
+                       {uqx[322]=='1'? <Button type='primary' danger onClick={()=>deleteClick(record)}>删除</Button>:''}
                    </Space>
                 )
             }
@@ -150,6 +175,10 @@ const InvoiceLookUp=(props:any)=>{
     const toedit=(e)=>{
         history.push(`/enter/editInvoiceLookUp?id=${e.id}`);
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>

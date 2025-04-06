@@ -442,7 +442,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:1.9.5</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.0.8</p>
                 </div>
               </Form.Item>
             </Form>
@@ -484,7 +484,7 @@ export default function Login() {
             form={editForm}
             onFinish={onOKmm}
         >
-          <Form.Item label='输入密码' name='password' rules={[{required: true, message: '请输入密码' },{pattern: pwdPattern, message: '密码必须包含HXtz@加后八位数'}]}>
+          <Form.Item label='输入密码' name='password' rules={[{required: true, message: '请输入密码' },{pattern: pwdPattern, message: '密码必须包含大小写加特殊符号，总长度6位以上'}]}>
             <Input.Password/>
           </Form.Item>
           <Form.Item

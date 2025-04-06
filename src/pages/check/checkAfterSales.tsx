@@ -5,18 +5,25 @@ import CheckRenew from "@/pages/check/checkRenew";
 import CheckOutRent from "@/pages/check/checkOutRent";
 import CheckPreferential from "@/pages/check/checkPreferential";
 import CheckByStages from "@/pages/check/checkByStages";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {StaticInfo} from "@/StaticInfo";
 
 
 const CheckAfterSales=()=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('activeTabKey2') || '1');
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const onChange = (key) => {
         setActiveKey(key);
         sessionStorage.setItem('activeTabKey2', key);
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
-            <Tabs  activeKey={activeKey} onChange={onChange}>
+            <Tabs>
                 <Tabs.TabPane tab='更名审核' key='1'>
                     <CheckRename/>
                 </Tabs.TabPane>

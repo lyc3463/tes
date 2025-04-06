@@ -2,12 +2,15 @@ import {Button, DatePicker, Image, Input, List, message, Modal, Space, Spin, Tab
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const Role=(props)=>{
     const [uid,setUid]=useState(0);
     const [isOpen,setIsopen]=useState(false);
     const [isspinning,setisspinning]=useState(false);
     const [name,setName]=useState('');
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '角色名称',
@@ -21,8 +24,8 @@ const Role=(props)=>{
             render:(text:any,record:any,)=>{
                 return(
                    <Space>
-                       <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
-                       <Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>
+                       {uqx[293]=='1'?<Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>:''}
+                       {uqx[294]=='1'?<Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>:''}
                    </Space>
                 )
             }
@@ -66,6 +69,8 @@ const Role=(props)=>{
         })
     };
     useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
         logfenye();
     }, []);
     return(
@@ -73,9 +78,7 @@ const Role=(props)=>{
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            添加角色
-                        </Button>
+                        {uqx[292]=='1'?<Button type="primary" onClick={toadd}>添加角色</Button>:''}
                     </div>
                     <Space>
                         <Input

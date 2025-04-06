@@ -11,13 +11,10 @@ import { StaticInfo } from '@/StaticInfo';
 import TypeHire from '@/ModelTypes/TypeHire';
 import { fixPathname } from '@/utils/common';
 let pl = {
-    page:1,
     name:'',
-    phone:'',
     beginRents:0,
-    endRents:99999999,
-    stutes:0,
-    house_id:0
+    endRents:999999999
+
 };
 
 export interface HireCountState {
@@ -31,7 +28,7 @@ export interface HireInterface {
     state: Object;
     effects: {
         fetch: Effect;
-        fenye:Effect;
+        // fenye:Effect;
     };
     reducers: {
         list: Reducer<TypeHire[]>;
@@ -55,17 +52,17 @@ const HireModel: HireInterface = {
                 message.error(res.ErrorCode + res.Data);
             }
         },
-        *fenye({ type, payload }, { put, call, select }): any {
-            const res = yield call(HireService.fenye,payload?payload: pl);
-            if (res.ErrorCode == 0) {
-                yield put({
-                    type: 'count',
-                    payload: { count: res.Data },
-                });
-            } else {
-                message.error(res.ErrorCode + res.Data);
-            }
-        },
+        // *fenye({ type, payload }, { put, call, select }): any {
+        //     const res = yield call(HireService.fenye,payload?payload: pl);
+        //     if (res.ErrorCode == 0) {
+        //         yield put({
+        //             type: 'count',
+        //             payload: { count: res.Data },
+        //         });
+        //     } else {
+        //         message.error(res.ErrorCode + res.Data);
+        //     }
+        // },
 
     },
     reducers: {
@@ -92,18 +89,18 @@ const HireModel: HireInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/hire/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/hire/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/hire/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/hire/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
 
             });
         },

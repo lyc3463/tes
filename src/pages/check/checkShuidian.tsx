@@ -55,6 +55,33 @@ const CheckShuidian=(props)=>{
             }
         },
         {
+            title: '单元名称',
+            dataIndex: 'unitList',
+            key: 'unitList',
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '租户姓名',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
+        },
+        {
+            title: '租户手机号',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
+        },
+        {
             title: '发票抬头',
             dataIndex: 'rise_name',
             key: 'rise_name',
@@ -81,6 +108,18 @@ const CheckShuidian=(props)=>{
             }
         },
         {
+            title: '发票类型',
+            dataIndex: 'invoiceType',
+            key: 'invoiceType',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.invoiceType==1?<Tag color='blue'>专票</Tag>:<Tag color='green'>普票</Tag>}
+                    </div>
+                )
+            }
+        },
+        {
             title: '开票金额',
             dataIndex: 'consumptionMoney',
             key: 'consumptionMoney',
@@ -93,9 +132,16 @@ const CheckShuidian=(props)=>{
             }
         },
         {
-            title: '租户手机号',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
+            title: '邮箱',
+            dataIndex: 'invoiceType',
+            key: 'invoiceType',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{color:'red'}}>
+
+                    </div>
+                )
+            }
         },
         {
             title: '通知租户',
@@ -161,8 +207,11 @@ const CheckShuidian=(props)=>{
     };
     useEffect(() => {
         logFenye();
-        getfenyeInfo();
+        console.log('props',props)
     }, [page]);
+    useEffect(() => {
+        getfenyeInfo();
+    }, []);
     // 审核通过弹窗
     const onTongguo=(e:TypeCheckFp)=>{
         setUid(e.id);

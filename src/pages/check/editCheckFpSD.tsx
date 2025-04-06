@@ -27,15 +27,22 @@ const EditCheckFpSD=(props:any)=>{
     const [open,setOpen]=useState(false);
     const [upimg,setUpImg]=useState('');
     const [imgB64,setImgB64]=useState('');
+    const [email,setemail]=useState('');
+    const [phone,setphone]=useState('');
+    const [invoiceType,setinvoiceType]=useState(0);
+    const [rise_name,setrise_name]=useState('');
     const [isSpinning,setIsSpinning]=useState(false);
+    const [tenant_name,settenant_name]=useState('');
     // 获取发票详情
     const getOneCustom=async (id:string)=>{
         let res:any=await  CheckFpService.one(id);
         if (res.ErrorCode==0){
             let data=res.Data;
+            console.log("发票详情",data);
             setRise_type(data[1].rise_type);
             setDuty_paragraph(data[1].duty_paragraph);
-            setEmailOrPhone(data[1].emailOrPhone);
+            setphone(data[1].phone);
+            setemail(data[1].email);
             setBankDeposit(data[1].bankDeposit);
             setBankCard(data[1].bankCard);
             setWork_phone(data[1].work_phone);
@@ -43,6 +50,9 @@ const EditCheckFpSD=(props:any)=>{
             setOpenid(data[0].openId);
             setConsumptionType(data[0].consumptionType);
             setConsumptionMoney(data[0].consumptionMoney);
+            setinvoiceType(data[0].invoiceType);
+            setrise_name(data[0].rise_name);
+            settenant_name(data[1].tenant_name);
         }else {
             message.error(res.Data);
         }
@@ -113,11 +123,20 @@ const EditCheckFpSD=(props:any)=>{
                 size={'large'}
                 style={{ marginTop: '1rem' }}
             >
+                <Form.Item label='租户姓名'>
+                    <Input value={tenant_name}/>
+                </Form.Item>
+                <Form.Item label='抬头名称'>
+                    <Input value={rise_name}/>
+                </Form.Item>
                 <Form.Item label='抬头类型'>
                     <Input value={rise_type==1?'企业':'个人'}/>
                 </Form.Item>
                 <Form.Item label='账单类型'>
                     {bianji(consumptionType)}
+                </Form.Item>
+                <Form.Item label='发票类型'>
+                    <Input value={invoiceType==1?'专票':'普票'}/>
                 </Form.Item>
                 <Form.Item label='开票金额(元)'>
                     <InputNumber placeholder='开票金额' value={consumptionMoney}/>
@@ -125,8 +144,11 @@ const EditCheckFpSD=(props:any)=>{
                 <Form.Item label='税号'>
                     <Input placeholder='税号' value={duty_paragraph}/>
                 </Form.Item>
-                <Form.Item label='手机/邮箱'>
-                    <Input placeholder='手机/邮箱' value={emailOrPhone}/>
+                <Form.Item label='邮箱'>
+                    <Input placeholder='手机/邮箱' value={email}/>
+                </Form.Item>
+                <Form.Item label='手机号'>
+                    <Input placeholder='手机/邮箱' value={phone}/>
                 </Form.Item>
                 <Form.Item label='(选填信息)'>
                 </Form.Item>

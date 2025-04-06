@@ -1,8 +1,10 @@
 import {connect} from "umi";
-import {Button, Input, List, Modal, Table, Empty, Select, Space, DatePicker} from "antd";
+import {Button, Input, List, Modal, Table, Empty, Select, Space, DatePicker, Pagination, message, Tag} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import  MyTable from '@/components/MyTable';
+import * as StatisticsService from "@/services/statistics";
+import {fenyeday, fetchday} from "@/services/statistics";
 const HourStatistics=(props:any)=>{
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0);
@@ -12,6 +14,15 @@ const HourStatistics=(props:any)=>{
     // 详情的时间
     const [infoDate,setInfoDate]=useState('');
     const [open,setOpen]=useState(false);
+    const [page,setPage]=useState(1);
+    const [startDatez,setStartDatez]=useState('');
+    const [endDatez,setEndDatez]=useState('');
+    const [list,setList]=useState([]);
+    const [cid,setCid]=useState('');
+    const [name,setName]=useState('');
+    const [remake,setRemake]=useState('');
+    const [count,setcount]=useState(0);
+    const [energyUsage,setenergyUsage]=useState(0);
     const columns=[
         {
             title: '日期',
@@ -63,11 +74,18 @@ const HourStatistics=(props:any)=>{
     };
     useEffect(() => {
         getList();
-        console.log('props',props);
     }, []);
     const toInfo=(e:string)=>{
         setInfoDate(e);
         setOpen(true);
+        let start=dayjs(e).format('YYYY-MM-DD HH:mm:ss');
+        let parsedTime = dayjs(start);
+        const parsedEndTime = parsedTime.clone().minute(59).second(59);
+        let endTime=dayjs(parsedEndTime).format('YYYY-MM-DD HH:mm:ss');
+        setStartDatez(start);
+        setEndDatez(endTime);
+        getListsum(start,endTime,page);
+        getListconSum(start,endTime);
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -80,6 +98,95 @@ const HourStatistics=(props:any)=>{
         }
     };
     const sousuo=()=>{
+        getListsum(startDatez,endDatez,page);
+        getListconSum(startDatez,endDatez);
+    };
+    const getListsum=(vals:string,vals2:string,pagenum:number)=>{
+        StatisticsService.fetchday(pagenum,cid,name,vals,vals2,'扣费成功',0,remake).then((res:any)=>{
+            if (res.ErrorCode==0){
+                setList(res.Data)
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
+    const getListconSum=(vals:string,vals2:string)=>{
+        StatisticsService.fenyeday(cid,name,vals,vals2,'扣费成功',0,remake).then((res:any)=>{
+            if (res.ErrorCode==0){
+                setcount(res.Data.count);
+                setenergyUsage(res.Data.energyUsage);
+            }else {
+                message.error(res.Data)
+            }
+        })
+    };
+    const daycolumns=[
+        {
+            title: '采集器编号',
+            dataIndex: 'collector_id',
+        },
+        {
+            title: '表地址',
+            dataIndex: 'address',
+        },
+        {
+            title: '表描述',
+            dataIndex: 'remark',
+        },
+        {
+            title: '日期',
+            dataIndex: 'recordTime',
+            render: (_: any, record: any) => (
+                <div>
+                    {dayjs(record.recordTime).format("YYYY-MM-DD HH:mm:ss")}
+                </div>
+
+            ),
+        },
+        {
+            title: '开始',
+            dataIndex: 'energyOld',
+            render: (_: any, record: any) => (
+                <div>
+                    {record.energyOld}kWh
+                </div>
+
+            ),
+        },
+        {
+            title: '结束',
+            dataIndex: 'energyNew',
+            render: (_: any, record: any) => (
+                <div>
+                    {record.energyNew}kWh
+                </div>
+
+            ),
+        },
+        {
+            title: '统计值',
+            dataIndex: 'energyUsage',
+            render: (_: any, record: any) => (
+                <div>
+                    {record.energyUsage}kWh
+                </div>
+            ),
+        },
+        {
+            title: '用户',
+            dataIndex: 'tenant_name',
+            render: (_: any, record: any) => (
+                <div>
+                    {record.tenant_name?record.tenant_name:<Tag color='red'>未绑定租户</Tag>}
+                </div>
+            ),
+        },
+    ];
+    const changePage=(e)=>{
+      setPage(e);
+      getListsum(startDatez,endDatez,e);
+    };
+    const sousuoList=()=>{
         getList();
     };
     return(
@@ -103,7 +210,7 @@ const HourStatistics=(props:any)=>{
                         </div>
                         <DatePicker.RangePicker showTime onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                     </Space.Compact>
-                    <Button type="primary" onClick={sousuo}>
+                    <Button type="primary" onClick={sousuoList}>
                         搜索
                     </Button>
                 </List.Item>
@@ -137,7 +244,65 @@ const HourStatistics=(props:any)=>{
                 )}
             />
             <Modal open={open} title={'详情'} onCancel={()=>setOpen(false)} onOk={()=>setOpen(false)} width={'70vw'}>
-                <MyTable startTime={infoDate} value={1}/>
+                <List>
+                    <List.Item>
+                        <Space>
+                            <Input
+                                addonBefore="租户姓名:"
+                                onChange={(e)=>setName(e.target.value)}
+                            />
+                            <Input
+                                addonBefore="采集器:"
+                                onChange={(e)=>setCid(e.target.value)}
+                            />
+                            <Input
+                                addonBefore="电表备注:"
+                                onChange={(e)=>setRemake(e.target.value)}
+                            />
+                            <Button type="primary" onClick={sousuo}>
+                                搜索
+                            </Button>
+                        </Space>
+                    </List.Item>
+                </List>
+                <Table
+                    columns={daycolumns}
+                    style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                    pagination={false}
+                    size='small'
+                    rowKey={(columns) => columns.id}
+                    dataSource={list}
+                    rowClassName={(record, index) =>
+                        index % 2 === 1 ? 'tbodd' : 'tbeven'
+                    }
+                    summary={(columns) => (
+                        <Table.Summary fixed>
+                            <Table.Summary.Row>
+                                <Table.Summary.Cell
+                                    index={1}
+                                >
+                                    统计
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell index={0}>
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell index={0}>
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell index={0}>
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell index={0}>
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell index={0}>
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell
+                                    index={2}
+                                >
+                                    {energyUsage}kWh
+                                </Table.Summary.Cell>
+                            </Table.Summary.Row>
+                        </Table.Summary>
+                    )}
+                />
+                <Pagination total={count} pageSize={50} current={page} onChange={changePage} pageSizeOptions={[50]}/>
             </Modal>
         </div>
     )

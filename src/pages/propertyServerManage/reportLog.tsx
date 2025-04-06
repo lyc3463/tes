@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import {connect} from "umi";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const ReportLog=(props:any)=>{
     const [page,setPage]=useState(1);
@@ -22,6 +23,8 @@ const ReportLog=(props:any)=>{
     // 修理成功的弹窗
     const [onOpen,setOnOpen]=useState(false);
     const [count,setcount]=useState(0);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns=[
         {
             title: '日期',
@@ -73,7 +76,7 @@ const ReportLog=(props:any)=>{
                     {
                         record.repair_status==1?(
                             <Space>
-                                <Button type='primary' onClick={()=>genjin(record)}>分配跟进人</Button>
+                                {uqx[298]=='1'?<Button type='primary' onClick={()=>genjin(record)}>分配跟进人</Button>:''}
                                 <Button type='primary' onClick={()=>onokOpen(record)}>修理完成</Button>
                             </Space>
                         ):''
@@ -178,6 +181,10 @@ const ReportLog=(props:any)=>{
     const changeState=(e)=>{
       setstate(e);
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={loading}>
             <List>

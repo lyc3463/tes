@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import * as ByStagesService from "@/services/byStages";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as ZuhuServer from "@/services/zuhu";
+import {history} from "@@/core/history";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -24,6 +25,7 @@ const Byitem=(props)=>{
         ByStagesService.byItem({uid,item_id}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('绑定收费项目成功');
+                history.push('/kehu/zuhuguanlian');
                 getOneCustom(uid);
                 setIsSpinning(false);
             }else {

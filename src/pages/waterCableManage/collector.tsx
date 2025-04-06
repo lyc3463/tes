@@ -12,6 +12,8 @@ const Collector=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const toedit=(e)=>{
         history.push(`/waterCableManage/editCollector?id=${e}`);
     };
@@ -88,7 +90,6 @@ const Collector=(props:any)=>{
             render: (_, record: any) => (
                 <span>{getTimeDifference(dayjs(record.createdTime).format('YYYY-MM-DD HH:mm:ss'))}</span>
             ),
-
         },
         {
             title: '操作',
@@ -97,8 +98,8 @@ const Collector=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
-                        <Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>
+                        {uqx[173]=='1'? <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button> :''}
+                        {uqx[175]=='1'? <Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>:''}
                     </Space>
                 )
             }
@@ -158,14 +159,16 @@ const Collector=(props:any)=>{
           }
       })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            添加采集器
-                        </Button>
+                        {uqx[174]=='1'? <Button type="primary" onClick={toadd}>添加采集器</Button>:''}
                     </div>
                     <Space>
                         <Input

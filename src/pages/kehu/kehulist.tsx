@@ -1,4 +1,4 @@
-import {Form, Input, Select, Button, Table, DatePicker, List, Space, Tag, message, Pagination} from "antd";
+import {Form, Input, Select, Button, Table, DatePicker, List, Space, Tag, message, Pagination, Tooltip} from "antd";
 import {connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
@@ -30,7 +30,9 @@ const Kehulist=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.remark}
+                        <Tooltip title={record.remark}>
+                            {record.remark}
+                        </Tooltip>
                     </div>
                 )
             }
@@ -74,9 +76,7 @@ const Kehulist=(props:any)=>{
             dataIndex: 'company_name',
             key: 'company_name',
             align:'center',
-
         },
-
         {
             title: '来访渠道',
             dataIndex: 'visitor_channels',
@@ -112,7 +112,7 @@ const Kehulist=(props:any)=>{
             align:'center',
             render:(text:any,record:any,)=>{
                 let consumptionTypeText;
-                switch (record.demands) {
+                switch (record.reason_lease) {
                     case 1:
                         consumptionTypeText = <Tag color='gold'>首次经营</Tag>;
                         break;

@@ -1,6 +1,8 @@
 import {useEffect, useState} from "react";
-import {Button, Form, Modal, Radio, Select, Slider, Input, InputNumber, message, DatePicker} from "antd";
+import {Button, Form, Modal, Radio, Select, Slider, Input, InputNumber, message, DatePicker, Tabs} from "antd";
 import {connect} from "umi";
+import {StaticInfo} from "@/StaticInfo";
+import Bymoney from "@/pages/kehu/bymoney";
 
 const Zhanghupeizhi=(props)=>{
     const [disabled, setDisabled] = useState(false);
@@ -23,6 +25,8 @@ const Zhanghupeizhi=(props)=>{
     const [withdAmount,setWithdAmount]=useState(0);
     // 结算方式类型
     const [settlementz,setsettlementz]=useState(0);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     // 监听结算方式
     const changeRadio=(e)=>{
         setSettlement(e.target.value);
@@ -70,9 +74,8 @@ const Zhanghupeizhi=(props)=>{
     // 手动提现
     const onOK=()=>{
         if (settlement==4){
-            let commissionz:number=withdAmount*(commission/1000);
-            if ((commissionz+withdAmount)>balance){
-                message.error('账户不足扣手续费')
+            if (withdAmount>balance){
+                message.error('提现金额大于当前余额')
             }else if(withdAmount<=0){
                 message.error('提现金额为0')
             } else {
@@ -80,6 +83,7 @@ const Zhanghupeizhi=(props)=>{
                     type:'Zhanghupeizhi/add',
                     payload:{withdAmount,remark,commission}
                 }).then((res)=>{
+                    console.log('res',res)
                     if (res.ErrorCode==0){
                         message.success('提交成功，等待管理员审核');
                         getInfo();
@@ -93,9 +97,11 @@ const Zhanghupeizhi=(props)=>{
         }else {
            message.warning('当前类型不是手动结算类型')
         }
-
-
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <Form>
@@ -108,7 +114,7 @@ const Zhanghupeizhi=(props)=>{
                 {/*</Form.Item>*/}
                 <Form.Item label='当前余额'>
                     <span style={{fontSize:'25px',fontWeight:'500'}}>{balance}</span>元<span style={{marginLeft:'15px'}}>可提现金额<span style={{color:'red'}}>{balance}</span>元</span>
-                    <Button type='primary' onClick={()=>setopen(true)} >手动立即提现</Button>
+                    {uqx[317]=='1'?<Button type='primary' onClick={()=>setopen(true)} >手动立即提现</Button>:''}
                     <p style={{color:'#888'}}>如未设置默认银行卡请到<span style={{color:'red'}}>钱包管理/银行卡管理</span>设置默认银行卡</p>
                 </Form.Item>
                 {/*<Form.Item label='今日提现预计到账日'>*/}
@@ -160,7 +166,7 @@ const Zhanghupeizhi=(props)=>{
                 {/*    <p style={{color:'#888'}}>长时间无法联系商家可能导致线上支付权限被关闭或支付限额</p>*/}
                 {/*</Form.Item>*/}
                 <Form.Item style={{backgroundColor:'#f5f5f5',borderTop:'1px solid #e5e5e5',padding:'19px 20px 20px',margin:'20px 0'}}>
-                    <Button type='primary' onClick={onbaocun}>保存设置</Button>
+                    {uqx[315]=='1'? <Button type='primary' onClick={onbaocun}>保存设置</Button>:''}
                     <Button style={{marginLeft:'20px'}}>返回</Button>
                 </Form.Item>
             </Form>

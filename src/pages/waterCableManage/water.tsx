@@ -4,6 +4,7 @@ import {getRandomNumber} from "@/utils/OpenTool";
 import {useEffect, useState} from "react";
 import * as HouseBillService from '@/services/houseBill';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const Water=(props:any)=>{
     let mathNumber=getRandomNumber(1,10);
@@ -14,6 +15,8 @@ const Water=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [open,setOpne]=useState(false);
     const [isSpinning,setIsSpinning]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '采集器',
@@ -74,6 +77,11 @@ const Water=(props:any)=>{
                     </div>
                 )
             }
+        },
+        {
+            title: '价钱名称',
+            dataIndex: 'price_name',
+            key: 'price_name',
         },
         {
             title: '备注',
@@ -138,9 +146,9 @@ const Water=(props:any)=>{
                 return(
                     <>
                         <Space>
-                            <Button type='link' onClick={()=>toedit(record)}>编辑</Button>
+                            {uqx[251]=='1'?<Button type='link' onClick={()=>toedit(record)}>编辑</Button> :''}
                             <Button type='link' onClick={()=>tojiben(record)}>基本业务</Button>
-                            <Button type='link' onClick={()=>isdelete(record)}>删除</Button>
+                            {uqx[252]=='1'?<Button type='link' onClick={()=>isdelete(record)}>删除</Button> :''}
                         </Space>
                     </>
                 )
@@ -156,9 +164,7 @@ const Water=(props:any)=>{
     const onChange=(e)=>{
       setPage(e);
     };
-    useEffect(() => {
-        console.log(props)
-    }, []);
+
     const tojiben=(e)=>{
       history.push(`/waterCableManage/waterjiben?id=${e.id}`)
     };
@@ -200,18 +206,18 @@ const Water=(props:any)=>{
     };
     useEffect(() => {
         getWater();
+        console.log('props',props)
     }, [page]);
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={isSpinning}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            添加水表
-                        </Button>
-                        {/*<Button type="primary" onClick={test}>*/}
-                        {/*    测试按钮*/}
-                        {/*</Button>*/}
+                        {uqx[250]=='1'?<Button type="primary" onClick={toadd}>添加水表</Button>:''}
                     </div>
                     <Space>
                         <Input

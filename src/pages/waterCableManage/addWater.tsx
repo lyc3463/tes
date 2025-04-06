@@ -3,6 +3,7 @@ import {Button, Form, Input, InputNumber, message, Select, Spin, Tag} from "antd
 import {useEffect, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import * as CollectorService from "@/services/collector";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -49,15 +50,22 @@ const AddWater=(props:any)=>{
     }, []);
     // 采集器列表
     const getCollectorList=()=>{
-        props.dispatch({
-            type:'Collector/fetch',
-        }).then((res:TypeErrorCode)=>{
+        CollectorService.fetchCtr().then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setCollectorList(res.Data);
             }else {
                 message.error(res.Data)
             }
         })
+        // props.dispatch({
+        //     type:'Collector/fetch',
+        // }).then((res:TypeErrorCode)=>{
+        //     if (res.ErrorCode==0){
+        //         setCollectorList(res.Data);
+        //     }else {
+        //         message.error(res.Data)
+        //     }
+        // })
     };
     // 价格列表
     const getPriceList=()=>{
@@ -88,7 +96,16 @@ const AddWater=(props:any)=>{
                     <Input placeholder='表号/表地址'/>
                 </Form.Item>
                 <Form.Item label='采集器id' name='cid'>
-                    <Select onChange={ChangeOps}>
+                    <Select
+                        onChange={ChangeOps}
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) => {
+                            // 假设每个 option 都有一个与数据项对应的 value 属性
+                            const item = collectorList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                            return item?.remark?.toLowerCase().includes(input.toLowerCase());
+                        }}
+                    >
                         {collectorList.map((item:any,index:any)=>{
                             return(
                                 <Select.Option value={item.id} key={index}>

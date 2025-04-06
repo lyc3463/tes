@@ -124,11 +124,14 @@ const CheckRenew=(props)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
+        fenyeinfo();
+        logFenye();
+    };
+    const fenyeinfo=()=>{
         props.dispatch({
             type:'Renew/fenye',
             payload:{phone,stutes,startDate,endDate}
         })
-        logFenye();
     };
     // 审核弹窗
     const isCheck=(e:any)=>{
@@ -149,6 +152,9 @@ const CheckRenew=(props)=>{
             }
         })
     };
+    useEffect(() => {
+        fenyeinfo();
+    }, []);
     return(
         <div>
             <List>

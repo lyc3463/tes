@@ -4,7 +4,7 @@ import * as EmpServer from "@/services/emp";
 import {Button, DatePicker, Form, Image, Input, message, Radio, Select, Space, Spin, Upload} from "antd";
 import dayjs from "dayjs";
 import CmpImageUploader from "@/components/ImageUploader";
-import {filterAndUpdateList} from "@/utils/OpenTool";
+import {compressBase64, filterAndUpdateList} from "@/utils/OpenTool";
 import * as GroupingServer from "@/services/grouping";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
@@ -35,7 +35,8 @@ const EditYuangong=(props:any)=>{
         if (res.ErrorCode==0){
             console.log('res',res);
             formRef.current.setFieldsValue(res.Data);
-            setFileBase64(res.Data.avatarBase64);
+            let aaa=await compressBase64(res.Data.avatarBase64)
+            setFileBase64(aaa);
             setOldImgName(res.Data.empFileName);
             let splicegateIds=res.Data.gateIds.split("|").map(Number);
             setobtain(splicegateIds);

@@ -6,6 +6,7 @@ import * as RechargeRateService from '@/services/rechargeRate';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {alljiaofeifenye} from "@/services/ArrearsBill";
 import {zujinList} from "@/services/rechargeRate";
+import {exportDataToExcel} from "@/utils/OpenTool";
 
 const RentRate=(props)=>{
     // 当前页数
@@ -127,26 +128,23 @@ const RentRate=(props)=>{
                 )
             }
         },
-        // {
-        //     title: '已交金额',
-        //     dataIndex: 'stopAmount',
-        //     key: 'stopAmount',
-        // },
-        //
-        // {
-        //     title: '状态',
-        //     dataIndex: 'billStatus',
-        //     key: 'billStatus',
-        //     render:(text:any,record:any)=>{
-        //         return(
-        //             <div>
-        //                 {record.billStatus==2?<Tag color='green'>已交</Tag>:<Tag color='reg'>未交</Tag>}
-        //             </div>
-        //         )
-        //     }
-        // },
     ];
-
+    const exportToExcel=()=>{
+        let headers=['日期','租户名称','手机号','类型','租金/管理费(元)','违约金(元)','状态'];
+        const ws_data = [
+            headers.map(header => ({ v: header, t: 's' })), // 表头
+            ...dataSource.map(item => [
+                item.payrentDate.split('T')[0], // 提取日期部分
+                item.tenant_name,
+                item.tenant_phone,
+                item.consumptionType='租金',
+                item.payAmount,
+                item.defaultAmount,
+                item.billStatus==1?'未交':'已交',
+            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+        ];
+        exportDataToExcel(ws_data);
+    };
     return(
         <div>
             <List>
@@ -179,6 +177,9 @@ const RentRate=(props)=>{
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
+                        </Button>
+                        <Button type="primary" onClick={exportToExcel}>
+                            导出
                         </Button>
                     </Space>
                 </List.Item>

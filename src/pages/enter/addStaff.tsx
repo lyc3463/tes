@@ -22,7 +22,7 @@ import {
     splitDataByEndTimeAndRentPeriod,
     calculateTotalRentalDays,
     replaceEnglishCommasWithChinese,
-    calculateTimePeriods
+    calculateTimePeriods, contractsDz
 } from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
@@ -32,6 +32,7 @@ import * as UnitService from '@/services/unit';
 import ImageUploader from "@/components/ImageUploader";
 import {PlusOutlined, ReloadOutlined} from "@ant-design/icons";
 import './staff.less';
+import NoyasuoImgCmp from "@/components/NoyasuoImgCmp";
 const tailLayout = {
     wrapperCol: { offset: 3 },
 };
@@ -96,6 +97,8 @@ const AddStaff=(props:any)=>{
     const [house_id,sethouse_id]=useState(0);
     // 单元禁选状态
     const [unitStutes,setunitStutes]=useState(true);
+    // 租金
+    const [zuMoney,setzuMoney]=useState(0);
     // 删除递增表单项
     const removeFormItemByKey = key => {
         if (formItems.length<=1){
@@ -115,7 +118,7 @@ const AddStaff=(props:any)=>{
         setwupinList(prevItems => prevItems.filter(item => item.key !== key));
     };
     const onFinish= (values)=>{
-        let mzqJson=JSON.stringify(mzformItems);
+        // let mzqJson=JSON.stringify(mzformItems);
         setspinning(true);
         let unit_id=unitarrList.join("|");
         if (contractType==2){
@@ -128,7 +131,10 @@ const AddStaff=(props:any)=>{
             if (dayNoe!=mzq){
                 message.warning('免租期天数与填写天数不相等');
                 setspinning(false);
-            }else {
+            }if (zuMoney<minzujin){
+                message.warning(`租金不能低于${minzujin}元`);
+                setspinning(false);
+            } else {
                 let formItemsjson=JSON.stringify(datearr);
                 let wupinListjson=JSON.stringify(wupinList);
                 let mzqJson=JSON.stringify(mzformItems);
@@ -139,7 +145,7 @@ const AddStaff=(props:any)=>{
                 let jsonDate=JSON.stringify(date);
                 props.dispatch({
                     type:'Staff/addzs',
-                    payload:{...values,endDate,startDate,jsonDate,deliveryDate,documentImage,unitImage,imgs,contractTypeid,unit_id,remark,house_id}
+                    payload:{...values,endDate,startDate,jsonDate,deliveryDate,documentImage,unitImage,imgs,contractTypeid,unit_id,remark,house_id,zuMoney}
                 }).then((res:TypeErrorCode)=>{
                     if (res.ErrorCode==0){
                         setspinning(false);
@@ -154,7 +160,7 @@ const AddStaff=(props:any)=>{
         }else if (contractType==1){
             props.dispatch({
                 type:'Staff/adddj',
-                payload:{...values,dayDate,contractTypeid,unit_id,house_id}
+                payload:{...values,dayDate,contractTypeid,unit_id,house_id,zuMoney}
             }).then((res:TypeErrorCode)=>{
                 if (res.ErrorCode==0){
                     setspinning(false);
@@ -178,9 +184,8 @@ const AddStaff=(props:any)=>{
     const changeData=(_,item)=>{
         setStartDate(item[0]);
         setEndDate(item[1]);
-        let dataArr=calculateTimePeriods(item[0],item[1]);
+        let dataArr=calculateTimePeriods(item[0],item[1],zuMoney);
         setFormItems(dataArr);
-        console.log('dataArr',dataArr);
     };
     // const calculateTimePeriods = (start, end) => {
     //     let currentStart = dayjs(start);
@@ -230,7 +235,17 @@ const AddStaff=(props:any)=>{
     };
      // 更新递增
     const updatedz = (key, updates) => {
-        setFormItems(prevItems => prevItems.map(item => item.id === key ? { ...item, ...updates } : item));
+        // setFormItems(prevItems => prevItems.map(item => item.id === key ? { ...item, ...updates } : item));
+        setFormItems(prevItems => {
+            // 1. 更新对应的 item
+            const updatedItems = prevItems.map(item =>
+                item.id === key ? { ...item, ...updates } : item
+            );
+            // 2. 计算 contractsDz
+            const newItems = contractsDz(zuMoney, updatedItems);
+            // 3. 返回最终结果
+            return newItems;
+        });
     };
 
     // 监听免租期天数
@@ -441,6 +456,10 @@ const AddStaff=(props:any)=>{
     useEffect(() => {
         getUnitList();
     }, [house_id]);
+    const changeMoney=(e)=>{
+      setzuMoney(e);
+      setFormItems(contractsDz(e,formItems));
+    };
     return(
         <Spin spinning={spinning}>
             <Form
@@ -449,7 +468,7 @@ const AddStaff=(props:any)=>{
                 form={form}
                 layout="horizontal"
                 size={'large'}
-                initialValues={{remark: '',prepayment:0,decorationCost:0,customCard:'',depositFee:0,legalPerson:''}}
+                initialValues={{remark: '',prepayment:0,decorationCost:0,customCard:'',depositFee:0,dispatchName:'',dispatchCard:'',businessEntity:'',businessScope:'',legalPerson:''}}
                 onFinish={onFinish}
                 style={{ marginTop:'1rem',paddingLeft:"10rem"}}
             >
@@ -468,7 +487,7 @@ const AddStaff=(props:any)=>{
                                 }
                             </Select>
                         </Form.Item>
-                        <Form.Item label='合同编号' name='identifier' style={{width:'15rem'}}>
+                        <Form.Item label='合同编号' name='identifier' style={{width:'15rem'}} rules={[{required: true, message: ''}]}>
                             <Input/>
                         </Form.Item>
                         {
@@ -498,7 +517,7 @@ const AddStaff=(props:any)=>{
                 </Form.Item>
                 <Form.Item style={{display:'flex'}}>
                     <Space size='large'>
-                        <Form.Item label='客户' name='clientId' style={{width:'15rem'}}>
+                        <Form.Item label='客户' name='clientId' style={{width:'15rem'}} rules={[{required: true, message: ''}]}>
                             <Select
                                 notFoundContent={false}
                                 showSearch
@@ -519,7 +538,7 @@ const AddStaff=(props:any)=>{
                             </Select>
                         </Form.Item>
                         {
-                            contractType==2?<Form.Item label='租户身份证' name='customCard' style={{width:'20rem'}}>
+                            contractType==2?<Form.Item label='租户身份证' name='customCard' style={{width:'20rem'}} rules={[{required: true, message: ''}]}>
                                     <Input/>
                                 </Form.Item>:''
                         }
@@ -560,21 +579,22 @@ const AddStaff=(props:any)=>{
                 </Form.Item>
                 <Form.Item style={{display:'flex'}}>
                     <Space size='large'>
-                        <Form.Item label='租金/月(元)' name='zuMoney' style={{width:'11rem'}}>
-                            <InputNumber min={minzujin}/>
+                        <Form.Item label='租金/月(元)'  style={{width:'15rem'}}>
+                            <InputNumber value={zuMoney} onChange={changeMoney}/>
+                            <div style={{fontSize:"12px",color:'#555'}}>租金不能低于{minzujin}元</div>
                         </Form.Item>
-                        <Form.Item label='租金押金(元)' name='deposit' style={{width:'11rem'}}>
+                        <Form.Item label='租金押金(元)' name='deposit' style={{width:'11rem'}} rules={[{required: true, message: ''}]}>
                             <InputNumber/>
                         </Form.Item>
                         {
                             contractType==2?<>
-                                <Form.Item label='管理费(元)' name='manageFee' style={{width:'15rem'}}>
+                                <Form.Item label='管理费(元)' name='manageFee' style={{width:'15rem'}} rules={[{required: true, message: ''}]}>
                                     <InputNumber/>
                                 </Form.Item>
-                                <Form.Item label='管理费押金(元)' name='depositFee' style={{width:'15rem'}}>
+                                <Form.Item label='管理费押金(元)' name='depositFee' style={{width:'15rem'}} rules={[{required: true, message: ''}]}>
                                     <InputNumber min={0}/>
                                 </Form.Item>
-                                <Form.Item label='管理费递增%' name='manageFeeRent' style={{width:'10rem'}}>
+                                <Form.Item label='管理费递增%' name='manageFeeRent' style={{width:'10rem'}} rules={[{required: true, message: ''}]}>
                                     <InputNumber min={0}/>
                                 </Form.Item>
 
@@ -587,7 +607,7 @@ const AddStaff=(props:any)=>{
                         <>
                             <Form.Item style={{display:'flex'}}>
                                 <Space size='large'>
-                                    <Form.Item label='经营主体' name='businessEntity' style={{width:'17rem'}}   rules={[{required: true, message:''}]}>
+                                    <Form.Item label='经营主体' name='businessEntity' style={{width:'17rem'}}>
                                         <Input/>
                                     </Form.Item>
                                     <Form.Item label='经营范围' name='businessScope' style={{width:'17rem'}}>
@@ -647,6 +667,9 @@ const AddStaff=(props:any)=>{
                                                         onChange={(value) => updatedz(item.id,{incremental:value})}
                                                     />
                                                 </Form.Item>
+                                                <Form.Item>
+                                                    <span style={{fontSize:"12px",color:"#555"}}>租金:{item.zuMoney}元</span>
+                                                </Form.Item>
                                                 {/*{index === formItems.length - 1 && (*/}
                                                 {/*    <Form.Item>*/}
                                                 {/*        <Button onClick={() => removeFormItemByKey(item.key)} type="link" style={{ marginLeft: 'auto' }}>*/}
@@ -701,7 +724,7 @@ const AddStaff=(props:any)=>{
                             <Form.Item style={{display:'flex'}}>
                                 <Space size='large'>
                                     <Form.Item label='单元平面图' style={{width:'15rem'}} >
-                                        <ImageUploader onImageUpload={getunitImgName} oldBase64={getunitB64}/>
+                                        <NoyasuoImgCmp onImageUpload={getunitImgName} oldBase64={getunitB64}/>
                                         <Space style={{display:'flex',flexWrap:'wrap',marginTop:'25px'}}>
                                             {unitB64.length>0?unitB64.map((item:any,index:number)=>{
                                                 return(
@@ -728,7 +751,7 @@ const AddStaff=(props:any)=>{
                                         </Space>
                                     </Form.Item>
                                     <Form.Item label='租户证件图片' style={{width:'15rem'}}>
-                                        <ImageUploader onImageUpload={oldImgName} oldBase64={onB64}/>
+                                        <NoyasuoImgCmp onImageUpload={oldImgName} oldBase64={onB64}/>
                                         <Space style={{display:'flex',flexWrap:'wrap',marginTop:'25px'}}>
                                             {b64.length>0?b64.map((item:any,index:number)=>{
                                                 return(

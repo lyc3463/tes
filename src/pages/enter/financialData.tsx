@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import {processBills} from '@/utils/OpenTool';
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 const FinancialData=(props:any)=>{
     // 展示total
     const [isfenye,setisfenye]=useState(true);
@@ -37,6 +38,8 @@ const FinancialData=(props:any)=>{
     const [account_card,setaccount_card]=useState('');
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '日期',
@@ -190,8 +193,8 @@ const FinancialData=(props:any)=>{
                             record.bill_status==0?
                                 <Space>
                                     <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
-                                    <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
-                                    <Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>
+                                    {uqx[200]=='1'?<Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>:''}
+                                    {uqx[201]=='1'?<Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>:''}
                                 </Space>:
                                 <>
                                     <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
@@ -412,17 +415,17 @@ const FinancialData=(props:any)=>{
         getProjectList();
         getCompanList();
         getSubjectList();
-        console.log("props",props);
+    }, []);
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
-                        <Button type="primary" onClick={toadd}>
-                            财务数据录入
-                        </Button>
-
+                        {uqx[199]=='1'?<Button type="primary" onClick={toadd}>财务数据录入</Button>:''}
                     </Space>
                     <Space>
                         <Input

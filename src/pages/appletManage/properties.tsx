@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import * as PropertiesService from '@/services/properties';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 const Properties=(props:any)=>{
     const [loading, setLoading] = useState(false);
     // 打开删除的弹窗
@@ -10,8 +11,9 @@ const Properties=(props:any)=>{
     // 删除楼盘的id
     const [deleteID,setDeleteID]=useState<number|undefined>()
     // 楼盘底下的房源
-    const [fangyuanlist,setFangyuanList]=useState([])
-
+    const [fangyuanlist,setFangyuanList]=useState([]);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns=[
         {
             title: '楼盘标题',
@@ -38,14 +40,15 @@ const Properties=(props:any)=>{
             dataIndex: 'operation',
             render: (_: any, record: any) => (
                 <Space>
-                    <Button type='primary' onClick={()=>{history.push(`/appletManage/editProperties/?id=${record.id}`)}}>编辑</Button>
-                    <Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>
+                    {uqx[124]=='1'?<Button type='primary' onClick={()=>{history.push(`/appletManage/editProperties/?id=${record.id}`)}}>编辑</Button> :''}
+                    {uqx[125]=='1'?<Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button> :''}
                 </Space>
             ),
         },
     ];
     useEffect(() => {
-        console.log(props)
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     const isDelete=async (e:number)=>{
         setDeleteID(e);
@@ -82,9 +85,7 @@ const Properties=(props:any)=>{
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            新增楼盘
-                        </Button>
+                        {uqx[123]=='1'?<Button type="primary" onClick={toadd}>新增楼盘</Button> :''}
                     </div>
                 </List.Item>
             </List>

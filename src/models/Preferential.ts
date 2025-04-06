@@ -10,6 +10,7 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import PreferentialType from '@/ModelTypes/TypePreferential';
 import { fixPathname } from '@/utils/common';
+import {check} from "@/services/preferential";
 let pl={
     page:1,
     phone:'',
@@ -35,6 +36,7 @@ export interface PreferentialInterface {
         edit: Effect;
         remove: Effect;
         fenye: Effect;
+        check: Effect;
     };
     reducers: {
         list: Reducer<PreferentialType[]>;
@@ -84,6 +86,12 @@ const PreferentialModel: PreferentialInterface = {
             yield take('fetch/@@end');
             return result
         },
+        *check({ payload, callback }, { call, put, take }): any {
+            const result = yield call(PreferentialService.check, payload);
+            yield put({ type: 'fetch', payload:pl });
+            yield take('fetch/@@end');
+            return result
+        },
         *remove({ payload }, { call, put,take}): any {
             const result = yield call(PreferentialService.remove, payload);
             yield put({ type: 'fetch', payload:pl});
@@ -127,30 +135,7 @@ const PreferentialModel: PreferentialInterface = {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
 
-                if (StaticInfo.userId > 0 && pathname === '/enter/afterSales/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/enter/afterSales/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/check/checkAfterSales/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/check/checkAfterSales/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+
             });
         },
     },

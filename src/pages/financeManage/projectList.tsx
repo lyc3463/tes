@@ -1,9 +1,11 @@
-import {Button, Form, Input, List, message, Modal, Select, Space, Table} from "antd";
+import {Button, Form, Input, List, message, Modal, Select, Space, Table, Tabs} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import * as ProjectService from '@/services/project';
 import {getContainInfo, remove} from "@/services/project";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
+import CompanyList from "@/pages/financeManage/companyList";
 
 const ProjectList=(props:any)=>{
     // 删除的弹窗
@@ -18,6 +20,8 @@ const ProjectList=(props:any)=>{
     const [companyId,setCompanyId]=useState(0);
     // 公司列表
     const [companyList,setCompanyList]=useState([]);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '项目名称',
@@ -36,14 +40,13 @@ const ProjectList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        <Button type='primary' onClick={()=>{toedit(record.id)}}>编辑</Button>
-                        <Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>
+                        {uqx[151]=='1'?<Button type='primary' onClick={()=>{toedit(record.id)}}>编辑</Button>:''}
+                        {uqx[152]=='1'?<Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>:''}
                     </Space>
                 )
             }
         }
     ];
-
     // 查询当前项目底下包含的资料
     const isdelete=async (e:number)=>{
         setUid(e);
@@ -55,7 +58,6 @@ const ProjectList=(props:any)=>{
             setiszhList(res.Data)
         }
     };
-
     // 确定强制删除
     const ConfirmDelete= ()=>{
         if (iszhList.length>0){
@@ -120,14 +122,20 @@ const ProjectList=(props:any)=>{
             }
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary"  onClick={toProject}>
-                            添加项目
-                        </Button>
+                        {uqx[150]=='1'?
+                            <Button type="primary"  onClick={toProject}>
+                                添加项目
+                            </Button>
+                            :''}
                     </div>
                     <Space>
                         <Input

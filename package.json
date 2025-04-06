@@ -12,6 +12,7 @@
     "antd": "5.20.1",
     "compression-webpack-plugin": "11.1.0",
     "compressorjs": "^1.2.1",
+    "cropperjs": "^2.0.0",
     "dayjs": "^1.11.13",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.2",

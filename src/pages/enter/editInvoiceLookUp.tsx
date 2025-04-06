@@ -80,7 +80,10 @@ const EditInvoiceLookUp=(props)=>{
                         <Input/>
                     </Form.Item>
                 }
-                <Form.Item label='邮箱/手机号' name='emailOrPhone' rules={[{required: true, message: '请输入手机号或者邮箱'}]}>
+                <Form.Item label='手机号' name='phone' rules={[{required: true, message: '请输入手机号'}]}>
+                    <Input/>
+                </Form.Item>
+                <Form.Item label='邮箱' name='email' rules={[{required: true, message: '请输入手机号'}]}>
                     <Input/>
                 </Form.Item>
                 <Form.Item label='是否默认' name='is_default'>

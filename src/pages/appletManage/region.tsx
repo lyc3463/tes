@@ -1,10 +1,11 @@
-import {Button, Form, Input, List, Modal, Radio, Select, Space, Spin, Table, Upload,message} from "antd";
+import {Button, Form, Input, List, Modal, Radio, Select, Space, Spin, Table, Upload, message, Tabs} from "antd";
 import {UploadOutlined} from "@ant-design/icons";
 import {useEffect, useRef, useState} from "react";
 import {history,connect} from "umi";
 import * as RegionService from '@/services/region';
 import RenovationType from "@/ModelTypes/TypeRenovation";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -20,6 +21,8 @@ const Region=(props:any)=>{
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
     // 删除的id
     const [did,setDid]=useState<number|undefined>();
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns=[
         {
             title: '区域名称',
@@ -39,8 +42,8 @@ const Region=(props:any)=>{
             dataIndex: 'operation',
             render: (_: any, record: any) => (
                 <Space>
-                    <Button type='primary' onClick={()=>isEdit(record)}>编辑</Button>
-                    <Button type='primary' danger onClick={()=>isDelete(record)}>删除</Button>
+                    {uqx[130]=='1'?<Button type='primary' onClick={()=>isEdit(record)}>编辑</Button>:''}
+                    {uqx[131]=='1'?<Button type='primary' danger onClick={()=>isDelete(record)}>删除</Button>:''}
                 </Space>
             ),
         },
@@ -98,15 +101,17 @@ const Region=(props:any)=>{
             }
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <Spin spinning={isLoading}>
                 <List>
                     <List.Item>
                         <div>
-                            <Button type="primary" onClick={toadd}>
-                                添加区域
-                            </Button>
+                            {uqx[129]=='1'?<Button type="primary" onClick={toadd}>添加区域</Button>:''}
                         </div>
                     </List.Item>
                 </List>

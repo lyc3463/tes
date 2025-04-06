@@ -1,9 +1,11 @@
-import {Button, DatePicker, Input, List, message, Modal, Select, Space, Spin, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Select, Space, Spin, Table, Tabs} from "antd";
 import TypeNotice from "@/ModelTypes/TypeNotice";
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
+import Rename from "@/pages/enter/rename";
 
 const Notice=(props:any)=>{
     const [loading,setLoading]=useState(false);
@@ -16,6 +18,8 @@ const Notice=(props:any)=>{
     // 删除的弹窗
     const [Dopen,setDopen]=useState(false);
     const [uid,setUid]=useState(0);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     // 去添加页面
     const tianjia=()=>{
         history.push('/propertyServerManage/addNotice')
@@ -78,7 +82,7 @@ const Notice=(props:any)=>{
             render:(_:any,record:any)=>{
                 return(
                     <Space>
-                        <Button type='primary' danger onClick={()=>onDelete(record)}>删除</Button>
+                        {uqx[166]=='1'?<Button type='primary' danger onClick={()=>onDelete(record)}>删除</Button>:''}
                     </Space>
                 )
             }
@@ -111,14 +115,16 @@ const Notice=(props:any)=>{
             }
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={loading}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={tianjia}>
-                            添加园区公告
-                        </Button>
+                        {uqx[165]=='1'? <Button type="primary" onClick={tianjia}>添加园区公告</Button> :''}
                     </div>
                     <Space>
                         <Space.Compact>

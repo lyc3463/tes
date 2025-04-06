@@ -52,6 +52,18 @@ const CheckReacharge=(props:any)=>{
             }
         },
         {
+            title: '所属房屋',
+            dataIndex: 'houseName',
+            key: 'houseName',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.houseName?record.houseName:''}
+                    </div>
+                )
+            }
+        },
+        {
             title: '微信头像',
             dataIndex: 'appUser_image',
             key: 'appUser_image',

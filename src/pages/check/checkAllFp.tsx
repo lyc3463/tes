@@ -55,9 +55,48 @@ const CheckAllFp=(props)=>{
             }
         },
         {
+            title: '单元名称',
+            dataIndex: 'unitList',
+            key: 'unitList',
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '租户姓名',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
+        },
+        {
+            title: '租户手机号',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
+        },
+        {
             title: '发票抬头',
             dataIndex: 'rise_name',
             key: 'rise_name',
+        },
+        {
+            title: '发票类型',
+            dataIndex: 'invoiceType',
+            key: 'invoiceType',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.invoiceType==1?<Tag color='blue'>专票</Tag>:<Tag color='green'>普票</Tag>}
+                    </div>
+                )
+            }
         },
         {
             title: '账单类型',
@@ -67,10 +106,10 @@ const CheckAllFp=(props)=>{
                 let consumptionTypeText;
                 switch (item.consumptionType) {
                     case 1:
-                        consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>充值</Tag>;
+                        consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>微信充值</Tag>;
                         break;
                     case 2:
-                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金</Tag>;
+                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金/管理费</Tag>;
                         break;
                     case 3:
                         consumptionTypeText = <Tag style={{ color: '#2196F3' }}>电费</Tag>;
@@ -82,10 +121,13 @@ const CheckAllFp=(props)=>{
                         consumptionTypeText = <Tag style={{ color: '#9C27B0' }}>公共缴费</Tag>;
                         break;
                     case 6:
-                        consumptionTypeText = <Tag style={{ color: '#E91E63' }}>违约金</Tag>;
+                        consumptionTypeText = <Tag style={{ color: '#E91E63' }}>手动充值</Tag>;
                         break;
                     case 7:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>物业管理费</Tag>;
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>损耗</Tag>;
+                        break;
+                    case 8:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
                         break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
@@ -108,9 +150,16 @@ const CheckAllFp=(props)=>{
             }
         },
         {
-            title: '租户手机号',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
+            title: '邮箱',
+            dataIndex: 'invoiceType',
+            key: 'invoiceType',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{color:'red'}}>
+
+                    </div>
+                )
+            }
         },
         {
             title: '通知租户',

@@ -5,11 +5,14 @@ import {message} from "antd";
 import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween'; // 引入插件
 import Compressor from 'compressorjs';
+import {StaticInfo} from "@/StaticInfo";
 
 dayjs.extend(isBetween);
 export  const phonePattern = /^1(3|4|5|6|7|8|9)\d{9}$/;
 
-export const pwdPattern=/^HXtz@\w{8}$/;
+// export const pwdPattern=/^HXtz@\w{8}$/;
+export const pwdPattern= /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{6,}$/;
+
 
 // 验证密码
 export  const mmPattern =/^.{6,}$/;
@@ -99,6 +102,7 @@ export function getRandomNumber(min, max) {
 
 // 压缩图片
 export async function compressBase64(base64: any) {
+    if (!base64) return  ''
     const options = {
         quality: 0.8, // 压缩质量
         maxWidth: 700, // 最大宽度
@@ -520,7 +524,7 @@ export const splitDataByEndTimeAndRentPeriod = (data, endData) => {
     // 合并拆分后的数据和未拆分的前面数据
     return [...result, ...newItems];
 };
-export  const calculateTimePeriods = (start, end) => {
+export  const calculateTimePeriods = (start, end,zuMy) => {
     const periods = [];
     let currentStart = dayjs(start);
     const finalEnd = dayjs(end);
@@ -537,7 +541,8 @@ export  const calculateTimePeriods = (start, end) => {
             endTime: nextEnd.format("YYYY-MM-DD"),
             rentBeginTime:null,
             rentEndTime:null,
-            incremental:0
+            incremental:0,
+            zuMoney:zuMy
         });
         index++;// 更新索引
         // currentStart = nextEnd;
@@ -703,7 +708,7 @@ export function getUserphoneById(data, id) {
     // 使用filter方法筛选出与给定ID匹配的对象，然后使用map方法提取user_name
     return data
         .filter(item => item.id === id) // 注意这里使用===来确保类型匹配（number与number）
-        .map(item => item.phone);
+        .map(item => item.custom_phone);
 }
 // 裁剪数据
 export function cropDateStringToYearMonth(dateString) {
@@ -844,4 +849,115 @@ export function calculateYearsAndMonths(startDateStr,endDateStr) {
     }
 
     return result;
+}
+//租金递增
+export const contractsDz=(initialRent,rentItems)=>{
+    let previousRent =(rentItems.length>0?rentItems[0].incremental/100:0/100)*initialRent+initialRent; // 用传入的初始租金作为第一年租金
+    return rentItems.map((item, index) => {
+        // 第一年直接使用初始租金
+        if (index === 0) {
+            return {
+                ...item,
+                zuMoney:previousRent
+            };
+        }
+        // 后续年份用前一年的租金计算
+        const newRent = previousRent * (1 + item.incremental / 100);
+
+        // 更新前一年的租金记录（虽然数组不可变，但这里为了演示逻辑）
+        previousRent = newRent;
+
+        return {
+            ...item,
+            zuMoney: newRent.toFixed(2)*1 // 保留两位小数
+        };
+    });
+}
+
+export  const groupImages = (images: string[], size: number) => {
+    const groups = [];
+    // 使用 for 循环，步长为 size，直到索引 i 达到或超过 images.length
+    for (let i = 0; i < images.length; i += size) {
+        // 从索引 i 开始，切片到 i + size（但不包括 i + size），这将正确处理数组末尾的情况
+        const group = images.slice(i, i + size);
+        // 将切片得到的子数组添加到 groups 中
+        groups.push(group);
+    }
+    // 此时，groups 包含所有图像，按 size 分组，最后一个子数组可能不完整
+    return groups;
+};
+
+export  const fuzzySearch=(tenantList, ziti)=>{
+    if (ziti=='') {
+        return tenantList;
+    }
+    return tenantList.filter(item => {
+        // 检查 unitList 是否存在
+        if (item.unitList && item.unitList.length > 0) {
+            // 遍历 unitList，检查是否有任意一条 unit_name 包含关键字
+            return item.unitList.some(unit =>
+                unit.unit_name && unit.unit_name.includes(ziti)
+            );
+        }
+        return false;
+    });
+}
+export  const calculateSums=(sumDate)=>{
+    // 初始化四个求和变量
+    let balanceSum = 0;
+    let billMoneySum = 0;
+    let depositSum = 0;
+    let integralSum = 0;
+
+    // 遍历数组，累加每个属性的值
+    sumDate.map(transaction => {
+        balanceSum += transaction.balance || 0; // 使用||0确保未定义或null值不会破坏计算
+        billMoneySum += transaction.billMoney || 0;
+        depositSum += transaction.deposit || 0;
+        integralSum += transaction.integral || 0;
+    });
+
+    // 返回一个对象，包含四个求和结果
+    return {
+        balanceSum: balanceSum.toFixed(4)*1,
+        billMoneySum: billMoneySum.toFixed(2)*1,
+        depositSum: depositSum.toFixed(2)*1,
+        integralSum: integralSum.toFixed(2)*1
+    };
+}
+
+export async function compressBase642(base64: any) {
+    const options = {
+        quality: 0.8, // 压缩质量
+        maxWidth: 2000, // 最大宽度
+        maxHeight: 1500, // 最大高度
+    };
+    // 将 base64 转换为 Blob 对象
+    const byteString = atob(base64.split(',')[1]);
+    const mimeString = base64.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([ab], { type: mimeString });
+
+    // 使用 Compressorjs 库进行压缩处理
+    return new Promise((resolve, reject) => {
+        new Compressor(blob, {
+            ...options,
+            success(result) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const compressedDataUrl = e.target.result;
+                    resolve(compressedDataUrl); // 返回压缩后的 base64 字符串
+                };
+                reader.readAsDataURL(result);
+            },
+            error(err) {
+                console.error('压缩失败:', err.message);
+                reject(err);
+            },
+        });
+    });
 }

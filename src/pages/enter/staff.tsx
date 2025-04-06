@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import * as StaffService from '@/services/staff';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const Staff=(props:any)=>{
     const [isDeltOpen,setIsDeleteOpen]=useState(false);
@@ -38,6 +39,8 @@ const Staff=(props:any)=>{
     const [depositFee,setdepositFee]=useState(0);
     // 管理费
     const [manageFee,setmanageFee]=useState(0);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '合同编号',
@@ -154,8 +157,9 @@ const Staff=(props:any)=>{
                     <Space>
                         {record.contractStatus==1||record.contractStatus==4?
                             <>
-                                <Button type='link' onClick={()=>toedit(record)}>编辑</Button>
-                                <Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>
+                                {uqx[205]=='1'?<Button type='link' onClick={()=>toedit(record)}>编辑</Button> :''}
+                                {uqx[207]=='1'?<Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>:''}
+
                                 <Button type='link' onClick={()=>toInfo(record)}>详情</Button>
                             </>:
                             <Button type='link' onClick={()=>{toxiazai(record)}}>详情</Button>
@@ -295,14 +299,16 @@ const Staff=(props:any)=>{
             history.push(`/check/checkdingjin?id=${e.id}`);
         }
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            合同录入
-                        </Button>
+                        {uqx[204]=='1'?<Button type="primary" onClick={toadd}>合同录入</Button>:''}
                     </div>
                     <Space>
                         <Input

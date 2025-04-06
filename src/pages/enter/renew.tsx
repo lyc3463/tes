@@ -107,15 +107,21 @@ const Renew=(props:any)=>{
     useEffect(() => {
         logFenye();
     }, [page]);
-    // 搜索
-    const suosou=()=>{
-        setPage(1);
+    const fenyeinfo=()=>{
         props.dispatch({
             type:'Renew/fenye',
             payload:{phone,stutes,startDate,endDate}
         })
+    };
+    // 搜索
+    const suosou=()=>{
+        setPage(1);
+        fenyeinfo();
         logFenye();
     };
+    useEffect(() => {
+        fenyeinfo();
+    }, []);
     return(
         <div>
             <List>

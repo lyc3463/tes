@@ -2,6 +2,7 @@ import {Button, Input, InputNumber, List, message, Modal, Select, Space, Spin, T
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import HonuseType from '@/ModelTypes/TypeHouse'
+import {StaticInfo} from "@/StaticInfo";
 const House=(props:any)=>{
     const [name,setName]=useState('');
     const [beginRents,setBeginRents]=useState(0);
@@ -10,6 +11,8 @@ const House=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [uname,setUname]=useState('');
     const [spinning,setspinning]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '房屋名称',
@@ -89,8 +92,8 @@ const House=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
-                        <Button type='primary' danger onClick={()=>deleteOpen(record)}>删除</Button>
+                        {uqx[245]=='1'?<Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button> :''}
+                        {uqx[243]=='1'?<Button type='primary' danger onClick={()=>deleteOpen(record)}>删除</Button> :''}
                     </Space>
                 )
             }
@@ -156,14 +159,16 @@ const House=(props:any)=>{
             }
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            新增房屋
-                        </Button>
+                        {uqx[244]=='1'?<Button type="primary" onClick={toadd}>新增房屋</Button> :''}
                     </div>
                     <Space>
                         <Input

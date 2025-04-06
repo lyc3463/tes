@@ -1,9 +1,11 @@
 import {useEffect, useRef, useState} from "react";
-import {Button, Form, Input, List, message, Modal, Radio, Select, Space, Spin, Table} from "antd";
+import {Button, Form, Input, List, message, Modal, Radio, Select, Space, Spin, Table, Tabs} from "antd";
 import {history,connect} from 'umi'
 import * as RenovationService from "@/services/renovation";
 import RenovationType from "@/ModelTypes/TypeRenovation";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
+import Region from "@/pages/appletManage/region";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -23,28 +25,21 @@ const Renovation=(props:any)=>{
     // form 实例
     const formRef=useRef();
     const [name,setName]=useState('');
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns=[
         {
             title: '装修名称',
             dataIndex: 'renovation_name',
         },
-        // {
-        //     title: '显示在小程序',
-        //     dataIndex: 'ZXStatus',
-        //     render: (text: any, record: any) => (
-        //         <div>
-        //             {text?<span style={{color:'green'}}>是</span>:<span style={{color:'red'}}>否</span>}
-        //         </div>
-        //     ),
-        // },
         {
             title: '操作',//简单常用操作放这里，复杂放详情
             dataIndex: 'operation',
             render: (_: any, record: any) => (
                 <Space>
                     <Space>
-                        <Button type='primary' onClick={()=>isEdit(record)}>编辑</Button>
-                        <Button type='primary' danger onClick={()=>isDelete(record)}>删除</Button>
+                        {uqx[133]=='1'?<Button type='primary' onClick={()=>isEdit(record)}>编辑</Button> :''}
+                        {uqx[134]=='1'?<Button type='primary' danger onClick={()=>isDelete(record)}>删除</Button> :''}
                     </Space>
                 </Space>
             ),
@@ -115,15 +110,20 @@ const Renovation=(props:any)=>{
     const sousuo=()=>{
       logfenye();
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <Spin spinning={isLoading}>
                 <List>
                     <List.Item>
                         <div>
-                            <Button type="primary" onClick={toadd}>
+                            {uqx[132]=='1'?<Button type="primary" onClick={toadd}>
                                 添加装修
-                            </Button>
+                            </Button>:''}
+
                         </div>
                         <Space>
                             <Input

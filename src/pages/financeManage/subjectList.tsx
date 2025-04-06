@@ -1,11 +1,14 @@
 import {Button, Form, Input, List, message, Modal, Select, Space, Table} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import {StaticInfo} from "@/StaticInfo";
 
 const SubjectList=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
     const [name,setName]=useState('');
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '科目名称',
@@ -19,8 +22,8 @@ const SubjectList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        <Button type='primary' onClick={()=>{toedit(record.id)}}>编辑</Button>
-                        <Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>
+                        {uqx[163]=='1'?<Button type='primary' onClick={()=>{toedit(record.id)}}>编辑</Button>:''}
+                        {uqx[164]=='1'?<Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>:''}
                     </Space>
                 )
             }
@@ -63,14 +66,20 @@ const SubjectList=(props:any)=>{
     const sousuo=()=>{
         getList()
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary"  onClick={toadd}>
-                            添加科目
-                        </Button>
+                        {uqx[162]=='1'?
+                            <Button type="primary"  onClick={toadd}>
+                                添加科目
+                            </Button>
+                            :''}
                     </div>
                     <Space>
                         <Input

@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {connect,history} from "umi";
 import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const CheckPreferential=(props)=>{
     // 当前页数
@@ -14,6 +15,11 @@ const CheckPreferential=(props)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
+    // 审核弹窗
+    const [isOpen,setIsOpen]=useState(false);
+    const [uid,setUid]=useState(0);
+    // 加载
+    const [spinning,setspinning]=useState(false);
     const columns =[
         {
             title: '日期',
@@ -41,6 +47,18 @@ const CheckPreferential=(props)=>{
             key: 'tenant_phone',
         },
         {
+            title: '优惠周期',
+            dataIndex: 'preBeginTime',
+            key: 'preBeginTime',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {dayjs(record.preBeginTime).format("YYYY-MM")}至{dayjs(record.preEndTime).format("YYYY-MM")}
+                    </div>
+                )
+            }
+        },
+        {
             title: '申请优惠租金',
             dataIndex: 'preRen',
             key: 'preRen',
@@ -59,7 +77,7 @@ const CheckPreferential=(props)=>{
             key: 'renameStatus',
             render:(text:any,record:any,)=>{
                 return(
-                    <div>{record.renameStatus==2?"已通过":"未审核"}</div>
+                    <div>{record.renameStatus==2?<Tag color='green'>已通过</Tag>:<Tag color='red'>未审核</Tag>}</div>
                 )
             }
         },
@@ -70,8 +88,10 @@ const CheckPreferential=(props)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <Space>
-                        <Button type='link'>详情</Button>
-                        {record.renameStatus==2?'':<Button type='link'>编辑</Button>}
+                        {record.renameStatus==2?'':<>
+                            <Button type='primary'>编辑</Button>
+                            <Button type='primary' onClick={()=>checkOp(record.id)}>审核</Button>
+                        </>}
                     </Space>
                 )
             }
@@ -112,14 +132,42 @@ const CheckPreferential=(props)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
+        fenyeinfo();
+        logFenye();
+    };
+    const fenyeinfo=()=>{
         props.dispatch({
             type:'Preferential/fenye',
             payload:{phone,stutes,startDate,endDate}
         })
-        logFenye();
+    };
+    // 审核弹窗
+    const checkOp=(e)=>{
+        setIsOpen(true);
+        setUid(e);
+    };
+    useEffect(() => {
+        fenyeinfo();
+    }, []);
+    const onOk=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:'Preferential/check',
+            payload:uid
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('审核通过');
+                setspinning(false);
+                setIsOpen(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+                setIsOpen(false);
+            }
+        })
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -188,7 +236,10 @@ const CheckPreferential=(props)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            <Modal title={'审核'} onCancel={()=>setIsOpen(false)} loading={spinning} open={isOpen} onOk={onOk}>
+                <div>是否要审核?</div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

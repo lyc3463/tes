@@ -4,6 +4,7 @@ import * as RechargeRateService from "@/services/rechargeRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
 import {sunhaoList, sunhaoListFenye} from "@/services/rechargeRate";
+import {exportDataToExcel} from "@/utils/OpenTool";
 
 const ServerKoufei=()=>{
     const [spinning,setspinning]=useState(false);
@@ -118,6 +119,21 @@ const ServerKoufei=()=>{
             setEndDate(data[1]);
         }
     };
+    const exportToExcel=()=>{
+        let headers=['日期','租户名称','电表地址','类型','扣费金额(元)','状态'];
+        const ws_data = [
+            headers.map(header => ({ v: header, t: 's' })), // 表头
+            ...dataSource.map(item => [
+                item.payrentDate.split('T')[0], // 提取日期部分
+                item.tenant_name,
+                item.address,
+                item.consumptionType='损耗',
+                item.payAmount,
+                item.billStatus==1?'未交':'已交',
+            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+        ];
+        exportDataToExcel(ws_data);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -150,6 +166,9 @@ const ServerKoufei=()=>{
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
+                        </Button>
+                        <Button type="primary" onClick={exportToExcel}>
+                            导出
                         </Button>
                     </Space>
                 </List.Item>

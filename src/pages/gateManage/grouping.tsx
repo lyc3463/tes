@@ -1,9 +1,12 @@
 import {connect,history} from "umi";
 import {Button, Input, List, Space, Table} from "antd";
 import {useEffect, useState} from "react";
+import {StaticInfo} from "@/StaticInfo";
 
 const Grouping=(props)=>{
     const [name,setName]=useState('');
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns = [
         {
             title: '分组名称',
@@ -14,8 +17,8 @@ const Grouping=(props)=>{
             dataIndex: 'operation',
             render: (text: any, record: any) => (
                 <Space>
-                    <Button type="primary" onClick={()=>toEdit(record.id)}>编辑</Button>
-                    <Button type="primary" danger>删除</Button>
+                    {uqx[305]=='1'?<Button type="primary" onClick={()=>toEdit(record.id)}>编辑</Button> :''}
+                    {uqx[306]=='1'?<Button type="primary" danger>删除</Button> :''}
                 </Space>
             ),
         },
@@ -35,14 +38,16 @@ const Grouping=(props)=>{
     useEffect(() => {
         sousuo();
     }, []);
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            新增下发分组
-                        </Button>
+                        {uqx[304]=='1'?<Button type="primary" onClick={toadd}>新增下发分组</Button> :''}
                     </div>
                     <Space>
                         <Input

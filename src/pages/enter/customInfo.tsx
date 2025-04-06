@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import * as UmiHistory from "umi";
 
 import {useEffect, useRef, useState} from "react";
-import {Button, DatePicker, Form, Input, message, Select, Space} from "antd";
+import {Button, DatePicker, Form, Input, message, Select, Space, Spin} from "antd";
 import {phonePattern} from "@/utils/OpenTool";
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -52,6 +52,7 @@ const CustomInfo=()=>{
                 wrapperCol={{ span: 14 }}
                 ref={formRef}
                 layout="horizontal"
+                initialValues={{intermediary_company:'',required_area:1,visitor_position:'',company_name:'',industry:'',visitor_channels:1,intermediary_name:'',office_area:'',reason_lease:1,demands:1,remark:'',visitor_type:1,intermediary_phone:''}}
                 size={'large'}
                 style={{ marginTop: '1rem' }}
             >
@@ -86,7 +87,7 @@ const CustomInfo=()=>{
                         <Form.Item label='行业' name='industry' style={{width:'200px'}}>
                             <Input placeholder='行业'/>
                         </Form.Item>
-                        <Form.Item label='客户类别'  style={{width:'200px'}}>
+                        <Form.Item label='客户类别' style={{width:'200px'}}>
                             <Select onChange={changevisitor_type} value={visitor_type}>
                                 <Select.Option value={2}>商业</Select.Option>
                                 <Select.Option value={1}>办公</Select.Option>
@@ -99,16 +100,18 @@ const CustomInfo=()=>{
                 </Form.Item>
                 <Form.Item style={{display:'flex'}} wrapperCol={{offset: 4}}>
                     <Space size='large'>
-                        <Form.Item label='需求面积' name='required_area' style={{width:'250px'}}>
-                            <Select>
-                                <Select.Option value={1}>精装修</Select.Option>
-                                <Select.Option value={2}>简装</Select.Option>
-                                <Select.Option value={3}>毛坯</Select.Option>
+                        <Form.Item label='需求面积' style={{width:'250px'}} name='required_area'>
+                            <Select >
+                                <Select.Option value={1}>100以下</Select.Option>
+                                <Select.Option value={2}>101-200</Select.Option>
+                                <Select.Option value={3}>201-350</Select.Option>
+                                <Select.Option value={4}>351-500</Select.Option>
+                                <Select.Option value={5}>501-1000</Select.Option>
+                                <Select.Option value={6}>1000以上</Select.Option>
                             </Select>
                         </Form.Item>
-
-                        <Form.Item label='租赁原因' name='reason_lease' style={{width:'250px'}}>
-                            <Select>
+                        <Form.Item label='租赁原因' style={{width:'250px'}} name='reason_lease'>
+                            <Select >
                                 <Select.Option value={1}>首次经营</Select.Option>
                                 <Select.Option value={2}>平迁</Select.Option>
                                 <Select.Option value={3}>合同到期</Select.Option>
@@ -117,10 +120,11 @@ const CustomInfo=()=>{
                                 <Select.Option value={6}>开设分点</Select.Option>
                             </Select>
                         </Form.Item>
-                        <Form.Item label='产品需求' name='demands' style={{width:'300px'}}>
-                            <Select>
-                                <Select.Option value={1}>商铺</Select.Option>
-                                <Select.Option value={2}>办公</Select.Option>
+                        <Form.Item label='产品需求'  style={{width:'300px'}} name='demands'>
+                            <Select >
+                                <Select.Option value={1}>精装修</Select.Option>
+                                <Select.Option value={2}>简装</Select.Option>
+                                <Select.Option value={3}>毛坯</Select.Option>
                             </Select>
                         </Form.Item>
                     </Space>
@@ -131,13 +135,26 @@ const CustomInfo=()=>{
                             <Input placeholder='目前办公区域'/>
                         </Form.Item>
                         <Form.Item label='备注' name='remark' style={{width:'550px'}}>
-                            <Input.TextArea placeholder='备注'/>
+                            <Input.TextArea placeholder='备注' />
                         </Form.Item>
                     </Space>
                 </Form.Item>
-                <Form.Item >
+                <Form.Item>
                     {
-                        visitor_channels==1?
+                        visitor_channels==2?
+                            <>
+                                <Form.Item label='中介公司名称' name='intermediary_company' style={{display:'none',width:'200px'}}>
+                                    <Input placeholder='中介公司名称'/>
+                                </Form.Item>
+                                <Form.Item label='中介名称' name='intermediary_name' style={{display:'none',width:'200px'}}>
+                                    <Input placeholder='中介名称'/>
+                                </Form.Item>
+                                <Form.Item label='中介联系电话' name='intermediary_phone' style={{display:'none',width:'200px'}}>
+                                    <Input placeholder='中介联系电话'/>
+                                </Form.Item>
+
+                            </>
+                            :
                             <Form.Item style={{display:'flex'}} wrapperCol={{offset: 4}}>
                                 <Space>
                                     <Form.Item label='中介公司名称' name='intermediary_company' style={{width:'300px'}}>
@@ -150,12 +167,15 @@ const CustomInfo=()=>{
                                         <Input placeholder='中介联系电话'/>
                                     </Form.Item>
                                 </Space>
-                            </Form.Item>:''
+                            </Form.Item>
+
                     }
                 </Form.Item>
-                <Form.Item  {...tailLayout}>
-                   <Button onClick={togoBack} type='primary'>返回</Button>
-                </Form.Item>
+                {/*<Form.Item {...tailLayout}>*/}
+                {/*    <Button type="primary" htmlType="submit" disabled={disp}>*/}
+                {/*        确定修改*/}
+                {/*    </Button>*/}
+                {/*</Form.Item>*/}
             </Form>
         </div>
     )

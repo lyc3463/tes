@@ -69,7 +69,6 @@ const SumHounsBlii=(props:any)=>{
     const getBillsum=()=>{
         SumHounsBliiService.fetch(startDate).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log("getBillsum",res);
                 setbillMoneySum(res.Data.billMoneySum);
                 setpayBillMoneySum(res.Data.payBillMoneySum);
                 setzhangdanzhouqi(startDate);
@@ -81,13 +80,29 @@ const SumHounsBlii=(props:any)=>{
     // 获取分页信息
     const getfyBillsum=()=>{
         SumHounsBliiService.one().then((res:TypeErrorCode)=>{
-            console.log('总数',res);
             if (res.ErrorCode==0){
                 settotal(res.Data.count);
             }
         })
     };
     const columns =[
+        {
+            title: '单元名称',
+            dataIndex: 'unitList',
+            key: 'unitList',
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
+                    </div>
+                )
+            }
+        },
         {
             title: '租户名称',
             dataIndex: 'tenant_name',

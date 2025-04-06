@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as dateWaterService from '@/services/dateWater';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {exportDataToExcel} from "@/utils/OpenTool";
 
 
 const WaterRate=(props)=>{
@@ -134,19 +135,6 @@ const WaterRate=(props)=>{
                 )
             }
         },
-
-        // {
-        //     title: '旧度数',
-        //     dataIndex: 'energyOld',
-        //     key: 'energyOld',
-        //     render:(text:any,record:any)=>{
-        //         return(
-        //             <div>
-        //                 <Tag  color='warning'>{record.energyOld}m³</Tag>
-        //             </div>
-        //         )
-        //     }
-        // },
         {
             title: '消耗度数',
             dataIndex: 'energyUsage1',
@@ -159,18 +147,6 @@ const WaterRate=(props)=>{
                 )
             }
         },
-        // {
-        //     title: '倍率',
-        //     dataIndex: 'rate',
-        //     key: 'rate',
-        //     render:(text:any,record:any)=>{
-        //         return(
-        //             <div>
-        //                 <Tag  color='cyan'>{record.rate}倍</Tag>
-        //             </div>
-        //         )
-        //     }
-        // },
         {
             title: '扣费金额',
             dataIndex: 'energyUsage',
@@ -193,6 +169,24 @@ const WaterRate=(props)=>{
             setStartDate(data[0]);
             setEndDate(data[1]);
         }
+    };
+    // 导出数据
+    const exportToExcel=()=>{
+        let headers=['日期','租户名称','水表地址','水表描述','类型','度数m³','消耗度数m³','扣费金额(元)'];
+        const ws_data = [
+            headers.map(header => ({ v: header, t: 's' })), // 表头
+            ...waterRatelist.map(item => [
+                item.recordTime.split('T')[0], // 提取日期部分
+                item.tenant_name,
+                item.address,
+                item.remark,
+                item.consumptionType='水费',
+                item.energyNew,
+                ((item.energyNew-item.energyOld).toFixed(2)),
+                item.energyUsage,
+            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+        ];
+        exportDataToExcel(ws_data);
     };
     return(
         <Spin spinning={spinning}>
@@ -230,6 +224,9 @@ const WaterRate=(props)=>{
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
+                        </Button>
+                        <Button type="primary" onClick={exportToExcel}>
+                            导出
                         </Button>
                     </Space>
                 </List.Item>

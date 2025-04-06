@@ -43,7 +43,6 @@ const RoleModel: RoleInterface = {
     state: {},
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
-
             const res = yield call(RoleService.fetch, payload?payload:pl);
             if (res.ErrorCode == 0) {
                 yield put({
@@ -53,6 +52,7 @@ const RoleModel: RoleInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.Role.list);

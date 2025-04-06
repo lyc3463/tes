@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const TenantInfo=(props:any)=>{
     const [loading,setLoading]=useState(false)
@@ -19,6 +20,8 @@ const TenantInfo=(props:any)=>{
     const [content,setContent]=useState('');
     const [uid,setUid]=useState(0);
     const [dopen,setdopen]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '日期',
@@ -61,12 +64,12 @@ const TenantInfo=(props:any)=>{
             key: 'cao',
             render:(text:any,record:any)=>(
                 <Space>
-                   <Button type='primary' danger onClick={()=>onDelete(record)}>删除</Button>
-                   {/*<Button type='primary'>编辑</Button>*/}
+                    {uqx[261]=='1'?<Button type='primary' danger onClick={()=>onDelete(record)}>删除</Button>:''}
+                    {/*<Button type='primary'>编辑</Button>*/}
                 </Space>
             )
         }
-    ]
+    ];
     const toadd=()=>{
         history.push('/propertyServerManage/addTenantInfo')
     };
@@ -123,14 +126,18 @@ const TenantInfo=(props:any)=>{
             }
         });
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={loading}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            通知用户
-                        </Button>
+                        <div>
+                            {uqx[260]=='1'?<Button type="primary" onClick={toadd}>通知用户</Button> :''}
+                        </div>
                     </div>
                     <Space>
                         <Space.Compact>

@@ -1,12 +1,66 @@
-import {Button, Form, Input, List, Pagination, Space, Table, Tag} from "antd";
+import {Button, Form, Input, List, Pagination, Space, Table, Tag, Tooltip} from "antd";
 import {connect,history} from "umi";
 import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {calculateSums, fuzzySearch} from "@/utils/OpenTool";
 
 const Zuhuguanlian=(props:any)=>{
+    // 姓名
     const [name,setName]=useState('');
+    // 手机号
     const [phone,setPhone]=useState('');
+    // 页数
     const [page,setPage]=useState(1);
+    // 每页数量
+    const [pagecount,setpagecount]=useState(50);
+    // 单元名称
+    const [unitName,setunitName]=useState('');
+    // 展示的数据
+    const [ZuhuList,setZuhuList]=useState([]);
+    // 原数组
+    const [oldZuhuList,setOldZuhuList]=useState([]);
+    // 总条数
+    const [count,setcount]=useState(0);
+    // 公共押金
+    const [depositSum,setdepositSum]=useState(0);
+    // 账单金额
+    const [billMoneySum,setbillMoneySum]=useState(0);
+    // 积分
+    const [integralSum,setintegralSum]=useState(0);
+    // 余额
+    const [balanceSum,setbalanceSum]=useState(0);
     const columns =[
+        {
+            title: '单元名称',
+            dataIndex: 'unitList',
+            key: 'unitList',
+            sorter: {
+                compare: (a, b) => {
+                    // 获取 a 和 b 的 unitList 中第一个 unit_name
+                    const aUnitName = a.unitList[0]?.unit_name || '';
+                    const bUnitName = b.unitList[0]?.unit_name || '';
+
+                    // 比较 unit_name
+                    if (aUnitName < bUnitName) return -1;
+                    if (aUnitName > bUnitName) return 1;
+                    return 0;
+                },
+                multiple: 1,
+            },
+            width:200,
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                        <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                            {limitedUnitList.map((item, index) => (
+                                <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                            ))}
+                            {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                            {record.unitList.length > 2 && <span>...</span>}
+                        </div>
+                )
+            }
+        },
         {
             title: '租户姓名',
             dataIndex: 'tenant_name',
@@ -21,16 +75,17 @@ const Zuhuguanlian=(props:any)=>{
             title: '身份证',
             dataIndex: 'tenant_card',
             key: 'tenant_card',
-        },
-        {
-            title: '余额(元)',
-            dataIndex: 'balance',
-            key: 'balance',
+            width:250,
         },
         {
             title: '积分(分)',
             dataIndex: 'integral',
             key: 'integral',
+        },
+        {
+            title: '余额(元)',
+            dataIndex: 'balance',
+            key: 'balance',
         },
         {
             title: '全部账单(元)',
@@ -80,7 +135,7 @@ const Zuhuguanlian=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pagecount]);
     useEffect(() => {
         logFenyeInfo();
     }, []);
@@ -88,7 +143,12 @@ const Zuhuguanlian=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"BYZhuhu/fetch",
-            payload:{page,name,phone}
+            payload:{page,name,phone,pagecount}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setZuhuList(res.Data);
+                setOldZuhuList(res.Data);
+            }
         })
     };
     // 搜索按钮
@@ -101,11 +161,30 @@ const Zuhuguanlian=(props:any)=>{
     const logFenyeInfo=()=>{
         props.dispatch({
             type:'BYZhuhu/fenye',
-            payload:{page,name,phone}
+            payload:{name,phone,pagecount}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setcount(res.Data.count);
+                setbalanceSum(res.Data.balanceSum);
+                setbillMoneySum(res.Data.billMoneySum);
+                setdepositSum(res.Data.depositSum);
+                setintegralSum(res.Data.integralSum);
+            }
         });
     };
-    const onChange=(val:number)=>{
+    const onChange=(val:number,pageSize:number)=>{
         setPage(val);
+        setpagecount(pageSize);
+    };
+    const chaxundanyuan=()=>{
+        let a=fuzzySearch(oldZuhuList,unitName);
+        setZuhuList(a);
+        let b=calculateSums(a);
+        setcount(a.length);
+        setbalanceSum(b.balanceSum);
+        setbillMoneySum(b.billMoneySum);
+        setdepositSum(b.depositSum);
+        setintegralSum(b.integralSum);
     };
     return(
         <div>
@@ -125,13 +204,24 @@ const Zuhuguanlian=(props:any)=>{
                         </Button>
                     </Space>
                 </List.Item>
+                <List.Item>
+                    <Space>
+                        <Input
+                            addonBefore="单元名称:"
+                            onChange={(e)=>setunitName(e.target.value)}
+                        />
+                        <Button type="primary" onClick={chaxundanyuan}>
+                            查询单元
+                        </Button>
+                    </Space>
+                </List.Item>
             </List>
             <Table
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 columns={columns}
                 size='small'
                 rowKey={(columns) => columns.id}
-                dataSource={props.ZuhuList}
+                dataSource={ZuhuList}
                 scroll={{x:1500,y:'60vh'}}
                 pagination={false}
                 summary={(columns) => (
@@ -143,31 +233,33 @@ const Zuhuguanlian=(props:any)=>{
                                 统计
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
-                                总人数:{props.count?props.count.count:''}人
+                                总人数:{count}人
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}>
-                                {props.count?props.count.balanceSum:''}元
+                            <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={6}>
-                                {props.count?props.count.integralSum:''}分
+                                {integralSum}分
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>
+                                {balanceSum}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {props.count?props.count.billMoneySum:''}元
+                                {billMoneySum}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell
                                 index={8}
                             >
-                                {props.count?props.count.depositSum:''}元
+                                {depositSum}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            <Pagination showSizeChanger total={count} pageSize={pagecount} current={page}  onChange={onChange} pageSizeOptions={[50, 100, 500, 1000]}/>
         </div>
     )
 }

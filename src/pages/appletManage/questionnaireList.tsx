@@ -1,6 +1,7 @@
 import {Button, Form, Input, List, message, Modal, Pagination, Space, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import {StaticInfo} from "@/StaticInfo";
 
 const QuestionnaireList=(props)=>{
     const [name,setName]=useState('');
@@ -11,6 +12,8 @@ const QuestionnaireList=(props)=>{
     const [uid,setUid]=useState(0);
     // 弹窗
     const [open,setOpen]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '题目',
@@ -33,8 +36,8 @@ const QuestionnaireList=(props)=>{
             key: 'cao',
             render:(text:any,record:any)=>(
                 <Space>
-                    <Button type='primary' onClick={()=>toEdit(record.id)}>编辑</Button>
-                    <Button type='primary' danger onClick={()=>deleOpen(record)}>删除</Button>
+                    {uqx[279]=='1'?<Button type='primary' onClick={()=>toEdit(record.id)}>编辑</Button>:''}
+                    {uqx[280]=='1'?<Button type='primary' danger onClick={()=>deleOpen(record)}>删除</Button>:''}
                 </Space>
             )
         }
@@ -88,14 +91,16 @@ const QuestionnaireList=(props)=>{
             }
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            添加问题
-                        </Button>
+                        {uqx[278]=='1'?<Button type="primary" onClick={toadd}>添加问题</Button>:''}
                     </div>
                     <Space>
                         <Input

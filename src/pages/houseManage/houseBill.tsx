@@ -9,17 +9,19 @@ const HouseBill=(props:any)=>{
     const [phone,setPhone]=useState('');
     const [page,setPage]=useState(1);
     const [count,setcount]=useState(1);
+    const [pagecount,setpagecount]=useState(50);
     useEffect(() => {
-        logFenye();
         shousuo();
     }, []);
     useEffect(() => {
+        console.log('props',props)
+        logFenye();
     }, [page]);
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"Zuhu/fetch",
-            payload:{page,name,phone}
+            payload:{page,name,phone,pagecount}
         })
     };
     // 搜索按钮
@@ -27,7 +29,7 @@ const HouseBill=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'Zuhu/fenye',
-            payload:{name,phone}
+            payload:{name,phone,pagecount}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count)
@@ -39,6 +41,23 @@ const HouseBill=(props:any)=>{
         setPage(val)
     };
     const columns =[
+        {
+            title: '单元名称',
+            dataIndex: 'unitList',
+            key: 'unitList',
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
+                    </div>
+                )
+            }
+        },
         {
             title: '租户姓名',
             dataIndex: 'tenant_name',

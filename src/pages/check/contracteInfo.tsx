@@ -1,5 +1,10 @@
 import {useEffect, useRef, useState} from "react";
-import {calculateTotalRentalDays, filterAndUpdateList, replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
+import {
+    calculateTotalRentalDays,
+    contractsDz,
+    filterAndUpdateList,
+    replaceEnglishCommasWithChinese
+} from "@/utils/OpenTool";
 import * as StaffServer from "@/services/staff";
 import {connect,history} from "umi";
 import {Button, DatePicker, Form, Image, Input, InputNumber, message, Select, Space, Spin, Tag} from "antd";
@@ -9,6 +14,7 @@ import ImageUploader from "@/components/ImageUploader";
 import * as contractTypeListServer from "@/services/contractTypeList";
 import {PlusOutlined} from "@ant-design/icons";
 import * as UnitService from "@/services/unit";
+import * as CheckCompanyService from "@/services/checkCompany";
 const tailLayout = {
     wrapperCol: { offset: 3 },
 };
@@ -16,6 +22,8 @@ const contracteInfo=(props:any)=>{
     const formRef=useRef();
     const [formItems, setFormItems] = useState([]);
     const [spinning, setspinning] = useState(false);
+    // 客户列表
+    const [kehuList,setKehuList]=useState([]);
     // 单元列表
     const [unitList,setUnitList]=useState([]);
     // 补充协议
@@ -91,7 +99,8 @@ const contracteInfo=(props:any)=>{
                 formRef.current.setFieldsValue(res.Data[0]);
                 setEndDate(dayjs(res.Data[0].endTime).format('YYYY-MM-DD'));
                 setStartDate(dayjs(res.Data[0].beginTime).format('YYYY-MM-DD'));
-                setFormItems(forEachArr(res.Data[2]));
+                let mzFrom=forEachArr(res.Data[2]);
+                setFormItems(contractsDz(res.Data[0].zuMoney,mzFrom));
                 setmzFormItems(forEachArr(res.Data[1]));
                 sethouse_id(res.Data[0].houseId);
                 getUnitList(res.Data[0].houseId);
@@ -150,11 +159,22 @@ const contracteInfo=(props:any)=>{
         })
     };
     // 获取客户列表
+
+    // 获取客户列表
     const getCheckCompanyList=()=>{
-        props.dispatch({
-            type:'CheckCompany/fetch'
+        CheckCompanyService.companyList({name:''}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setKehuList(res.Data);
+            }else {
+                message.error(res.Data)
+            }
         })
     };
+    // const getCheckCompanyList=()=>{
+    //     props.dispatch({
+    //         type:'CheckCompany/fetch'
+    //     })
+    // };
     // 获取当前时间
     const getCurrentDate=()=>{
         const currentDate = new Date();
@@ -337,15 +357,23 @@ const contracteInfo=(props:any)=>{
                 <Form.Item style={{display:'flex'}}>
                     <Space size='large'>
                         <Form.Item label='客户' name='clientId' style={{width:'15rem'}}>
-                            <Select disabled>
-                                {props.CheckCompanyList?props.CheckCompanyList.map((item:any,index:any)=>{
+                            <Select
+                                notFoundContent={false}
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = kehuList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                    return item?.custom_name?.toLowerCase().includes(input.toLowerCase());
+                                }}
+                            >
+                                {kehuList.map((item:any,index:any)=>{
                                     return(
                                         <Select.Option value={item.id} key={index}>
                                             {item.custom_name}
                                         </Select.Option>
                                     )
-                                }):""
-                                }
+                                })}
                             </Select>
                         </Form.Item>
                         {
@@ -468,6 +496,9 @@ const contracteInfo=(props:any)=>{
                                                     value={item.incremental}
                                                     onChange={(value) => updatedz(item.id,{incremental:value})}
                                                 />
+                                            </Form.Item>
+                                            <Form.Item>
+                                                <span style={{fontSize:"12px",color:"#555"}}>递增后的租金:{item.zuMoney}元</span>
                                             </Form.Item>
                                             {/*{index === formItems.length - 1 && (*/}
                                             {/*    <Form.Item>*/}

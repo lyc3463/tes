@@ -2,6 +2,7 @@ import {Button, Form, Input, List, message, Modal, Select, Space, Spin, Table} f
 import {history,connect} from 'umi'
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 const UserManage=(props:any)=>{
     const [did,setDid]=useState(0);
     const [isspinning,setisspinning]=useState(false);
@@ -9,6 +10,8 @@ const UserManage=(props:any)=>{
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '用户姓名',
@@ -27,8 +30,8 @@ const UserManage=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                       <Button type='link' onClick={()=>isDelete(record.id)} >删除</Button>
-                       <Button type='link' onClick={()=>toEdit(record.id)}>编辑</Button>
+                        {uqx[217]=='1'?<Button type='link' onClick={()=>isDelete(record.id)} >删除</Button>:''}
+                        {uqx[216]=='1'?<Button type='link' onClick={()=>toEdit(record.id)}>编辑</Button>:''}
                     </div>
                 )
             }
@@ -41,7 +44,8 @@ const UserManage=(props:any)=>{
         history.push(`/systemManage/editUser?id=${e}`)
     };
     useEffect(() => {
-        console.log(props);
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     const isDelete=(e:number)=>{
         setisopen(true);
@@ -85,9 +89,7 @@ const UserManage=(props:any)=>{
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            添加管理员
-                        </Button>
+                        {uqx[215]=='1'?<Button type="primary" onClick={toadd}>添加管理员</Button>:''}
                     </div>
                     <Space>
                         <Input

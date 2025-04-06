@@ -3,6 +3,7 @@ import {phonePattern} from "@/utils/OpenTool";
 import {useEffect, useRef, useState} from "react";
 import {connect} from "umi";
 import * as ZuhuServer from "@/services/zuhu";
+import {history} from "@@/core/history";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -32,7 +33,8 @@ const Byappuser=(props)=>{
             if (res.ErrorCode==0){
                 message.success('绑定成功');
                 setspinning(false);
-                getOneCustom(uid);
+                // getOneCustom(uid);
+                history.push('/kehu/zuhuguanlian');
             }else {
                 setspinning(false);
                 message.error(res.Data);

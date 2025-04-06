@@ -3,6 +3,7 @@ import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import {getRandomNumber} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const Cable=(props:any)=>{
     const [page,setPage]=useState(1);
@@ -12,6 +13,8 @@ const Cable=(props:any)=>{
     const [isSpinning,setIsSpinning]=useState(false);
     const [name,setNmae]=useState('');
     const [remark,setremark]=useState('');
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const toedit=(e)=>{
         history.push(`/waterCableManage/editCable?id=${e}`);
     };
@@ -86,6 +89,11 @@ const Cable=(props:any)=>{
             }
         },
         {
+            title: '价钱名称',
+            dataIndex: 'price_name',
+            key: 'price_name',
+        },
+        {
             title: '描述',
             dataIndex: 'remark',
             key: 'remark',
@@ -137,8 +145,8 @@ const Cable=(props:any)=>{
                     <>
                        <Space>
                            <Button type='link' onClick={()=>tojiben(record)}>基本业务</Button>
-                           <Button type='link' onClick={(e)=>toedit(record.id)}>编辑</Button>
-                           <Button type='link' onClick={(e)=>onDeleteOpen(record.id)}>删除</Button>
+                           {uqx[177]=='1'?<Button type='link' onClick={(e)=>toedit(record.id)}>编辑</Button> :''}
+                           {uqx[179]=='1'?<Button type='link' onClick={(e)=>onDeleteOpen(record.id)}>删除</Button> :''}
                        </Space>
                     </>
                 )
@@ -202,14 +210,16 @@ const Cable=(props:any)=>{
             }
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={isSpinning}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toAdd}>
-                            添加电表
-                        </Button>
+                        {uqx[178]=='1'?  <Button type="primary" onClick={toAdd}>添加电表</Button>:''}
                     </div>
                     <Space>
                         <Input

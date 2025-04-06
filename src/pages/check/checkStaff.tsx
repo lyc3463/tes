@@ -10,7 +10,7 @@ import {
     Select,
     Space,
     Spin,
-    Table,
+    Table, Tabs,
     Tag
 } from "antd";
 import dayjs from "dayjs";
@@ -18,6 +18,8 @@ import {useEffect, useState} from "react";
 import * as EmpService from "@/services/emp";
 import {history,connect} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
+import CompanyList from "@/pages/financeManage/companyList";
 
 const CheckStaff=(props:any)=>{
     const [uid,setUid]=useState<number>(0);
@@ -33,6 +35,8 @@ const CheckStaff=(props:any)=>{
     // 手机号
     const [phone,setPhone]=useState('');
     const [spinning,setspinning]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '登记日期',
@@ -115,7 +119,7 @@ const CheckStaff=(props:any)=>{
                                 :
                                 <Space>
                                     {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
-                                    <Button type='link' onClick={()=>check(record)}>审核通过</Button>
+                                    {uqx[187]=='1'? <Button type='link' onClick={()=>check(record)}>审核通过</Button> :''}
                                     {/*<Button type='link' color='red'>删除</Button>*/}
                                 </Space>
                         }
@@ -179,7 +183,6 @@ const CheckStaff=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props)
     }, [page]);
     // 监听员工姓名
     const changeName=(e)=>{
@@ -193,6 +196,10 @@ const CheckStaff=(props:any)=>{
     const changePhone=(e)=>{
         setPhone(e.target.value);
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>

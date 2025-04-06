@@ -85,7 +85,9 @@ const AddYuangonglData=(props:any)=>{
     const changeGrouping=(e:number)=>{
         GroupingServer.one(e).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('res',res)
                 let newArr :any[]=mapArrList(res.Data[1]);
+                console.log('newArr',newArr)
                 setobtain(newArr);
             }else {
                 message.error(res.Data);

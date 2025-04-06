@@ -4,6 +4,7 @@ import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {processBills} from "@/utils/OpenTool";
+import {StaticInfo} from "@/StaticInfo";
 
 const CheckFinance=(props:any)=>{
     // 展示total
@@ -44,6 +45,8 @@ const CheckFinance=(props:any)=>{
     const [billList,setBillList]=useState([]);
     // 一键审核弹窗
     const [allOpen,setAllOpen]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '日期',
@@ -195,9 +198,9 @@ const CheckFinance=(props:any)=>{
                         {
                             record.bill_status==0?
                                 <Space>
-                                    <Button type='link' onClick={()=>checkOpen(record.id)}>审核通过</Button>
+                                    {uqx[202]=='1'?<Button type='link' onClick={()=>checkOpen(record.id)}>审核通过</Button> :''}
+                                    {uqx[200]=='1'?<Button type='link' onClick={()=>toedit(record.id)}>编辑</Button> :''}
                                     <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
-                                    <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>
                                 </Space>:
                                 <>
                                     <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
@@ -423,6 +426,10 @@ const CheckFinance=(props:any)=>{
         })
         getBillFenye();
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>
@@ -607,9 +614,7 @@ const CheckFinance=(props:any)=>{
                         <Button type="primary"  onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" danger  onClick={allCheck}>
-                            一键审核
-                        </Button>
+                        {uqx[202]=='1'?<Button type="primary" danger  onClick={allCheck}>一键审核</Button> :''}
                     </Space>
                 </List.Item>
             </List>

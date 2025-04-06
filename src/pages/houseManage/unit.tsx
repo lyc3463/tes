@@ -2,6 +2,7 @@ import {Button, Input, InputNumber, List, message, Modal, Pagination, Select, Sp
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const Unit=(props:any)=>{
     const [page,setPage]=useState(1);
@@ -13,6 +14,8 @@ const Unit=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [open,setOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '所属房屋',
@@ -119,8 +122,8 @@ const Unit=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
-                        <Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>
+                        {uqx[248]=='1'?<Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button> :''}
+                        {uqx[249]=='1'?<Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>:''}
                     </Space>
                 )
             }
@@ -199,14 +202,16 @@ const Unit=(props:any)=>{
     const changestatus=(e)=>{
         setstatus(e);
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>
-                            新增单元
-                        </Button>
+                        {uqx[247]=='1'?<Button type="primary" onClick={toadd}>新增单元</Button> :''}
                     </div>
                     <Space>
                         <Input

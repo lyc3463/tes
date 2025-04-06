@@ -3,6 +3,7 @@ import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {exportDataToExcel} from "@/utils/OpenTool";
 
 const PayCount=(props)=>{
     // 当前页数
@@ -143,6 +144,43 @@ const PayCount=(props)=>{
     const changeType=(e)=>{
         setType(e);
     };
+    const exportToExcel=()=>{
+        let headers=['日期','租户名称','手机号','类型','金额(元)','原余额(元)','余额(元)'];
+        const ws_data = [
+            headers.map(header => ({ v: header, t: 's' })), // 表头
+            ...props.RechargeRateList.map(item => [
+                item.consumptionDate.split('T')[0], // 提取日期部分
+                item.user_name,
+                item.phone,
+                (() => {
+                    switch (item.consumptionType) {
+                        case 1:
+                            return '微信充值';
+                        case 2:
+                            return '租金';
+                        case 3:
+                            return '电费';
+                        case 4:
+                            return '水费';
+                        case 5:
+                            return '公共缴费';
+                        case 6:
+                            return '手动充值';
+                        case 7:
+                            return '损耗';
+                        case 8:
+                            return '违约金';
+                        default:
+                            return '未知类型'; // 处理未知类型的情况
+                    }
+                })(),
+                item.consumptionMoney,
+                item.oldMoney,
+                item.newMoney,
+            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+        ];
+        exportDataToExcel(ws_data);
+    };
     return(
         <div>
             <List>
@@ -207,6 +245,9 @@ const PayCount=(props)=>{
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
+                        </Button>
+                        <Button type="primary" onClick={exportToExcel}>
+                            导出
                         </Button>
                     </Space>
                 </List.Item>

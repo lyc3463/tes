@@ -13,7 +13,8 @@ import { fixPathname } from '@/utils/common';
 let pl={
     page:1,
     name:'',
-    phone:''
+    phone:'',
+    pagecount:50
 }
 
 export interface ZuhuCountState {
@@ -58,6 +59,7 @@ const WatertModels: ZuhuInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res
         },
         *fetchOne({ type, payload }, { put, call, select }): any {
             const list = yield select((state: any) => state.Zuhu.list);

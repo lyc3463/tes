@@ -3,28 +3,43 @@ import CompanyList from "@/pages/financeManage/companyList";
 import ProjectList from "@/pages/financeManage/projectList";
 import AccountList from "@/pages/financeManage/accountList";
 import SubjectList from "@/pages/financeManage/subjectList";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {StaticInfo} from "@/StaticInfo";
 const List=()=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('activeTabKey') || '1');
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const onChange = (key) => {
         setActiveKey(key);
         sessionStorage.setItem('activeTabKey', key); 
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
-          <Tabs  activeKey={activeKey} onChange={onChange}>
-              <Tabs.TabPane tab="公司列表" key="1">
-                  <CompanyList/>
-              </Tabs.TabPane>
-              <Tabs.TabPane tab="项目列表" key="2">
-                  <ProjectList/>
-              </Tabs.TabPane>
-              <Tabs.TabPane tab="账户列表" key="3">
-                  <AccountList/>
-              </Tabs.TabPane>
-              <Tabs.TabPane tab="科目列表" key="4">
-                  <SubjectList/>
-              </Tabs.TabPane>
+          <Tabs>
+              {uqx[145]=='1'?
+                  <Tabs.TabPane tab="公司列表" key="1">
+                      <CompanyList/>
+                  </Tabs.TabPane>
+                  :''}
+              {uqx[149]=='1'?
+                  <Tabs.TabPane tab="项目列表" key="2">
+                      <ProjectList/>
+                  </Tabs.TabPane>
+                  :''}
+              {uqx[157]=='1'?
+                  <Tabs.TabPane tab="账户列表" key="3">
+                      <AccountList/>
+                  </Tabs.TabPane>
+                  :''}
+              {uqx[161]=='1'?
+                  <Tabs.TabPane tab="科目列表" key="4">
+                      <SubjectList/>
+                  </Tabs.TabPane>
+                  :''}
           </Tabs>
         </div>
     )

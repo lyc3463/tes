@@ -17,9 +17,10 @@ import {
     getUserNamesById,
     calculateTotalRentalDays,
     getUseraddNameById,
-    getUserphoneById, calculateYearsAndMonths, getUseraddRessById, getunitTypeById
+    getUserphoneById, calculateYearsAndMonths, getUseraddRessById, getunitTypeById, contractsDz, groupImages
 
 } from "@/utils/OpenTool";
+import * as CheckCompanyService from "@/services/checkCompany";
 const NocheckZScontractez=(props)=>{
     const templateType=2;
     const [isOpen,setisOpen]=useState(false);
@@ -113,6 +114,10 @@ const NocheckZScontractez=(props)=>{
     const [decorationCost,setdecorationCost]=useState(0);
     // 管理费押金
     const [depositFee,setdepositFee]=useState(0);
+    // 房屋ID
+    const [houseId,sethouseId]=useState(0);
+    // 租户身份证
+    const [customCard,setcustomCard]=useState('');
     // 正式合同模板详情
     const getZSOne=()=>{
         ContractTypeService.one(templateType).then((res:TypeErrorCode)=> {
@@ -147,9 +152,11 @@ const NocheckZScontractez=(props)=>{
                 console.log('合同内容详情',res);
                 setEndDate(dayjs(res.Data[0].endTime).format('YYYY-MM-DD'));
                 setStartDate(dayjs(res.Data[0].beginTime).format('YYYY-MM-DD'));
-                setFormItems(res.Data[2]);
+                sethouseId(res.Data[0].houseId);
+                setFormItems(contractsDz(res.Data[0].zuMoney,res.Data[2]));
                 setmzFormItems(res.Data[1]);
                 setlegalPerson2(res.Data[0].legalPerson)
+                setcustomCard(res.Data[0].customCard)
                 setzuMoney(res.Data[0].zuMoney);
                 setdepositFee(res.Data[0].depositFee);
                 setdecorationCost(res.Data[0].decorationCost);
@@ -159,9 +166,11 @@ const NocheckZScontractez=(props)=>{
                 setmanageFeeRent(res.Data[0].manageFeeRent);
                 setdeposit(res.Data[0].deposit);
                 let documentBase64Split=res.Data[0].documentBase64.split('|');
-                setczB64(documentBase64Split);
+                let newczB64=groupImages(documentBase64Split, 4);
+                setczB64(newczB64);
                 let unitBase64Split=res.Data[0].unitBase64.split('|');
-                setuintB64(unitBase64Split);
+                let newunitB64=groupImages(unitBase64Split, 4);
+                setuintB64(newunitB64);
                 setDeliveryDate(res.Data[0].deliveryDate);
                 setbusinessEntity(res.Data[0].businessEntity);
                 setbusinessScope(res.Data[0].businessScope);
@@ -199,16 +208,16 @@ const NocheckZScontractez=(props)=>{
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
-        getUnitList();
         getCheckCompanyList();
         getOneStaff(id);
         getZSOne();
     }, []);
+    useEffect(() => {
+        getUnitList(houseId);
+    }, [houseId]);
     // 获取单元列表
-    const getUnitList=()=>{
-        props.dispatch({
-            type:'Unit/fetch',
-        }).then((res:TypeErrorCode)=>{
+    const getUnitList=(e:any)=>{
+        UnitService.stutesUnit({house_id:e}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 console.log('单元列表',res)
                 setUnitList(res.Data);
@@ -216,17 +225,37 @@ const NocheckZScontractez=(props)=>{
                 message.error(res.Data)
             }
         })
+        // props.dispatch({
+        //     type:'Unit/fetch',
+        // }).then((res:TypeErrorCode)=>{
+        //     if (res.ErrorCode==0){
+        //         console.log('单元列表',res)
+        //         setUnitList(res.Data);
+        //     }else {
+        //         message.error(res.Data)
+        //     }
+        // })
     };
     // 获取客户列表
+    // const getCheckCompanyList=()=>{
+    //     props.dispatch({
+    //         type:'CheckCompany/fetch'
+    //     }).then((res:TypeErrorCode)=>{
+    //         if (res.ErrorCode==0){
+    //             console.log('客户列表',res)
+    //             setclientList(res.Data);
+    //         }
+    //     });
+    // };
+    // 获取客户列表
     const getCheckCompanyList=()=>{
-        props.dispatch({
-            type:'CheckCompany/fetch'
-        }).then((res:TypeErrorCode)=>{
+        CheckCompanyService.companyList({name:''}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('客户列表',res)
                 setclientList(res.Data);
+            }else {
+                message.error(res.Data);
             }
-        });
+        })
     };
     const columns = [
         {
@@ -255,12 +284,12 @@ const NocheckZScontractez=(props)=>{
         },
         {
             title: '月租金金额（人民币）',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'zuMoney',
+            key: 'zuMoney',
             render:(text:any,record:any,)=>{
                 return(
                     <p>
-                        {(((record.incremental/100)*zuMoney)+zuMoney).toFixed(2)}元
+                        {record.zuMoney}元
                     </p>
                 )
             }
@@ -296,7 +325,7 @@ const NocheckZScontractez=(props)=>{
     };
     useEffect(() => {
         filterzuArea(unitarrList);
-    }, [unitarrList,mianji]);
+    }, [unitarrList,mianji,unitList]);
     return (
         <p>
             <p><Button type='primary' onClick={()=>setisOpen(true)}>预览PDF</Button></p>
@@ -827,7 +856,7 @@ const NocheckZScontractez=(props)=>{
                         附件五 双方证照文件
                     </p>
                     <p className={styles.linheP}  >
-                        附件六 《关于钱市街小程序使用的告知书》
+                        附件六 《关于钱汇助手平台使用的协议书》
                     </p>
                     <p className={styles.linheP}  >
                         附件七 《安全生产责任书》
@@ -901,6 +930,7 @@ const NocheckZScontractez=(props)=>{
                     </p>
                     <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
                     <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
+
                     <p  >
                         <h3>
                             附件四：廉洁诚信承诺书
@@ -993,37 +1023,36 @@ const NocheckZScontractez=(props)=>{
                     </p>
                     <p  >
                         <h3>
-                            附件六：关于钱市街小程序使用的告知书
+                            附件六：关于钱汇助手平台使用的协议书
                         </h3>
                     </p>
                     <p style={{ marginLeft: '50px', textAlign: 'center' }}>
                         <h2>
-                            关于钱市街小程序使用的告知书
+                            关于钱汇助手平台使用的协议书
                         </h2>
                     </p>
                     <p className={styles.linheP}  >
                         <h4>
-                            尊敬的商户：
+                            甲方：{companyName}
+                        </h4>
+                        <h4>
+                            乙方：{getUserNamesById(clientList,clientId)}
                         </h4>
                     </p>
                     <p className={styles.linheP}  >
-                        您好！
+                        为了提高服务效率，更及时反馈租户的费用信息，甲方委托广州欢逗八动漫科技有限公司开发了《钱汇助手》电子商务平台进行缴费管理，其中包含了短信提醒服务、账务管理以及欠费项目提示等诸多功能，乙方可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；乙方同意通过前述平台自助缴纳水电费、物业服务费、租金等相关费用并承诺合理安排缴费时间、金额，避免因拖欠水、电、物业服务费、租金等费用导致受限。
                     </p>
                     <p className={styles.linheP}  >
-                        为了提高服务效率，更及时反馈商户的费用信息，我司统一采用《生活用电小助手》电子商务平台进行缴费管理，其中包含了微信提醒服务、账务管理以及欠费项目提示等诸多功能，各商户可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；请商户合理安排缴费时间、金额，避免因拖欠水电费用导致受限。
+                        乙方确认《钱汇助手》缴费流程如下：
                     </p>
                     <p className={styles.linheP}  >
-                        缴费流程如下：
+                        使用微信搜索《钱汇助手》小程序，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。乙方可以自主在小程序根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。
                     </p>
                     <p className={styles.linheP}  >
-                        请使用微信搜索《钱市街小程序》，关注公众号，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。各商户届时可以自主在公众号根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。谢谢！
+                        本协议书经双方签署之日起生效。
                     </p>
-                    <p className={styles.linheP}  >
-                        {companyName}
-                    </p>
-                    <p className={styles.linheP}  >
-                        日期:
-                    </p>
+                    <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                    <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
                     <p className={styles.linheP} style={{ display: 'flex', justifyContent: 'center' }}>
                         <p className={styles.linheP} style={{ width: '80%', borderBottom: '1px solid #000' }}>
                         </p>
@@ -1056,7 +1085,7 @@ const NocheckZScontractez=(props)=>{
                         为了积极贯彻执行国家和本省、本市有关安全生产、消防、治安保卫、劳动保护等法律法规和相关标准，包括但不限于《中华人民共和国安全生产法》《中华人民共和国消防法》《中华人民共和国劳动法》《中华人民共和国反恐怖主义法》《中华人民共和国治安管理处罚法》《中华人民共和国环境保护法》《广东省安全生产条例》、广东省实施《中华人民共和国消防法》办法、《广东省公共安全视频图像信息系统管理办法》《广州市安全生产条例》《广州市安全生产管理规定》《仓库防火安全管理规则》《建筑内部装修设计防火规范》等。安全生产工作实行管行业必须管安全、管业务必须管安全、管生产经营必须管安全，强化和落实生产经营单位主体责任。
                     </p>
                     <p className={styles.linheP}  >
-                        一、现由{legalPerson2}先生/小姐，（身份证：{dispatchCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
+                        一、现由{legalPerson2}先生/小姐，（身份证：{customCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
                     </p>
                     <p className={styles.linheP}  >
                         二、生产经营单位的主要负责人是本单位安全生产第一责任人，对本单位的安全生产工作全面负责。
@@ -1310,7 +1339,7 @@ const NocheckZScontractez=(props)=>{
                                 如乙方需变更在租赁物从事经营主体、经营范围或业务范围的，需要事先征得甲方书面同意；涉及须经政府主管部门批准或办理登记手续的，乙方应自行办理。未经甲方书面同意，乙方不得将租赁物用于本条规定以外的其他用途。
                             </p>
                         </p>
-                        <p style={{height:"995px"}} >
+                        <p style={{height:"1020px"}} >
                             <p className={styles.linheP} style={{  fontWeight: 500, fontSize: '24px' }}>第二条：租赁期限</p>
                             <p className={styles.linheP} style={{ marginLeft:'20px'}}>
                                 租赁期限为 {calculateYearsAndMonths(startDate,endDate)}，即从{startDate}-{endDate}止（含免租期）。租赁期限届满前1个月，如双方未就续约事宜达成一致的，甲方可带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的1个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
@@ -1343,7 +1372,25 @@ const NocheckZScontractez=(props)=>{
                                 租金：租赁物租金第1年起为每月{zuMoney}元。第2年起每年租金将在上年的基础上递增，合同租金递增明细如下:
                             </p>
                             <p>
-                                <Table columns={columns} dataSource={formItems}  rowKey={(columns) => columns.id} size='small' pagination={false}/>
+                                {/*<Table columns={columns} dataSource={formItems}  rowKey={(columns) => columns.id} size='small' pagination={false}/>*/}
+                                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                                    <thead>
+                                    <tr>
+                                        <th style={{ border: "1px solid #ddd",textAlign:'center'}}>租期</th>
+                                        <th style={{ border: "1px solid #ddd",textAlign:'center'}}>递增比例</th>
+                                        <th style={{ border: "1px solid #ddd",textAlign:'center'}}>月租金金额(人民币)</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {formItems.map((row) => (
+                                        <tr key={row.id}>
+                                            <td style={{ border: "1px solid #ddd",textAlign:'center' }}>{dayjs(row.beginTime).format('YYYY-MM-DD')}至{dayjs(row.endTime).format('YYYY-MM-DD')}</td>
+                                            <td style={{ border: "1px solid #ddd",textAlign:'center'}}>{row.incremental}%</td>
+                                            <td style={{ border: "1px solid #ddd" ,textAlign:'center'}}>{row.zuMoney}</td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
                             </p>
                         </p>
                         <p style={{  height:'1040px'}}>
@@ -1801,7 +1848,7 @@ const NocheckZScontractez=(props)=>{
                                 签订合同系双方真实意思表示。乙方确认在同意订立本合同前，已仔细阅读本合同所有条款，对本合同所有条款及内容已经阅悉，均无异议，并对双方的权利义务达成了充分的理解，对甲方所特别提示的，免除或者限制甲方责任的条款有充分了解和预期。
                             </p>
                         </p>
-                        <p style={{  height:'1030px'}}>
+                        <p style={{  height:'1000px'}}>
                             <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>（以下无正文）</p>
                             <p className={styles.linheP}  >
                                 附件一 租赁物平面图
@@ -1819,7 +1866,7 @@ const NocheckZScontractez=(props)=>{
                                 附件五 双方证照文件
                             </p>
                             <p className={styles.linheP}  >
-                                附件六 《关于钱市街小程序使用的告知书》
+                                附件六 《关于钱汇助手平台使用的协议书》
                             </p>
                             <p className={styles.linheP}  >
                                 附件七 《安全生产责任书》
@@ -1837,20 +1884,47 @@ const NocheckZScontractez=(props)=>{
 
                         </p>
 
-                        <p style={{  height:'1030px'}}>
+                        <p>
                             <h3>
                                 附件一：《租赁物平面图》
                             </h3>
                             <p>
-                                <p style={{display:'flex'}}>
-                                    {unitB64.length>0?
-                                        unitB64.map((item:any,index:any)=>{
-                                            return <Space key={index}>
-                                                <Image src={item} style={{width:'300px',height:'300px'}}/>
-                                            </Space>
-                                        })
-                                        :''}
-                                </p>
+                                {unitB64.map((group, groupIndex) => (
+                                    <div
+                                        key={groupIndex}
+                                        style={{
+                                            height: "1000px",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "flex-start",
+                                            alignItems: "flex-start",
+                                            pageBreakAfter: "always", // 用于打印时分页
+                                        }}
+                                    >
+                                        <h4>
+                                            1.{groupIndex + 1}
+                                        </h4>
+                                        <div style={{ display: "flex", flexWrap: "wrap" }}>
+                                            {group.map((item, index) => (
+                                                <Space key={index}>
+                                                    <Image
+                                                        src={item}
+                                                        style={{ width: "300px", margin: "5px", maxHeight: "400px" }}
+                                                    />
+                                                </Space>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                                {/*<p style={{display:'flex'}}>*/}
+                                {/*    {unitB64.length>0?*/}
+                                {/*        unitB64.map((item:any,index:any)=>{*/}
+                                {/*            return <Space key={index}>*/}
+                                {/*                <Image src={item} style={{width:'300px',height:'300px'}}/>*/}
+                                {/*            </Space>*/}
+                                {/*        })*/}
+                                {/*        :''}*/}
+                                {/*</p>*/}
                             </p>
 
                         </p>
@@ -1860,8 +1934,25 @@ const NocheckZScontractez=(props)=>{
                                     附件二：1、房屋内交付标准及物品清单
                                 </h3>
                                 <p>
-                                    <Table columns={wupinTab} rowKey={(columns) => columns.key} dataSource={wupinList} size='small' style={{width:'600px'}}  pagination={false}/>
-
+                                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                                        <thead>
+                                        <tr>
+                                            <th style={{ border: "1px solid #ddd",textAlign:'center'}}>物品名称</th>
+                                            <th style={{ border: "1px solid #ddd",textAlign:'center'}}>物品标准</th>
+                                            <th style={{ border: "1px solid #ddd",textAlign:'center'}}>物品数量</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {wupinList.map((row) => (
+                                            <tr key={row.id}>
+                                                <td style={{textAlign:'center' }}>{row.wupinName}</td>
+                                                <td style={{ textAlign:'center'}}>{row.wupininfo}</td>
+                                                <td style={{textAlign:'center'}}>{row.wupinNuber}</td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table>
+                                    {/*<Table columns={wupinTab} rowKey={(columns) => columns.key} dataSource={wupinList} size='small' style={{width:'600px'}}  pagination={false}/>*/}
                                 </p>
                             </p>
 
@@ -1968,36 +2059,52 @@ const NocheckZScontractez=(props)=>{
                                 签约日期:
                             </p>
                         </p>
-                        <p style={{  height:'1030px'}}>
+                        <p>
                             <p>
                                 <h3>
                                     附件五：双方证照文件
                                 </h3>
                             </p>
-                            <p className={styles.linheP}>
-                                <h4>
-                                    1、承租方证照文件
-                                    <p style={{display:'flex',flexWrap:'wrap'}}>
-                                        {czb64.length>0 ?czb64.map((item:any,index:number)=><Space key={index}>
-                                                <Image src={item} style={{ width:'300px',margin:'5px'}} />
+                            {czb64.map((group, groupIndex) => (
+                                <div
+                                    key={groupIndex}
+                                    style={{
+                                        height: "1010px",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "flex-start",
+                                        alignItems: "flex-start",
+                                        pageBreakAfter: "always", // 用于打印时分页
+                                    }}
+                                >
+                                    <h4>
+                                        1.{groupIndex + 1}承租方证照文件
+                                    </h4>
+                                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                                        {group.map((item, index) => (
+                                            <Space key={index} style={{ flex: "1 1 40%" }}>
+                                                <Image
+                                                    src={item}
+                                                    style={{ width: "100%", margin: "5px", maxHeight: "400px" }}
+                                                />
                                             </Space>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
 
-                                        ) : ''}
-                                    </p>
-
-                                </h4>
-                            </p>
                             {/*<p className={styles.linheP}>*/}
                             {/*    <h4>*/}
-                            {/*        2、出租方证照文件*/}
-                            {/*    </h4>*/}
-                            {/*    <p style={{display:'flex'}}>*/}
-                            {/*        {b64.length>0 ?b64.map((item:any,index:number)=><Space key={index}>*/}
-                            {/*                <Image src={item} style={{ width: '200px',height:'200px',margin:'5px' }} />*/}
-                            {/*            </Space>*/}
+                            {/*        1、承租方证照文件*/}
+                            {/*        <p style={{display:'flex',flexWrap:'wrap'}}>*/}
+                            {/*            {czb64.length>0 ?czb64.map((item:any,index:number)=><Space key={index}>*/}
+                            {/*                    <Image src={item} style={{ width:'300px',margin:'5px',maxHeight:'400px'}} />*/}
+                            {/*                </Space>*/}
 
-                            {/*        ) : ''}*/}
-                            {/*    </p>*/}
+                            {/*            ) : ''}*/}
+                            {/*        </p>*/}
+
+                            {/*    </h4>*/}
                             {/*</p>*/}
                         </p>
                         <p style={{  height:'1030px'}}>
@@ -2007,7 +2114,7 @@ const NocheckZScontractez=(props)=>{
                                 </h4>
                                 <p style={{display:'flex'}}>
                                     {b64.length>0 ?b64.map((item:any,index:number)=><Space key={index}>
-                                            <Image src={item}  />
+                                            <Image src={item}  style={{ width:'300px',margin:'5px',maxHeight:'400px'}}/>
                                         </Space>
 
                                     ) : ''}
@@ -2017,37 +2124,36 @@ const NocheckZScontractez=(props)=>{
                       <p style={{  height:'1030px'}}>
                           <p>
                               <h3>
-                                  附件六：关于钱市街小程序使用的告知书
+                                  附件六：关于钱汇助手平台使用的协议书
                               </h3>
                           </p>
                           <p style={{ marginLeft: '50px', textAlign: 'center' }}>
                               <h2>
-                                  关于钱市街小程序使用的告知书
+                                  关于钱汇助手平台使用的协议书
                               </h2>
                           </p>
                           <p className={styles.linheP}  >
                               <h4>
-                                  尊敬的商户：
+                                  甲方：{companyName}
+                              </h4>
+                              <h4>
+                                  乙方：{getUserNamesById(clientList,clientId)}
                               </h4>
                           </p>
                           <p className={styles.linheP}  >
-                              您好！
+                              为了提高服务效率，更及时反馈租户的费用信息，甲方委托广州欢逗八动漫科技有限公司开发了《钱汇助手》电子商务平台进行缴费管理，其中包含了短信提醒服务、账务管理以及欠费项目提示等诸多功能，乙方可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；乙方同意通过前述平台自助缴纳水电费、物业服务费、租金等相关费用并承诺合理安排缴费时间、金额，避免因拖欠水、电、物业服务费、租金等费用导致受限。
                           </p>
                           <p className={styles.linheP}  >
-                              为了提高服务效率，更及时反馈商户的费用信息，我司统一采用《生活用电小助手》电子商务平台进行缴费管理，其中包含了微信提醒服务、账务管理以及欠费项目提示等诸多功能，各商户可以通过平台自助缴纳如水电费、物业服务费、租金等相关费用，节省缴费时间；请商户合理安排缴费时间、金额，避免因拖欠水电费用导致受限。
+                              乙方确认《钱汇助手》缴费流程如下：
                           </p>
                           <p className={styles.linheP}  >
-                              缴费流程如下：
+                              使用微信搜索《钱汇助手》小程序，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。乙方可以自主在小程序根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。
                           </p>
                           <p className={styles.linheP}  >
-                              请使用微信搜索《钱市街小程序》，关注公众号，绑定账户，输入门牌号、姓名、手机号登录平台后选择相应待缴费项目如“水费”“电费”“物业服务费”“租金”等。各商户届时可以自主在公众号根据缴费界面提示要求选择服务项并核对金额后进行缴费操作。谢谢！
+                              本协议书经双方签署之日起生效。
                           </p>
-                          <p className={styles.linheP}  >
-                              {companyName}
-                          </p>
-                          <p className={styles.linheP}  >
-                              日期:
-                          </p>
+                          <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>甲方（签署）:</span><span>乙方（签署）:</span></p>
+                          <p className={styles.linheP}   ><span style={{ marginRight: '200px' }}>签订日期 :<span style={{ color: "red" }}></span></span><span>签订日期:<span style={{ color: 'red' }}></span></span></p>
                           <p  style={{ display: 'flex', justifyContent: 'center' }}>
                               <p  style={{ width: '80%', borderBottom: '1px solid #000' }}>
                               </p>
@@ -2082,7 +2188,7 @@ const NocheckZScontractez=(props)=>{
                                为了积极贯彻执行国家和本省、本市有关安全生产、消防、治安保卫、劳动保护等法律法规和相关标准，包括但不限于《中华人民共和国安全生产法》《中华人民共和国消防法》《中华人民共和国劳动法》《中华人民共和国反恐怖主义法》《中华人民共和国治安管理处罚法》《中华人民共和国环境保护法》《广东省安全生产条例》、广东省实施《中华人民共和国消防法》办法、《广东省公共安全视频图像信息系统管理办法》《广州市安全生产条例》《广州市安全生产管理规定》《仓库防火安全管理规则》《建筑内部装修设计防火规范》等。安全生产工作实行管行业必须管安全、管业务必须管安全、管生产经营必须管安全，强化和落实生产经营单位主体责任。
                            </p>
                            <p className={styles.linheP}  >
-                               一、现由{legalPerson2}先生/小姐，（身份证：{dispatchCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
+                               一、现由{legalPerson2}先生/小姐，（身份证：{customCard}）为《房屋租赁合同书》项下租赁物现场安全负责人，负责租赁期内租赁场地现场的生产经营、消防、治安保卫等安全管理工作。如指派的现场安全负责人有变动，承租方须至少提前7个工作日书面告知出租方。
                            </p>
                            <p className={styles.linheP}  >
                                二、生产经营单位的主要负责人是本单位安全生产第一责任人，对本单位的安全生产工作全面负责。

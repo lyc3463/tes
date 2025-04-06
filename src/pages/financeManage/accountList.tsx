@@ -2,12 +2,15 @@ import {Button, Form, Input, List, message, Modal, Select, Space, Table} from "a
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import * as CompanService from "@/services/compan";
+import {StaticInfo} from "@/StaticInfo";
 
 const AccountList=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
     const [name,setName]=useState('');
     const [account_type,setAccount_type]=useState(2);
+    // 用户权限
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '账户名称',
@@ -46,8 +49,8 @@ const AccountList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        <Button type='primary' onClick={()=>{toedit(record.id)}}>编辑</Button>
-                        <Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>
+                        {uqx[159]=='1'?<Button type='primary' onClick={()=>{toedit(record.id)}}>编辑</Button>:''}
+                        {uqx[160]=='1'?<Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>:''}
                     </Space>
                 )
             }
@@ -55,11 +58,10 @@ const AccountList=(props:any)=>{
     ]
     const toadd=()=>{
         history.push('/financeManage/addAccountList')
-    }
-
+    };
     const toedit=(e:number)=>{
         history.push(`/financeManage/editAccountList?id=${e}`)
-    }
+    };
     // 删除的弹窗
     const isDelete=async (e:number)=>{
         setUid(e);
@@ -95,17 +97,22 @@ const AccountList=(props:any)=>{
     };
     // 监听类型变换
     const changeType=(e)=>{
-        console.log(e)
       setAccount_type(e);
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     return(
         <div>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary"  onClick={toadd}>
-                            添加账户
-                        </Button>
+                        {uqx[158]=='1'?
+                            <Button type="primary"  onClick={toadd}>
+                                添加账户
+                            </Button>
+                            :''}
                     </div>
                     <Space>
                         <Input
