@@ -46,6 +46,7 @@ const Alljiaoyi=(props)=>{
             payload:{page,name,phone,type,startDate,endDate,userID,pageSize}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('res',res);
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -168,7 +169,7 @@ const Alljiaoyi=(props)=>{
         setspinning(true);
         RechargeRateService.fetch({page:1,name,phone,type,startDate,endDate,userID,pageSize:100000}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let headers=['日期','租户名称','手机号','类型','金额'];
+                let headers=['日期','租户名称','手机号','类型','金额','房屋'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [
@@ -199,8 +200,10 @@ const Alljiaoyi=(props)=>{
                                     return '未知类型'; // 处理未知类型的情况
                             }
                         })(),
-                        item.payAmount,
-                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                        item.consumptionMoney,
+                        item.house_name,
+
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
                 ];
                 exportDataToExcel(ws_data);
                 setspinning(false);
