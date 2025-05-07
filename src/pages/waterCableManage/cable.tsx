@@ -7,6 +7,7 @@ import {StaticInfo} from "@/StaticInfo";
 
 const Cable=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [collectorId,setCollectorId]=useState('');
     const [did,setDid]=useState(0);
     const [open,setOpen]=useState(false);
@@ -155,8 +156,7 @@ const Cable=(props:any)=>{
     ];
     useEffect(() => {
         logFenye();
-        console.log('props',props)
-    }, [page]);
+    }, [page,pageSize]);
     const  toAdd=()=>{
         history.push('/waterCableManage/addCable')
     }
@@ -167,22 +167,26 @@ const Cable=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Cable/fetch",
-            payload:{page,collectorId,name,remark}
+            payload:{page,collectorId,name,remark,pageSize}
         })
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page,pageSizz)=>{
         setPage(page);
+        setPageSize(pageSizz);
         logFenye();
     };
     // 搜索
     const sousuo=()=>{
         setPage(1);
+        getFenyeInfo();
+        logFenye();
+    };
+    const getFenyeInfo=()=>{
         props.dispatch({
             type:"Cable/fenye",
-            payload:{collectorId,name,remark}
+            payload:{collectorId,name,remark,pageSize}
         })
-        logFenye();
     };
     // 监听采集器输入框
     const changeName=(e)=>{
@@ -213,6 +217,7 @@ const Cable=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFenyeInfo();
     }, []);
     return(
         <Spin spinning={isSpinning}>
@@ -269,6 +274,9 @@ const Cable=(props:any)=>{
                             <Table.Summary.Cell index={4}>
 
                             </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+
+                            </Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>
                                 {props.count?props.count.eleNumSum:''}kwh
                             </Table.Summary.Cell>
@@ -284,7 +292,7 @@ const Cable=(props:any)=>{
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         {/*    删除的弹窗*/}
             <Modal open={open} title='删除的弹窗' onOk={onOk} onCancel={()=>setOpen(false)}>
                 <div>确定要删除电表吗?</div>

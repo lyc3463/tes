@@ -1,11 +1,14 @@
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Rename=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
+    const [uid,setUid]=useState(0);
     // 手机号
     const [phone,setPhone]=useState('');
     // 状态 0全部，1未审核，2审核通过
@@ -14,6 +17,8 @@ const Rename=(props)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [open,setOpen]=useState(false);
+    const [spinning,setspinning]=useState(false);
     const columns =[
         {
             title: '申请日期',
@@ -41,15 +46,25 @@ const Rename=(props)=>{
             key: 'rename',
         },
         {
-            title: '手机号',
+            title: '原手机号',
             dataIndex: 'tenant_phone',
             key: 'tenant_phone',
         },
-        // {
-        //     title: '更改后手机号',
-        //     dataIndex: 'rephone',
-        //     key: 'rephone',
-        // },
+        {
+            title: '更改后的手机号',
+            dataIndex: 'rephone',
+            key: 'rephone',
+        },
+        {
+            title: '原身份证',
+            dataIndex: 'customCard',
+            key: 'customCard',
+        },
+        {
+            title: '更改后的身份证',
+            dataIndex: 'reCard',
+            key: 'reCard',
+        },
         {
             title: '状态',
             dataIndex: 'renameStatus',
@@ -60,13 +75,37 @@ const Rename=(props)=>{
                 )
             }
         },
+        {
+            title: '操作',
+            dataIndex: 'renameStatus',
+            key: 'renameStatus',
+            render:(text:any,record:any,)=>{
+                return(
+                    <Space>{record.renameStatus==2?
+                            ''
+                        :<>
+                            <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
+                            <Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>
+                        </>}
+                    </Space>
+                )
+            }
+        },
     ];
     const toadd=()=>{
-      history.push('/enter/addRename')
+      history.push('/enter/addRename');
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page,pageSize)=>{
         setPage(page);
+        setPageSize(pageSize);
+    };
+    const toedit=(e)=>{
+        history.push(`/enter/editRename?id=${e}`);
+    };
+    const isDelete=(e)=>{
+        setUid(e);
+        setOpen(true);
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -90,16 +129,16 @@ const Rename=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Rename/fetch",
-            payload:{page,phone,stutes,startDate,endDate}
+            payload:{page,phone,stutes,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     const fenyeinfo=()=>{
         props.dispatch({
             type:'Rename/fenye',
-            payload:{phone,stutes,startDate,endDate}
+            payload:{phone,stutes,startDate,endDate,pageSize}
         })
     };
     // 搜索
@@ -111,11 +150,28 @@ const Rename=(props)=>{
     useEffect(() => {
         fenyeinfo();
     }, []);
+    const onOk=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:"Rename/remove",
+            payload:uid
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setOpen(false);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setOpen(false);
+                setspinning(false);
+            }
+        })
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
-
+                    <Button type='primary' onClick={toadd}>录入更名</Button>
                     <Space>
                         <Input
                             addonBefore="原手机号:"
@@ -180,8 +236,11 @@ const Rename=(props)=>{
                 }
                 dataSource={props.RenameList}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            <Modal open={open} title='是否要删除?' onCancel={()=>setOpen(false)} onOk={onOk} loading={spinning}>
+                <div>是否要删除?</div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

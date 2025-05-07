@@ -22,7 +22,10 @@ import {
     splitDataByEndTimeAndRentPeriod,
     calculateTotalRentalDays,
     replaceEnglishCommasWithChinese,
-    calculateTimePeriods, contractsDz
+    calculateTimePeriods,
+    contractsDz,
+    getHouseNameById,
+    getNamesByIds
 } from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
@@ -39,6 +42,12 @@ const tailLayout = {
 const AddStaff=(props:any)=>{
     const [form] = Form.useForm();
     const [unitstutes,setunitstutes]=useState(1);
+    // 合同编号房屋名称
+    const [houseName,sethouseName]=useState('');
+    // 合同编号数字
+    const [numNo,setNumNo]=useState(0);
+    //合同编号单元名称
+    const [unitNamess,setunitNamess]=useState('');
     // 递增
     // const [formItems, setFormItems] = useState([{ key: 1, beginTime: null, endTime: null, rentBeginTime: null,rentEndTime:null,incremental:1}]);
     const [formItems, setFormItems] = useState([]);
@@ -119,6 +128,7 @@ const AddStaff=(props:any)=>{
     };
     const onFinish= (values)=>{
         // let mzqJson=JSON.stringify(mzformItems);
+        let identifier=`${houseName}-${unitNamess}-${numNo}`;
         setspinning(true);
         let unit_id=unitarrList.join("|");
         if (contractType==2){
@@ -145,7 +155,7 @@ const AddStaff=(props:any)=>{
                 let jsonDate=JSON.stringify(date);
                 props.dispatch({
                     type:'Staff/addzs',
-                    payload:{...values,endDate,startDate,jsonDate,deliveryDate,documentImage,unitImage,imgs,contractTypeid,unit_id,remark,house_id,zuMoney}
+                    payload:{...values,identifier,endDate,startDate,jsonDate,deliveryDate,documentImage,unitImage,imgs,contractTypeid,unit_id,remark,house_id,zuMoney}
                 }).then((res:TypeErrorCode)=>{
                     if (res.ErrorCode==0){
                         setspinning(false);
@@ -160,7 +170,7 @@ const AddStaff=(props:any)=>{
         }else if (contractType==1){
             props.dispatch({
                 type:'Staff/adddj',
-                payload:{...values,dayDate,contractTypeid,unit_id,house_id,zuMoney}
+                payload:{...values,identifier,dayDate,contractTypeid,unit_id,house_id,zuMoney}
             }).then((res:TypeErrorCode)=>{
                 if (res.ErrorCode==0){
                     setspinning(false);
@@ -311,6 +321,8 @@ const AddStaff=(props:any)=>{
     };
     // 监听勾选的单元
     const changeunit=(e)=>{
+        let retUnitName=getNamesByIds(unitList,e);
+        setunitNamess(retUnitName);
         setUnitarrList(e);
         filterzuArea(e)
     };
@@ -321,9 +333,6 @@ const AddStaff=(props:any)=>{
         const totalrentable_area = filteredHouses.reduce((accumulator, currentHouse) => accumulator + currentHouse.rentable_area, 0);
         setminzujin(totalPrice);
         setmianji(totalrentable_area);
-    };
-    const sousuoUnit=()=>{
-
     };
     // 获取客户列表
     const getCheckCompanyList=()=>{
@@ -448,6 +457,8 @@ const AddStaff=(props:any)=>{
     };
     // 监听房屋
     const changeHouse=(e)=>{
+        let retunName=getHouseNameById(houseList,e);
+        sethouseName(retunName);
         sethouse_id(e);
         setunitStutes(false);
         getUnitList();
@@ -487,8 +498,9 @@ const AddStaff=(props:any)=>{
                                 }
                             </Select>
                         </Form.Item>
-                        <Form.Item label='合同编号' name='identifier' style={{width:'15rem'}} rules={[{required: true, message: ''}]}>
-                            <Input/>
+                        <Form.Item label='合同编号' style={{width:'15rem'}}>
+                            <InputNumber value={numNo} onChange={(e)=>setNumNo(e)}/>
+                            {/*<div>合同编号:{houseName+unitNamess}</div>*/}
                         </Form.Item>
                         {
                             contractType==1?<Form.Item label='签定日期' style={{width:'15rem'}}>

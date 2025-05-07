@@ -24,6 +24,7 @@ const Yinghangka=(props:any)=>{
     const [accountList,setAccountList]=useState([]);
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 开始时间
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
@@ -106,8 +107,9 @@ const Yinghangka=(props:any)=>{
     }, []);
 
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page,pageSize)=>{
         setPage(page);
+        setPageSize(pageSize);
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -121,25 +123,31 @@ const Yinghangka=(props:any)=>{
     };
     const suosou=()=>{
         setPage(1);
+        fenyeInfo();
+        logFenye();
+    };
+    const fenyeInfo=()=>{
         props.dispatch({
             type:'Duizhang/fenye',
-            payload:{name,startDate,endDate}
+            payload:{name,startDate,endDate,pageSize}
         })
-        logFenye();
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"Duizhang/fetch",
-            payload:{page,name,startDate,endDate}
+            payload:{page,name,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     const changeName=(e)=>{
       setName(e.target.value);
     };
+    useEffect(() => {
+        fenyeInfo();
+    }, []);
     return(
         <div>
             <List>
@@ -182,7 +190,7 @@ const Yinghangka=(props:any)=>{
                 dataSource={props.DuizhangList}
                 rowKey={(columns) => columns.id}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*添加对账弹窗*/}
             <Modal onCancel={()=>setOpen(false)} open={isOpen}  title={'对账金额'} footer={null}>
                 <Form

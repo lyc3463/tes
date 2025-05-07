@@ -43,9 +43,9 @@ const { TextArea } = Input;
 
 function Addgongsi(props: any) {
   // 收费类型 1周期性收费 2一次性收费 3押金类收费
-  const [itemType,setItemType]=useState(0);
+  const [itemType,setItemType]=useState(1);
   // 月金额计算方式 1固定金额 2按照单价收费 3每户手动输入
-  const [monthly_amount,setMonthly_amount]=useState(0);
+  const [monthly_amount,setMonthly_amount]=useState(1);
   // 扣款方式类型 1当期收当期 2当期收上期 3当期收下期
   const [deduction_method,setDeduction_method]=useState(0);
   //  收费间隔
@@ -126,7 +126,7 @@ function Addgongsi(props: any) {
         </Form.Item>
         {
           itemType==1?<><Form.Item label='收费间隔'>
-            每<InputNumber controls={false} defaultValue={item_interval} onChange={changeJianGe}/>天收费一次
+            每<InputNumber controls={false} defaultValue={item_interval} onChange={changeJianGe} min={0}/>天收费一次
             {/*<p style={{color:'#555',fontSize:'12px'}}>注意：下方单价和固定金额为每1天数额 。</p>*/}
           </Form.Item>
             {/*<Form.Item label='扣款方式'>*/}
@@ -147,12 +147,12 @@ function Addgongsi(props: any) {
           <Radio.Group onChange={jierType} defaultValue={monthly_amount}>
             <Radio value={1}>固定金额</Radio>
             <Radio value={2}>按照单价计算</Radio>
-            <Radio value={3}> 每户手动输入</Radio>
+            {itemType==1? '':<Radio value={3}> 每户手动输入</Radio>}
           </Radio.Group>
         </Form.Item>
         {
           monthly_amount==1?<Form.Item label='固定金额'>
-            <InputNumber onChange={changePrice}/>
+            <InputNumber onChange={changePrice} min={0}/>
           </Form.Item>:''
         }
         {

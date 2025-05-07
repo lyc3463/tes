@@ -15,7 +15,8 @@ let pl={
     startDate:'2000-01-01',
     endDate:'2099-01-01',
     stutes:0,
-    openId:0
+    openId:0,
+    pageSize:50
 }
 
 export interface CheckFpCountState {

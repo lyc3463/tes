@@ -3,11 +3,12 @@ import * as RechargeRateService from "@/services/rechargeRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
-import {wyList, wyListfenye} from "@/services/rechargeRate";
+import {exportDataToExcel} from "@/utils/OpenTool";
 
 const WyList=()=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
@@ -24,34 +25,39 @@ const WyList=()=>{
     };
     // 违约金缴费成功记录
     const getAllRate=()=>{
-        RechargeRateService.wyList({page,name,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        setspinning(true);
+        RechargeRateService.wyList({page,name,startDate,endDate,tenandId,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('res',res)
                 setdataSource(res.Data);
+                setspinning(false);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setspinning(false);
             }
         })
     };
     // 违约金缴费成功分页
     const getAllRatefenye=()=>{
-        RechargeRateService.wyListfenye({name,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        RechargeRateService.wyListfenye({name,startDate,endDate,tenandId,pageSize}).then((res:TypeErrorCode)=>{
+            setspinning(true);
             if (res.ErrorCode==0){
-                console.log(res)
                 setcount(res.Data.count);
-                setmoneySum(res.Data.moneySum)
+                setmoneySum(res.Data.moneySum);
+                setspinning(false);
             }else {
                 message.error(res.Data);
+                setspinning(false);
             }
         })
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         getAllRate()
-    }, [page]);
+    }, [page,pageSize]);
     useEffect(() => {
         getAllRatefenye();
     }, []);
@@ -63,7 +69,7 @@ const WyList=()=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {dayjs(record.created).format('YYYY-MM-DD')}
+                        {dayjs(record.created).format('YYYY-MM-DD HH:mm:ss')}
                     </div>
                 )
             }
@@ -108,6 +114,39 @@ const WyList=()=>{
             setEndDate(data[1]);
         }
     };
+    const exportToExcel=()=>{
+        RechargeRateService.wyList({page:1,name,startDate,endDate,tenandId,pageSize:100000}).then((res:TypeErrorCode)=>{
+            setspinning(true);
+            if (res.ErrorCode==0){
+                let headers=['日期','姓名','扣费金额(元)','类型','状态'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })),
+                    ...res.Data.map(item => [
+                        (dayjs(item.created).format("YYYY-MM-DD HH:mm:ss")),
+                        item.tenant_name,
+                        item.defaultAmount,
+                        '违约金',
+                        (() => {
+                            switch (item.billStatus) {
+                                case 1:
+                                    return '未交';
+                                case 2:
+                                    return '已交';
+                                default:
+                                    return '未知类型';
+                            }
+                        })()
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                ];
+                exportDataToExcel(ws_data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+    };
+
     return(
         <Spin spinning={spinning}>
             <List>
@@ -136,6 +175,9 @@ const WyList=()=>{
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
+                        </Button>
+                        <Button type="primary" onClick={exportToExcel}>
+                            导出
                         </Button>
                     </Space>
                 </List.Item>
@@ -168,7 +210,7 @@ const WyList=()=>{
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </Spin>
     )
 }

@@ -5,6 +5,7 @@ import * as ByStagesService from "@/services/byStages";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as ZuhuServer from "@/services/zuhu";
 import {history} from "@@/core/history";
+import dayjs from "dayjs";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -14,6 +15,7 @@ const Byitem=(props)=>{
     const [item_idz,setItem_idz]=useState([]);
     const [IsSpinning,setIsSpinning]=useState(false);
     const [uid,setUid]=useState('0');
+    const  [conterText,setconterText]=useState('');
     // 监听收费项目
     const changeitem=(e)=>{
         setItem_idz(e);
@@ -24,8 +26,9 @@ const Byitem=(props)=>{
         let item_id=item_idz.join('|');
         ByStagesService.byItem({uid,item_id}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                message.success('绑定收费项目成功');
-                history.push('/kehu/zuhuguanlian');
+                message.success('绑定收费项目成功,请勿重复绑定!');
+                // history.push('/kehu/zuhuguanlian');
+                setconterText(`已绑定成功,请勿重复绑定,操作时间${dayjs().format("YYYY-MM-DD HH:mm:ss")}`);
                 getOneCustom(uid);
                 setIsSpinning(false);
             }else {
@@ -105,6 +108,12 @@ const Byitem=(props)=>{
                   <Button type='primary' onClick={okItemID}>确定关联收费项目</Button>
               </Form.Item>
           </Form>
+            <Form.Item {...tailLayout}>
+                <div>
+                    <span style={{color:'red'}}>{conterText}</span>
+                </div>
+            </Form.Item>
+
         </Spin>
     )
 }

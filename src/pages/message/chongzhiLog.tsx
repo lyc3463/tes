@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 
 const ChongzhiLog=(props)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 审核状态
     const [stutes,setStutes]=useState(0);
     const [startDate,setStartDate]=useState('2000-01-01');
@@ -43,18 +44,19 @@ const ChongzhiLog=(props)=>{
             }
         }
     ];
-    const onChange=(e)=>{
-        setPage(e)
+    const onChange=(e,pageSize)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     const fenye=()=>{
         props.dispatch({
             type:'Recharge/fetch',
-            payload:{page,startDate,endDate,stutes}
+            payload:{page,startDate,endDate,stutes,pageSize}
         })
     };
     useEffect(() => {
         fenye();
-    }, [page]);
+    }, [page,pageSize]);
     const changeType=(e)=>{
       setStutes(e)
     };
@@ -70,12 +72,18 @@ const ChongzhiLog=(props)=>{
     };
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'Recharge/fenye',
-            payload:{startDate,endDate,stutes}
-        });
+        getFenYeInfo();
         fenye();
     };
+    const getFenYeInfo=()=>{
+        props.dispatch({
+            type:'Recharge/fenye',
+            payload:{startDate,endDate,stutes,pageSize}
+        });
+    };
+    useEffect(() => {
+        getFenYeInfo();
+    }, []);
     return(
         <div>
             <div>
@@ -141,7 +149,7 @@ const ChongzhiLog=(props)=>{
                         index % 2 === 1 ? 'tbodd' : 'tbeven'
                     }
                 />
-                {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+                {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
 
             </div>
         </div>

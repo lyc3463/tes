@@ -6,6 +6,7 @@ import {StaticInfo} from "@/StaticInfo";
 
 const Unit=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(999999999);
@@ -143,28 +144,31 @@ const Unit=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Unit/fetch",
-            payload:{page,name,beginRents,endRents,status,house_id}
+            payload:{page,name,beginRents,endRents,status,house_id,pageSize}
         })
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page,pageSize)=>{
         setPage(page);
-        logFenye();
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
 
     const changeName=(e:any)=>{
         setName(e.target.value)
     };
     const sousuo=()=>{
         setPage(1);
+        getFenyeInfo();
+        logFenye();
+    };
+    const getFenyeInfo=()=>{
         props.dispatch({
             type:"Unit/fetchFenye",
-            payload:{name,beginRents,endRents,status,house_id}
-        })
-        logFenye();
+            payload:{name,beginRents,endRents,status,house_id,pageSize}
+        });
     };
     const changeBeginRents=(e)=>{
         if (e){
@@ -205,7 +209,18 @@ const Unit=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getList();
+        getFenyeInfo();
     }, []);
+    const getList=()=>{
+        props.dispatch({
+            type:'House/fetch',
+            payload:{name,beginRents,endRents}
+        })
+    };
+    const changeHouse=(e)=>{
+        sethouse_id(e);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -214,6 +229,45 @@ const Unit=(props:any)=>{
                         {uqx[247]=='1'?<Button type="primary" onClick={toadd}>新增单元</Button> :''}
                     </div>
                     <Space>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                所属房屋:
+                            </div>
+                            <Select
+                                value={house_id}
+                                onChange={changeHouse}
+                                showSearch
+                                style={{ width: 150 }}
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = props.HounsList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                    return item?.house_name?.toLowerCase().includes(input.toLowerCase());
+                                }}
+                            >
+                                <Select.Option value={0} key={0}>
+                                    全部
+                                </Select.Option>
+                                {props.HounsList?props.HounsList.map((item:any,index:any)=>{
+                                    return(
+                                            <Select.Option value={item.id} key={item.id}>
+                                                {item.house_name}
+                                            </Select.Option>
+                                    )
+                                }):''}
+                            </Select>
+                        </Space.Compact>
                         <Input
                             onChange={changeName}
                             addonBefore="单元名称:"
@@ -265,9 +319,10 @@ const Unit=(props:any)=>{
                 dataSource={props.UnitList}
                 pagination={false}
                 size='small'
+                scroll={{y:'60vh'}}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal open={open} onCancel={()=>setOpen(false)} onOk={onOK} title='删除单元' loading={spinning}>
                 <div>
                     是否要删除？
@@ -279,6 +334,7 @@ const Unit=(props:any)=>{
 const mapStateToProps = (state: any) => {
     return {
         UnitList: state.Unit.list,
+        HounsList: state.House.list,
         count: state.Unit.count
     }
 };

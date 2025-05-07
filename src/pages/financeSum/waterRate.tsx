@@ -10,6 +10,7 @@ import {exportDataToExcel} from "@/utils/OpenTool";
 const WaterRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 租户姓名
     const [name,setName]=useState('');
     // 表地址
@@ -36,7 +37,7 @@ const WaterRate=(props)=>{
     // 获取水表扣费记录
     const getwaterRateList=()=>{
         setspinning(true);
-        dateWaterService.fetch(page,cid,name,startDate,endDate,tenantId,recordStatus,remark).then((res:TypeErrorCode)=>{
+        dateWaterService.fetch(page,cid,name,startDate,endDate,tenantId,recordStatus,remark,pageSize).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setspinning(false);
                 setwaterRateList(res.Data);
@@ -48,9 +49,8 @@ const WaterRate=(props)=>{
     };
     // 获取水表扣费记录分页
     const getwaterFenye=()=>{
-        dateWaterService.fenye(cid,name,startDate,endDate,tenantId,recordStatus,remark).then((res:TypeErrorCode)=>{
+        dateWaterService.fenye(cid,name,startDate,endDate,tenantId,recordStatus,remark,pageSize).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log("水费扣费分页信息",res)
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
                 setenergyUsage(res.Data.energyUsage);
@@ -66,8 +66,9 @@ const WaterRate=(props)=>{
         getwaterFenye();
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         getwaterRateList();
@@ -75,7 +76,7 @@ const WaterRate=(props)=>{
     }, []);
     useEffect(() => {
         getwaterRateList();
-    }, [page]);
+    }, [page,pageSize]);
     const columns =[
         {
             title: '日期',
@@ -172,21 +173,30 @@ const WaterRate=(props)=>{
     };
     // 导出数据
     const exportToExcel=()=>{
-        let headers=['日期','租户名称','水表地址','水表描述','类型','度数m³','消耗度数m³','扣费金额(元)'];
-        const ws_data = [
-            headers.map(header => ({ v: header, t: 's' })), // 表头
-            ...waterRatelist.map(item => [
-                item.recordTime.split('T')[0], // 提取日期部分
-                item.tenant_name,
-                item.address,
-                item.remark,
-                item.consumptionType='水费',
-                item.energyNew,
-                ((item.energyNew-item.energyOld).toFixed(2)),
-                item.energyUsage,
-            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
-        ];
-        exportDataToExcel(ws_data);
+        setspinning(true);
+        dateWaterService.fetch(page,cid,name,startDate,endDate,tenantId,recordStatus,remark,1000000).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setspinning(false);
+                let headers=['日期','租户名称','水表地址','水表描述','类型','度数m³','消耗度数m³','扣费金额(元)'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })), // 表头
+                    ...res.Data.map(item => [
+                        item.recordTime.split('T')[0], // 提取日期部分
+                        item.tenant_name,
+                        item.address,
+                        item.remark,
+                        item.consumptionType='水费',
+                        item.energyNew,
+                        ((item.energyNew-item.energyOld).toFixed(2)),
+                        item.energyUsage,
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                ];
+                exportDataToExcel(ws_data);
+            }else {
+                setspinning(false);
+                message.error(res.Data);
+            }
+        })
     };
     return(
         <Spin spinning={spinning}>
@@ -270,7 +280,7 @@ const WaterRate=(props)=>{
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </Spin>
     )
 }

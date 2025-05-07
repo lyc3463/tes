@@ -12,6 +12,7 @@ const TenantInfo=(props:any)=>{
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [stutes,setStutes]=useState(0);
     const [openid,setOpenid]=useState(0);
     // 租户手机号
@@ -75,7 +76,7 @@ const TenantInfo=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     // 删除的弹窗
     const onDelete=(record:any)=>{
       setUid(record.id);
@@ -94,19 +95,20 @@ const TenantInfo=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"TenantInfo/fetch",
-            payload:{page,content,phone,startDate,endDate,stutes,openid}
+            payload:{page,content,phone,startDate,endDate,stutes,openid,pageSize}
         })
     };
     const sousuo=()=>{
         setPage(1);
         props.dispatch({
             type:"TenantInfo/fenye",
-            payload:{content,phone,startDate,endDate,stutes,openid}
+            payload:{content,phone,startDate,endDate,stutes,openid,pageSize}
         });
         logFenye();
     };
-    const onChange=(e:any)=>{
-      setPage(e)
+    const onChange=(e:number,pageSize:number)=>{
+      setPage(e);
+      setPageSize(pageSize);
     };
     // 确定删除
     const onOk=()=>{
@@ -168,12 +170,13 @@ const TenantInfo=(props:any)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 size='small'
+                scroll={{y:'70vh'}}
                 dataSource={props.TenantInfoList}
                 // rowClassName={(record, index) =>
                 //     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 // }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal title='删除租户消息' open={dopen} loading={loading} onOk={onOk} onCancel={()=>setdopen(false)}>
                 <div>是否要删除</div>
             </Modal>

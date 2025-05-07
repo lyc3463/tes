@@ -1,41 +1,52 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import {exportDataToExcel} from "@/utils/OpenTool";
+import * as RechargeRateService from "@/services/rechargeRate";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const RechargeRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [spinning,setspinning]=useState(false);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
     const [type,setType]=useState(1);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
     const [userID,setuserID]=useState(0);
+    const [pageSize,setpageSize]=useState(50);
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'RechargeRate/fenye',
-            payload:{name,phone,type,startDate,endDate,userID}
-        });
         logFenye();
+        getFenyeInfo();
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"RechargeRate/fetch",
-            payload:{page,name,phone,type,startDate,endDate,userID}
+            payload:{page,name,phone,type,startDate,endDate,userID,pageSize}
         })
     };
+    const getFenyeInfo=()=>{
+        props.dispatch({
+            type:'RechargeRate/fenye',
+            payload:{name,phone,type,startDate,endDate,userID,pageSize}
+        });
+    };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setpageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
+    useEffect(() => {
+        getFenyeInfo();
+    }, []);
     const columns =[
         {
             title: '日期',
@@ -44,7 +55,7 @@ const RechargeRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {dayjs(record.consumptionDate).format('YYYY-MM-DD')}
+                        {dayjs(record.consumptionDate).format('YYYY-MM-DD HH:mm:ss')}
                     </div>
                 )
             }
@@ -125,44 +136,53 @@ const RechargeRate=(props)=>{
         }
     };
     const exportToExcel=()=>{
-        let headers=['日期','租户名称','手机号','类型','金额(元)','原余额(元)','余额(元)'];
-        const ws_data = [
-            headers.map(header => ({ v: header, t: 's' })), // 表头
-            ...props.RechargeRateList.map(item => [
-                item.consumptionDate.split('T')[0], // 提取日期部分
-                item.user_name,
-                item.phone,
-                (() => {
-                    switch (item.consumptionType) {
-                        case 1:
-                            return '微信充值';
-                        case 2:
-                            return '租金';
-                        case 3:
-                            return '电费';
-                        case 4:
-                            return '水费';
-                        case 5:
-                            return '公共缴费';
-                        case 6:
-                            return '手动充值';
-                        case 7:
-                            return '损耗';
-                        case 8:
-                            return '违约金';
-                        default:
-                            return '未知类型'; // 处理未知类型的情况
-                    }
-                })(),
-                item.consumptionMoney,
-                item.oldMoney,
-                item.newMoney,
-            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
-        ];
-        exportDataToExcel(ws_data);
+        RechargeRateService.fetch({page:1,name,phone,type,startDate,endDate,userID,pageSize:100000}).then((res:TypeErrorCode)=>{
+            setspinning(true);
+            if (res.ErrorCode==0){
+                let headers=['日期','租户名称','手机号','类型','金额(元)','原余额(元)','余额(元)'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })),
+                    ...res.Data.map(item => [
+                        item.consumptionDate.split('T')[0],
+                        item.user_name,
+                        item.phone,
+                        (() => {
+                            switch (item.consumptionType) {
+                                case 1:
+                                    return '微信充值';
+                                case 2:
+                                    return '租金';
+                                case 3:
+                                    return '电费';
+                                case 4:
+                                    return '水费';
+                                case 5:
+                                    return '公共缴费';
+                                case 6:
+                                    return '手动充值';
+                                case 7:
+                                    return '损耗';
+                                case 8:
+                                    return '违约金';
+                                default:
+                                    return '未知类型'; // 处理未知类型的情况
+                            }
+                        })(),
+                        item.consumptionMoney,
+                        item.oldMoney,
+                        item.newMoney,
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                ];
+                exportDataToExcel(ws_data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -231,8 +251,8 @@ const RechargeRate=(props)=>{
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

@@ -1,12 +1,12 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    return getData(1366, [vals.page,vals.startDate,vals.endDate,vals.stutes]);
+    return getData(1366, [vals.page,vals.startDate,vals.endDate,vals.stutes,vals.pageSize]);
 }
 export function fenye(vals:any) {
-    return getData(1367, [vals.startDate,vals.endDate,vals.stutes]);
+    return getData(1367, [vals.startDate,vals.endDate,vals.stutes,vals.pageSize]);
 }
 export function add(vals:any) {
-    return getData(1364, [vals.addbalance,vals.handType,vals.userId]);
+    return getData(1364, [vals.addbalance,vals.handType,vals.userId,vals.remark]);
 }
 export function check(vals:any) {
     return getData(1365, [vals.uid,vals.stutes=2]);

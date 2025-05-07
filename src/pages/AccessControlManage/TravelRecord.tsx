@@ -9,6 +9,7 @@ const TravelRecord=(props:any)=>{
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 闸机编号
     const [deviceSn,setDeviceSn]=useState('');
     const columns = [
@@ -53,28 +54,31 @@ const TravelRecord=(props:any)=>{
             setEndDate(data[1]);
         }
     };
-
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"TravelRecord/fetch",
-            payload:{page,deviceSn,startDate,endDate}
+            payload:{page,deviceSn,startDate,endDate,pageSize}
         });
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
-    const onChange=(e)=>{
-      setPage(e)
+    }, [page,pageSize]);
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     // 搜索
     const  sousuo=()=>{
-      setPage(1);
-      props.dispatch({
-          type:'TravelRecord/fenye',
-          dispatch:{deviceSn,startDate,endDate}
-      });
-      logFenye();
+        setPage(1);
+        getFenyeInfo();
+        logFenye();
+    };
+    const getFenyeInfo=()=>{
+        props.dispatch({
+            type:'TravelRecord/fenye',
+            dispatch:{deviceSn,startDate,endDate,pageSize}
+        });
     };
     return(
         <div>
@@ -118,7 +122,7 @@ const TravelRecord=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </div>
     )
 }

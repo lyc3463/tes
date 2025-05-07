@@ -7,6 +7,7 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 const Collector=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [collector_number,setCollector_number]=useState('');
     const [stutes,setStutes]=useState(2);
     const [uid,setUid]=useState(0);
@@ -116,13 +117,13 @@ const Collector=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Collector/fetch",
-            payload:{page,collector_number,stutes}
+            payload:{page,collector_number,stutes,pageSize}
         })
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page:number,pageSize:number)=>{
         setPage(page);
-        logFenye();
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
@@ -135,11 +136,14 @@ const Collector=(props:any)=>{
     };
     const sousuo=()=>{
         setPage(1);
+        logFenye();
+        getFyInfo();
+    };
+    const getFyInfo=()=>{
         props.dispatch({
             type:"Collector/fenye",
-            payload:{collector_number,stutes}
+            payload:{collector_number,stutes,pageSize}
         })
-        logFenye();
     };
     // 删除确定按钮
     const onOk=()=>{
@@ -162,6 +166,7 @@ const Collector=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFyInfo();
     }, []);
     return(
         <Spin spinning={spinning}>
@@ -175,32 +180,32 @@ const Collector=(props:any)=>{
                             onChange={changeName}
                             addonBefore="采集器ID:"
                         />
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                连接状态:
-                            </div>
-                            <Select
-                                onChange={changeStutes}
-                                defaultValue={stutes}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value: 2, label: '全部' },
-                                    { value: 1, label: '未连接' },
-                                    { value: 0, label: '已连接' },
-                                ]}
-                            />
-                        </Space.Compact>
+                        {/*<Space.Compact>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            borderStartEndRadius: 0,*/}
+                        {/*            borderEndEndRadius: 0,*/}
+                        {/*            padding: '0 11px',*/}
+                        {/*            border: '1px solid #d9d9d9',*/}
+                        {/*            display: 'flex',*/}
+                        {/*            alignItems: 'center',*/}
+                        {/*            borderInlineEnd: 0,*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        连接状态:*/}
+                        {/*    </div>*/}
+                        {/*    <Select*/}
+                        {/*        onChange={changeStutes}*/}
+                        {/*        defaultValue={stutes}*/}
+                        {/*        style={{ width: 120 }}*/}
+                        {/*        options={[*/}
+                        {/*            { value: 2, label: '全部' },*/}
+                        {/*            { value: 1, label: '未连接' },*/}
+                        {/*            { value: 0, label: '已连接' },*/}
+                        {/*        ]}*/}
+                        {/*    />*/}
+                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -215,7 +220,7 @@ const Collector=(props:any)=>{
                 dataSource={props.CollectorList}
                 rowKey={(columns) => columns.id}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal onOk={onOk} open={isOpen} onCancel={()=>setIsOpen(false)} loading={spinning}>
                 <div>是否要删除该采集器</div>
             </Modal>

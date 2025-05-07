@@ -20,6 +20,7 @@ let pl={
     beginPriceHousing:1,
     endPriceHousing:8000000,
     houesID:0,
+    pageSize:50
 }
 
 

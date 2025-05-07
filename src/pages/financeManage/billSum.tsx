@@ -1,12 +1,14 @@
 import {connect} from 'umi'
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {history} from "@@/core/history";
 import {useEffect, useState} from "react";
 import {exportDataToExcel} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import * as BillService from "@/services/billSum";
 const BillSum=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 账单编号
     const [billAbstract,setBillAbstract]=useState('');
     // 开始时间
@@ -31,6 +33,7 @@ const BillSum=(props:any)=>{
     const [projectlist,setProjectlist]=useState([]);
     // 账户卡号
     const [account_card,setaccount_card]=useState('');
+    const [spinning,setspinning]=useState(false);
     const columns =[
         {
             title: '日期',
@@ -181,33 +184,47 @@ const BillSum=(props:any)=>{
         history.push(`/enter/financialDataInfo?id=${id}`);
     };
     // 导出数据
-    const exportToExcel=()=>{
-        let headers=['日期','编号','摘要','公司','项目','科目','收入/支出','收入/支出金额(元)','账户余额(元)'];
-        const ws_data = [
-            headers.map(header => ({ v: header, t: 's' })), // 表头
-            ...props.BillSumList.map(item => [
-                item.billDate.split('T')[0], // 提取日期部分
-                item.number,
-                item.billAbstract,
-                item.company_name,
-                item.project_name,
-                item.subject_name,
-                item.money_type === 1 ? '支出' : '收入',
-                item.billMoney,
-                item.balance
-            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
-        ];
-        exportDataToExcel(ws_data);
+    const getDcList=()=>{
+        setspinning(true);
+        BillService.fetch({page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize:100000}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let headers=['日期','编号','摘要','公司','项目','科目','收入/支出','收入/支出金额(元)','账户余额(元)'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })), // 表头
+                    ...res.Data.map(item => [
+                        item.billDate.split('T')[0], // 提取日期部分
+                        item.number,
+                        item.billAbstract,
+                        item.company_name,
+                        item.project_name,
+                        item.subject_name,
+                        item.money_type === 1 ? '支出' : '收入',
+                        item.billMoney,
+                        item.balance
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                ];
+                exportDataToExcel(ws_data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
     };
+
     useEffect(() => {
         logFenye();
+    }, [page,pageSize]);
+    const onChange=(e:number,pageSize:number)=>{
+      setPage(e);
+      setPageSize(pageSize);
+    };
+    useEffect(() => {
         getProjectList();
         getSubjectList();
         getCompanList();
-    }, [page]);
-    const onChange=(e)=>{
-      setPage(e);
-    };
+        getFenyeInfo();
+    }, []);
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -230,17 +247,20 @@ const BillSum=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"BillSum/fetch",
-            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
+            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize}
         })
     };
     // 搜索
     const sousuo=()=>{
         setPage(1);
+        getFenyeInfo();
+        logFenye();
+    };
+    const getFenyeInfo=()=>{
         props.dispatch({
             type:'BillSum/fenye',
-            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
+            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize}
         });
-        logFenye();
     };
     // 获取公司列表
     const getCompanList=()=>{
@@ -338,7 +358,7 @@ const BillSum=(props:any)=>{
         setSubjList(oldarr.concat(newarr));
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                    <Space>
@@ -492,7 +512,7 @@ const BillSum=(props:any)=>{
                         <Button type="primary"  onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
+                        <Button type="primary" onClick={getDcList}>
                             导出
                         </Button>
                     </Space>
@@ -503,6 +523,7 @@ const BillSum=(props:any)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 size='small'
+                scroll={{y:'65vh'}}
                 rowKey={(columns) => columns.id}
                 dataSource={props.BillSumList}
                 summary={(columns) => (
@@ -536,8 +557,8 @@ const BillSum=(props:any)=>{
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

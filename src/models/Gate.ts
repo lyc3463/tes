@@ -13,7 +13,8 @@ import { fixPathname } from '@/utils/common';
 import {fenye} from "@/services/gate";
 let pl={
     page:1,
-    deviceSn:''
+    deviceSn:'',
+    pageSize:50
 }
 
 export interface AccountCountState {

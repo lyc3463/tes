@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 
 const SendingLog=(props:any)=>{
     const [current, setCurrent] = useState(1);
+    const [pageSize, setpageSize] = useState(50);
     const [phone,setPhone]=useState('');
     const [starTime,setStarTime]=useState('2000-01-01');
     const [endTime,setEndTime]=useState('2099-01-01');
@@ -36,11 +37,12 @@ const SendingLog=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"SendingLog/fetch",
-            payload:{current,phone,starTime,endTime}
+            payload:{current,phone,starTime,endTime,pageSize}
         })
     };
-    const onChange=(page)=>{
+    const onChange=(page,pageSize)=>{
         setCurrent(page);
+        setpageSize(pageSize);
     };
     const changeDate = (item, data) => {
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -56,15 +58,21 @@ const SendingLog=(props:any)=>{
     };
     const sousuo=()=>{
         setCurrent(1);
-        props.dispatch({
-           type:'SendingLog/fenye',
-            payload:{phone,starTime,endTime}
-        })
+        getFenyeInfo();
         logFenye();
     };
     useEffect(() => {
         logFenye();
-    }, [current]);
+    }, [current,pageSize]);
+    const getFenyeInfo=()=>{
+        props.dispatch({
+            type:'SendingLog/fenye',
+            payload:{phone,starTime,endTime,pageSize}
+        })
+    };
+    useEffect(() => {
+        getFenyeInfo();
+    }, []);
     return(
         <div>
             <List>
@@ -87,7 +95,7 @@ const SendingLog=(props:any)=>{
                 dataSource={props.SendingLogList}
                 pagination={false}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={current}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} pageSize={pageSize} current={current}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )
 }

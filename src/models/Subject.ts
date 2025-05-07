@@ -12,6 +12,7 @@ import SubjectType from '@/ModelTypes/TypeSubject';
 import { fixPathname } from '@/utils/common';
 let pl={
     name:'',
+    pageSize:1000
 }
 
 export interface ProjectCountState {

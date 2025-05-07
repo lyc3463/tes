@@ -7,6 +7,7 @@ import {StaticInfo} from "@/StaticInfo";
 
 const ReportLog=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setname]=useState('');
     const [state,setstate]=useState(0);
     const [phone,setPhone]=useState('');
@@ -36,12 +37,47 @@ const ReportLog=(props:any)=>{
             ),
         },
         {
+            title: '房屋',
+            dataIndex: 'house_name',
+        },
+        {
+            title: '单元名称',
+            dataIndex: 'unitList',
+            key: 'unitList',
+            sorter: {
+                compare: (a, b) => {
+                    // 获取 a 和 b 的 unitList 中第一个 unit_name
+                    const aUnitName = a.unitList[0]?.unit_name || '';
+                    const bUnitName = b.unitList[0]?.unit_name || '';
+
+                    // 比较 unit_name
+                    if (aUnitName < bUnitName) return -1;
+                    if (aUnitName > bUnitName) return 1;
+                    return 0;
+                },
+                multiple: 1,
+            },
+            width:200,
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
+                    </div>
+                )
+            }
+        },
+        {
             title: '报修用户',
-            dataIndex: 'appUser_name',
+            dataIndex: 'tenant_name',
         },
         {
             title: '用户联系方式',
-            dataIndex: 'appUser_phone',
+            dataIndex: 'tenant_phone',
         },
         {
             title: '跟进人',
@@ -107,14 +143,14 @@ const ReportLog=(props:any)=>{
     const getList=()=>{
       props.dispatch({
           type:'Report/fetch',
-          payload:{page,name,phone,state,openID,startDate,endDate}
+          payload:{page,name,phone,state,openID,startDate,endDate,pageSize}
       })
     };
     // 获取报修记录分页
     const getListfenye=()=>{
         props.dispatch({
             type:'Report/fenye',
-            payload:{name,phone,state,openID,startDate,endDate}
+            payload:{name,phone,state,openID,startDate,endDate,pageSize}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
@@ -126,8 +162,9 @@ const ReportLog=(props:any)=>{
       setIsOpen(true);
       setUid(e.id);
     };
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     // 选择跟进人
     const changeSelect=(e)=>{
@@ -158,7 +195,7 @@ const ReportLog=(props:any)=>{
     };
     useEffect(() => {
         getList();
-    }, [page]);
+    }, [page,pageSize]);
     useEffect(() => {
         getListfenye();
     }, []);
@@ -190,6 +227,10 @@ const ReportLog=(props:any)=>{
             <List>
                 <List.Item>
                     <Space>
+                        <Input
+                            onChange={(e)=>{setname(e.target.value)}}
+                            addonBefore="姓名:"
+                        />
                         <Input
                             onChange={(e)=>{setPhone(e.target.value)}}
                             addonBefore="手机号:"
@@ -238,6 +279,7 @@ const ReportLog=(props:any)=>{
                                 </Select.Option>
                             </Select>
                         </Space.Compact>
+
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -254,10 +296,20 @@ const ReportLog=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {count?<Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/* 分配跟进人弹窗*/}
             <Modal title='分配跟进人' open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOk} loading={loading}>
-                <Select style={{width:'100%'}} onChange={changeSelect}>
+                <Select
+                    style={{width:'100%'}}
+                    onChange={changeSelect}
+                    showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) => {
+                        // 假设每个 option 都有一个与数据项对应的 value 属性
+                        const item =props.UsersList.find(hetongID => hetongID.id == option?.value); // 您可能需要优化这个查找过程
+                        return item?.user_name?.toLowerCase().includes(input.toLowerCase());
+                    }}
+                >
                     {props.UsersList&&props.UsersList.length>0?props.UsersList.map((item:any,index:any)=>{
                         return(
                             <Select.Option value={item.id} key={index}>

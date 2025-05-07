@@ -15,6 +15,7 @@ let pl = {
     name:'',
     stutes:0,
     openID:0,
+    pageSize:50
 };
 
 export interface InvoiceLookUpCountState {

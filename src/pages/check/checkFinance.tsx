@@ -15,6 +15,7 @@ const CheckFinance=(props:any)=>{
     const [isOpen,setIsOpen]=useState(false);
     // 页码
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 摘要
     const [billAbstract,setBillAbstract]=useState('');
     // 开始时间
@@ -262,14 +263,14 @@ const CheckFinance=(props:any)=>{
     const getBillFenye=()=>{
         props.dispatch({
             type:'Bill/fenye',
-            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
+            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize}
         });
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"Bill/fetch",
-            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
+            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 let newdata=processBills(res.Data);
@@ -278,8 +279,9 @@ const CheckFinance=(props:any)=>{
         })
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -333,8 +335,7 @@ const CheckFinance=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-
-    }, [page]);
+    }, [page,pageSize]);
     useEffect(() => {
         getProjectList();
         getSubjectList();
@@ -657,7 +658,7 @@ const CheckFinance=(props:any)=>{
                       </Table.Summary>
                     )}
                 />
-            {props.count&&isfenye?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*    审核通过弹窗*/}
             <Modal open={isOpen} onOk={openOk} onCancel={()=>setIsOpen(false)} loading={spinning}>
                 <div>

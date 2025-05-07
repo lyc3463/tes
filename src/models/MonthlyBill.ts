@@ -105,12 +105,12 @@ const MonthlyBillModel: MonthlyBillInterface = {
                 //         payload: location.state,
                 //     });
                 // }
-                if (StaticInfo.userId > 0 && pathname === '/billLog/monthlyBill/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/billLog/monthlyBill/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
             });
         },
     },

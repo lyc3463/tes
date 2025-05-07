@@ -364,7 +364,7 @@ const NocheckZScontractez=(props)=>{
                     </p>
                     <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第二条：租赁期限</p>
                     <p className={styles.linheP}  >
-                        租赁期限为 {calculateYearsAndMonths(startDate,endDate)}，即从{startDate}-{endDate}止（含免租期）。租赁期限届满前1个月，如双方未就续约事宜达成一致的，甲方可带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的1个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
+                        租赁期限为 {calculateYearsAndMonths(startDate,endDate)}，即从{startDate}至{endDate}止（含免租期）。租赁期限届满前1个月，如双方未就续约事宜达成一致的，甲方可带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的1个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
                     </p>
                     <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第三条：免租期</p>
                     <p className={styles.linheP}  >
@@ -422,7 +422,7 @@ const NocheckZScontractez=(props)=>{
                     </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>(1)</span>
-                        租赁期间乙方经营过程中所产生的水电费按乙方实际使用量计算，每月电费、水费需提前充值预付，具体充值办法详见附件《关于生活用电小助手平台使用的告知书》；如乙方未按约向甲方支付租金等款项的，甲方可从乙方充值预付款中扣除乙方须向甲方支付的款项；以上水电单价均不含公摊及损耗，公摊及损害由乙方据实缴纳。如遇有关部门调整收费标准，则甲方可相应调整水电费标准。
+                        租赁期间乙方经营过程中所产生的水电费按乙方实际使用量计算，每月电费、水费需提前充值预付，具体充值办法详见附件《关于钱汇助手平台使用的协议书》；如乙方未按约向甲方支付租金等款项的，甲方可从乙方充值预付款中扣除乙方须向甲方支付的款项；以上水电单价均不含公摊及损耗，公摊及损害由乙方据实缴纳。如遇有关部门调整收费标准，则甲方可相应调整水电费标准。
                     </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>(2)</span>
@@ -804,11 +804,10 @@ const NocheckZScontractez=(props)=>{
                     </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>3.</span>
-                        甲、乙双方因履行本合同而相互发出或者提供的所有通知、文件、资料，均以合同中所列明的电子邮箱/微信、地址、电话送达，一方如果迁址或者变更电话及联系人，应当书面通知对方。电子邮箱和移动电话短信或微信送达的，电子邮件或短信或微信发出之日视为送达之日，邮寄方式按地址使用EMS、顺丰等快递邮寄的，自邮件发出后视为送达（对方拒收、非本人签收、退回、无法送达等均视为送达并同样产生送达的法律效力）。
-                    </p>
+                        甲、乙双方因履行本合同而相互发出或者提供的所有通知、文件、资料均以合同中所列明的电子邮箱/微信、地址、电话送达。电子邮箱和移动电话短信或微信送达的，电子邮件或短信或微信发出之日视为送达之日，邮寄方式按地址使用 EMS、顺丰等快递邮寄的，自邮件发出后视为送达(对方拒收、非本人 签收、退回、无法送达等均视为送达并同样产生送达的法律效力).                    </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>4.</span>
-                        甲方及甲方指定的本项目物业管理公司在本项目适当的公共范围设置告示板，以张贴管理规则及其他规定的通知及布告，通知或布告在告示板上连续张贴3天后，即构成对乙方的有效通知。
+                        甲方及甲方指定的本项目物业管理公司在本项目适当的公共范围设置告示板，以张贴管理规则及其他规定的通知及布告，通知或布告在告示板上连续张 贴3天后，即构成对乙方的有效通知。
                     </p>
                     <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第十四条：其他条款</p>
                     <p className={styles.linheP}  >
@@ -1169,7 +1168,7 @@ const NocheckZScontractez=(props)=>{
                         4．用电检修等特种作业，必须安排由持有有效特种作业操作证的人员进行，安排专人做好现场监管并督促作业人员严格遵守安全操作规范。
                     </p>
                     <p className={styles.linheP}  >
-                        5．严禁停放电动自行车、电动滑板车、独轮平衡车，以及携带电动车电池进入广州汉银广场内充电。
+                        5．严禁停放电动自行车、电动滑板车、独轮平衡车，以及携带电动车电池进入充电。
                     </p>
                     <p className={styles.linheP}  >
                         6．做好电气线路及用电设备的定期安全检查、维护、保养工作。
@@ -1342,7 +1341,7 @@ const NocheckZScontractez=(props)=>{
                         <p style={{height:"1020px"}} >
                             <p className={styles.linheP} style={{  fontWeight: 500, fontSize: '24px' }}>第二条：租赁期限</p>
                             <p className={styles.linheP} style={{ marginLeft:'20px'}}>
-                                租赁期限为 {calculateYearsAndMonths(startDate,endDate)}，即从{startDate}-{endDate}止（含免租期）。租赁期限届满前1个月，如双方未就续约事宜达成一致的，甲方可带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的1个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
+                                租赁期限为 {calculateYearsAndMonths(startDate,endDate)}，即从{startDate}至{endDate}止（含免租期）。租赁期限届满前1个月，如双方未就续约事宜达成一致的，甲方可带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的1个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
                             </p>
                             <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第三条：免租期</p>
                             <p className={styles.linheP}  >
@@ -1416,7 +1415,7 @@ const NocheckZScontractez=(props)=>{
                             </p>
                             <p className={styles.linheP}>
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(1)</span>
-                                租赁期间乙方经营过程中所产生的水电费按乙方实际使用量计算，每月电费、水费需提前充值预付，具体充值办法详见附件《关于生活用电小助手平台使用的告知书》；如乙方未按约向甲方支付租金等款项的，甲方可从乙方充值预付款中扣除乙方须向甲方支付的款项；以上水电单价均不含公摊及损耗，公摊及损害由乙方据实缴纳。如遇有关部门调整收费标准，则甲方可相应调整水电费标准。
+                                租赁期间乙方经营过程中所产生的水电费按乙方实际使用量计算，每月电费、水费需提前充值预付，具体充值办法详见附件《关于钱汇助手平台使用的协议书》；如乙方未按约向甲方支付租金等款项的，甲方可从乙方充值预付款中扣除乙方须向甲方支付的款项；以上水电单价均不含公摊及损耗，公摊及损害由乙方据实缴纳。如遇有关部门调整收费标准，则甲方可相应调整水电费标准。
                             </p>
                             <p className={styles.linheP}>
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(2)</span>
@@ -1660,7 +1659,7 @@ const NocheckZScontractez=(props)=>{
                             </p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'20px'}}>3.</span>
-                                甲、乙双方同意，有下列情形之一的，甲方可就本合同行使单方解除权，书面通知乙方提前解除本合同，乙方已支付的全部费用包括但不限于租金、物业服务费（无论该等费用对应的租赁期间是否届满）、合同保证金、物业费保证金等甲方有权不予退还，并且乙方还需向甲方支付相当于解除时二个月租金的违约金；若该等前述费用不足抵付甲方损失的，甲方有权继续向乙方追偿
+                                甲、乙双方同意，有下列情形之一的，甲方解除本合同，乙方已支付的全部费用包括但不限于租金、物业服务费（无论该等费用对应的租赁期间是否届满）、保证金甲方有权不予退还，并且乙方还需向甲方支付相当于解除时月租金及月物业管理费之和二倍的违约金;若该等前述费用不足抵付甲方损失的，甲方可以继续向乙方追偿:
                             </p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}></span>
@@ -1724,7 +1723,7 @@ const NocheckZScontractez=(props)=>{
                             </p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'20px'}}>4.</span>
-                                因乙方违约或本合同约定导致甲方行使单方解除权情形，致使甲方采取诉讼或非诉讼方式维护合法权益实现债权的，乙方应当承担甲方遭受的一切损失，包括但不限于甲方为此支付的诉讼费、律师费、差旅费及其他维护合法权益实现债权的费用
+                                因乙方违约导致甲方采取诉讼或非诉讼方式维护合法权益实现债权的,乙方须赔偿甲方蒙受的损失，包括但不限于甲方为此支付的诉讼费、律师费、差旅费及其他维护合法权益实现债权的费用.
                             </p>
                         </p>
                         <p style={{  height:'1030px'}}>
@@ -1754,15 +1753,15 @@ const NocheckZScontractez=(props)=>{
                             </p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400,marginLeft:'20px' }}>7.</span>
-                                乙方未按本合同规定履行其安全生产职责的，甲方有权立即制止乙方的违法、违约行为，要求乙方立即予以整改，如乙方拒不停止或拒不改正的，甲方有权解除租赁合同，收回租赁租赁物，履约保证金及其他乙方已付费用归甲方享有无需退还乙方。乙方或其聘用的第三方的原因造成的安全事故或造成的第三方人身伤害或财产损失，均由乙方承担全部责任，如因此给甲方造成损失（包括但不限于财产损失）的，乙方应赔偿甲方的损失。
+                                因乙方未按本合同规定履行其安全生产职责的，甲方有权立即制止乙方的违法、违约行为，要求乙方立即予以整改，如乙方拒不停止或拒不改正的，甲方有权解除租赁合同，收回租赁租赁物，履约保证金及其他乙方已付费用归甲方享有无需退还乙方。乙方或其聘用的第三方的原因造成的安全事故或造成的第三方人身伤害或财产损失，均由乙方承担全部责任，如因此给甲方造成损失（包括但不限于财产损失）的，乙方应赔偿甲方的损失。
                             </p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'20px'}}>8.</span>
-                                如乙方违反本合同规定，甲方有权要求其改正，乙方应在甲方限期内予以改正，乙方拒不改正或未在甲方限期内改正的，甲方有权采取有关措施制止乙方的违约行为（包括但不限于要求甲方指定物业管理公司停止提供物业服务及停止向租赁物供应中央空调等），由此给乙方和第三人造成的损失由乙方承担。
+                                乙方未按本合同规定履行其安全生产职责的，甲方可以立即制止乙方的违法、违约行为，要求乙方立即予以整改，如乙方拒不停止或拒不改正的，甲方可以解除租赁合同，收回租赁租赁物，保证金及其他乙方已付费用归甲方享有无需退还乙方。乙方或其聘用的第三方的原因造成的安全事故或造成的第三方人身伤害或财产损失，均由乙方承担全部责任，如因此给甲方造成损失(包括但不限于财产损失)的，乙方须赔偿甲方的损失。
                             </p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'20px'}}>9.</span>
-                                乙方须按照一个月的标准向甲方支付租金、物业费。
+                                租赁期内，因乙方原因导致租赁合同提前解除或终止，最后一个计租周期不足一个月的，乙方须按照一个月的标准向甲方支付租金、物业费。
                             </p>
                             <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第十一条：保险</p>
                             <p className={styles.linheP}  >
@@ -2160,7 +2159,7 @@ const NocheckZScontractez=(props)=>{
                           </p>
                           <p style={{ marginLeft: '50px', textAlign: 'center' }}>
                               <h3>
-                                  关于钱市街小程序使用的告知书——签收联
+                                  关于钱汇助手平台使用的告知书——签收联
                               </h3>
                           </p>
                           <p className={styles.linheP}  >
@@ -2276,7 +2275,7 @@ const NocheckZScontractez=(props)=>{
                                 4．用电检修等特种作业，必须安排由持有有效特种作业操作证的人员进行，安排专人做好现场监管并督促作业人员严格遵守安全操作规范。
                             </p>
                             <p className={styles.linheP}  >
-                                5．严禁停放电动自行车、电动滑板车、独轮平衡车，以及携带电动车电池进入广州汉银广场内充电。
+                                5．严禁停放电动自行车、电动滑板车、独轮平衡车，以及携带电动车电池进入充电。
                             </p>
                             <p className={styles.linheP}  >
                                 6．做好电气线路及用电设备的定期安全检查、维护、保养工作。

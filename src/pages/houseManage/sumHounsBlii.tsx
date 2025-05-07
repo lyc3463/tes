@@ -58,7 +58,6 @@ const SumHounsBlii=(props:any)=>{
     const getBillList=()=>{
         SumHounsBliiService.fenye(startDate).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('全部列表',res)
                 settenntrList(res.Data);
             }else {
                 message.error(res.Data);
@@ -90,6 +89,7 @@ const SumHounsBlii=(props:any)=>{
             title: '单元名称',
             dataIndex: 'unitList',
             key: 'unitList',
+            width:300,
             render: (text:any, record:any) => {
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
@@ -107,6 +107,14 @@ const SumHounsBlii=(props:any)=>{
             title: '租户名称',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            width:300,
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {record.tenant_name}
+                    </div>
+                )
+            }
         },
         {
             title: '合同周期',
@@ -163,13 +171,13 @@ const SumHounsBlii=(props:any)=>{
         getBillList();
         getBillsum();
         getfyBillsum();
+
     }, []);
     const changeDate=(_:any,item:any)=>{
         setstartDate(item);
     };
     // 详情
     const  toInfo=(e:any)=>{
-        console.log('点击详情',e.tenantBill);
         setOpen(true);
         setUid(e.id);
         setusername(e.tenant_name);
@@ -241,7 +249,7 @@ const SumHounsBlii=(props:any)=>{
             </List>
             <Table
                 columns={columns}
-                rowKey={(columns) => columns.tenantId}
+                rowKey={(columns) => columns.index}
                 pagination={false}
                 size='small'
                 dataSource={tenntrList}

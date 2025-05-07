@@ -6,6 +6,7 @@ import {StaticInfo} from "@/StaticInfo";
 
 const Yinghangka=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
     const [uid,setUid]=useState(0);
@@ -33,7 +34,7 @@ const Yinghangka=(props:any)=>{
             key: 'bankPhone',
         },
         {
-            title: '银行名称',
+            title: '开户行',
             dataIndex: 'bankName',
             key: 'bankName',
         },
@@ -85,14 +86,14 @@ const Yinghangka=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Yinghangka/fetch",
-            payload:{page,name,phone}
+            payload:{page,name,phone,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     const sousuo=()=>{
-      setPage(1);
+        setPage(1);
         logFenye();
     };
     // 删除的弹窗

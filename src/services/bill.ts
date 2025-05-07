@@ -1,9 +1,9 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    return getData(1038, [vals.page,vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId,vals.account_card]);
+    return getData(1038, [vals.page,vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId,vals.account_card,vals.pageSize]);
 }
 export function fetchNo(vals:any) {
-    return getData(1482, [vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus=0,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId,vals.account_card]);
+    return getData(1482, [vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus=0,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId,vals.account_card,vals.pageSize=1000000]);
 }
 export function add(vals:any) {
     return getData(1035, [
@@ -49,6 +49,6 @@ export function allCheck() {
     return getData(1418, []);
 }
 export function fenye(vals:any) {
-    return getData(1092, [vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId,vals.account_card]);
+    return getData(1092, [vals.billAbstract,vals.billBgeinTime,vals.billEndTime,vals.billStatus,vals.billMoneyType,vals.companyId,vals.projectId,vals.subjectId,vals.account_card,vals.pageSize]);
 }
 

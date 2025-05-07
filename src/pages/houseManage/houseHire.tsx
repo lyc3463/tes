@@ -4,12 +4,12 @@ import {useEffect, useState} from "react";
 
 const HouseHire=(props)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
     const [status,setstatus]=useState(2);
     const [house_id,sethouse_id]=useState(0);
-
     const columns =[
         {
             title: '所属房屋',
@@ -124,27 +124,30 @@ const HouseHire=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Unit/fetch",
-            payload:{page,name,beginRents,endRents,status,house_id}
+            payload:{page,name,beginRents,endRents,status,house_id,pageSize}
         })
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page,pageSize)=>{
         setPage(page);
-        logFenye();
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     const changeName=(e:any)=>{
         setName(e.target.value);
     };
     const sousuo=()=>{
         setPage(1);
+        logFenye();
+        getFenyeInfo();
+    };
+    const getFenyeInfo=()=>{
         props.dispatch({
             type:"Unit/fetchFenye",
-            payload:{name,beginRents,endRents,status,house_id}
+            payload:{name,beginRents,endRents,status,house_id,pageSize}
         })
-        logFenye();
     };
     const changeBeginRents=(e)=>{
         if (e){
@@ -162,6 +165,9 @@ const HouseHire=(props)=>{
             setEndRents(999999);
         }
     };
+    useEffect(() => {
+        getFenyeInfo();
+    }, []);
     return(
         <div>
             <List>
@@ -223,7 +229,7 @@ const HouseHire=(props)=>{
                 //     </Table.Summary>
                 // )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </div>
     )
 }

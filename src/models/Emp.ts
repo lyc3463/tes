@@ -16,7 +16,9 @@ let pl={
     cname:'',
     nickname:'',
     phone:'',
-    stutes:1
+    stutes:1,
+    companyName:'',
+    pageSize:50
 }
 
 export interface CustomState {

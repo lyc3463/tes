@@ -1,7 +1,7 @@
 import {getData, postData} from '@/network/http';
 // 查看特色列表
 export function fetch(vals:any) {
-    return getData(1076, [vals.name]);
+    return getData(1076, [vals.name,vals.pageSize]);
 }
 
 export function add(vals:any) {

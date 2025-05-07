@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 
 const MovementCable=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [collector_id,setCollector_id]=useState('');
     const [name,setName]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
@@ -91,7 +92,7 @@ const MovementCable=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'MovementCable/fenye',
-            payload:{collector_id,name,startDate,endDate,tenant}
+            payload:{collector_id,name,startDate,endDate,tenant,pageSize}
         });
         logFenye()
     };
@@ -99,16 +100,16 @@ const MovementCable=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"MovementCable/fetch",
-            payload:{page,collector_id,name,startDate,endDate,tenant}
+            payload:{page,collector_id,name,startDate,endDate,tenant,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props)
-    }, [page]);
+    }, [page,pageSize]);
     // 监听页数
-    const onChange=(e:number)=>{
-      setPage(e)
+    const onChange=(e:number,pageSize:number)=>{
+      setPage(e);
+      setPageSize(pageSize);
     };
     return(
         <Spin spinning={spinning}>
@@ -145,7 +146,7 @@ const MovementCable=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </Spin>
     )
 }

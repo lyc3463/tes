@@ -13,7 +13,8 @@ import { fixPathname } from '@/utils/common';
 let pl = {
   page:1,
   cname:'',
-  feetype:0
+  feetype:0,
+  pageSize:50
 };
 
 export interface GongsiCountState {

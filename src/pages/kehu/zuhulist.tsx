@@ -107,7 +107,6 @@ const Zuhulist=(props:any)=>{
             payload:{page,name,phone,pagecount}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('res',res)
                 setZuhuList(res.Data);
                 setOldZuhuList(res.Data);
             }
@@ -126,7 +125,7 @@ const Zuhulist=(props:any)=>{
     const logFenyeInfo=()=>{
         props.dispatch({
             type:'Zuhu/fenye',
-            payload:{page,name,phone,pagecount}
+            payload:{name,phone,pagecount}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);

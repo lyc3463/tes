@@ -1,12 +1,15 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import {exportDataToExcel} from "@/utils/OpenTool";
+import * as CableRateService from "@/services/cableRate";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const CableRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 租户名字
     const [name,setName]=useState('');
     // 电表地址
@@ -19,6 +22,7 @@ const CableRate=(props)=>{
     const [tenantId,settenantId]=useState(0);
     // 电表备注
     const [remark,setremark]=useState('');
+    const [spinning,setspinning]=useState(false);
     const [recordStatus,setrecordStatus]=useState('扣费成功');
     // 搜索
     const sousuo=()=>{
@@ -30,24 +34,24 @@ const CableRate=(props)=>{
     const getLogFenyeInfo=()=>{
         props.dispatch({
             type:'CableRate/fenye',
-            payload:{name,cid,startDate,endDate,tenantId,recordStatus,remark}
+            payload:{name,cid,startDate,endDate,tenantId,recordStatus,remark,pageSize}
         });
     };
     // 列表
     const logFenye=()=>{
         props.dispatch({
             type:"CableRate/fetch",
-            payload:{page,name,cid,startDate,endDate,tenantId,recordStatus,remark}
+            payload:{page,name,cid,startDate,endDate,tenantId,recordStatus,remark,pageSize}
         })
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props)
-    }, [page]);
+    }, [page,pageSize]);
     useEffect(() => {
         getLogFenyeInfo();
     }, []);
@@ -158,25 +162,34 @@ const CableRate=(props)=>{
         }
     };
     const exportToExcel=()=>{
-        let headers=['日期','租户名称','电表地址','电表描述','类型','度数kwh','消耗度数kwh','倍率','扣费金额(元)'];
-        const ws_data = [
-            headers.map(header => ({ v: header, t: 's' })), // 表头
-            ...props.CableRateList.map(item => [
-                item.recordTime.split('T')[0], // 提取日期部分
-                item.tenant_name,
-                item.address,
-                item.remark,
-                item.consumptionType='电费',
-                item.energyNew,
-                item.energyUsage,
-                item.rate,
-                item.eleMoney,
-            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
-        ];
-        exportDataToExcel(ws_data);
+        setspinning(true);
+        CableRateService.fetch({page:1,name,cid,startDate,endDate,tenantId,recordStatus,remark,pageSize:1000000}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let headers=['日期','租户名称','电表地址','电表描述','类型','度数kwh','消耗度数kwh','倍率','扣费金额(元)'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })), // 表头
+                    ...res.Data.map(item => [
+                        item.recordTime.split('T')[0], // 提取日期部分
+                        item.tenant_name,
+                        item.address,
+                        item.remark,
+                        item.consumptionType='电费',
+                        item.energyNew,
+                        item.energyUsage,
+                        item.rate,
+                        item.eleMoney,
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
+                ];
+                exportDataToExcel(ws_data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -258,8 +271,8 @@ const CableRate=(props)=>{
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

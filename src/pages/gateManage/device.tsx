@@ -24,6 +24,7 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const Device=(props)=>{
     // 页码
     const [page,setPage]=useState(1);
+    const [pageSize,setpageSize]=useState(50);
     // 闸机编号
     const [deviceSn,setDeviceSn]=useState('');
     // 二维码弹窗
@@ -101,23 +102,27 @@ const Device=(props)=>{
     const getGeteList=()=>{
       props.dispatch({
           type:'Gate/fetch',
-          payload:{page,deviceSn}
+          payload:{page,deviceSn,pageSize}
       })
     };
     useEffect(() => {
         getGeteList();
-    }, [page]);
+    }, [page,pageSize]);
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'Gate/fenye',
-            payload:{deviceSn}
-        });
+        getFenYeInfo();
         getGeteList();
     };
-    const onChange=(e:number)=>{
+    const getFenYeInfo=()=>{
+        props.dispatch({
+            type:'Gate/fenye',
+            payload:{deviceSn,pageSize}
+        });
+    };
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setpageSize(pageSize);
     };
     const changeDate=(_:any,item:any)=>{
         // 精确到秒的时间戳
@@ -127,7 +132,6 @@ const Device=(props)=>{
       setspinning(true);
       props.dispatch({
           type:'Gate/synchronous',
-          payload:{}
       }).then((res:TypeErrorCode)=>{
           if (res.ErrorCode==0){
               setspinning(false);
@@ -142,6 +146,7 @@ const Device=(props)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFenYeInfo();
     }, []);
     return(
         <Spin spinning={spinning} style={{zIndex:'10000'}}>
@@ -174,7 +179,7 @@ const Device=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*访客二维码*/}
             <Modal title='访客二维码' onOk={onOK} open={open} onCancel={()=>setOpen(false)} loading={spinning}>
                 <Form>

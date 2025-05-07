@@ -15,7 +15,8 @@ let pl={
     page:1,
     collectorId:'',
     name:'',
-    remark:''
+    remark:'',
+    pageSize:50
 }
 
 export interface CableCountState {

@@ -21,6 +21,7 @@ import {StaticInfo} from "@/StaticInfo";
 const YuangonglData=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 审核状态 0全部  1未审核 2已审核
     const [stutes,setStutes]=useState(1);
     // 姓名
@@ -29,6 +30,7 @@ const YuangonglData=(props:any)=>{
     const [nickname,setNickname]=useState('');
     // 手机号
     const [phone,setPhone]=useState('');
+    const [companyName,setcompanyName]=useState('');
     // 唯一ID
     const [uid,setUid]=useState(0);
     // 删除的名称
@@ -143,22 +145,27 @@ const YuangonglData=(props:any)=>{
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'Emp/fenye',
-            payload:{cname,nickname,phone,stutes}
-        });
+        getFenyeInfo();
         logFenye();
     };
     // 分页
+    const getFenyeInfo=()=>{
+        props.dispatch({
+            type:'Emp/fenye',
+            payload:{cname,nickname,phone,stutes,companyName,pageSize}
+        });
+    };
+    // 列表
     const logFenye=()=>{
         props.dispatch({
             type:"Emp/fetch",
-            payload:{page,cname,nickname,phone,stutes}
+            payload:{page,cname,nickname,phone,stutes,companyName,pageSize}
         })
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
 
     // 监听状态
@@ -167,8 +174,7 @@ const YuangonglData=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props);
-    }, [page]);
+    }, [page,pageSize]);
     // 监听员工姓名
     const changeName=(e)=>{
       setCname(e.target.value);
@@ -202,6 +208,7 @@ const YuangonglData=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFenyeInfo();
     }, []);
     return(
         <Spin spinning={spinning}>
@@ -222,6 +229,10 @@ const YuangonglData=(props:any)=>{
                         <Input
                             onChange={changePhone}
                             addonBefore="手机号:"
+                        />
+                        <Input
+                            onChange={(e)=>setcompanyName(e.target.value)}
+                            addonBefore="公司/单元:"
                         />
                         <Space.Compact>
                             <div
@@ -264,7 +275,7 @@ const YuangonglData=(props:any)=>{
                     rowKey={(columns) => columns.id}
                     size='small'
                 />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal onOk={onOk} open={isOpen} title={'删除人脸'} onCancel={()=>setIsOpen(false)} loading={spinning}>
                 <div>
                     <span>是否要删除：<span style={{color:"red"}}>{uname}</span></span>

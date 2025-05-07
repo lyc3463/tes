@@ -110,7 +110,7 @@ const EditUnit=(props:any)=>{
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                <Form.Item label='房屋名称' name='house_id'>
+                <Form.Item label='房屋名称' name='house_id' rules={[{ required: true, message: '请选择房屋' }]}>
                     <Select onChange={changehouse}>
                         {houseList.map((item:any,index:any)=>{
                             return(
@@ -121,28 +121,38 @@ const EditUnit=(props:any)=>{
                         })}
                     </Select>
                 </Form.Item>
-                <Form.Item label='单元名称' name='unit_name'>
+                <Form.Item label='单元名称' name='unit_name' rules={[{ required: true, message: '请填写单元' }]}>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='建筑面积㎡' name='floor_area'>
+                <Form.Item label='建筑面积㎡' name='floor_area' rules={[{ required: true, message: '建筑面积' }]}>
                     <InputNumber/>
                 </Form.Item>
-                <Form.Item label='可租面积㎡' name='rentable_area'>
+                <Form.Item label='可租面积㎡' name='rentable_area' rules={[{ required: true, message: '可租面积' }]}>
                     <InputNumber min={0} onChange={changerentable_area}/>
                 </Form.Item>
-                <Form.Item label='所属楼层(层)' name='floor'>
+                <Form.Item label='所属楼层(层)' name='floor' rules={[{ required: true, message: '所属楼层' }]}>
                     <InputNumber max={floors}/>
                 </Form.Item>
-                <Form.Item label='每平单价' name='rent'>
+                <Form.Item label='每平单价' name='rent' rules={[{ required: true, message: '每平单价' }]}>
                     <InputNumber min={0} onChange={changerent}/>
                 </Form.Item>
-                <Form.Item label='租金(元)' name='price'>
-                    <InputNumber min={zj}/>
+                <Form.Item label='租金(元)' name='price' rules={[
+                    { required: true, message: '租金' },
+                    {
+                        validator: (_, value) => {
+                            if (value && value < zj) {
+                                return Promise.reject(new Error(`租金不能少于${zj}元`));
+                            }
+                            return Promise.resolve();
+                        },
+                    },
+                ]}>
+                    <InputNumber/>
                 </Form.Item>
                 <Form.Item label='注意'>
                     <span style={{fontSize:'12px',color:'#555'}}>租金不能低于{zj}元=每平单价*可租面积</span>
                 </Form.Item>
-                <Form.Item label='单元类型' name='unit_type'>
+                <Form.Item label='单元类型' name='unit_type' rules={[{ required: true, message: '单元类型' }]}>
                     <Radio.Group >
                         <Radio value={1}>商业</Radio>
                         <Radio value={2}>办公</Radio>

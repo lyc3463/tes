@@ -21,6 +21,7 @@ import {
 const CheckReacharge=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 手机号
     const [phone,setPhone]=useState('');
     // 状态 0全部，1未审核，2审核通过
@@ -150,28 +151,30 @@ const CheckReacharge=(props:any)=>{
     // 搜索按钮
     const shousuo=()=>{
         setPage(1);
+        getFenyeInfo();
+        logFenye()
+    };
+    const getFenyeInfo=()=>{
         props.dispatch({
             type:'ManualRecharge/fenye',
-            payload:{startDate,endDate,stutes}
+            payload:{startDate,endDate,stutes,pageSize}
         });
-        logFenye()
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"ManualRecharge/fetch",
-            payload:{page,startDate,endDate,stutes}
+            payload:{page,startDate,endDate,stutes,pageSize}
         })
     };
     // 监听页数
-    const onChange=(page)=>{
-        setPage(page);
-
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
-        console.log('手动充值记录',props)
-    }, [page]);
+    }, [page,pageSize]);
     // 审核弹窗
     const isCheck=(e:any)=>{
         setOpen(true);
@@ -220,6 +223,9 @@ const CheckReacharge=(props:any)=>{
             }
         })
     };
+    useEffect(() => {
+        getFenyeInfo();
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>

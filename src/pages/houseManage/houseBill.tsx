@@ -14,7 +14,6 @@ const HouseBill=(props:any)=>{
         shousuo();
     }, []);
     useEffect(() => {
-        console.log('props',props)
         logFenye();
     }, [page]);
     // 分页
@@ -45,6 +44,7 @@ const HouseBill=(props:any)=>{
             title: '单元名称',
             dataIndex: 'unitList',
             key: 'unitList',
+            width:300,
             render: (text:any, record:any) => {
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
@@ -62,11 +62,20 @@ const HouseBill=(props:any)=>{
             title: '租户姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            width:300,
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {record.tenant_name}
+                    </div>
+                )
+            }
         },
         {
             title: '联系方式',
             dataIndex: 'tenant_phone',
             key: 'tenant_phone',
+            width:300,
         },
         {
             title: '操作',
@@ -109,7 +118,7 @@ const HouseBill=(props:any)=>{
                 size='small'
                 rowKey={(columns) => columns.id}
                 dataSource={props.ZuhuList}
-                scroll={{x:1500}}
+                scroll={{y:'60vh'}}
                 pagination={false}
             />
            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>

@@ -24,6 +24,7 @@ import {StaticInfo} from "@/StaticInfo";
 const AccessControlPurview=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setpageSize]=useState(50);
     const [stutes,setStutes]=useState(2);
     // 姓名
     const [cname,setCname]=useState('');
@@ -31,6 +32,7 @@ const AccessControlPurview=(props:any)=>{
     const [nickname,setNickname]=useState('');
     // 手机号
     const [phone,setPhone]=useState('');
+    const [companyName,setcompanyName]=useState('');
     // 弹窗状态
     const [isOpen,setOpen]=useState(false);
     // 删除的名字
@@ -109,26 +111,30 @@ const AccessControlPurview=(props:any)=>{
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'CheckEmp/fenye',
-            payload:{cname,nickname,phone,stutes}
-        });
+        getFenyeInfo();
         logFenye();
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"CheckEmp/fetch",
-            payload:{page,cname,nickname,phone,stutes}
+            payload:{page,cname,nickname,phone,stutes,companyName,pageSize}
         })
     };
+    const getFenyeInfo=()=>{
+        props.dispatch({
+            type:'CheckEmp/fenye',
+            payload:{cname,nickname,phone,stutes,companyName,pageSize}
+        });
+    };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setpageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     // 监听员工姓名
     const changeName=(e)=>{
         setCname(e.target.value);
@@ -169,6 +175,7 @@ const AccessControlPurview=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFenyeInfo();
     }, []);
     return(
         <Spin spinning={spinning}>
@@ -187,6 +194,10 @@ const AccessControlPurview=(props:any)=>{
                             onChange={changePhone}
                             addonBefore="手机号:"
                         />
+                        <Input
+                            onChange={(e)=>setcompanyName(e.target.value)}
+                            addonBefore="公司/单元:"
+                        />
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -202,7 +213,7 @@ const AccessControlPurview=(props:any)=>{
                 size='small'
                 scroll={{y:'70vh'}}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal onOk={onOk} title='删除员工' open={isOpen} onCancel={()=>setOpen(false)}>
                 <div>{`是否要删除${uname}`}</div>
             </Modal>

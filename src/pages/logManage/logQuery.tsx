@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import {findChangedPermissions} from "@/utils/OpenTool";
 const LogQuery=(props)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
@@ -53,19 +54,18 @@ const LogQuery=(props)=>{
             }
         },
     ];
-    const onChange=(e)=>{
+    const onChange=(e,pageSize)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
-        console.log("props",props);
-
-    }, [page]);
+    }, [page,pageSize]);
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"LogQuery/fetch",
-            payload:{page,name,startDate,endDate}
+            payload:{page,name,startDate,endDate,pageSize}
         })
     };
     // 时间选择
@@ -78,6 +78,20 @@ const LogQuery=(props)=>{
             setEndDate(data[1]);
         }
     };
+    const getFenyeInfo=()=>{
+        props.dispatch({
+            type:"LogQuery/fenye",
+            payload:{name,startDate,endDate,pageSize}
+        })
+    };
+    const sousuo=()=>{
+        setPage(1);
+        getFenyeInfo();
+        logFenye();
+    };
+    useEffect(() => {
+        getFenyeInfo();
+    }, []);
     return(
         <div>
             <List style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
@@ -104,7 +118,7 @@ const LogQuery=(props)=>{
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
-                        <Button type="primary" >
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -120,7 +134,7 @@ const LogQuery=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </div>
     )
 }

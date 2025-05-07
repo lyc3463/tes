@@ -15,7 +15,9 @@ let pl={
     customName:'',
     customBeginTime:'2000-01-01',
     customEndTime:'2099-01-01',
-    customStatus:2
+    customStatus:2,
+    userId:0,
+    pageSize:50
 }
 
 export interface CustomState {

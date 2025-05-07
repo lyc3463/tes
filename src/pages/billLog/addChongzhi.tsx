@@ -46,6 +46,8 @@ const AddChongzhi=(props:any)=>{
     const [userId,setUserId]=useState(0);
     // 点击充值的弹窗
     const [open,setOpen]=useState(false);
+    // 备注
+    const [remark,setremark]=useState('');
     const onFinish=()=>{
         setspinning(true);
         if (addbalance!=openBalance){
@@ -54,7 +56,7 @@ const AddChongzhi=(props:any)=>{
         }else {
             props.dispatch({
                 type:'ManualRecharge/add',
-                payload:{addbalance,userId,handType}
+                payload:{addbalance,userId,handType,remark}
             }).then((res:any)=>{
                 if (res.ErrorCode==0){
                     message.success('添加成功');
@@ -181,6 +183,9 @@ const AddChongzhi=(props:any)=>{
                     </Form.Item>
                     <Form.Item label='充值量'>
                         <InputNumber min={0}  onChange={(e)=>setopenBalance(e)} value={openBalance}/>
+                    </Form.Item>
+                    <Form.Item label='备注'>
+                        <Input.TextArea value={remark} onChange={(e)=>setremark(e.target.value)}/>
                     </Form.Item>
                     <Form.Item label='大写'>
                         <span style={{color:'red',fontWeight:'600'}}>{numberToRMB(addbalance)}</span>

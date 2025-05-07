@@ -5,6 +5,7 @@ import {Button, DatePicker, Input, List, message, Pagination, Space, Table, Tag}
 
 const MyTable=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [startDate,setStartDate]=useState('');
     const [endDate,setEndDate]=useState('');
     const [list,setList]=useState([]);
@@ -15,7 +16,6 @@ const MyTable=(props:any)=>{
     const [energyUsage,setenergyUsage]=useState(0);
     useEffect(() => {
         check_key();
-        console.log(props)
     }, [props,endDate,startDate]);
     const check_key=()=>{
       if (props.value==1){
@@ -59,7 +59,7 @@ const MyTable=(props:any)=>{
       }
     };
     const getList=(vals:string,vals2:string,pageNub:number)=>{
-      StatisticsService.fetch(pageNub,cid,name,vals,vals2,'扣费成功',0,remake).then((res:any)=>{
+      StatisticsService.fetch(pageNub,cid,name,vals,vals2,'扣费成功',0,remake,pageSize).then((res:any)=>{
           if (res.ErrorCode==0){
               setList(res.Data)
           }else {
@@ -68,7 +68,7 @@ const MyTable=(props:any)=>{
       })
     };
     const getListfenye=(vals:string,vals2:string)=>{
-      StatisticsService.fenye(cid,name,vals,vals2,'扣费成功',0,remake).then((res:any)=>{
+      StatisticsService.fenye(cid,name,vals,vals2,'扣费成功',0,remake,pageSize).then((res:any)=>{
           if (res.ErrorCode==0){
               setcount(res.Data.count);
               setenergyUsage(res.Data.energyUsage);

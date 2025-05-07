@@ -4,6 +4,7 @@ import {Button, Form, Input, InputNumber, List, message, Modal, Pagination, Spac
 import dayjs from "dayjs";
 const EnterAmount=(props)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const [open,setOpen]=useState(false);
     const [tenantId,settenantId]=useState(0);
@@ -44,23 +45,29 @@ const EnterAmount=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"EnterAmount/fetch",
-            payload:{page,name}
+            payload:{page,name,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props);
-    }, [page]);
+    }, [page,pageSize]);
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:"EnterAmount/fenye",
-            payload:{name}
-        });
+        fenyeInfo();
         logFenye();
     };
-    const onChange=(e)=>{
+    const fenyeInfo=()=>{
+        props.dispatch({
+            type:"EnterAmount/fenye",
+            payload:{name,pageSize}
+        });
+    };
+    useEffect(() => {
+        fenyeInfo();
+    }, []);
+    const onChange=(e,pageSize)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     const shuru=(item:any)=>{
         setOpen(true);
@@ -103,7 +110,7 @@ const EnterAmount=(props)=>{
             </List>
             <Table
                 columns={columns}
-                rowKey={(columns) => columns.id}
+                rowKey={(columns) => columns.tenantId}
                 pagination={false}
                 size='small'
                 dataSource={props.EnterAmountList}

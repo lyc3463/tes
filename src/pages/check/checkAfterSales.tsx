@@ -23,13 +23,10 @@ const CheckAfterSales=()=>{
     }, []);
     return(
         <div>
-            <Tabs>
+            <Tabs activeKey={activeKey} onChange={onChange}>
                 <Tabs.TabPane tab='更名审核' key='1'>
                     <CheckRename/>
                 </Tabs.TabPane>
-                {/*<Tabs.TabPane tab='转让审核' key='2'>*/}
-                {/*    <CheckTransference/>*/}
-                {/*</Tabs.TabPane>*/}
                 <Tabs.TabPane tab='续租审核' key='3'>
                     <CheckRenew/>
                 </Tabs.TabPane>

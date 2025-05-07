@@ -6,6 +6,7 @@ import {useEffect, useState} from "react";
 const CheckRenew=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 手机号
     const [phone,setPhone]=useState('');
     // 状态 0全部，1未审核，2审核通过
@@ -83,15 +84,16 @@ const CheckRenew=(props)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <Space>
-                        {record.renameStatus==2?'':<Space><Button type='link' onClick={()=>{isCheck(record)}}>确定审核</Button></Space>}
+                        {record.renameStatus==2?'':<Space><Button type='primary' onClick={()=>{isCheck(record)}}>确定审核</Button></Space>}
                     </Space>
                 )
             }
         }
     ];
     // 监听页数
-    const onChange=(page)=>{
-        setPage(page);
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -115,12 +117,12 @@ const CheckRenew=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Renew/fetch",
-            payload:{page,phone,stutes,startDate,endDate}
+            payload:{page,phone,stutes,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     // 搜索
     const suosou=()=>{
         setPage(1);
@@ -130,7 +132,7 @@ const CheckRenew=(props)=>{
     const fenyeinfo=()=>{
         props.dispatch({
             type:'Renew/fenye',
-            payload:{phone,stutes,startDate,endDate}
+            payload:{phone,stutes,startDate,endDate,pageSize}
         })
     };
     // 审核弹窗
@@ -224,7 +226,7 @@ const CheckRenew=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*    审核弹窗*/}
             <Modal open={isOpen} onOk={onOk} onCancel={()=>setOpen(false)} title='审核更名'>
                 <span>是否审核通过手机号:<span style={{color:'red'}}>{uphone}</span>的用户吗?</span>

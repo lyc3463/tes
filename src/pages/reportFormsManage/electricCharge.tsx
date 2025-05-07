@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 
 const ElectricCharge=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [collectorID,setCollectorID]=useState('');
     const [name,setName]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
@@ -71,26 +72,29 @@ const ElectricCharge=(props:any)=>{
     ];
     useEffect(() => {
         logFenye();
-        console.log(props)
-    }, [page]);
+    }, [page,pageSize]);
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"ElectricCharge/fetch",
-            payload:{page,name,collectorID,startDate,endDate}
+            payload:{page,name,collectorID,startDate,endDate,pageSize}
         })
     };
     // 搜索按钮
     const shousuo=()=>{
         setPage(1);
+        getFenyeInfo();
+        logFenye();
+    };
+    const getFenyeInfo=()=>{
         props.dispatch({
             type:'ElectricCharge/fenye',
-            payload:{page,name,collectorID,startDate,endDate}
+            payload:{page,name,collectorID,startDate,endDate,pageSize}
         });
-        logFenye()
     };
-    const onChange=(val:number)=>{
-        setPage(val)
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -102,6 +106,9 @@ const ElectricCharge=(props:any)=>{
             setEndDate(data[1]);
         }
     };
+    useEffect(() => {
+        getFenyeInfo();
+    }, []);
     return(
         <div>
             <List>
@@ -147,7 +154,7 @@ const ElectricCharge=(props:any)=>{
                 scroll={{x:1500}}
                 pagination={false}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </div>
     )
 }

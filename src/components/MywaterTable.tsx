@@ -6,6 +6,7 @@ import {fenye} from "@/services/dateWater";
 
 const MyTable=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [startDate,setStartDate]=useState('');
     const [endDate,setEndDate]=useState('');
     const [list,setList]=useState([]);
@@ -53,7 +54,7 @@ const MyTable=(props:any)=>{
         }
     };
     const getList=(vals:string,vals2:string,pageNub:number)=>{
-        StatisticsService.fetch(pageNub,cid,name,vals,vals2,0,'扣费成功',remake).then((res:any)=>{
+        StatisticsService.fetch(pageNub,cid,name,vals,vals2,0,'扣费成功',remake,pageSize).then((res:any)=>{
             if (res.ErrorCode==0){
                 setList(res.Data);
             }else {
@@ -62,7 +63,7 @@ const MyTable=(props:any)=>{
         })
     };
     const getListfenye=(vals:string,vals2:string)=>{
-        StatisticsService.fenye(cid,name,vals,vals2,0,'扣费成功',remake).then((res:any)=>{
+        StatisticsService.fenye(cid,name,vals,vals2,0,'扣费成功',remake,pageSize).then((res:any)=>{
             if (res.ErrorCode==0){
                 console.log('水表',res);
                 setenergyUsage(res.Data.energyUsage);
@@ -76,7 +77,7 @@ const MyTable=(props:any)=>{
     };
     const  sousuo=()=>{
         setPage(1);
-        getList(startDate,endDate,page);
+        getList(startDate,endDate,1);
         getListfenye(startDate,endDate)
     };
     const columns=[
@@ -216,7 +217,7 @@ const MyTable=(props:any)=>{
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page} onChange={changePage} pageSizeOptions={[50]}/>
+            <Pagination total={count} pageSize={pageSize} current={page} onChange={changePage} pageSizeOptions={[50]}/>
         </div>
     )
 }

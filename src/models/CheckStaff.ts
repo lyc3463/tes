@@ -18,7 +18,8 @@ let pl={
     contractStatus:0,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    name:''
+    name:'',
+    pageSize:50
 }
 export interface StaffCountState {
     count: number;

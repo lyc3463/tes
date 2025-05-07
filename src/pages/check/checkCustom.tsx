@@ -10,6 +10,8 @@ const CheckCustom=(props)=>{
     const [isOpen,setIsOpen]=useState(false);
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSzie]=useState(50);
+
     // 客户名称
     const [customName,setCustomName]=useState('');
     // 开始时间
@@ -20,6 +22,7 @@ const CheckCustom=(props)=>{
     const [customStatus,setCustomStatus]=useState(2);
     // 用户权限
     const [uqx,setUqx]=useState([]);
+    const [userId,setUserId]=useState(0);
 
     const columns =[
         {
@@ -288,7 +291,7 @@ const CheckCustom=(props)=>{
         setPage(1);
         props.dispatch({
             type:'CheckCustom/fenye',
-            payload:{customName,customBeginTime,customEndTime,customStatus}
+            payload:{customName,customBeginTime,customEndTime,customStatus,userId,pageSize}
         })
         logFenye();
     };
@@ -297,14 +300,15 @@ const CheckCustom=(props)=>{
         setCustomName(e.target.value)
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page:number,pageSize:number)=>{
         setPage(page);
+        setPageSzie(pageSize);
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"CheckCustom/fetch",
-            payload:{page,customName,customBeginTime,customEndTime,customStatus}
+            payload:{page,customName,customBeginTime,customEndTime,customStatus,userId,pageSize}
         })
     };
     // 时间选择
@@ -395,7 +399,7 @@ const CheckCustom=(props)=>{
                 rowKey={(columns) => columns.id}
                 dataSource={props.CustomList}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*    审核通过弹窗*/}
             <Modal open={isOpen} onOk={openOk} onCancel={()=>setIsOpen(false)}>
                 <div>

@@ -9,6 +9,7 @@ import {StaticInfo} from "@/StaticInfo";
 const Water=(props:any)=>{
     let mathNumber=getRandomNumber(1,10);
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [waterAddress,setwaterAddress]=useState('');
     const [name,setName]=useState('');
     const [remark,setremark]=useState('');
@@ -161,10 +162,10 @@ const Water=(props:any)=>{
     const toedit=(e:any)=>{
         history.push(`/waterCableManage/editWater?id=${e.id}`)
     };
-    const onChange=(e)=>{
+    const onChange=(e,pageSizz)=>{
       setPage(e);
+      setPageSize(pageSizz)
     };
-
     const tojiben=(e)=>{
       history.push(`/waterCableManage/waterjiben?id=${e.id}`)
     };
@@ -193,24 +194,27 @@ const Water=(props:any)=>{
     const getWater=()=>{
       props.dispatch({
           type:'Watert/fetch',
-          payload:{page,waterAddress,name,remark}
+          payload:{page,waterAddress,name,remark,pageSize}
       })
     };
     const sousuo=()=>{
         setPage(1);
+        getFenyeInfo();
+        getWater();
+    };
+    const getFenyeInfo=()=>{
         props.dispatch({
             type:'Watert/fenye',
-            payload:{waterAddress,name,remark}
+            payload:{waterAddress,name,remark,pageSize}
         });
-        getWater();
     };
     useEffect(() => {
         getWater();
-        console.log('props',props)
-    }, [page]);
+    }, [page,pageSize]);
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFenyeInfo();
     }, []);
     return(
         <Spin spinning={isSpinning}>
@@ -257,6 +261,7 @@ const Water=(props:any)=>{
                             <Table.Summary.Cell index={6}></Table.Summary.Cell>
                             <Table.Summary.Cell index={7}></Table.Summary.Cell>
                             <Table.Summary.Cell index={8}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}></Table.Summary.Cell>
                             <Table.Summary.Cell index={9}>{props.count?props.count.waterNumSum:''}m³</Table.Summary.Cell>
                             <Table.Summary.Cell index={10}>{props.count?props.count.total_used_amount:''}m³</Table.Summary.Cell>
 
@@ -264,7 +269,7 @@ const Water=(props:any)=>{
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal onOk={onOk} onCancel={()=>setOpne(false)} title='删除' open={open}>
                 <div>确定删除吗?</div>
             </Modal>

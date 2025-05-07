@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 const OutRent=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 手机号
     const [phone,setPhone]=useState('');
     // 状态 0全部，1未审核，2审核通过
@@ -79,13 +80,29 @@ const OutRent=(props:any)=>{
                 </div>
             )
         },
+        {
+            title: '操作',
+            dataIndex: 'xx',
+            key: 'xx',
+            render:(text:any,record:any,)=>{
+                return(
+                    <Space>
+                        {record.renameStatus==2?'':<>
+                            <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
+                            <Button type='primary' danger>删除</Button>
+                        </>}
+                    </Space>
+                )
+            }
+        },
     ];
     const toadd=()=>{
         history.push('/enter/addOutRent')
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page,pageSize)=>{
         setPage(page);
+        setPageSize(pageSize);
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -109,12 +126,12 @@ const OutRent=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"OutRent/fetch",
-            payload:{page,phone,stutes,startDate,endDate}
+            payload:{page,phone,stutes,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     // 搜索
     const suosou=()=>{
         setPage(1);
@@ -124,8 +141,11 @@ const OutRent=(props:any)=>{
     const fenyeinfo=()=>{
         props.dispatch({
             type:'OutRent/fenye',
-            payload:{phone,stutes,startDate,endDate}
+            payload:{phone,stutes,startDate,endDate,pageSize}
         })
+    };
+    const toedit=(e:number)=>{
+        history.push(`/enter/editOutRent?id=${e}`);
     };
     return(
         <div>
@@ -201,7 +221,7 @@ const OutRent=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </div>
     )
 }

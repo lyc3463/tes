@@ -17,7 +17,8 @@ let pl={
     type:1,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    userID:0
+    userID:0,
+    pageSize:50
 }
 
 export interface PropertiesCountState {

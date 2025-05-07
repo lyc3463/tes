@@ -1,11 +1,13 @@
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Renew=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setpageSize]=useState(50);
     // 手机号
     const [phone,setPhone]=useState('');
     // 状态 0全部，1未审核，2审核通过
@@ -14,6 +16,9 @@ const Renew=(props:any)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [uid,setUid]=useState(0);
+    const [open,setOpen]=useState(false);
+    const [spinning,setspinning]=useState(false);
     const columns =[
         {
             title: '申请日期',
@@ -62,22 +67,39 @@ const Renew=(props:any)=>{
         },
         {
             title: '状态',
-            dataIndex: 'sturs',
-            key: 'sturs',
+            dataIndex: 'renameStatus',
+            key: 'renameStatus',
             render:(text:any,record:any,)=>{
                 return(
-                    <div>{record.sturs==1?"已通过":"未审核"}</div>
+                    <Space>
+                        {record.renameStatus==2?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}
+                    </Space>
                 )
             }
         },
-
+        {
+            title: '操作',
+            dataIndex: 'xx',
+            key: 'xx',
+            render:(text:any,record:any,)=>{
+                return(
+                    <Space>
+                        {record.renameStatus==2?'':<>
+                            <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
+                            <Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>
+                        </>}
+                    </Space>
+                )
+            }
+        },
     ];
     const toadd=()=>{
-        history.push("/enter/addRenew")
+        history.push("/enter/addRenew");
     };
-// 监听页数
-    const onChange=(page)=>{
+    // 监听页数
+    const onChange=(page,pageSize)=>{
         setPage(page);
+        setpageSize(pageSize);
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -101,7 +123,7 @@ const Renew=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Renew/fetch",
-            payload:{page,phone,stutes,startDate,endDate}
+            payload:{page,phone,stutes,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
@@ -110,7 +132,7 @@ const Renew=(props:any)=>{
     const fenyeinfo=()=>{
         props.dispatch({
             type:'Renew/fenye',
-            payload:{phone,stutes,startDate,endDate}
+            payload:{phone,stutes,startDate,endDate,pageSize}
         })
     };
     // 搜索
@@ -122,11 +144,35 @@ const Renew=(props:any)=>{
     useEffect(() => {
         fenyeinfo();
     }, []);
+    const isDelete=(e:number)=>{
+      setUid(e);
+      setOpen(true);
+    };
+    const onOK=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:'Renew/remove',
+            payload:uid
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setspinning(false);
+                setOpen(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+                setOpen(false);
+            }
+        })
+    };
+    const toedit=(e:number)=>{
+        history.push(`/enter/editRenew?id=${e}`);
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
-
+                    <Button type='primary' onClick={toadd}>续租录入</Button>
                     <Space>
                         <Input
                             addonBefore="原手机号:"
@@ -191,8 +237,11 @@ const Renew=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            <Modal loading={spinning} open={open} onOk={onOK} onCancel={()=>setOpen(false)} title='删除'>
+                <div>是否要删除?</div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

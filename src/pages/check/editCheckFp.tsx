@@ -52,7 +52,7 @@ const EditCheckFp=(props:any)=>{
             setConsumptionType(data[0].consumptionType);
             setConsumptionMoney(data[0].consumptionMoney);
             setrise_name(data[1].rise_name);
-            settenant_name(data[1].tenant_name);
+            settenant_name(data[0].tenant_name);
             setinvoiceType(data[0].invoiceType);
         }else {
             message.error(res.Data);
@@ -90,6 +90,9 @@ const EditCheckFp=(props:any)=>{
                 break;
             case 8:
                 consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
+                break;
+            case 9:
+                consumptionTypeText = <Tag style={{ color: '#795558' }}>月保</Tag>;
                 break;
             default:
                 consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;

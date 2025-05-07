@@ -10,6 +10,7 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const Custom=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setpageSize]=useState(50);
     // 客户名称
     const [customName,setCustomName]=useState('');
     // 开始时间
@@ -359,7 +360,7 @@ const Custom=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'Custom/fenye',
-            payload:{customName,customBeginTime,customEndTime,customStatus}
+            payload:{customName,customBeginTime,customEndTime,customStatus,userId:StaticInfo.userId,pageSize}
         })
         logFenye();
     };
@@ -368,14 +369,15 @@ const Custom=(props:any)=>{
         setCustomName(e.target.value)
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page:number,pageSize:number)=>{
         setPage(page);
+        setpageSize(pageSize);
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"Custom/fetch",
-            payload:{page,customName,customBeginTime,customEndTime,customStatus}
+            payload:{page,customName,customBeginTime,customEndTime,customStatus,userId:StaticInfo.userId,pageSize}
         })
     };
     // 时间选择
@@ -468,7 +470,7 @@ const Custom=(props:any)=>{
                 dataSource={props.CustomList}
                 size='small'
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*    到访次数弹窗*/}
             <Modal open={aOpen} onOk={aopenOK} onCancel={onlikai}>
                 <Input.TextArea value={remark} onChange={(e)=>setRemark(e.target.value)}/>

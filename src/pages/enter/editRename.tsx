@@ -1,73 +1,89 @@
-import {Button, Form, Input, message, Select} from "antd";
+import {Button, Form, Input, message, Select, Spin} from "antd";
 import {filterAndUpdateList, phonePattern} from "@/utils/OpenTool";
 import {connect,history} from 'umi'
-import {useEffect, useState} from "react";
-import * as StaffService from "@/services/staff";
+import {useEffect, useRef, useState} from "react";
+import * as RenameService from '@/services/rename';
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditRename=(props)=>{
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
+    const formRef=useRef();
     const [form] = Form.useForm();
     // 原名字
     const [oldName,setOldName]=useState('');
     // 原手机号
     const [oldPhone,setOldPhone]=useState('');
-    // 审核后的合同列表
-    const [hetongList,setHetongList]=useState([]);
-    // 租户ID
-    const [tenantId,setTenantID]=useState(0);
-    const change=(e)=>{
-        StaffService.one(e).then((res:any)=>{
+    const [customCard,setcustomCard]=useState('');
+    const [spinning,setspinning]=useState(false);
+    const getInfo=(e)=>{
+        RenameService.one(e).then((res:TypeErrorCode)=>{
+            setspinning(true);
             if (res.ErrorCode==0){
+                console.log("详细信息",res)
                 setOldName(res.Data.tenant_name);
                 setOldPhone(res.Data.tenant_phone);
-                setTenantID(res.Data.tenantId);
+                setcustomCard(res.Data.customCard);
+                formRef.current.setFieldsValue(res.Data);
+                setspinning(false);
             }else {
-                message.error(res.Data)
+                setspinning(false);
+                message.error(res.Data);
             }
         })
     };
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
-        setUid(id)
-        console.log(props)
-        filterAndUpdateList(props.CheckHetongList, 'identifier', 'id', setHetongList);
+        setUid(id);
+        getInfo(id);
     }, []);
+    const onFinish=(val)=>{
+        setspinning(true);
+        props.dispatch({
+            type:"Rename/edit",
+            payload:{uid,...val}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('修改成功');
+                setspinning(false);
+                history.push(`/enter/afterSales`);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
                 form={form}
+                ref={formRef}
                 layout="horizontal"
                 size={'large'}
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                <Form.Item label='选择合同' name='contractId'>
-                    <Select onChange={change}>
-                        {hetongList.map((item:any,index:any)=>{
-                            return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
-                                </Select.Option>
-                            )
-                        })}
-                    </Select>
-                </Form.Item>
                 <Form.Item label='原名字'>
                     <Input placeholder='原名字' value={oldName} disabled/>
                 </Form.Item>
                 <Form.Item label='原手机号'>
                     <Input placeholder='原手机号' value={oldPhone} disabled/>
                 </Form.Item>
-                <Form.Item label='更改后的名字' name='name' rules={[ {required: true, message: '请填写更改后的名字'}]}>
+                <Form.Item label='原身份证'>
+                    <Input placeholder='原身份证' value={customCard} disabled/>
+                </Form.Item>
+                <Form.Item label='更改后的名字' name='rename' rules={[ {required: true, message: '请填写更改后的名字'}]}>
                     <Input placeholder='更改后的名字'/>
                 </Form.Item>
-                <Form.Item label='更改后的手机号' name='phone' rules={[ {required: true, message: '请填写更改后的手机号'},{pattern: phonePattern, message: '请输入有效的手机号'}]}>
+                <Form.Item label='更改后的身份证' name='reCard' rules={[ {required: true, message: '请填写更改后的身份证'}]}>
+                    <Input placeholder='更改后的身份证'/>
+                </Form.Item>
+                <Form.Item label='更改后的手机号' name='rephone' rules={[ {required: true, message: '请填写更改后的手机号'},{pattern: phonePattern, message: '请输入有效的手机号'}]}>
                     <Input placeholder='更改后的手机号'/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
@@ -76,13 +92,7 @@ const EditRename=(props)=>{
                     </Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
-const mapStateToProps = (state: any) => {
-    return {
-        CheckHetongList: state.CheckHetong.list,
-
-    }
-};
-export default connect(mapStateToProps) (EditRename)
+export default connect() (EditRename)

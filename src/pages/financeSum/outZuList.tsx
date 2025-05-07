@@ -8,6 +8,7 @@ const OutZuList=(props)=>{
     const [spinning,setspinning]=useState(false);
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 租户名字
     const [name,setName]=useState('');
     // 手机号
@@ -34,7 +35,7 @@ const OutZuList=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {dayjs(record.created).format("YYYY-MM-DD")}
+                        {dayjs(record.created).format("YYYY-MM-DD HH:mm:ss")}
                     </div>
                 )
             }
@@ -82,23 +83,23 @@ const OutZuList=(props)=>{
     const logFney=()=>{
         props.dispatch({
             type:'OutZuList/fenye',
-            payload:{name,phone,startDate,endDate}
+            payload:{name,phone,startDate,endDate,pageSize}
         })
     };
     // 获取账单列表
     const getList=()=>{
         props.dispatch({
             type:'OutZuList/fetch',
-            payload:{page,name,phone,startDate,endDate}
+            payload:{page,name,phone,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
         getList();
-        console.log('props',props);
-    }, [page]);
+    }, [page,pageSize]);
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page,pageSize)=>{
         setPage(page);
+        setPage(pageSize);
     };
     useEffect(() => {
         logFney();
@@ -148,7 +149,7 @@ const OutZuList=(props)=>{
                 size='small'
                 dataSource={props.OutZuList}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </Spin>
     )
 }

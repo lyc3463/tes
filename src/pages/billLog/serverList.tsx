@@ -10,6 +10,7 @@ const ServerList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
+    const [pageSize,setPageSize]=useState(50);
     const [phone,setPhone]=useState('');
     const [tenandId,settenandId]=useState(0);
     const [startDate,setStartDate]=useState('2000-01-01');
@@ -22,6 +23,7 @@ const ServerList=(props:any)=>{
     const [moneySum,setmoneySum]=useState(0);
     // 已交服务费统计
     const [NotBillSum,setNotBillSum]=useState(0);
+    const [stutes,setstutes]=useState(1);
 
     // 搜索
     const sousuo=()=>{
@@ -31,9 +33,9 @@ const ServerList=(props:any)=>{
     };
     // 查看租金缴费列表
     const getzujinList=()=>{
-        ArrearsBillService.sunhaoList({page,name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        ArrearsBillService.sunhaoList({page,name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('分页信息',res)
+                console.log('服务费',res)
 
                 setdataSource(res.Data);
             }else {
@@ -43,7 +45,7 @@ const ServerList=(props:any)=>{
     };
     // 分页
     const logFenye=()=>{
-        ArrearsBillService.sunhaoListFenye({name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        ArrearsBillService.sunhaoListFenye({name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
@@ -149,15 +151,16 @@ const ServerList=(props:any)=>{
         }
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
     }, []);
     useEffect(() => {
         getzujinList();
-    }, [page]);
+    }, [page,pageSize]);
     return(
         <div>
             <List>
@@ -215,7 +218,7 @@ const ServerList=(props:any)=>{
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </div>
     )
 }

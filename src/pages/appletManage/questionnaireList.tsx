@@ -6,6 +6,7 @@ import {StaticInfo} from "@/StaticInfo";
 const QuestionnaireList=(props)=>{
     const [name,setName]=useState('');
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 删除的名字
     const [uname,setUname]=useState('');
     // 删除的id
@@ -45,7 +46,7 @@ const QuestionnaireList=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Questionnaire/fetch",
-            payload:{page,name}
+            payload:{page,name,pageSize}
         })
     };
     const toadd=()=>{
@@ -56,20 +57,24 @@ const QuestionnaireList=(props)=>{
     };
     useEffect(() => {
         logFenye()
-    }, [page]);
+    }, [page,pageSize]);
 
     // 监听页码
-    const onChange=(e:number)=>{
-      setPage(e)
+    const onChange=(e:number,pageSize)=>{
+      setPage(e);
+      setPageSize(pageSize);
     };
     // 搜索按钮
     const sousuo=()=>{
         setPage(1);
+        getFenyeInfo();
+        logFenye();
+    };
+    const getFenyeInfo=()=>{
         props.dispatch({
             type:'Questionnaire/fenye',
-            payload:{name}
+            payload:{name,pageSize}
         })
-        logFenye();
     };
     // 删除弹窗
     const deleOpen=(e)=>{
@@ -94,6 +99,7 @@ const QuestionnaireList=(props)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFenyeInfo();
     }, []);
     return(
         <div>
@@ -122,7 +128,7 @@ const QuestionnaireList=(props)=>{
                 dataSource={props.QuestionnaireList}
                 scroll={{y:'70vh'}}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal open={open} onCancel={()=>setOpen(false)} onOk={onOk} title='删除题目'>
                 <div>
                     <span>是否要删除:<span style={{color:"red"}}>{uname}</span>?</span>

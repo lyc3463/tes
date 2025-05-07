@@ -1,7 +1,7 @@
 import { getData } from '@/network/http';
 
 export function fetch(vals:any) {
-    return getData(1179, [vals.page,vals.deviceSn]);
+    return getData(1179, [vals.page,vals.deviceSn,vals.pageSize]);
 }
 
 export function add(vals:any) {
@@ -20,7 +20,7 @@ export function one(vals:any) {
     return getData(1178, [vals]);
 }
 export function fenye(vals:any) {
-    return getData(1180, [vals.deviceSn]);
+    return getData(1180, [vals.deviceSn,vals.pageSize]);
 }
 export function synchronous() {
     return getData(1430, []);

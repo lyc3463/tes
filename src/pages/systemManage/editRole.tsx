@@ -15,7 +15,7 @@ const EditRole=(props)=>{
     const treeData = buildTree(qxTree);
     const location=useLocation();
     const formRef =useRef();
-    const [selected, setSelected] = useState<string[]>(Array(362).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(372).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -61,7 +61,6 @@ const EditRole=(props)=>{
         // 创建一个新的数组来存储新的选中状态
         let newSelected = [...selected];
         // 更新指定 ID 的节点的选中状态
-        newSelected[id] = isChecked ? '1' : '0';
         newSelected[id] = isChecked ? '1' : '0';
         if (id === 1 ) {
             newSelected[2] = isChecked ? '1' : '0';
@@ -446,6 +445,7 @@ const EditRole=(props)=>{
             newSelected[357] = isChecked ? '1' : '0';
             newSelected[355] = isChecked ? '1' : '0';
             newSelected[259] = isChecked ? '1' : '0';
+            newSelected[362] = isChecked ? '1' : '0';
         }
         if (id === 65){
             newSelected[66] = isChecked ? '1' : '0';
@@ -519,10 +519,31 @@ const EditRole=(props)=>{
             newSelected[341] =  isChecked ? '1' : '0' ;
         }
         if (id === 77){
-            newSelected[78] = isChecked ? '1' : '0';
-            newSelected[79] = isChecked ? '1' : '0';
             newSelected[80] = isChecked ? '1' : '0';
             newSelected[81] = isChecked ? '1' : '0';
+            newSelected[363] = isChecked ? '1' : '0';
+            newSelected[364] = isChecked ? '1' : '0';
+            newSelected[365] = isChecked ? '1' : '0';
+            newSelected[366] = isChecked ? '1' : '0';
+            newSelected[370] = isChecked ? '1' : '0';
+            newSelected[367] = isChecked ? '1' : '0';
+            newSelected[368] = isChecked ? '1' : '0';
+            newSelected[369] = isChecked ? '1' : '0';
+            newSelected[371] = isChecked ? '1' : '0';
+        }
+        if (id === 80){
+            newSelected[363] = isChecked ? '1' : '0';
+            newSelected[364] = isChecked ? '1' : '0';
+            newSelected[365] = isChecked ? '1' : '0';
+            newSelected[366] = isChecked ? '1' : '0';
+            newSelected[370] = isChecked ? '1' : '0';
+        }
+        if (id === 81){
+            newSelected[371] = isChecked ? '1' : '0';
+            newSelected[369] = isChecked ? '1' : '0';
+            newSelected[368] = isChecked ? '1' : '0';
+            newSelected[367] = isChecked ? '1' : '0';
+
         }
         if (id === 67){
             newSelected[324] =  '1' ;
@@ -749,6 +770,7 @@ const EditRole=(props)=>{
     };
     const onFinish=(value:any)=>{
         let authority=selected.join('');
+        // console.log("权限",authority);
         props.dispatch({
             type:'Role/edit',
             payload:{...value,uid,authority}

@@ -1,10 +1,10 @@
 import { getData } from '@/network/http';
 
 export function fetch(vals:any) {
-    return getData(1138, [vals.page,vals.name,vals.beginRents,vals.endRents,vals.status,vals.house_id]);
+    return getData(1138, [vals.page,vals.name,vals.beginRents,vals.endRents,vals.status,vals.house_id,vals.pageSize]);
 }
 export function fetchFenye(vals:any) {
-    return getData(1139, [vals.name,vals.beginRents,vals.endRents,vals.status,vals.house_id]);
+    return getData(1139, [vals.name,vals.beginRents,vals.endRents,vals.status,vals.house_id,vals.pageSize]);
 }
 
 export function add(vals:any) {

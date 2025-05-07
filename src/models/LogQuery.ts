@@ -15,6 +15,7 @@ let pl = {
     name:'',
     startDate:'2000-01-01',
     endDate:'2099-01-01',
+    pageSize:50
 };
 
 export interface LogQueryCountState {

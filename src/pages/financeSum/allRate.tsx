@@ -1,5 +1,5 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as RechargeRateService from '@/services/rechargeRate';
@@ -9,6 +9,8 @@ import {exportDataToExcel} from "@/utils/OpenTool";
 const AllRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [spinning,setspinning]=useState(false);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
@@ -25,19 +27,21 @@ const AllRate=(props)=>{
     };
     // 获取公共缴费记录
     const getAllRate=()=>{
-        RechargeRateService.alljiaofei({page,name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        setspinning(true);
+        RechargeRateService.alljiaofei({page,name,phone,startDate,endDate,tenandId,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setdataSource(res.Data);
+                setspinning(false);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setspinning(false);
             }
         })
     };
     // 公共缴费记录分页
     const getAllRatefenye=()=>{
-        RechargeRateService.alljiaofeifenye({name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        RechargeRateService.alljiaofeifenye({name,phone,startDate,endDate,tenandId,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log(res)
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum)
             }else {
@@ -46,18 +50,19 @@ const AllRate=(props)=>{
         })
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         getAllRate()
-    }, [page]);
+    }, [page,pageSize]);
     useEffect(() => {
         getAllRatefenye();
     }, []);
     const columns =[
         {
-            title: '交租日期',
+            title: '缴费日期',
             dataIndex: 'payrentDate',
             key: 'payrentDate',
             render:(text:any,record:any)=>{
@@ -114,22 +119,32 @@ const AllRate=(props)=>{
         }
     };
     const exportToExcel=()=>{
-        let headers=['日期','租户名称','手机号','类型','扣费金额(元)','状态'];
-        const ws_data = [
-            headers.map(header => ({ v: header, t: 's' })), // 表头
-            ...dataSource.map(item => [
-                item.payrentDate.split('T')[0], // 提取日期部分
-                item.tenant_name,
-                item.tenant_phone,
-                item.consumptionType='公共缴费',
-                item.payAmount,
-                item.billStatus==1?'未交':'已交',
-            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
-        ];
-        exportDataToExcel(ws_data);
+        setspinning(true);
+        RechargeRateService.alljiaofei({page:1,name,phone,startDate,endDate,tenandId,pageSize:100000}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let headers=['日期','租户名称','手机号','类型','扣费金额(元)','状态'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })), // 表头
+                    ...res.Data.map(item => [
+                        item.payrentDate.split('T')[0], // 提取日期部分
+                        item.tenant_name,
+                        item.tenant_phone,
+                        item.consumptionType='公共缴费',
+                        item.payAmount,
+                        item.billStatus==1?'未交':'已交',
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                ];
+                exportDataToExcel(ws_data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -196,8 +211,8 @@ const AllRate=(props)=>{
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
-        </div>
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
+        </Spin>
     )
 }
 

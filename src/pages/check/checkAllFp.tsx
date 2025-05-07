@@ -23,6 +23,7 @@ import ImageUploader from "@/components/ImageUploader";
 const CheckAllFp=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [openId,setOpenId]=useState(0);
     const [stutes,setStutes]=useState(0);
     const [uid,setUid]=useState(0);
@@ -85,6 +86,13 @@ const CheckAllFp=(props)=>{
             title: '发票抬头',
             dataIndex: 'rise_name',
             key: 'rise_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{color:'red'}}>
+                        {record.rise_name}
+                    </div>
+                )
+            }
         },
         {
             title: '发票类型',
@@ -129,6 +137,9 @@ const CheckAllFp=(props)=>{
                     case 8:
                         consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
                         break;
+                    case 9:
+                        consumptionTypeText = <Tag style={{ color: '#795558' }}>月保</Tag>;
+                        break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
@@ -151,24 +162,12 @@ const CheckAllFp=(props)=>{
         },
         {
             title: '邮箱',
-            dataIndex: 'invoiceType',
-            key: 'invoiceType',
+            dataIndex: 'email',
+            key: 'email',
             render:(text:any,record:any,)=>{
                 return(
                     <div style={{color:'red'}}>
-
-                    </div>
-                )
-            }
-        },
-        {
-            title: '通知租户',
-            dataIndex: 'tz',
-            key: 'tz',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.invoiceStatus==2?<Button type='link' onClick={()=>onOpen(record)}>发送</Button>:''}
+                        {record.email}
                     </div>
                 )
             }
@@ -181,6 +180,18 @@ const CheckAllFp=(props)=>{
                 return(
                     <div>
                         {record.invoiceStatus==1?<Tag color="red">未审核</Tag>:<Tag color="green">已审核</Tag>}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '通知租户',
+            dataIndex: 'tz',
+            key: 'tz',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.invoiceStatus==2?<Button type='link' onClick={()=>onOpen(record)}>发送</Button>:''}
                     </div>
                 )
             }
@@ -206,28 +217,27 @@ const CheckAllFp=(props)=>{
         history.push(`/check/editCheckFp?id=${e.id}`);
     };
     // 监听页码
-    const onChange=(e)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     // 分页
     const getfenyeInfo=()=>{
         props.dispatch({
             type:'CheckFp/fenye',
-            payload:{startDate,endDate,openId,stutes}
+            payload:{startDate,endDate,openId,stutes,pageSize}
         });
     };
     // 列表
     const logFenye=()=>{
         props.dispatch({
             type:"CheckFp/fetch",
-            payload:{page,startDate,endDate,openId,stutes}
+            payload:{page,startDate,endDate,openId,stutes,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-        getfenyeInfo();
-        console.log('props',props);
-    }, [page]);
+    }, [page,pageSize]);
     // 审核通过弹窗
     const onTongguo=(e:TypeCheckFp)=>{
         setUid(e.id);
@@ -266,10 +276,7 @@ const CheckAllFp=(props)=>{
     };
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'CheckFp/fenye',
-            payload:{page,startDate,endDate,openId,stutes}
-        });
+        getfenyeInfo();
         logFenye();
     };
     // 发送的弹窗
@@ -302,6 +309,9 @@ const CheckAllFp=(props)=>{
     const onb64=(e)=>{
         setImgB64(e);
     };
+    useEffect(() => {
+        getfenyeInfo();
+    }, []);
     return(
         <Spin spinning={isLoading} style={{zIndex:'1000'}}>
             <List>
@@ -365,7 +375,7 @@ const CheckAllFp=(props)=>{
                 rowKey={(columns) => columns.id}
                 dataSource={props.CheckFpList}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*审核的弹窗*/}
             <Modal open={checkOpen} onOk={onOk} onCancel={()=>setCheckOpen(false)} title='审核发票'>
                 <div>确定审核通过吗?</div>

@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 
 const Tixian=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [stutes,setStutes]=useState(0);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
@@ -17,14 +18,24 @@ const Tixian=(props:any)=>{
             key: 'created',
             render:(text,record)=>{
                 return(
-                    <div>{dayjs(record.created).format("YYYY-MM-DD")}</div>
+                    <div>{dayjs(record.created).format("YYYY-MM-DD HH:mm:ss")}</div>
                 )
             }
         },
         {
-            title: '提现银行卡',
+            title: '银行卡号',
             dataIndex: 'cardId',
             key: 'cardId',
+        },
+        {
+            title: '户名',
+            dataIndex: 'accountName',
+            key: 'accountName',
+        },
+        {
+            title: '开户行',
+            dataIndex: 'bankName',
+            key: 'bankName',
         },
         {
             title: '提现申请人',
@@ -46,16 +57,6 @@ const Tixian=(props:any)=>{
                 )
             }
         },
-        // {
-        //     title: '实际扣款',
-        //     dataIndex: 'tuijine',
-        //     key: 'tuijine',
-        //     render:(text,record)=>{
-        //         return(
-        //             <div>{(record.withdAmount+(record.withdAmount*(record.commission/1000))).toFixed(2)}元</div>
-        //         )
-        //     }
-        // },
         {
             title: '到账金额(元)',
             dataIndex: 'withdAmount',
@@ -86,11 +87,10 @@ const Tixian=(props:any)=>{
                         {record.withdStatus === 1 ? (
                             <Tag color='red'>未审核</Tag>
                         ) : record.withdStatus === 2 ? (
-                            <Tag color='blue'>已审核</Tag> // 通常已审核可以用蓝色或其他颜色表示，但这里你可以根据需要选择
+                            <Tag color='blue'>已审核</Tag>
                         ) : record.withdStatus === 3 ? (
-                            <Tag color='orange'>未通过</Tag> // 未通过可以用橙色或其他颜色表示
+                            <Tag color='orange'>未通过</Tag>
                         ) : (
-                            // 如果需要，你可以在这里添加处理其他情况的代码
                             <Tag color='grey'>未知状态</Tag> // 例如，当 withdStatus 不是 1、2 或 3 时
                         )}
                     </Space>
@@ -102,16 +102,19 @@ const Tixian=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Tixian/fetch",
-            payload:{page,stutes,startDate,endDate}
+            payload:{page,stutes,startDate,endDate,pageSize}
         })
     };
     const sousuo=()=>{
         setPage(1);
+        getFenye();
+        logFenye();
+    };
+    const getFenye=()=>{
         props.dispatch({
             type:"Tixian/fenye",
-            payload:{stutes,startDate,endDate}
+            payload:{stutes,startDate,endDate,pageSize}
         });
-        logFenye();
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -123,16 +126,18 @@ const Tixian=(props:any)=>{
             setEndDate(data[1]);
         }
     };
-    const  onChange=(e)=>{
-        setPage(e)
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
-        console.log(props)
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
+    useEffect(() => {
+        getFenye();
+    }, []);
     return(
         <div>
-            {/*<span style={{color:'red',fontSize:'12px'}}>实际扣款=提现金额+(提现金额*手续费比例)</span>*/}
             <List>
                 <List.Item>
                     <Space>
@@ -149,7 +154,7 @@ const Tixian=(props:any)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                收费类型:
+                                状态:
                             </div>
                             <Select
                                 onChange={(e:number)=>setStutes(e)}
@@ -195,8 +200,37 @@ const Tixian=(props:any)=>{
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {props.count?props.count.withdAmountSum:''}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}>
+                                {props.count?props.count.actualAmountSum:''}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </div>
     )
 }

@@ -5,6 +5,7 @@ import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} 
 
 const Finance=(props)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [abstract,setAbstract]=useState('');
     const [stutes,setStutes]=useState(1);
     const [type,setType]=useState(2);
@@ -163,7 +164,7 @@ const Finance=(props)=>{
         setPage(1);
         props.dispatch({
             type:'Finance/fenye',
-            payload:{abstract,startDate,endDate,stutes,type,companyId,projectId,subjectId,account_card}
+            payload:{abstract,startDate,endDate,stutes,type,companyId,projectId,subjectId,account_card,pageSize}
         });
         logFenye();
     };
@@ -171,12 +172,13 @@ const Finance=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Finance/fetch",
-            payload:{page,abstract,startDate,endDate,stutes,type,companyId,projectId,subjectId,account_card}
+            payload:{page,abstract,startDate,endDate,stutes,type,companyId,projectId,subjectId,account_card,pageSize}
         })
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
@@ -248,7 +250,7 @@ const Finance=(props)=>{
                 dataSource={props.FinanceList}
                 size='small'
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </div>
     )
 }

@@ -1,7 +1,7 @@
 import {getData, postData} from '@/network/http';
 
 export function fetch(vals:any) {
-    return getData(1239, [vals.page,vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate,vals.name]);
+    return getData(1239, [vals.page,vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate,vals.name,vals.pageSize]);
 }
 
 export function addzs(vals:any) {
@@ -28,7 +28,7 @@ export function check(vals:any) {
     return getData(1241, [vals.uid,vals.templateType]);
 }
 export function fenye(vals:any) {
-    return getData(1240, [vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate,vals.name]);
+    return getData(1240, [vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate,vals.name,vals.pageSize]);
 }
 export function onedj(vals:any) {
     return getData(1415, [vals]);
@@ -37,11 +37,10 @@ export function oneOne(vals:any) {
     return getData(1416, [vals]);
 }
 export function getHT(vals:any) {
-    return getData(1490, [vals.page,vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate,vals.name]);
+    return getData(1490, [vals.page,vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate,vals.name,vals.pageSize]);
 }
-
 export function getHTfFy(vals:any) {
-    return getData(1491, [vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate,vals.name]);
+    return getData(1491, [vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate,vals.name,vals.pageSize]);
 }
 
 // 续租前合同列表

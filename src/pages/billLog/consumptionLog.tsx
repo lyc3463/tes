@@ -7,9 +7,10 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const ConsumptionLog=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
-    // 消费类型 0全部 1充值、2租金、3电费、4水费、5公共缴费、6手动充值、7物业管理费、违约金
+    // 消费类型 0全部 1充值、2租金、3电费、4水费、5公共缴费、6手动充值、7物业管理费、8违约金、9月保
     const [type,setType]=useState(0);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
@@ -24,23 +25,24 @@ const ConsumptionLog=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"ConsumptionLog/fetch",
-            payload:{page,name,phone,type,startDate,endDate,userID}
+            payload:{page,name,phone,type,startDate,endDate,userID,pageSize}
         })
     };
     // 分页信息
     const fenye=()=>{
         props.dispatch({
             type:'ConsumptionLog/fenye',
-            payload:{name,phone,type,startDate,endDate,userID}
+            payload:{name,phone,type,startDate,endDate,userID,pageSize}
         });
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     useEffect(() => {
         fenye();
     }, []);
@@ -52,7 +54,7 @@ const ConsumptionLog=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {dayjs(record.consumptionDate).format('YYYY-MM-DD')}
+                        {dayjs(record.consumptionDate).format('YYYY-MM-DD HH:mm:ss')}
                     </div>
                 )
             }
@@ -93,10 +95,13 @@ const ConsumptionLog=(props)=>{
                         consumptionTypeText = <Tag style={{ color: '#E91E63' }}>手动充值</Tag>;
                         break;
                     case 7:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>损耗</Tag>;
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>服务费</Tag>;
                         break;
                     case 8:
                         consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
+                        break;
+                    case 9:
+                        consumptionTypeText = <Tag style={{ color: '#795588' }}>月保</Tag>;
                         break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
@@ -185,6 +190,7 @@ const ConsumptionLog=(props)=>{
                                     // { value:6, label: '手动充值' },
                                     { value:7, label: '损耗' },
                                     { value:8, label: '违约金' },
+                                    { value:9, label: '月保' },
                                 ]}
                             />
                         </Space.Compact>

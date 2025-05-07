@@ -27,7 +27,7 @@ import { menuData } from '@/constants/menu/main';
 import TypeMenu from '@/ModelTypes/TypeMenu';
 import * as LoginService from '@/services/login';
 import type { MenuProps } from 'antd';
-import 'dayjs/locale/zh-cn'
+import 'dayjs/locale/zh-cn';
 import {AlertFilled} from "@ant-design/icons";
 import dayjs from "dayjs";
 const { Header, Content, Footer, Sider } = Layout;

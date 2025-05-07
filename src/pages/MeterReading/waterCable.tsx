@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 
 const WaterCable=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [collector_id,setCollector_id]=useState('');
     const [name,setName]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
@@ -93,27 +94,33 @@ const WaterCable=(props:any)=>{
     // 搜索
     const sousuo=()=>{
         setPage(1);
+        getFenyeInfo();
+        logFenye();
+    };
+    const getFenyeInfo=()=>{
         props.dispatch({
             type:'WaterCable/fenye',
-            payload:{collector_id,name,startDate,endDate}
+            payload:{collector_id,name,startDate,endDate,pageSize}
         });
-        logFenye();
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"WaterCable/fetch",
-            payload:{page,collector_id,name,startDate,endDate}
+            payload:{page,collector_id,name,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props)
-    }, [page]);
+    }, [page,pageSize]);
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
+    useEffect(() => {
+        getFenyeInfo();
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>
@@ -143,12 +150,13 @@ const WaterCable=(props:any)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 size='small'
+                scroll={{y:'65vh'}}
                 dataSource={props.WaterCableList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
         </Spin>
     )
 }

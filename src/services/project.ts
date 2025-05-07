@@ -1,7 +1,7 @@
 import { getData } from '@/network/http';
 
 export function fetch(vals:any) {
-    return getData(1083, [vals.name,vals.companyId]);
+    return getData(1083, [vals.name,vals.companyId,vals.pageSize]);
 }
 
 export function add(vals:any) {

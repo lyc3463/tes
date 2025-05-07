@@ -26,6 +26,7 @@ const CheckStaff=(props:any)=>{
     const [isopen,setOpen]=useState(false);
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 审核状态 0全部  1未审核 2已审核
     const [stutes,setStutes]=useState(0);
     // 姓名
@@ -34,6 +35,7 @@ const CheckStaff=(props:any)=>{
     const [nickname,setNickname]=useState('');
     // 手机号
     const [phone,setPhone]=useState('');
+    const [companyName,setcompanyName]=useState('');
     const [spinning,setspinning]=useState(false);
     // 用户权限
     const [uqx,setUqx]=useState([]);
@@ -161,7 +163,7 @@ const CheckStaff=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'CheckEmp/fenye',
-            payload:{cname,nickname,phone,stutes}
+            payload:{cname,nickname,phone,stutes,companyName,pageSize}
         })
         logFenye();
     };
@@ -169,21 +171,21 @@ const CheckStaff=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"CheckEmp/fetch",
-            payload:{page,cname,nickname,phone,stutes}
+            payload:{page,cname,nickname,phone,stutes,companyName,pageSize}
         })
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
-
     // 监听状态
     const changeStutes=(e:number)=>{
         setStutes(e);
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     // 监听员工姓名
     const changeName=(e)=>{
         setCname(e.target.value);
@@ -216,6 +218,10 @@ const CheckStaff=(props:any)=>{
                         <Input
                             onChange={changePhone}
                             addonBefore="手机号:"
+                        />
+                        <Input
+                            onChange={(e)=>setcompanyName(e.target.value)}
+                            addonBefore="公司/单元:"
                         />
                         <Space.Compact>
                             <div
@@ -258,8 +264,8 @@ const CheckStaff=(props:any)=>{
                 dataSource={props.EmpList}
                 rowKey={(columns) => columns.id}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-            {/*    审核弹窗*/}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+            {/*审核弹窗*/}
             <Modal onOk={OK} onCancel={()=>setOpen(false)} open={isopen} title='是否通过' loading={spinning}>
                 <div>确定要通过吗？</div>
             </Modal>

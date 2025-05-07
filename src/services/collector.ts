@@ -1,7 +1,7 @@
 import {getData, postData} from '@/network/http';
 // 查看特色列表
 export function fetch(vals:any) {
-    return getData(1104, [vals.page,vals.collector_number,vals.stutes]);
+    return getData(1104, [vals.page,vals.collector_number,vals.stutes,vals.pageSize]);
 }
 // 添加特色
 export function add(vals:any) {
@@ -18,7 +18,7 @@ export function one(vals:any) {
     return getData(1103, [vals]);
 }
 export function fenye(vals:any) {
-    return getData(1105, [vals.collector_number,vals.stutes]);
+    return getData(1105, [vals.collector_number,vals.stutes,vals.pageSize]);
 }
 
 // 无分页下拉

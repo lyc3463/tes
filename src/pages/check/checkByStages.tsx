@@ -7,6 +7,8 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const CheckByStages=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
+
     // 手机号
     const [phone,setPhone]=useState('');
     // 状态 0全部，1未审核，2审核通过
@@ -102,7 +104,10 @@ const CheckByStages=(props)=>{
                 return(
                     <Space>
                         {/*<Button type='link'>详情</Button>*/}
-                        {record.renameStatus==2?'':<Button type='primary' onClick={()=>checkOpen(record.id)}>审核</Button>}
+                        {record.renameStatus==2?'':<>
+                            {/*<Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>*/}
+                            <Button type='primary' onClick={()=>checkOpen(record.id)}>审核</Button>
+                        </>}
                     </Space>
                 )
             }
@@ -113,6 +118,9 @@ const CheckByStages=(props)=>{
         setUid(e);
         setOpen(true);
     }
+    const toedit=(e)=>{
+        history.push(`/check/editByStages?id=${e}`);
+    };
     // 审核确定按钮
     const onOK=()=>{
         setspinning(true);
@@ -132,8 +140,9 @@ const CheckByStages=(props)=>{
         })
     };
     // 监听页数
-    const onChange=(page)=>{
-        setPage(page);
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -157,13 +166,12 @@ const CheckByStages=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"ByStages/fetch",
-            payload:{page,phone,stutes,startDate,endDate}
+            payload:{page,phone,stutes,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props)
-    }, [page]);
+    }, [page,pageSize]);
     // 搜索
     const suosou=()=>{
         setPage(1);
@@ -173,7 +181,7 @@ const CheckByStages=(props)=>{
     const fenyeinfo=()=>{
         props.dispatch({
             type:'ByStages/fenye',
-            payload:{phone,stutes,startDate,endDate}
+            payload:{phone,stutes,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
@@ -248,7 +256,7 @@ const CheckByStages=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         {/*    审核弹窗*/}
             <Modal title={'审核'} loading={spinning} onOk={onOK} onCancel={()=>setOpen(false)} open={open}>
                 <div>确定要审核吗?</div>

@@ -7,6 +7,7 @@ const OwnerInfo=(props)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const toadd=()=>{
       history.push('/contract/addOwnerlnfo/');
@@ -23,10 +24,10 @@ const OwnerInfo=(props)=>{
     };
     const sousuo=()=>{
         setPage(1);
-       props.dispatch({
-                type:"OwnerInfo/fenye",
-                payload:{name,startDate,endDate}
-       })
+        props.dispatch({
+            type:"OwnerInfo/fenye",
+            payload:{name,startDate,endDate,pageSize}
+        })
         logFenye();
     };
     const columns =[
@@ -101,13 +102,12 @@ const OwnerInfo=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"OwnerInfo/fetch",
-            payload:{page,name,startDate,endDate}
+            payload:{page,name,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-        console.log("props:",props);
-    }, [page]);
+    }, [page,pageSize]);
     return(
         <div>
             <List>

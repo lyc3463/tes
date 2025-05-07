@@ -10,6 +10,7 @@ const ServerKoufei=()=>{
     const [spinning,setspinning]=useState(false);
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
@@ -26,7 +27,7 @@ const ServerKoufei=()=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {dayjs(record.payrentDate).format('YYYY-MM-DD')}
+                        {dayjs(record.payrentDate).format('YYYY-MM-DD HH:mm:ss')}
                     </div>
                 )
             }
@@ -75,7 +76,7 @@ const ServerKoufei=()=>{
     // 获取公共缴费记录
     const getAllRate=()=>{
         setspinning(true);
-        RechargeRateService.sunhaoList({page,name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        RechargeRateService.sunhaoList({page,name,phone,startDate,endDate,tenandId,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setspinning(false);
                 setdataSource(res.Data);
@@ -88,7 +89,7 @@ const ServerKoufei=()=>{
     // 公共缴费记录分页
     const getAllRatefenye=()=>{
         setspinning(true);
-        RechargeRateService.sunhaoListFenye({name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        RechargeRateService.sunhaoListFenye({name,phone,startDate,endDate,tenandId,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setspinning(false);
                 setcount(res.Data.count);
@@ -100,12 +101,13 @@ const ServerKoufei=()=>{
         })
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         getAllRate()
-    }, [page]);
+    }, [page,pageSize]);
     useEffect(() => {
         getAllRatefenye();
     }, []);
@@ -120,19 +122,29 @@ const ServerKoufei=()=>{
         }
     };
     const exportToExcel=()=>{
-        let headers=['日期','租户名称','电表地址','类型','扣费金额(元)','状态'];
-        const ws_data = [
-            headers.map(header => ({ v: header, t: 's' })), // 表头
-            ...dataSource.map(item => [
-                item.payrentDate.split('T')[0], // 提取日期部分
-                item.tenant_name,
-                item.address,
-                item.consumptionType='损耗',
-                item.payAmount,
-                item.billStatus==1?'未交':'已交',
-            ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
-        ];
-        exportDataToExcel(ws_data);
+        setspinning(true);
+        RechargeRateService.sunhaoList({page:1,name,phone,startDate,endDate,tenandId,pageSize:100000}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setspinning(false);
+                let headers=['日期','租户名称','电表地址','类型','扣费金额(元)','状态'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })), // 表头
+                    ...res.Data.map(item => [
+                        item.payrentDate.split('T')[0], // 提取日期部分
+                        item.tenant_name,
+                        item.address,
+                        item.consumptionType='损耗',
+                        item.payAmount,
+                        item.billStatus==1?'未交':'已交',
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                ];
+                exportDataToExcel(ws_data);
+            }else {
+                setspinning(false);
+                message.error(res.Data);
+            }
+        })
+
     };
     return(
         <Spin spinning={spinning}>
@@ -202,7 +214,7 @@ const ServerKoufei=()=>{
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </Spin>
     )
 }

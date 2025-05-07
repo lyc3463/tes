@@ -13,7 +13,8 @@ import { fixPathname } from '@/utils/common';
 let pl={
     page:1,
     name:'',
-    phone:''
+    phone:'',
+    pageSize:50
 }
 
 export interface AppUserCountState {

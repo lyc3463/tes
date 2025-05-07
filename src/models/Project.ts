@@ -12,7 +12,8 @@ import ProjectType from '@/ModelTypes/TypeProject';
 import { fixPathname } from '@/utils/common';
 let pl={
     name:'',
-    companyId:0
+    companyId:0,
+    pageSize:1000
 }
 
 export interface ProjectCountState {

@@ -11,7 +11,8 @@ import { StaticInfo } from '@/StaticInfo';
 import GroupingType from '@/ModelTypes/TypeGrouping';
 import { fixPathname } from '@/utils/common';
 let pl = {
-    name:''
+    name:'',
+    pageSize:50
 };
 
 export interface GroupingCountState {

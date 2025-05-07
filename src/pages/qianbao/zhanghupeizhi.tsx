@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {Button, Form, Modal, Radio, Select, Slider, Input, InputNumber, message, DatePicker, Tabs} from "antd";
+import {Button, Form, Modal, Radio, Select, Slider, Input, InputNumber, message, DatePicker, Tabs, Spin} from "antd";
 import {connect} from "umi";
 import {StaticInfo} from "@/StaticInfo";
 import Bymoney from "@/pages/kehu/bymoney";
@@ -27,6 +27,8 @@ const Zhanghupeizhi=(props)=>{
     const [settlementz,setsettlementz]=useState(0);
     // 用户权限
     const [uqx,setUqx]=useState([]);
+    const [spinning,setspinning]=useState(false);
+
     // 监听结算方式
     const changeRadio=(e)=>{
         setSettlement(e.target.value);
@@ -56,46 +58,56 @@ const Zhanghupeizhi=(props)=>{
         getInfo();
     }, []);
     const onbaocun=()=>{
-      props.dispatch({
-          type:'Zhanghupeizhi/edit',
-          payload:{settlement,settlementTime,maxAmount,reserveAmount,commission}
-      }).then((res:any)=>{
-          if (res.ErrorCode==0){
-              message.success('保存成功');
-              getInfo()
-          }else {
-              message.error(res.Data)
-          }
-      })
+        setspinning(true);
+        props.dispatch({
+            type:'Zhanghupeizhi/edit',
+            payload:{settlement,settlementTime,maxAmount,reserveAmount,commission}
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('保存成功');
+                getInfo();
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
     };
     const handleCheckChange=(e)=>{
         setSettlementTime(e)
     };
     // 手动提现
     const onOK=()=>{
+        setspinning(true);
         if (settlement==4){
             if (withdAmount>balance){
-                message.error('提现金额大于当前余额')
+                message.error('提现金额大于当前余额');
+                setspinning(false);
             }else if(withdAmount<=0){
-                message.error('提现金额为0')
+                message.error('提现金额为0');
+                setspinning(false);
             } else {
                 props.dispatch({
                     type:'Zhanghupeizhi/add',
                     payload:{withdAmount,remark,commission}
                 }).then((res)=>{
-                    console.log('res',res)
                     if (res.ErrorCode==0){
                         message.success('提交成功，等待管理员审核');
                         getInfo();
                         setopen(false);
                         setRemark('');
+                        setspinning(false);
                     }else {
-                        message.error(res.Data)
+                        message.error(res.Data);
+                        setspinning(false);
+                        setopen(false);
                     }
                 })
             }
         }else {
-           message.warning('当前类型不是手动结算类型')
+           message.warning('当前类型不是手动结算类型');
+           setopen(false);
+           setspinning(false);
         }
     };
     useEffect(() => {
@@ -103,7 +115,7 @@ const Zhanghupeizhi=(props)=>{
         setUqx(uq);
     }, []);
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form>
                 <Form.Item label='所属园区'>
                     <span>{sessionStorage.getItem('park_name')}</span>
@@ -170,21 +182,22 @@ const Zhanghupeizhi=(props)=>{
                     <Button style={{marginLeft:'20px'}}>返回</Button>
                 </Form.Item>
             </Form>
-            <Modal open={isopen} onOk={onOK} onCancel={()=>setopen(false)} title='是否要提现'>
+            <Modal open={isopen} onOk={onOK} onCancel={()=>setopen(false)} title='是否要提现' loading={spinning}>
                 {/*<div>当前有<span style={{color:'red'}}>{balance}</span>元可提现,实际到款<span style={{color:'red'}}>{(balance-(balance*(commission/1000))).toFixed(2)}元</span></div>*/}
                 <Form>
                     <Form.Item label='输入提现金额(元)'>
-                        <InputNumber max={balance} onChange={(e:any)=>setWithdAmount(e)} min={0}/>
+                        <InputNumber onChange={(e:any)=>setWithdAmount(e)} min={0}/>
+                        <span style={{color:'red',fontSize:'12px'}}>单笔提现不能超过最大结算金额:{maxAmount}元</span>
                     </Form.Item>
                 </Form>
                 {/*<p style={{color:'#555',fontSize:'12px'}}>实际到款=当前余额-(当前余额*手续费)</p>*/}
                 <Form>
                     <Form.Item label='备注'>
-                        <Input.TextArea onChange={(e)=>setRemark(e.target.value)} value={remark}/>
+                        <Input.TextArea onChange={(e)=>setRemark(e.target.value)} value={remark} placeholder="选填"/>
                     </Form.Item>
                 </Form>
             </Modal>
-        </div>
+        </Spin>
     )
 }
 export default connect() (Zhanghupeizhi)

@@ -11,7 +11,8 @@ import { StaticInfo } from '@/StaticInfo';
 import CompanType from '@/ModelTypes/TypeCompan';
 import { fixPathname } from '@/utils/common';
 let pl={
-    name:''
+    name:'',
+    pageSize:1000
 }
 
 export interface CompanCountState {

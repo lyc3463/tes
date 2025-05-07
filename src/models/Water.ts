@@ -14,7 +14,8 @@ let pl={
     page:1,
     name:'',
     remark:'',
-    waterAddress:''
+    waterAddress:'',
+    pageSize:50
 }
 
 export interface WatertCountState {

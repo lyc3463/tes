@@ -41,7 +41,7 @@ const AddYinghangka=(props:any)=>{
                 <Form.Item label='预留手机号' name='bankPhone' rules={[{required: true, message:'请输入预留手机号'}]}>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='银行名称' name='bankName' rules={[{required: true, message:'请输入银行名称'}]}>
+                <Form.Item label='开户行' name='bankName' rules={[{required: true, message:'请输入开户行'}]}>
                     <Input/>
                 </Form.Item>
 

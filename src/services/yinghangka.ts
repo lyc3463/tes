@@ -1,6 +1,6 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    return getData(1297, [vals.page,vals.name,vals.phone]);
+    return getData(1297, [vals.page,vals.name,vals.phone,vals.pageSize]);
 }
 export function add(vals:any) {
     return getData(1293, [vals.accountName,vals.cardNum,vals.bankPhone,vals.bankName]);

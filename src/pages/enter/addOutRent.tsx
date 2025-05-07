@@ -1,4 +1,4 @@
-import {Button, DatePicker, Form, Input, message, Select, Spin} from "antd";
+import {Button, DatePicker, Form, Input, message, Select, Spin,Radio} from "antd";
 import {filterAndUpdateList, phonePattern} from "@/utils/OpenTool";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
@@ -20,11 +20,13 @@ const AddOutRent=(props)=>{
     // 租户手机号
     const [tenant_phone,settenant_phone]=useState('');
     const [spinning,setspinning]=useState(false);
+    // 1正常退租,2强制退租
+    const [type,settype]=useState(2);
     const onFinish=(vals:any)=>{
         setspinning(true);
         props.dispatch({
             type:'OutRent/add',
-            payload:{...vals,tenantId,startDate}
+            payload:{...vals,tenantId,startDate,type}
         }).then((res)=>{
             if (res.ErrorCode==0){
                 setspinning(false);
@@ -37,14 +39,16 @@ const AddOutRent=(props)=>{
         })
     };
     const change=(e)=>{
+        setspinning(true);
         StaffService.one(e).then((res:any)=>{
             if (res.ErrorCode==0){
-                console.log('租户ID',res);
+                setspinning(false);
                 setOldName(res.Data[0].tenant_name);
                 setTenantID(res.Data[0].tenantId);
                 settenant_phone(res.Data[0].tenant_phone);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setspinning(false);
             }
         })
     };
@@ -55,10 +59,9 @@ const AddOutRent=(props)=>{
     const getContntList=()=>{
         setspinning(true);
         props.dispatch({
-            type:'CheckHetong/fetch'
+            type:'SeleHetong/fetch'
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('res',res);
                 setHetongList(res.Data);
                 setspinning(false);
             }else {
@@ -70,6 +73,9 @@ const AddOutRent=(props)=>{
     useEffect(() => {
         getContntList();
     }, []);
+    const changeType=(e)=>{
+        settype(e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <Form
@@ -82,11 +88,20 @@ const AddOutRent=(props)=>{
                 style={{ marginTop: '1rem' }}
             >
                 <Form.Item label='选择合同' name='contractId'>
-                    <Select onChange={change}>
+                    <Select
+                        onChange={change}
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) => {
+                            // 假设每个 option 都有一个与数据项对应的 value 属性
+                            const item =hetongList.find(hetongID => hetongID.id == option?.value); // 您可能需要优化这个查找过程
+                            return item?.tenant_name?.toLowerCase().includes(input.toLowerCase());
+                        }}
+                    >
                         {hetongList.map((item:any,index:any)=>{
                             return(
                                 <Select.Option value={item.id} key={index}>
-                                    {item.identifier}-{item.customName}
+                                    {item.identifier}-{item.tenant_name}
                                 </Select.Option>
                             )
                         })}
@@ -104,6 +119,12 @@ const AddOutRent=(props)=>{
                 <Form.Item label='退租原因' name='reason'>
                     <Input.TextArea placeholder='退租原因'/>
                 </Form.Item>
+                <Form.Item label='退租类型'>
+                    <Radio.Group value={type} onChange={changeType}>
+                        <Radio value={1}>正常退租</Radio>
+                        <Radio value={2}>强制退租</Radio>
+                    </Radio.Group>
+                </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
                         添加
@@ -115,7 +136,7 @@ const AddOutRent=(props)=>{
 }
 const mapStateToProps = (state: any) => {
     return {
-        CheckHetongList: state.CheckHetong.list,
+        CheckHetongList: state.SeleHetong.list,
     }
 };
 export default connect(mapStateToProps) (AddOutRent)

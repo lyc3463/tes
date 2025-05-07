@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 
 const PayReportForms=(props)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [phone,setPhone]=useState('');
     const [name,setName]=useState('');
     const [type,setType]=useState(0);
@@ -100,24 +101,27 @@ const PayReportForms=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"PayReportForms/fetch",
-            payload:{page,name,phone,type,startDate,endDate,userID}
+            payload:{page,name,phone,type,startDate,endDate,userID,pageSize}
         })
     };
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'PayReportForms/fenye',
-            dispatch:{name,phone,type,startDate,endDate,userID}
-        });
+        getFenyeInfo();
         logFenye();
     };
-    const onChange=(e)=>{
-        setPage(e)
+    const getFenyeInfo=()=>{
+        props.dispatch({
+            type:'PayReportForms/fenye',
+            dispatch:{name,phone,type,startDate,endDate,userID,pageSize}
+        });
+    };
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
-        console.log(props)
-    }, [page]);
+    }, [page,pageSize]);
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -208,7 +212,7 @@ const PayReportForms=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </div>
     )
 }

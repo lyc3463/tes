@@ -10,11 +10,13 @@ import {alljiaofei, alljiaofeifenye} from "@/services/ArrearsBill";
 const AllList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
     const [tenandId,settenandId]=useState(0);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [stutes,setstutes]=useState(1);
     // 总页码
     const [count,setcount]=useState(0);
     // 列表
@@ -29,9 +31,8 @@ const AllList=(props:any)=>{
     };
     // 查看租金缴费列表
     const getzujinList=()=>{
-        ArrearsBillService.alljiaofei({page,name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        ArrearsBillService.alljiaofei({page,name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('公共缴费记录',res)
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -40,7 +41,7 @@ const AllList=(props:any)=>{
     };
     // 分页
     const logFenye=()=>{
-        ArrearsBillService.alljiaofeifenye({name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        ArrearsBillService.alljiaofeifenye({name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
@@ -96,18 +97,6 @@ const AllList=(props:any)=>{
                 )
             }
         },
-        // {
-        //     title: '违约金(元)',
-        //     dataIndex: 'defaultAmount',
-        //     key: 'defaultAmount',
-        //     render:(text:any,record:any)=>{
-        //         return(
-        //             <div>
-        //                 {record.defaultAmount}元
-        //             </div>
-        //         )
-        //     }
-        // },
         {
             title: '已交金额(元)',
             dataIndex: 'stopAmount',
@@ -144,15 +133,16 @@ const AllList=(props:any)=>{
         }
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
     }, []);
     useEffect(() => {
         getzujinList();
-    }, [page]);
+    }, [page,pageSize]);
     return(
         <div>
             <List>
@@ -209,7 +199,7 @@ const AllList=(props:any)=>{
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </div>
     )
 }

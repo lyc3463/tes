@@ -1,6 +1,6 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    return getData(1115, [vals.page,vals.collectorId,vals.name,vals.remark]);
+    return getData(1115, [vals.page,vals.collectorId,vals.name,vals.remark,vals.pageSize]);
 }
 
 export function add(vals:any) {
@@ -16,7 +16,7 @@ export function remove(vals:any) {
     return getData(1113, [vals]);
 }
 export function fenye(vals:any) {
-    return getData(1116, [vals.collectorId,vals.name,vals.remark]);
+    return getData(1116, [vals.collectorId,vals.name,vals.remark,vals.pageSize]);
 }
 
 export function one(vals:string) {

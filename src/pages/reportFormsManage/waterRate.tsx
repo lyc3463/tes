@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 
 const WaterRate=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [collectorID,setCollectorID]=useState('');
     const [name,setName]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
@@ -72,26 +73,29 @@ const WaterRate=(props:any)=>{
 
     useEffect(() => {
         logFenye();
-        console.log(props)
-    }, [page]);
+    }, [page,pageSize]);
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"WaterRate/fetch",
-            payload:{page,name,collectorID,startDate,endDate}
+            payload:{page,name,collectorID,startDate,endDate,pageSize}
         })
     };
     // 搜索按钮
     const shousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'WaterRate/fenye',
-            payload:{page,name,collectorID,startDate,endDate}
-        });
+        getFenyeInfo();
         logFenye()
     };
-    const onChange=(val:number)=>{
-        setPage(val)
+    const getFenyeInfo=()=>{
+        props.dispatch({
+            type:'WaterRate/fenye',
+            payload:{page,name,collectorID,startDate,endDate,pageSize}
+        });
+    };
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -103,6 +107,9 @@ const WaterRate=(props:any)=>{
             setEndDate(data[1]);
         }
     };
+    useEffect(() => {
+        getFenyeInfo();
+    }, []);
     return(
         <div>
             <List>
@@ -148,7 +155,7 @@ const WaterRate=(props:any)=>{
                 scroll={{x:1500}}
                 pagination={false}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </div>
     )
 }

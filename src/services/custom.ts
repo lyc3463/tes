@@ -1,6 +1,6 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    return getData(1127, [vals.page,vals.customName,vals.customBeginTime,vals.customEndTime,vals.customStatus]);
+    return getData(1127, [vals.page,vals.customName,vals.customBeginTime,vals.customEndTime,vals.customStatus,vals.userId,vals.pageSize]);
 }
 export function add(vals:any) {
     return getData(1123, [
@@ -55,7 +55,7 @@ export function check(vals:any) {
     return getData(1234, [vals]);
 }
 export function fenye(vals:any) {
-    return getData(1128, [vals.customName,vals.customBeginTime,vals.customEndTime,vals.customStatus]);
+    return getData(1128, [vals.customName,vals.customBeginTime,vals.customEndTime,vals.customStatus,vals.userId,vals.pageSize]);
 }
 export function editNum(vals:any) {
     return getData(1397, [vals.aid,vals.remark]);

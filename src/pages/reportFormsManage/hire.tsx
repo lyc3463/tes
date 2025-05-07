@@ -54,42 +54,55 @@ const Hire=(props:any)=>{
             }
         },
         {
+            title: '单元数量(间)',
+            dataIndex: 'unitCount',
+            key: 'unitCount',
+
+        },
+        {
             title: '已租面积㎡',
-            dataIndex: 'll',
-            key: 'll',
+            dataIndex: 'rentable_areaSum',
+            key: 'rentable_areaSum',
+
+        },
+        {
+            title: '已租租金',
+            dataIndex: 'priceSum',
+            key: 'priceSum',
             render: (_:any, record:any) => {
                 return(
-                    <span>{record.rentable_area-record.residue_add_area}㎡</span>
+                    <span>{record.priceSum}元</span>
                 )
             }
         },
         {
-            title: '平均租金',
-            dataIndex: 'rents',
-            key: 'rents',
-            render: (_:any, record:any) => {
-                return(
-                    <span>{record.rents}元</span>
-                )
-            }
+            title: '租户数量(个)',
+            dataIndex: 'tenantCount',
+            key: 'tenantCount',
         },
         {
             title: '平均单价',
-            dataIndex: 'price',
-            key: 'price',
+            dataIndex: 'xx',
+            key: 'xx',
             render: (_:any, record:any) => {
+                let a=record.priceSum;
+                let b=record.rentable_areaSum;
+                let sum = (b !== 0) ? (a / b) : 0;
                 return(
-                    <span>{record.price}元</span>
+                    <div>
+                        {sum.toFixed(2)}元
+                    </div>
+
                 )
             }
         },
         {
             title: '出租率',
-            dataIndex: 'rentalRate',
-            key: 'rentalRate',
+            dataIndex: 'qq',
+            key: 'qq',
             render: (_:any, record:any) => {
                 return(
-                    <span>{(record.rentalRate*100).toFixed(2)}%</span>
+                    <span>{((record.rentable_areaSum/record.rentable_area)*100).toFixed(2)}%</span>
                 )
             }
         },
@@ -99,7 +112,7 @@ const Hire=(props:any)=>{
             key: 'usageRate',
             render: (_:any, record:any) => {
                 return(
-                    <span>{(record.usageRate*100).toFixed(2)}%</span>
+                    <span>{((record.rentable_area/record.floor_area)*100).toFixed(2)}%</span>
                 )
             }
         },

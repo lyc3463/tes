@@ -1,119 +1,245 @@
-import {Button, DatePicker, Form, Modal, Pagination, Select, Table,Input} from "antd";
-const Yiruzhang=()=>{
+import {Button, DatePicker, Form, Modal, Pagination, Select, Table, Input, Space, Tag, List, message, Spin} from "antd";
+import {connect} from "umi";
+import dayjs from "dayjs";
+import {useEffect, useState} from "react";
+import * as RechargeRateService from "@/services/rechargeRate";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {exportDataToExcel} from "@/utils/OpenTool";
+import * as TixianService from "@/services/ruzhang";
+const Yiruzhang=(props)=>{
+    const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
+    const [stutes,setStutes]=useState(2);
+    const [startDate,setStartDate]=useState('2000-01-01');
+    const [endDate,setEndDate]=useState('2099-01-01');
+    const [spinning,setspinning]=useState(false);
     const columns =[
         {
-            title: '系统转账单号',
-            dataIndex: 'danhao',
-            key: 'danhao',
-        },
-        {
-            title: '收款钱包',
-            dataIndex: 'qianbao',
-            key: 'qianbao',
-        },
-        {
-            title: '真实姓名',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
-            title: '总金额',
-            dataIndex: 'jine',
-            key: 'jine',
-        },
-        {
-            title: '转账手续费',
-            dataIndex: 'shouxu',
-            key: 'shouxu',
-        },
-        {
-            title: '实际到账金额',
-            dataIndex: 'daozhang',
-            key: 'daozhang',
-        },
-        {
-            title: '入账时间',
-            dataIndex: 'data',
-            key: 'data',
-        },
-        {
-            title: '转账说明',
-            dataIndex: 'beizhu',
-            key: 'beizhu',
-        },
-        {
-            title: '转账状态',
-            dataIndex: 'stutes',
-            key: 'stutes',
-            render:(text:any,record:any)=>{
+            title: '日期',
+            dataIndex: 'created',
+            key: 'created',
+            render:(text,record)=>{
                 return(
-                    <div>
-                        {record.stutes==1?<a style={{marginRight:'10px',color:'green'}}>交易成功</a>:<a style={{color:'red'}}>交易失败</a>}
-                    </div>
+                    <div>{dayjs(record.created).format("YYYY-MM-DD HH:mm:ss")}</div>
                 )
             }
         },
         {
-            title: '错误信息',
-            dataIndex: 'info',
-            key: 'info',
+            title: '银行卡号',
+            dataIndex: 'cardId',
+            key: 'cardId',
         },
         {
-            title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
-            fixed: 'right',
-            render:(_:any,record:any)=>{
+            title: '户名',
+            dataIndex: 'accountName',
+            key: 'accountName',
+        },
+        {
+            title: '开户行',
+            dataIndex: 'bankName',
+            key: 'bankName',
+        },
+        {
+            title: '提现申请人',
+            dataIndex: 'userName',
+            key: 'userName',
+        },
+        {
+            title: '提现金额(元)',
+            dataIndex: 'withdAmount',
+            key: 'withdAmount',
+        },
+        {
+            title: '手续费比例',
+            dataIndex: 'commission',
+            key: 'commission',
+            render:(text,record)=>{
                 return(
-                    <div>
-
-
-                    </div>
+                    <div>{record.commission/1000}</div>
                 )
             }
+        },
+        {
+            title: '到账金额(元)',
+            dataIndex: 'withdAmount',
+            key: 'withdAmount',
+            render:(text,record)=>{
+                return(
+                    <div>{(record.withdAmount-(record.withdAmount*record.commission/1000)).toFixed(2)}元</div>
+                )
+            }
+        },
+    ];
+    // 分页
+    const logFenye=()=>{
+        props.dispatch({
+            type:"Ruzhang/fetch",
+            payload:{page,stutes,startDate,endDate,pageSize}
+        })
+    };
+    const sousuo=()=>{
+        setPage(1);
+        getFenye();
+        logFenye();
+    };
+    const getFenye=()=>{
+        props.dispatch({
+            type:"Ruzhang/fenye",
+            payload:{stutes,startDate,endDate,pageSize}
+        });
+    };
+    // 监听日期
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
         }
-    ]
+    };
+    const  onChange=(e,pageSize)=>{
+        setPage(e);
+        setPageSize(pageSize);
+    };
+    useEffect(() => {
+        logFenye();
+    }, [page,pageSize]);
+    useEffect(() => {
+        getFenye();
+    }, []);
+    const exportToExcel=()=>{
+        setspinning(true);
+        TixianService.fetch({page:1,stutes,startDate,endDate,pageSize:100000}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let headers=['日期','银行卡号','户名','开户行','申请人','提现金额(元)','手续费比例','到账金额(元)'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })), // 表头
+                    ...res.Data.map(item => [
+                        (dayjs(item.created).format("YYYY-MM-DD HH:mm:ss")),
+                        item.cardId,
+                        item.accountName,
+                        item.bankName,
+                        item.userName,
+                        item.withdAmount,
+                        item.commission/1000,
+                        (item.withdAmount-(item.withdAmount*item.commission/1000)).toFixed(2)
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                ];
+                exportDataToExcel(ws_data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+
+    };
     return(
-        <div>
-            <Form style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
-                <div style={{display:'flex'}}>
-                    <Form.Item label='日期范围'>
-                        <DatePicker.RangePicker/>
-                    </Form.Item>
-                    <Form.Item label='快速选择' style={{margin:'0 10px'}}>
-                        <DatePicker/>
-                    </Form.Item>
-                </div>
-                <div style={{display:'flex'}}>
-                    <Form.Item label='单号类型' style={{width:'20vw'}}>
-                        <Select/>
-                    </Form.Item>
-                    <Form.Item label='交易单号查询'  style={{width:'20vw',margin:'0 10px'}}>
-                        <Input placeholder='交易单号'/>
-                    </Form.Item>
-                    <Form.Item label='转账状态'  style={{width:'20vw'}}>
-                        <Select/>
-                    </Form.Item>
-                </div>
-                <div style={{display:'flex'}}>
-                    <Form.Item label='钱包' style={{width:'20vw'}}>
-                        <Select/>
-                    </Form.Item>
-                    <Form.Item label='代付状态' style={{width:'20vw',margin:'0 10px'}}>
-                        <Select/>
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type='primary' style={{marginRight:"10px"}}>查询</Button>
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" >导出到Excel</Button>
-                    </Form.Item>
-                </div>
-            </Form>
-            <div>
-            </div>
-            <Table columns={columns} style={{border:'1px solid #ddd',borderRadius:'4px'}} />
-        </div>
+        <Spin spinning={spinning}>
+            <List>
+                <List.Item>
+                    <Space>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={(e:number)=>setStutes(e)}
+                                defaultValue={stutes}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value: 0, label: '全部' },
+                                    { value: 1, label: '未审核' },
+                                    { value: 2, label: '已审核' },
+                                    { value: 3, label: '未通过' },
+                                ]}
+                            />
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                时间:
+                            </div>
+                            <DatePicker.RangePicker onChange={changeDate}/>
+                        </Space.Compact>
+                        <Button type="primary" onClick={sousuo}>
+                            搜索
+                        </Button>
+                        <Button type="primary" onClick={exportToExcel}>
+                            导出
+                        </Button>
+                    </Space>
+                </List.Item>
+            </List>
+            <Table
+                columns={columns}
+                rowKey={(columns) => columns.id}
+                dataSource={props.TixianList}
+                pagination={false}
+                size='small'
+                rowClassName={(record, index) =>
+                    index % 2 === 1 ? 'tbodd' : 'tbeven'
+                }
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {props.count?props.count.withdAmountSum:''}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}>
+                                {props.count?props.count.actualAmountSum:''}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
+            />
+            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+        </Spin>
     )
 }
-export default Yiruzhang
+const mapStateToProps = (state: any) => {
+    return {
+        TixianList: state.Ruzhang.list,
+        count: state.Ruzhang.count
+    }
+};
+export default connect(mapStateToProps) (Yiruzhang)

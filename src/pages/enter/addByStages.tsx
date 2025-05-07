@@ -1,8 +1,10 @@
 import {useEffect, useState} from "react";
-import {Button, Form, Input, InputNumber, message, Select} from "antd";
+import {Button, DatePicker, Form, Input, InputNumber, message, Select, Spin} from "antd";
 import {connect,history} from "umi";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 import * as StaffService from "@/services/staff";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import dayjs from "dayjs";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -23,37 +25,84 @@ const AddByStages=(props)=>{
     const [tenantId,setTenantID]=useState(0);
     // 原租金
     const [zuMoney,setZuMoney]=useState(0);
-
+    const [spinning,setspinning]=useState(false);
+    const [futureRent,setfutureRent]=useState(0);
+    // 合同起租日
+    const [oldbeginTime,setbeginTime]=useState('2000-01');
+    // 合同到期日
+    const [oldendTime,setendTime]=useState('2099-01');
+    // 分期开始时间
+    const [fqStartDate,setFqStartDate]=useState('');
+    // 分期结束时间
+    const [fqEndDate,setfqEndDate]=useState('');
+    // 分期开始时间
+    const [hkStartDate,sethkStartDate]=useState('');
+    // 分期结束时间
+    const [hkEndDate,sethkEndDate]=useState('');
     const onFinish=(vals:any)=>{
+        setspinning(true);
         props.dispatch({
             type:'ByStages/add',
-            payload:{...vals,tenantId}
+            payload:{...vals,tenantId,futureRent,fqStartDate,fqEndDate,hkEndDate,hkStartDate}
         }).then((res)=>{
             if (res.ErrorCode==0){
                 message.success('提交成功');
-                history.push("/enter/afterSales")
+                history.push("/enter/afterSales");
+                setspinning(false);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+    };
+    // 合同列表
+    const getContntList=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:'SeleHetong/fetch'
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setHetongList(res.Data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
             }
         })
     };
     useEffect(() => {
-        filterAndUpdateList(props.CheckHetongList, 'identifier', 'id', setHetongList);
+        getContntList();
     }, []);
     const change=(e)=>{
+        setspinning(true);
         StaffService.one(e).then((res:any)=>{
             if (res.ErrorCode==0){
-                setOldName(res.Data.tenant_name);
-                setOldPhone(res.Data.tenant_phone);
-                setTenantID(res.Data.tenantId);
-                setZuMoney(res.Data.zuMoney);
+                setspinning(false);
+                setOldName(res.Data[0].tenant_name);
+                setOldPhone(res.Data[0].tenant_phone);
+                setTenantID(res.Data[0].tenantId);
+                setZuMoney(res.Data[0].zuMoney);
+                setbeginTime(res.Data[0].beginTime);
+                setendTime(res.Data[0].endTime);
             }else {
+                setspinning(false);
                 message.error(res.Data)
             }
         })
     };
+    const disabledDate = (current) => {
+        return current && (current < dayjs(oldbeginTime) || current > dayjs(oldendTime));
+    };
+    const changeFqdate=(_:any,date:any)=>{
+        setFqStartDate(date[0]+'-01');
+        setfqEndDate(date[1]+'-01');
+    };
+    const changehkdate=(_:any,date:any)=>{
+        sethkStartDate(date[0]+'-01');
+        sethkEndDate(date[1]+'-01');
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -64,11 +113,20 @@ const AddByStages=(props)=>{
                 style={{ marginTop: '1rem' }}
             >
                 <Form.Item label='选择合同' name='contractId'>
-                    <Select onChange={change}>
+                    <Select
+                        onChange={change}
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) => {
+                            // 假设每个 option 都有一个与数据项对应的 value 属性
+                            const item =hetongList.find(hetongID => hetongID.id == option?.value); // 您可能需要优化这个查找过程
+                            return item?.tenant_name?.toLowerCase().includes(input.toLowerCase());
+                        }}
+                    >
                         {hetongList.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.identifier}-{item.tenant_name}
                                 </Select.Option>
                             )
                         })}
@@ -83,30 +141,26 @@ const AddByStages=(props)=>{
                 <Form.Item label='原租金/月'>
                     <InputNumber  value={zuMoney} disabled/>元
                 </Form.Item>
-                <Form.Item label='租金分期(元)' name='futureRent'>
-                    <InputNumber/>
+                <Form.Item label='分期开始/结束时间'>
+                    <DatePicker.RangePicker picker="month" disabledDate={disabledDate} onChange={changeFqdate}/>
                 </Form.Item>
-                <Form.Item label='分期' name='stages'>
-                    <InputNumber min={1} max={12}/>
+                <Form.Item label='还款开始/结束时间'>
+                    <DatePicker.RangePicker picker="month"  onChange={changehkdate}/>
                 </Form.Item>
-                <Form.Item label='每月还款日期' name='repaymentDate'>
-                    <Select>
-                        {fenqiList.map((item:any,index:any)=>{
-                            return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
-                                </Select.Option>
-                            )
-                        })}
-                    </Select>
+                <Form.Item label='每月分期租金(元)'>
+                    <InputNumber value={futureRent} min={0} onChange={(e)=>setfutureRent(e)}/>
+                </Form.Item>
+                <Form.Item label='备注'>
+                    <span style={{fontSize:'12px',color:'#555'}}>分期开始/结束月份每月分期租金分配给还款开始/结束日期</span>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
                         添加
                     </Button>
                 </Form.Item>
+
             </Form>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

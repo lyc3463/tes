@@ -8,6 +8,7 @@ import {eleList} from "@/services/ArrearsBill";
 const CableKoufeiList=()=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 租户名字
     const [name,setName]=useState('');
     // 电表地址
@@ -27,6 +28,7 @@ const CableKoufeiList=()=>{
     const [moneySum,setmoneySum]=useState(0);
     // 电表备注
     const [remake,setRemake]=useState('');
+    const [count,setcount]=useState(0);
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -44,7 +46,7 @@ const CableKoufeiList=()=>{
     };
     // 查看电费扣费失败记录
     const getzujinList=()=>{
-        ArrearsBillService.eleList(page,name,cid,startDate,endDate,tenantId,recordStatus,remake).then((res:TypeErrorCode)=>{
+        ArrearsBillService.eleList(page,name,cid,startDate,endDate,tenantId,recordStatus,remake,pageSize).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setdataSource(res.Data);
             }else {
@@ -54,10 +56,11 @@ const CableKoufeiList=()=>{
     };
     // 分页
     const logFenye=()=>{
-        ArrearsBillService.eleListFenye(name,cid,startDate,endDate,tenantId,recordStatus,remake).then((res:TypeErrorCode)=>{
+        ArrearsBillService.eleListFenye(name,cid,startDate,endDate,tenantId,recordStatus,remake,pageSize).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setenergyUsage(res.Data.energyUsage)
-                setmoneySum(res.Data.moneySum)
+                setenergyUsage(res.Data.energyUsage);
+                setmoneySum(res.Data.moneySum);
+                setcount(res.Data.count);
             }else {
                 message.error(res.Data);
             }
@@ -65,9 +68,14 @@ const CableKoufeiList=()=>{
     };
     useEffect(() => {
         getzujinList();
+    }, [page,pageSize]);
+    useEffect(() => {
         logFenye();
-
     }, []);
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
+    };
     const columns =[
         {
             title: '日期',
@@ -233,7 +241,7 @@ const CableKoufeiList=()=>{
                     </Table.Summary>
                 )}
             />
-            {/*{props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}*/}
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </div>
     )
 }

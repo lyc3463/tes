@@ -14,7 +14,7 @@ let authArr =qxList.split('').map(Number)
 const AddRole=(props)=>{
     const [form] = Form.useForm();
     const treeData = buildTree(qxTree);
-    const [selected, setSelected] = useState<string[]>(Array(362).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(372).fill('0'));
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: TypeMenu[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void })=> {
         return (
             <ul>
@@ -423,6 +423,7 @@ const AddRole=(props)=>{
               newSelected[357] = isChecked ? '1' : '0';
               newSelected[355] = isChecked ? '1' : '0';
               newSelected[259] = isChecked ? '1' : '0';
+              newSelected[362] = isChecked ? '1' : '0';
           }
           if (id === 65){
               newSelected[66] = isChecked ? '1' : '0';
@@ -496,10 +497,31 @@ const AddRole=(props)=>{
               newSelected[341] =  isChecked ? '1' : '0' ;
           }
           if (id === 77){
-              newSelected[78] = isChecked ? '1' : '0';
-              newSelected[79] = isChecked ? '1' : '0';
               newSelected[80] = isChecked ? '1' : '0';
               newSelected[81] = isChecked ? '1' : '0';
+              newSelected[363] = isChecked ? '1' : '0';
+              newSelected[364] = isChecked ? '1' : '0';
+              newSelected[365] = isChecked ? '1' : '0';
+              newSelected[366] = isChecked ? '1' : '0';
+              newSelected[370] = isChecked ? '1' : '0';
+              newSelected[367] = isChecked ? '1' : '0';
+              newSelected[368] = isChecked ? '1' : '0';
+              newSelected[369] = isChecked ? '1' : '0';
+              newSelected[371] = isChecked ? '1' : '0';
+          }
+          if (id === 80){
+              newSelected[363] = isChecked ? '1' : '0';
+              newSelected[364] = isChecked ? '1' : '0';
+              newSelected[365] = isChecked ? '1' : '0';
+              newSelected[366] = isChecked ? '1' : '0';
+              newSelected[370] = isChecked ? '1' : '0';
+          }
+          if (id === 81){
+              newSelected[371] = isChecked ? '1' : '0';
+              newSelected[369] = isChecked ? '1' : '0';
+              newSelected[368] = isChecked ? '1' : '0';
+              newSelected[367] = isChecked ? '1' : '0';
+
           }
           if (id === 67){
               newSelected[324] =  '1' ;

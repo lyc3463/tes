@@ -115,7 +115,7 @@ const YearStatistics=(props:any)=>{
                 scroll={{x:1500}}
                 pagination={false}
                 size='small'
-                rowKey={(columns) => columns.id}
+                rowKey={(columns) => columns.recordTimes}
                 dataSource={props.StatisticsList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'

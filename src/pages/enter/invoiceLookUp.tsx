@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
 const InvoiceLookUp=(props:any)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 状态 0全部，1未审核，2审核通过
     const [stutes,setStutes]=useState(0);
     const [openID,setOpenID]=useState(0);
@@ -100,8 +101,9 @@ const InvoiceLookUp=(props:any)=>{
             }
         },
     ];
-    const onChange=(e)=>{
-      setPage(e);
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     // 监听状态
     const changeStutes=(e:number)=>{
@@ -111,21 +113,23 @@ const InvoiceLookUp=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"InvoiceLookUp/fetch",
-            payload:{page,name,stutes,openID}
+            payload:{page,name,stutes,openID,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props);
-    }, [page]);
+    }, [page,pageSize]);
     // 搜索
     const suosou=()=>{
         setPage(1);
+        getFenyeInfo();
+        logFenye();
+    };
+    const getFenyeInfo=()=>{
         props.dispatch({
             type:'InvoiceLookUp/fenye',
-            payload:{name,stutes,openID}
+            payload:{name,stutes,openID,pageSize}
         })
-        logFenye();
     };
     // 审核通过的弹窗
     const check=(e)=>{
@@ -178,6 +182,7 @@ const InvoiceLookUp=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFenyeInfo();
     }, []);
     return(
         <Spin spinning={spinning}>
@@ -230,7 +235,7 @@ const InvoiceLookUp=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         {/*    审核的弹窗*/}
             <Modal onOk={onCheckOK} open={checkOpen} title={'审核通过'} onCancel={()=>setCheckOpen(false)} loading={spinning}>
                 <div>确定审核通过吗?</div>

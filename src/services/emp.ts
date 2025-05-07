@@ -1,7 +1,7 @@
 import { getData,postData} from '@/network/http';
 
 export function fetch(vals:any) {
-    return getData(1173, [vals.page,vals.cname,vals.nickname,vals.phone,vals.stutes]);
+    return getData(1173, [vals.page,vals.cname,vals.nickname,vals.phone,vals.stutes,vals.companyName,vals.pageSize]);
 }
 
 export function add(vals:any) {
@@ -24,7 +24,7 @@ export function check(vals:any) {
     return getData(1193, [vals.uid,vals.stutes=2]);
 }
 export function fenye(vals:any) {
-    return getData(1174, [vals.cname,vals.nickname,vals.phone,vals.stutes]);
+    return getData(1174, [vals.cname,vals.nickname,vals.phone,vals.stutes,vals.companyName,vals.pageSize]);
 }
 export function checkRemove(vals:any) {
     return getData(1194, [vals]);

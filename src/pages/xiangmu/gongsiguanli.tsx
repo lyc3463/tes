@@ -14,6 +14,7 @@ function Gongsiguanli(props: any) {
     const [loading, setLoading] = useState(false);
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 参数名称
     const [cname,setCname]=useState('');
     // 收费类型
@@ -31,7 +32,6 @@ function Gongsiguanli(props: any) {
             title: '名称',
             dataIndex: 'item_name',
         },
-
         {
             title: '收费类型',
             dataIndex: 'itemType',
@@ -102,27 +102,33 @@ function Gongsiguanli(props: any) {
     // 搜索
     const sousuo=()=>{
         setPage(1);
+        getFyInfo();
+        logFenye();
+    };
+    const getFyInfo=()=>{
         props.dispatch({
             type:'Gongsi/shousuo',
-            payload:{page,cname,feetype}
+            payload:{page,cname,feetype,pageSize}
         });
-        logFenye()
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"Gongsi/fetch",
-            payload:{page,cname,feetype}
+            payload:{page,cname,feetype,pageSize}
         })
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
-        console.log('props',props)
         logFenye();
     }, [page]);
+    useEffect(() => {
+        getFyInfo();
+    }, []);
     const deteleOpen=(e)=>{
         setUid(e.id);
         setUname(e.item_name);
@@ -202,7 +208,7 @@ function Gongsiguanli(props: any) {
                         index % 2 === 1 ? 'tbodd' : 'tbeven'
                     }
                 />
-                {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+                {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
                 {/*删除的弹窗*/}
                 <Modal open={open} onCancel={()=>setOpen(false)} title='删除收费项目' onOk={onOk}>
                     <div>

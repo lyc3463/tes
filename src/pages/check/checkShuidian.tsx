@@ -23,6 +23,7 @@ import ImageUploader from "@/components/ImageUploader";
 const CheckShuidian=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [openId,setOpenId]=useState(0);
     const [stutes,setStutes]=useState(0);
     const [uid,setUid]=useState(0);
@@ -85,6 +86,13 @@ const CheckShuidian=(props)=>{
             title: '发票抬头',
             dataIndex: 'rise_name',
             key: 'rise_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{color:'red'}}>
+                        {record.rise_name}
+                    </div>
+                )
+            }
         },
         {
             title: '账单类型',
@@ -133,24 +141,12 @@ const CheckShuidian=(props)=>{
         },
         {
             title: '邮箱',
-            dataIndex: 'invoiceType',
-            key: 'invoiceType',
+            dataIndex: 'email',
+            key: 'email',
             render:(text:any,record:any,)=>{
                 return(
                     <div style={{color:'red'}}>
-
-                    </div>
-                )
-            }
-        },
-        {
-            title: '通知租户',
-            dataIndex: 'tz',
-            key: 'tz',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.invoiceStatus==2?<Button type='link' onClick={()=>onOpen(record)}>发送</Button>:''}
+                        {record.email}
                     </div>
                 )
             }
@@ -163,6 +159,18 @@ const CheckShuidian=(props)=>{
                 return(
                     <div>
                         {record.invoiceStatus==1?<Tag color="red">未审核</Tag>:<Tag color="green">已审核</Tag>}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '通知租户',
+            dataIndex: 'tz',
+            key: 'tz',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.invoiceStatus==2?<Button type='link' onClick={()=>onOpen(record)}>发送</Button>:''}
                     </div>
                 )
             }
@@ -188,27 +196,27 @@ const CheckShuidian=(props)=>{
         history.push(`/check/editCheckFpSD?id=${e.id}`);
     };
     // 监听页码
-    const onChange=(e)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     // 分页
     const getfenyeInfo=()=>{
         props.dispatch({
             type:'CheckFpSD/fenye',
-            payload:{startDate,endDate,openId,stutes}
+            payload:{startDate,endDate,openId,stutes,pageSize}
         });
     };
     // 列表
     const logFenye=()=>{
         props.dispatch({
             type:"CheckFpSD/fetch",
-            payload:{page,startDate,endDate,openId,stutes}
+            payload:{page,startDate,endDate,openId,stutes,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props)
-    }, [page]);
+    }, [page,pageSize]);
     useEffect(() => {
         getfenyeInfo();
     }, []);
@@ -349,7 +357,7 @@ const CheckShuidian=(props)=>{
                 rowKey={(columns) => columns.id}
                 dataSource={props.CheckFpList}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*审核的弹窗*/}
             <Modal open={checkOpen} onOk={onOk} onCancel={()=>setCheckOpen(false)} title='审核发票'>
                 <div>确定审核通过吗?</div>

@@ -9,6 +9,7 @@ import {fenye} from "@/services/watert";
 
 const CableJournaling=(props)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [count,setcount]=useState(0);
     const [waterList,setwaterList]=useState([]);
     // 水表地址
@@ -71,17 +72,17 @@ const CableJournaling=(props)=>{
     ];
     // 获取水表报表
     const getWaterList=()=>{
-        WatertService.fetch({page,name,waterAddress,remark}).then((res:TypeErrorCode)=>{
+        WatertService.fetch({page,name,waterAddress,remark,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setwaterList(res.Data);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
             }
         })
     };
     // 获取水表分页
     const getWaterListfenye=()=>{
-        WatertService.fenye({name,waterAddress,remark}).then((res:TypeErrorCode)=>{
+        WatertService.fenye({name,waterAddress,remark,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 settotal_used_amount(res.Data.total_used_amount);
                 setwaterNumSum(res.Data.waterNumSum);
@@ -98,12 +99,13 @@ const CableJournaling=(props)=>{
     };
     useEffect(() => {
         getWaterList()
-    }, [page]);
+    }, [page,pageSize]);
     useEffect(() => {
         getWaterListfenye();
     }, []);
-    const onChange=(e)=>{
+    const onChange=(e,pageSize)=>{
       setPage(e);
+      setPageSize(pageSize);
     };
     return(
         <div>
@@ -145,12 +147,11 @@ const CableJournaling=(props)=>{
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}>{waterNumSum}m³</Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>{total_used_amount}m³</Table.Summary.Cell>
-
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </div>
     )
 }

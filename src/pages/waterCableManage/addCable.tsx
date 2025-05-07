@@ -39,8 +39,6 @@ const AddCable=(props:any)=>{
         }
     };
     useEffect(() => {
-        // filterAndUpdateList(props.CollectorList, 'collectorid', 'id', setCollectorList);
-        // filterAndUpdateList(props.CableParameterList, 'price_name', 'id', setCable);
         getPriceList();
         getCollectorList();
     }, []);
@@ -57,15 +55,6 @@ const AddCable=(props:any)=>{
                 message.error(res.Data)
             }
         })
-        //  props.dispatch({
-        //     type:'Collector/fetch',
-        // }).then((res:TypeErrorCode)=>{
-        //     if (res.ErrorCode==0){
-        //         setCollectorList(res.Data);
-        //     }else {
-        //         message.error(res.Data)
-        //     }
-        //  })
     };
     // 价格列表
     const getPriceList=()=>{

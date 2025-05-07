@@ -1,11 +1,13 @@
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const ByStages=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 手机号
     const [phone,setPhone]=useState('');
     // 状态 0全部，1未审核，2审核通过
@@ -14,6 +16,9 @@ const ByStages=(props)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [did,setDid]=useState(0);
+    const [open,setOpen]=useState(false);
+    const [spinning,setspinning]=useState(false);
     const toadd=()=>{
         history.push('/enter/addByStages')
     };
@@ -92,20 +97,24 @@ const ByStages=(props)=>{
         },
         {
             title: '操作',
-            dataIndex: 'renameStatus',
-            key: 'renameStatus',
+            dataIndex: 'cx',
+            key: 'cx',
             render:(text:any,record:any,)=>{
                 return(
                     <Space>
-
+                        {
+                            record.renameStatus==2?'':<> <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
+                                <Button type='primary' danger onClick={()=>IsDelOpen(record.id)}>删除</Button></>
+                        }
                     </Space>
                 )
             }
-        },
+        }
     ];
     // 监听页数
-    const onChange=(page)=>{
-        setPage(page);
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -129,12 +138,11 @@ const ByStages=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"ByStages/fetch",
-            payload:{page,phone,stutes,startDate,endDate}
+            payload:{page,phone,stutes,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-        console.log(props)
     }, [page]);
     // 搜索
     const suosou=()=>{
@@ -145,13 +153,39 @@ const ByStages=(props)=>{
     const fenyeinfo=()=>{
         props.dispatch({
             type:'ByStages/fenye',
-            payload:{phone,stutes,startDate,endDate}
+            payload:{phone,stutes,startDate,endDate,pageSize}
+        })
+    };
+    const toedit=(e:number)=>{
+        history.push(`/enter/editByStages?id=${e}`);
+    };
+    const IsDelOpen=(e)=>{
+        setDid(e);
+        setOpen(true);
+    };
+    const onOk=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:'ByStages/remove',
+            payload:did
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setspinning(false);
+                setOpen(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+                setOpen(false);
+            }
         })
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
+                    <Button type='primary' onClick={toadd}>分期录入</Button>
+
                     <Space>
                         <Input
                             addonBefore="手机号:"
@@ -217,8 +251,13 @@ const ByStages=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            <Modal onOk={onOk} onCancel={()=>setOpen(false)} loading={spinning} open={open} title='是否要删除?'>
+                <div>
+                    是否要删除?
+                </div>
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

@@ -14,6 +14,7 @@ let pl={
     page:1,
     collector_number:'',
     stutes:2,
+    pageSize:50
 }
 
 export interface CollectorCountState {

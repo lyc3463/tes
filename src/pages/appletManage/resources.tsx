@@ -8,6 +8,7 @@ const Resources=(props)=>{
     const [loading, setLoading] = useState(false);
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setpageSize]=useState(50);
     // 房源类型  0办公 1商业 2全部
     const [houingType,setHouingType]=useState(2);
     //  房源状态  0上架 1下架 2全部
@@ -104,7 +105,7 @@ const Resources=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Resources/fetch",
-            payload:{page,houingType,houingStatus,beginRentHousing,endRentHousing,beginPriceHousing,endPriceHousing,houesID}
+            payload:{page,pageSize,houingType,houingStatus,beginRentHousing,endRentHousing,beginPriceHousing,endPriceHousing,houesID}
         })
     };
     const changeType=(e)=>{
@@ -114,17 +115,21 @@ const Resources=(props)=>{
       setHouingStatus(e)
     };
     const sousuo=()=>{
-      setPage(1);
-        props.dispatch({
-            type:"Resources/fetchFenye",
-            payload:{page,houingType,houingStatus,beginRentHousing,endRentHousing,beginPriceHousing,endPriceHousing,houesID}
-        })
-      logFenye();
+        setPage(1);
+        fenyeInfo();
+        logFenye();
     };
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        fenyeInfo();
     }, []);
+    const fenyeInfo=()=>{
+        props.dispatch({
+            type:"Resources/fetchFenye",
+            payload:{houingType,houingStatus,beginRentHousing,endRentHousing,beginPriceHousing,endPriceHousing,houesID,pageSize}
+        })
+    };
     return(
         <Spin spinning={loading}>
             <List>

@@ -11,6 +11,7 @@ const CheckContracte=(props:any)=>{
     const [isOpen,setIsOpen]=useState(false);
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 审核状态 0全部  1未审核 2已审核
     const [contractStatus,setContractStatus]=useState(0);
     // 合同编号
@@ -61,6 +62,18 @@ const CheckContracte=(props:any)=>{
                 return(
                     <div>
                         {dayjs(record.beginTime).format("YYYY-MM-DD")}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '到期日',
+            dataIndex: 'endTime',
+            key: 'endTime',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {dayjs(record.endTime).format("YYYY-MM-DD")}
                     </div>
                 )
             }
@@ -175,7 +188,6 @@ const CheckContracte=(props:any)=>{
         setxuOpen(true);
         StaffServer.getOldList(e.id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('列表',res);
                 setOldList(res.Data);
             }else {
                 setOldList([]);
@@ -219,22 +231,26 @@ const CheckContracte=(props:any)=>{
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'CheckStaff/fenye',
-            payload:{identifier,contractType,contractStatus,startDate,endDate,name}
-        });
+        getFenyeInfo();
         logFenye();
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"CheckStaff/fetch",
-            payload:{page,identifier,contractType,contractStatus,startDate,endDate,name}
+            payload:{page,identifier,contractType,contractStatus,startDate,endDate,name,pageSize}
         })
     };
+    const getFenyeInfo=()=>{
+        props.dispatch({
+            type:'CheckStaff/fenye',
+            payload:{identifier,contractType,contractStatus,startDate,endDate,name,pageSize}
+        });
+    };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     // 监听状态
     const changeStutes=(e:number)=>{
@@ -242,7 +258,7 @@ const CheckContracte=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     // 监听合同编号
     const changeIdentifier=(e)=>{
         setIdentifier(e.target.value);
@@ -267,6 +283,7 @@ const CheckContracte=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFenyeInfo();
     }, []);
     const xucolumns=[
         {
@@ -361,7 +378,7 @@ const CheckContracte=(props:any)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                日期:
+                                到期日:
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
@@ -413,6 +430,7 @@ const CheckContracte=(props:any)=>{
                             <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}>{props.count?props.count.zuMoney:''}元</Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>{props.count?props.count.deposit:''}元</Table.Summary.Cell>
                             <Table.Summary.Cell index={6}>{props.count?props.count.manageFee:''}元</Table.Summary.Cell>
@@ -421,7 +439,7 @@ const CheckContracte=(props:any)=>{
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*    审核通过的弹窗*/}
             <Modal title='审核合同' open={isOpen} onCancel={()=>setIsOpen(false)} onOk={checkOk} loading={spinning}>
                 <div>是否要审核通过？</div>

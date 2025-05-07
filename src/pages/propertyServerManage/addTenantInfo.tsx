@@ -4,11 +4,17 @@ import {useEffect, useState} from "react";
 import ImageUploader from "@/components/ImageUploader";
 import * as TenantInfoService from '@/services/tenantInfo';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import * as ZuhuService from '@/services/zuhu';
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddTenantInfo=(props)=>{
+    const [page,setPage]=useState(1);
+    const [name,setName]=useState('');
+    const [phone,setPhone]=useState('');
+    const [pagecount,setpagecount]=useState(999);
+
     const [form] = Form.useForm();
     const [upimg,setUpImg]=useState('');
     const [imgB64,setImgB64]=useState('');
@@ -37,22 +43,32 @@ const AddTenantInfo=(props)=>{
     const onb64=(item:string)=>{
         setImgB64(item);
     };
-    // 获取列表
-    const getUserList=()=>{
-        setspinning(true);
-        TenantInfoService.userList().then((res:TypeErrorCode)=>{
+    // 获取用户列表
+    const logFenye=()=>{
+        ZuhuService.fetch({page,name,phone,pagecount}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setspinning(false);
+                console.log("用户列表",res);
                 setList(res.Data);
-                console.log('res',res)
             }else {
                 message.error(res.Data);
-                setspinning(false);
             }
         })
     };
+    // const getUserList=()=>{
+    //     setspinning(true);
+    //     TenantInfoService.userList().then((res:TypeErrorCode)=>{
+    //         if (res.ErrorCode==0){
+    //             setspinning(false);
+    //             setList(res.Data);
+    //             console.log('res',res);
+    //         }else {
+    //             message.error(res.Data);
+    //             setspinning(false);
+    //         }
+    //     })
+    // };
     useEffect(() => {
-        getUserList();
+        logFenye();
     }, []);
     return(
         <Spin spinning={spinning}>
@@ -66,12 +82,20 @@ const AddTenantInfo=(props)=>{
                 style={{ marginTop: '1rem' }}
             >
                 <Form.Item label='选择租户' name='tenantId'>
-                    <Select>
+                    <Select
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) => {
+                            // 假设每个 option 都有一个与数据项对应的 value 属性
+                            const item =list.find(hetongID => hetongID.id == option?.value); // 您可能需要优化这个查找过程
+                            return item?.tenant_name?.toLowerCase().includes(input.toLowerCase());
+                        }}
+                    >
                         {
                             list.map((item:any,index:number)=>{
                                 return(
-                                    <Select.Option value={item.tenantId} key={index}>
-                                        {item.appUser_phone}
+                                    <Select.Option value={item.id} key={index}>
+                                        {item.tenant_name}-{item.tenant_phone}
                                     </Select.Option>
                                 )
                             })

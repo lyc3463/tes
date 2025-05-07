@@ -20,7 +20,8 @@ let pl={
     companyId:0,
     projectId:0,
     subjectId:0,
-    account_card:''
+    account_card:'',
+    pageSize:50
 }
 
 export interface BiaoqianCountState {

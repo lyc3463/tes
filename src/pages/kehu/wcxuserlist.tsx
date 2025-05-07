@@ -9,11 +9,12 @@ const Wcxuserlist=(props:any)=>{
     const treeData = buildTree(qxTree);
     const [isSpinning,setIsSpinning]=useState(false);
     const [page,setPage]=useState(1);
+    const [pageSize,setpageSize]=useState(50);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
     // 弹窗
     const [isOpen,setIsOpen]=useState(false);
-    const [selected, setSelected] = useState<string[]>(Array(362).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(372).fill('0'));
     const [appid,setAppid]=useState(0);
     const columns =[
         {
@@ -78,7 +79,7 @@ const Wcxuserlist=(props:any)=>{
         setPage(1);
         props.dispatch({
             type:'AppUser/fetch',
-            payload:{page,name,phone}
+            payload:{page,name,phone,pageSize}
         });
         logFenye()
     };
@@ -86,16 +87,16 @@ const Wcxuserlist=(props:any)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"AppUser/fenye",
-            payload:{page,name,phone}
+            payload:{name,phone,pageSize}
         })
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page:number,pageSize:number)=>{
         setPage(page);
+        setpageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props);
     }, [page]);
     // 弹窗信息
     const editInfo=(vla:any)=>{
@@ -161,7 +162,6 @@ const Wcxuserlist=(props:any)=>{
         newSelected[id] = isChecked ? '1' : '0';
         // 设置新的选中状态
         setSelected(newSelected);
-        console.log("勾选的权限",newSelected)
     };
     return(
         <Spin spinning={isSpinning}>
@@ -219,12 +219,12 @@ const Wcxuserlist=(props:any)=>{
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*编辑权限弹窗*/}
             <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk} loading={isSpinning}>
                 <Space>
-                    <Button type='primary' onClick={()=>setSelected(Array(362).fill('1'))}>全选</Button>
-                    <Button type='primary' onClick={()=>setSelected(Array(362).fill('0'))}>反选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(372).fill('1'))}>全选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(372).fill('0'))}>反选</Button>
                 </Space>
                 <TreeMenu tree={treeData} selected={selected} setSelected={setSelected} />
             </Modal>

@@ -9,6 +9,7 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const ZuList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
     const [tenandId,settenandId]=useState(0);
@@ -16,6 +17,7 @@ const ZuList=(props:any)=>{
     const [endDate,setEndDate]=useState('2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
+    const [stutes,setstutes]=useState(1);
     // 列表
     const [dataSource,setdataSource]=useState([]);
     // 租金管理费统计
@@ -30,9 +32,8 @@ const ZuList=(props:any)=>{
     };
     // 查看租金缴费列表
     const getzujinList=()=>{
-        ArrearsBillService.zujinList({page,name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        ArrearsBillService.zujinList({page,name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('未交租金列表',res);
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -41,7 +42,7 @@ const ZuList=(props:any)=>{
     };
     // 分页
     const logFenye=()=>{
-        ArrearsBillService.zujinListFenye({name,phone,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        ArrearsBillService.zujinListFenye({name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
@@ -92,7 +93,7 @@ const ZuList=(props:any)=>{
             key: 'payAmount',
             render:(text:any,record:any)=>{
                 return(
-                    <div>
+                    <div style={{color:'red'}}>
                         {record.payAmount}元
                     </div>
                 )
@@ -104,7 +105,7 @@ const ZuList=(props:any)=>{
             key: 'stopAmount',
             render:(text:any,record:any)=>{
                 return(
-                    <div>
+                    <div style={{color:'red'}}>
                         {record.stopAmount}元
                     </div>
                 )
@@ -135,6 +136,30 @@ const ZuList=(props:any)=>{
             }
         },
         {
+            title: '优惠金额',
+            dataIndex: 'preRen',
+            key: 'preRen',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.preRen}元
+                    </div>
+                )
+            }
+        },
+        {
+            title: '优惠前租金',
+            dataIndex: 'xx',
+            key: 'xx',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.preRen+record.payAmount}元
+                    </div>
+                )
+            }
+        },
+        {
             title: '缴费状态',
             dataIndex: 'billStatus',
             key: 'billStatus',
@@ -159,15 +184,16 @@ const ZuList=(props:any)=>{
         }
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
     }, []);
     useEffect(() => {
         getzujinList();
-    }, [page]);
+    }, [page,pageSize]);
     return(
         <div>
             <List>
@@ -219,13 +245,13 @@ const ZuList=(props:any)=>{
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}>{moneySum}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}><span style={{color:"red"}}>{moneySum}元</span></Table.Summary.Cell>
 
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </div>
     )
 }

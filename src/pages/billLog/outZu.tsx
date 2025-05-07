@@ -17,10 +17,14 @@ import {
 import {connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {QuestionCircleOutlined} from "@ant-design/icons";
+import MyoutList from "@/components/MyoutList";
 
 const OutZu=(props:any)=>{
     // 页码
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
+
     // 转圈
     const [spinning,setspinning]=useState(false);
     // 租户名称
@@ -43,6 +47,8 @@ const OutZu=(props:any)=>{
     const [oldRk,setOldRk]=useState('');
     // 填写的备注内容
     const [newRk,setNewRk]=useState('');
+    const [OldPhone,setOldPhone]=useState('');
+    const [outzuList,setoutzuList]=useState(false);
 
     const columns =[
         {
@@ -196,7 +202,6 @@ const OutZu=(props:any)=>{
                     <Space>
                         <Button type='primary' onClick={()=>jiaofei(record.id)}>缴费</Button>
                         <Button type='primary' onClick={()=>editRemark(record)}>备注</Button>
-
                     </Space>
                 )
             }
@@ -206,7 +211,7 @@ const OutZu=(props:any)=>{
     const getList=()=>{
         props.dispatch({
             type:'OutZu/fetch',
-            payload:{page,name,phone,startDate,endDate}
+            payload:{page,name,phone,startDate,endDate,pageSize}
         })
     };
     // 缴费弹窗
@@ -262,12 +267,11 @@ const OutZu=(props:any)=>{
         setPage(1);
         logFney();
         getList();
-
     };
     const logFney=()=>{
       props.dispatch({
           type:'OutZu/fenye',
-          payload:{name,phone,startDate,endDate}
+          payload:{name,phone,startDate,endDate,pageSize}
       })
     };
     // 时间选择
@@ -281,8 +285,9 @@ const OutZu=(props:any)=>{
         }
     };
     // 监听页数
-    const onChange=(page)=>{
-        setPage(page);
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         getList();
@@ -351,7 +356,7 @@ const OutZu=(props:any)=>{
                     </Form.Item>
                 </Form>
             </Modal>
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </Spin>
     )
 }

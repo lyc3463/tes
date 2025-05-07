@@ -3,13 +3,14 @@ import {connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {history} from "@@/core/history";
-import {Simulate} from "react-dom/test-utils";
 
 const Kehulist=(props:any)=>{
     const [name,setName]=useState('');
     const [page,setPage]=useState(1);
+    const [pageSize,setpageSize]=useState(50);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [userId,setuserId]=useState(0);
     const columns =[
         {
             title: '日期',
@@ -278,25 +279,29 @@ const Kehulist=(props:any)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
+        logFenye();
+        getFYInfo();
+    };
+    const getFYInfo=()=>{
         props.dispatch({
             type:'CheckCompany/fenye',
-            payload:{page,name,startDate,endDate}
+            payload:{name,startDate,endDate,userId,pageSize}
         })
-        logFenye();
     };
     // 监听名字
     const changeName=(e)=>{
         setName(e.target.value);
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page:number,pageSize:number)=>{
         setPage(page);
+        setpageSize(pageSize);
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"CheckCompany/fetch",
-            payload:{page,name,startDate,endDate}
+            payload:{page,name,startDate,endDate,userId,pageSize}
         })
     };
     // 时间选择
@@ -311,8 +316,10 @@ const Kehulist=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log('客户列表',props);
     }, [page]);
+    useEffect(() => {
+        getFYInfo();
+    }, []);
     return (
         <div>
             <List>
@@ -353,7 +360,7 @@ const Kehulist=(props:any)=>{
                 dataSource={props.CheckCompanyList}
                 size='small'
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </div>
     );
 }

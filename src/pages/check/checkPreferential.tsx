@@ -7,6 +7,7 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const CheckPreferential=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 手机号
     const [phone,setPhone]=useState('');
     // 状态 0全部，1未审核，2审核通过
@@ -89,17 +90,23 @@ const CheckPreferential=(props)=>{
                 return(
                     <Space>
                         {record.renameStatus==2?'':<>
-                            <Button type='primary'>编辑</Button>
+                            {/*<Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>*/}
                             <Button type='primary' onClick={()=>checkOp(record.id)}>审核</Button>
                         </>}
+                        <Button type='primary' onClick={()=>toInfo(record.id)}>详情</Button>
                     </Space>
                 )
             }
         }
     ];
+    const toInfo=(e:number)=>{
+        history.push(`/check/preFerentialInfo?id=${e}`);
+
+    };
     // 监听页数
-    const onChange=(page)=>{
-        setPage(page);
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -123,12 +130,12 @@ const CheckPreferential=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Preferential/fetch",
-            payload:{page,phone,stutes,startDate,endDate}
+            payload:{page,phone,stutes,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     // 搜索
     const suosou=()=>{
         setPage(1);
@@ -138,7 +145,7 @@ const CheckPreferential=(props)=>{
     const fenyeinfo=()=>{
         props.dispatch({
             type:'Preferential/fenye',
-            payload:{phone,stutes,startDate,endDate}
+            payload:{phone,stutes,startDate,endDate,pageSize}
         })
     };
     // 审核弹窗
@@ -235,7 +242,7 @@ const CheckPreferential=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal title={'审核'} onCancel={()=>setIsOpen(false)} loading={spinning} open={isOpen} onOk={onOk}>
                 <div>是否要审核?</div>
             </Modal>

@@ -14,7 +14,8 @@ let pl={
     current:1,
     phone:'',
     starTime:'2000-01-01',
-    endTime:'2099-01-01'
+    endTime:'2099-01-01',
+    pageSize:50
 }
 
 

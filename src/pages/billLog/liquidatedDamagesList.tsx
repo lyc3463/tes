@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 const LiquidatedDamagesList=()=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 租户姓名
     const [name,setName]=useState('');
     // 租户id
@@ -23,6 +24,7 @@ const LiquidatedDamagesList=()=>{
     const [moneySum,setmoneySum]=useState(0);
     // 租金已交费用统计
     const [NotBillSum,setNotBillSum]=useState(0);
+    const [stutes,setstutes]=useState(1);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -31,9 +33,9 @@ const LiquidatedDamagesList=()=>{
     };
     // 查看违约金列表
     const getzujinList=()=>{
-        ArrearsBillService.weiyueList({page,name,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        ArrearsBillService.weiyueList({page,name,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('res',res)
+                console.log('props',res);
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -42,7 +44,7 @@ const LiquidatedDamagesList=()=>{
     };
     // 分页
     const logFenye=()=>{
-        ArrearsBillService.weiyueListFenye({name,startDate,endDate,tenandId}).then((res:TypeErrorCode)=>{
+        ArrearsBillService.weiyueListFenye({name,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
@@ -107,7 +109,7 @@ const LiquidatedDamagesList=()=>{
             }
         },
         {
-            title: '已交金额(元)',
+            title: '已交金额',
             dataIndex: 'stopAmount',
             key: 'stopAmount',
             render:(text:any,record:any)=>{
@@ -119,13 +121,39 @@ const LiquidatedDamagesList=()=>{
             }
         },
         {
-            title: '缴费状态',
-            dataIndex: 'billStatus',
-            key: 'billStatus',
+            title: '未交',
+            dataIndex: 'xx',
+            key: 'xx',
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.billStatus==1?<Tag color='red'>未交</Tag>:<Tag>已交</Tag>}
+                        {record.defaultAmount-record.stopAmount}元
+                    </div>
+                )
+            }
+        },
+        {
+            title: '状态',
+            dataIndex: 'billStatus',
+            key: 'billStatus',
+            render:(text:any,record:any)=>{
+                let consumptionTypeText;
+                switch (record.billStatus) {
+                    case 1:
+                        consumptionTypeText = <Tag style={{ color: '#2196F3' }}>未交</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>已交</Tag>;
+                        break;
+                    case 3:
+                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>退租</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
+                }
+                return(
+                    <div>
+                        {consumptionTypeText}
                     </div>
                 )
             }
@@ -143,15 +171,16 @@ const LiquidatedDamagesList=()=>{
         }
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
     }, []);
     useEffect(() => {
         getzujinList();
-    }, [page]);
+    }, [page,pageSize]);
     return(
         <div>
             <List>
@@ -200,12 +229,11 @@ const LiquidatedDamagesList=()=>{
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>{moneySum}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}>未交:{NotBillSum}元</Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </div>
     )
 }

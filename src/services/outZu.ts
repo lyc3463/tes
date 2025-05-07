@@ -1,10 +1,10 @@
 import {getData} from "@/network/http";
 
 export function fetch(vals:any) {
-    return getData(1483, [vals.page,vals.name,vals.phone,vals.startDate,vals.endDate]);
+    return getData(1483, [vals.page,vals.name,vals.phone,vals.startDate,vals.endDate,vals.pageSize]);
 }
 export function fenye(vals:any) {
-    return getData(1484, [vals.name,vals.phone,vals.startDate,vals.endDate]);
+    return getData(1484, [vals.name,vals.phone,vals.startDate,vals.endDate,vals.pageSize]);
 }
 export function add(vals:any) {
     return getData(1487, [vals.uid,vals.payAmount]);

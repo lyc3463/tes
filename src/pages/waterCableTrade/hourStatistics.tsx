@@ -15,6 +15,7 @@ const HourStatistics=(props:any)=>{
     const [infoDate,setInfoDate]=useState('');
     const [open,setOpen]=useState(false);
     const [page,setPage]=useState(1);
+    const [pageSize,setpageSize]=useState(50);
     const [startDatez,setStartDatez]=useState('');
     const [endDatez,setEndDatez]=useState('');
     const [list,setList]=useState([]);
@@ -98,11 +99,12 @@ const HourStatistics=(props:any)=>{
         }
     };
     const sousuo=()=>{
-        getListsum(startDatez,endDatez,page);
+        setPage(1);
+        getListsum(startDatez,endDatez,1);
         getListconSum(startDatez,endDatez);
     };
     const getListsum=(vals:string,vals2:string,pagenum:number)=>{
-        StatisticsService.fetchday(pagenum,cid,name,vals,vals2,'扣费成功',0,remake).then((res:any)=>{
+        StatisticsService.fetchday(pagenum,cid,name,vals,vals2,'扣费成功',0,remake,pageSize).then((res:any)=>{
             if (res.ErrorCode==0){
                 setList(res.Data)
             }else {
@@ -111,7 +113,7 @@ const HourStatistics=(props:any)=>{
         })
     };
     const getListconSum=(vals:string,vals2:string)=>{
-        StatisticsService.fenyeday(cid,name,vals,vals2,'扣费成功',0,remake).then((res:any)=>{
+        StatisticsService.fenyeday(cid,name,vals,vals2,'扣费成功',0,remake,pageSize).then((res:any)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
                 setenergyUsage(res.Data.energyUsage);
@@ -221,7 +223,7 @@ const HourStatistics=(props:any)=>{
                 scroll={{x:1500}}
                 pagination={false}
                 size='small'
-                rowKey={(columns) => columns.id}
+                rowKey={(columns) => columns.recordTimes}
                 dataSource={props.StatisticsList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
@@ -302,7 +304,7 @@ const HourStatistics=(props:any)=>{
                         </Table.Summary>
                     )}
                 />
-                <Pagination total={count} pageSize={50} current={page} onChange={changePage} pageSizeOptions={[50]}/>
+                <Pagination total={count}  showSizeChanger pageSize={pageSize} current={page}  onChange={changePage} pageSizeOptions={[50,100,500,1000,10000]}/>
             </Modal>
         </div>
     )

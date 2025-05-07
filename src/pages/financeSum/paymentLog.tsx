@@ -6,6 +6,7 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const PaymentLog=()=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 订单编号
     const [orderNum,setorderNum]=useState('');
     // 充值开始时间
@@ -20,9 +21,10 @@ const PaymentLog=()=>{
     const [type,setType]=useState(0);
     // 支付状态
     const [stutes,setStutes]=useState(-1);
+    const [moneySum,setmoneySum]=useState(0);
     // 订单列表
     const getPaymentLogList=()=>{
-        PaymentLogService.fetch({page,orderNum,startDate,endDate,type,stutes}).then((res:TypeErrorCode)=>{
+        PaymentLogService.fetch({page,orderNum,startDate,endDate,type,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setdataSource(res.Data);
             }else {
@@ -32,9 +34,11 @@ const PaymentLog=()=>{
     };
     // 订单列表分页信息
     const getPaymentLogListfenye=()=>{
-        PaymentLogService.fenye({orderNum,startDate,endDate,type,stutes}).then((res:TypeErrorCode)=>{
+        PaymentLogService.fenye({orderNum,startDate,endDate,type,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
+                setmoneySum(res.Data.moneySum)
+
             }else {
                 message.error(res.Data);
             }
@@ -45,8 +49,9 @@ const PaymentLog=()=>{
         getPaymentLogListfenye();
     }, []);
     // 监听下一页页码
-    const onChange=(e)=>{
+    const onChange=(e,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     const columns =[
         {
@@ -132,7 +137,7 @@ const PaymentLog=()=>{
     };
     useEffect(() => {
         getPaymentLogList();
-    }, [page]);
+    }, [page,pageSize]);
     // 监听支付状态
     const changeStute=(e)=>{
         setStutes(e);
@@ -235,14 +240,32 @@ const PaymentLog=()=>{
             <Table
                 columns={columns}
                 dataSource={dataSource}
-                rowKey={(columns) => columns.index}
+                rowKey={(columns) => columns.id}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                scroll={{y:"70vh"}}
                 pagination={false}
                 size='small'
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {(moneySum/100).toFixed(2)}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
 
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
-
+            <Pagination total={count}showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </div>
     )
 }

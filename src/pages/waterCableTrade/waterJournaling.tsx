@@ -7,6 +7,7 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const WaterJournaling=(props)=>{
     const [page,setpage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     const [collectorId,setcollectorId]=useState('');
     // 列表
     const [dataSource,setdataSource]=useState([]);
@@ -136,7 +137,7 @@ const WaterJournaling=(props)=>{
     ];
     // 获取电表报表列表
     const getCableList=()=>{
-        CableService.fetch({page,collectorId,name,remark}).then((res:TypeErrorCode)=>{
+        CableService.fetch({page,collectorId,name,remark,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setdataSource(res.Data);
             }else {
@@ -146,7 +147,7 @@ const WaterJournaling=(props)=>{
     };
     // 获取分页信息
     const getCableListFenye=()=>{
-        CableService.fenye({collectorId,name,remark}).then((res:TypeErrorCode)=>{
+        CableService.fenye({collectorId,name,remark,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setc0Sum(res.Data.c0Sum);
                 setcount(res.Data.count);
@@ -164,15 +165,16 @@ const WaterJournaling=(props)=>{
         getCableListFenye();
         getCableList();
     };
-    const onChange=(e)=>{
-      setpage(e);
+    const onChange=(e,pageSizz)=>{
+        setpage(e);
+        setPageSize(pageSizz);
     };
     useEffect(() => {
         getCableListFenye();
     }, []);
     useEffect(() => {
         getCableList();
-    }, [page]);
+    }, [page,pageSize]);
     return(
         <div>
             <List>
@@ -241,7 +243,7 @@ const WaterJournaling=(props)=>{
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </div>
     )
 }

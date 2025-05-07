@@ -17,7 +17,8 @@ let pl = {
     beginRents:0,
     endRents:9999999999,
     status:0,
-    house_id:0
+    house_id:0,
+    pageSize:50
 };
 
 export interface NuitCountState {
@@ -123,31 +124,7 @@ const UnitModel: UnitInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/houseManage/houseList/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/houseManage/houseList/') {
-                    dispatch({
-                        type: 'fetchFenye',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/houseManage/houseList/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
                 if (StaticInfo.userId > 0 && pathname === '/houseManage/unit/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/waterCableManage/addCable/') {
                     dispatch({
                         type: 'fetch',
                         payload: location.state,

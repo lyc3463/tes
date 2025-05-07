@@ -850,6 +850,28 @@ export function calculateYearsAndMonths(startDateStr,endDateStr) {
 
     return result;
 }
+// 展示房屋名字
+export const getHouseNameById=(array, id)=> {
+    const item = array.find(element => element.id === id);
+    if (item) {
+        return item.house_name;
+    }
+    return '';
+};
+// 展示单元名称拼接
+export const getNamesByIds=(itemArray, idArray)=> {
+    // 使用 filter 和 map 方法结合，或者直接使用 reduce 来构建结果
+    const names = idArray.map(id => {
+        // 在 itemArray 中查找与当前 id 匹配的对象
+        const item = itemArray.find(element => element.id === id);
+        // 如果找到，返回其 name，否则返回空字符串（可以根据需要调整）
+        return item ? item.unit_name : '';
+    }).filter(name => name); // 过滤掉空字符串（如果需要）
+
+    // 将名字数组用 '-' 连接成字符串
+    return names.join('-');
+}
+
 //租金递增
 export const contractsDz=(initialRent,rentItems)=>{
     let previousRent =(rentItems.length>0?rentItems[0].incremental/100:0/100)*initialRent+initialRent; // 用传入的初始租金作为第一年租金
@@ -908,13 +930,14 @@ export  const calculateSums=(sumDate)=>{
     let billMoneySum = 0;
     let depositSum = 0;
     let integralSum = 0;
-
+    let moneySum = 0;
     // 遍历数组，累加每个属性的值
     sumDate.map(transaction => {
         balanceSum += transaction.balance || 0; // 使用||0确保未定义或null值不会破坏计算
         billMoneySum += transaction.billMoney || 0;
         depositSum += transaction.deposit || 0;
         integralSum += transaction.integral || 0;
+        moneySum += transaction.consumptionMoney || 0;
     });
 
     // 返回一个对象，包含四个求和结果
@@ -922,7 +945,8 @@ export  const calculateSums=(sumDate)=>{
         balanceSum: balanceSum.toFixed(4)*1,
         billMoneySum: billMoneySum.toFixed(2)*1,
         depositSum: depositSum.toFixed(2)*1,
-        integralSum: integralSum.toFixed(2)*1
+        integralSum: integralSum.toFixed(2)*1,
+        moneySum: moneySum.toFixed(2)*1
     };
 }
 

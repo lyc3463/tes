@@ -136,7 +136,7 @@ const EditShoufei=(props:any)=>{
                     <Radio.Group onChange={jierType} defaultValue={monthly_amount}>
                         <Radio value={1}>固定金额</Radio>
                         <Radio value={2}>按照单价计算</Radio>
-                        <Radio value={3}> 每户手动输入</Radio>
+                        {itemType==1? '':<Radio value={3}> 每户手动输入</Radio>}
                     </Radio.Group>
                 </Form.Item>
                 {

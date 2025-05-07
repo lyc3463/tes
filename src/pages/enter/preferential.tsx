@@ -7,6 +7,7 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const Preferential=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setpageSize]=useState(50);
     // 手机号
     const [phone,setPhone]=useState('');
     // 状态 0全部，1未审核，2审核通过
@@ -89,21 +90,24 @@ const Preferential=(props)=>{
                 return(
                     <Space>
                         {
-                            record.renameStatus==2?'':<> <Button type='primary'>编辑</Button>
+                            record.renameStatus==2?'':<> <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
                                 <Button type='primary' danger onClick={()=>IsDelOpen(record.id)}>删除</Button></>
                         }
-
                     </Space>
                 )
             }
         }
     ];
+    const toedit=(e:number)=>{
+        history.push(`/check/editPreferential?id=${e}`);
+    };
     const toadd=()=>{
         history.push('/enter/addPreferential')
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page,pageSize)=>{
         setPage(page);
+        setpageSize(pageSize);
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -127,13 +131,12 @@ const Preferential=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"Preferential/fetch",
-            payload:{page,phone,stutes,startDate,endDate}
+            payload:{page,phone,stutes,startDate,endDate,pageSize}
         })
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props)
-    }, [page]);
+    }, [page,pageSize]);
     // 搜索
     const suosou=()=>{
         setPage(1);
@@ -143,7 +146,7 @@ const Preferential=(props)=>{
     const fenyeinfo=()=>{
         props.dispatch({
             type:'Preferential/fenye',
-            payload:{phone,stutes,startDate,endDate}
+            payload:{phone,stutes,startDate,endDate,pageSize}
         })
     };
     const IsDelOpen=(e)=>{
@@ -165,14 +168,13 @@ const Preferential=(props)=>{
                 setspinning(false);
                 setDopen(false);
             }
-
         })
     };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
-
+                    <Button type='primary' onClick={toadd}>优惠录入</Button>
                     <Space>
                         <Input
                             addonBefore="手机号:"
@@ -237,7 +239,7 @@ const Preferential=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             <Modal title='删除' open={dopen} onOk={onOK} loading={spinning} onCancel={()=>setDopen(false)}>
                 <div>是否要删除?</div>
             </Modal>

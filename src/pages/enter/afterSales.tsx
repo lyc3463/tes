@@ -21,14 +21,11 @@ const AfterSales=()=>{
     }, []);
     return(
         <div>
-            <Tabs>
+            <Tabs activeKey={activeKey} onChange={onChange}>
                 {uqx[219]=='1'? <Tabs.TabPane tab='更名录入' key='1'>
                                     <Rename/>
                                 </Tabs.TabPane>
                     :''}
-                {/*<Tabs.TabPane tab='转让录入' key='2'>*/}
-                {/*    <Transference/>*/}
-                {/*</Tabs.TabPane>*/}
                 {uqx[221]=='1'?<Tabs.TabPane tab='续租录入' key='3'>
                                     <Renew/>
                                 </Tabs.TabPane>

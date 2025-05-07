@@ -7,8 +7,8 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 const FinancialData=(props:any)=>{
     // 展示total
-    const [isfenye,setisfenye]=useState(true);
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 账单列表
     const [billList,setBillList]=useState([]);
     // 摘要
@@ -222,12 +222,11 @@ const FinancialData=(props:any)=>{
     const getBillFenye=()=>{
         props.dispatch({
             type:'Bill/fenye',
-            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
+            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize}
         });
     }
     // 搜索
     const sousuo=()=>{
-        setisfenye(true);
         setPage(1);
         getBillFenye();
         logFenye();
@@ -237,7 +236,7 @@ const FinancialData=(props:any)=>{
         setspinning(true);
         props.dispatch({
             type:"Bill/fetch",
-            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card}
+            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 let newdata=processBills(res.Data);
@@ -260,7 +259,6 @@ const FinancialData=(props:any)=>{
                 let newdata=processBills(res.Data);
                 setBillList(res.Data);
                 setspinning(false);
-                setisfenye(false);
             }else {
                 message.error(res.Data);
                 setspinning(false);
@@ -269,8 +267,9 @@ const FinancialData=(props:any)=>{
         getBillFenye();
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -292,7 +291,7 @@ const FinancialData=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
 
 // 获取公司列表
     const getCompanList=()=>{
@@ -402,7 +401,7 @@ const FinancialData=(props:any)=>{
     const ChangeProjectList=(e:number)=>{
         props.dispatch({
             type:'Project/fetch',
-            payload:{name:'',companyId:e}
+            payload:{name:'',companyId:e,pageSize:1000}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 conterproject(res.Data);
@@ -653,7 +652,7 @@ const FinancialData=(props:any)=>{
                       </Table.Summary>
                     )}
                 />
-            {props.count&&isfenye?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOK}>
                 <div>是否要删除？</div>
             </Modal>

@@ -11,6 +11,7 @@ const Staff=(props:any)=>{
     const [uid,setUid]=useState(0);
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 审核状态 0全部  1未审核 2已审核
     const [contractStatus,setContractStatus]=useState(0);
     // 合同编号
@@ -67,6 +68,18 @@ const Staff=(props:any)=>{
                 return(
                     <div>
                         {dayjs(record.beginTime).format("YYYY-MM-DD")}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '到期日',
+            dataIndex: 'endTime',
+            key: 'endTime',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {dayjs(record.endTime).format("YYYY-MM-DD")}
                     </div>
                 )
             }
@@ -217,7 +230,7 @@ const Staff=(props:any)=>{
     // 分页信息
     const getListFenye=()=>{
         setspinning(true);
-        StaffService.getHTfFy({identifier,contractType,contractStatus,startDate,endDate,name}).then((res:TypeErrorCode)=>{
+        StaffService.getHTfFy({identifier,contractType,contractStatus,startDate,endDate,name,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
                 setzuMoney(res.Data.zuMoney);
@@ -231,10 +244,6 @@ const Staff=(props:any)=>{
                 message.error(res.Data);
             }
         })
-        // props.dispatch({
-        //     type:'Staff/fenye',
-        //     payload:{identifier,contractType,contractStatus,startDate,endDate,name}
-        // });
     };
     // 搜索
     const sousuo=()=>{
@@ -245,7 +254,7 @@ const Staff=(props:any)=>{
     // 分页
     const logFenye=()=>{
         setspinning(true);
-        StaffService.getHT({page,identifier,contractType,contractStatus,startDate,endDate,name}).then((res:TypeErrorCode)=>{
+        StaffService.getHT({page,identifier,contractType,contractStatus,startDate,endDate,name,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setStaffList(res.Data);
                 setspinning(false);
@@ -254,14 +263,11 @@ const Staff=(props:any)=>{
                 message.error(res.Data);
             }
         })
-        // props.dispatch({
-        //     type:"Staff/fetch",
-        //     payload:{page,identifier,contractType,contractStatus,startDate,endDate,name}
-        // })
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
         getListFenye();
@@ -333,7 +339,7 @@ const Staff=(props:any)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                日期:
+                                到期日:
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
@@ -407,6 +413,7 @@ const Staff=(props:any)=>{
                     <Table.Summary >
                         <Table.Summary.Row>
                             <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}>{zuMoney}元</Table.Summary.Cell>

@@ -14,7 +14,8 @@ let pl={
     page:1,
     stutes:0,
     startDate:'2000-01-01',
-    endDate:'2099-01-01'
+    endDate:'2099-01-01',
+    pageSize:50
 }
 
 export interface TixianCountState {

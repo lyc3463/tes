@@ -9,6 +9,7 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const WaterKoufeiList=()=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 租户姓名
     const [name,setName]=useState('');
     // 表地址
@@ -33,7 +34,7 @@ const WaterKoufeiList=()=>{
     // 获取水表扣费记录
     const getwaterRateList=()=>{
         setspinning(true);
-        dateWaterService.fetch(page,cid,name,startDate,endDate,tenantId,recordStatus,'').then((res:TypeErrorCode)=>{
+        dateWaterService.fetch(page,cid,name,startDate,endDate,tenantId,recordStatus,'',pageSize).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setspinning(false);
                 setwaterRateList(res.Data);
@@ -45,9 +46,8 @@ const WaterKoufeiList=()=>{
     };
     // 获取水表扣费记录分页
     const getwaterFenye=()=>{
-        dateWaterService.fenye(cid,name,startDate,endDate,tenantId,recordStatus,'').then((res:TypeErrorCode)=>{
+        dateWaterService.fenye(cid,name,startDate,endDate,tenantId,recordStatus,'',pageSize).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('res',res)
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
                 setenergyUsage(res.Data.energyUsage);
@@ -63,16 +63,16 @@ const WaterKoufeiList=()=>{
         getwaterFenye();
     };
     // 监听页数
-    const onChange=(e:number)=>{
+    const onChange=(e:number,pageSize:number)=>{
         setPage(e);
+        setPageSize(pageSize);
     };
     useEffect(() => {
-        getwaterRateList();
         getwaterFenye();
     }, []);
     useEffect(() => {
         getwaterRateList();
-    }, [page]);
+    }, [page,pageSize]);
     const columns =[
         {
             title: '日期',
@@ -252,7 +252,7 @@ const WaterKoufeiList=()=>{
                     </Table.Summary>
                 )}
             />
-            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
         </Spin>
     )
 }

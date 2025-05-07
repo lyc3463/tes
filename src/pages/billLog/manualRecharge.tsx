@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 const ManualRecharge=(props)=>{
     const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
     // 状态 0全部，1未审核，2审核通过
     const [stutes,setStutes]=useState(0);
     // 开始时间
@@ -20,7 +21,7 @@ const ManualRecharge=(props)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        {dayjs(record.created).format("YYYY-MM-DD")}
+                        {dayjs(record.created).format("YYYY-MM-DD HH:mm:ss")}
                     </div>
                 )
             }
@@ -82,6 +83,18 @@ const ManualRecharge=(props)=>{
             key: 'handAmount',
         },
         {
+            title: '备注',
+            dataIndex: 'remark',
+            key: 'remark',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                       <Input.TextArea value={record.remark}/>
+                    </div>
+                )
+            }
+        },
+        {
             title: '状态',
             dataIndex: 'handStatus',
             key: 'handStatus',
@@ -100,7 +113,7 @@ const ManualRecharge=(props)=>{
         setPage(1);
         props.dispatch({
             type:'ManualRecharge/fenye',
-            payload:{startDate,endDate,stutes}
+            payload:{startDate,endDate,stutes,pageSize}
         });
         logFenye()
     };
@@ -108,13 +121,13 @@ const ManualRecharge=(props)=>{
     const logFenye=()=>{
         props.dispatch({
             type:"ManualRecharge/fetch",
-            payload:{page,startDate,endDate,stutes}
+            payload:{page,startDate,endDate,stutes,pageSize}
         })
     };
     // 监听页数
-    const onChange=(page)=>{
+    const onChange=(page,pageSize)=>{
         setPage(page);
-
+        setPageSize(pageSize);
     };
     useEffect(() => {
         logFenye();
@@ -205,7 +218,7 @@ const ManualRecharge=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            {props.count?<Pagination total={props.count.count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </div>
     )
 }

@@ -52,7 +52,7 @@ const EditCheckFpSD=(props:any)=>{
             setConsumptionMoney(data[0].consumptionMoney);
             setinvoiceType(data[0].invoiceType);
             setrise_name(data[0].rise_name);
-            settenant_name(data[1].tenant_name);
+            settenant_name(data[0].tenant_name);
         }else {
             message.error(res.Data);
         }
