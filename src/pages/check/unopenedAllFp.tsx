@@ -1,0 +1,260 @@
+import {connect, history} from 'umi'
+import {useEffect, useState} from "react";
+import dayjs from "dayjs";
+import {
+    Button,
+    DatePicker,
+    Form,
+    Image,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag
+} from "antd";
+import TypeCheckFp from "@/ModelTypes/TypeCheckFp";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import ImageUploader from "@/components/ImageUploader";
+const UnopenedAllFp=(props)=>{
+    const [isLoading,setIsLoading]=useState(false);
+    const [page,setPage]=useState(1);
+    const [pageSize,setPageSize]=useState(50);
+    const [type,settype]=useState(0);
+    const [tenantr,settenantr]=useState(0);
+    const [stutes,setstutes]=useState(0);
+    const [zuhuList,setZuhuList]=useState([]);
+    const columns =[
+        {
+            title: '日期',
+            dataIndex: 'consumptionDate',
+            key: 'consumptionDate',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {dayjs(record.consumptionDate).format('YYYY-MM-DD')}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '租户姓名',
+            dataIndex: 'user_name',
+            key: 'user_name',
+        },
+        {
+            title: '账单类型',
+            dataIndex: 'consumptionType',
+            key: 'consumptionType',
+            render:(_:any,item:any)=>{
+                let consumptionTypeText;
+                switch (item.consumptionType) {
+                    case 1:
+                        consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>微信充值</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金</Tag>;
+                        break;
+                    case 3:
+                        consumptionTypeText = <Tag style={{ color: '#2196F3' }}>电费</Tag>;
+                        break;
+                    case 4:
+                        consumptionTypeText = <Tag style={{ color: '#FFC107' }}>水费</Tag>;
+                        break;
+                    case 5:
+                        consumptionTypeText = <Tag style={{ color: '#9C27B0' }}>公共缴费</Tag>;
+                        break;
+                    case 6:
+                        consumptionTypeText = <Tag style={{ color: '#E91E63' }}>手动充值</Tag>;
+                        break;
+                    case 7:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>损耗</Tag>;
+                        break;
+                    case 8:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
+                        break;
+                    case 9:
+                        consumptionTypeText = <Tag style={{ color: '#795588' }}>月保</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
+                }
+                return (
+                    consumptionTypeText
+                );
+            }
+        },
+        {
+            title: '金额(元)',
+            dataIndex: 'consumptionMoney',
+            key: 'consumptionMoney',
+        },
+        {
+            title: '状态',
+            dataIndex: 'billStatus',
+            key: 'billStatus',
+            render:(_:any,item:any)=>{
+                let consumptionTypeText;
+                switch (item.billStatus) {
+                    case 1:
+                        consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>未开票</Tag>;
+                        break;
+                    case 2:
+                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>已开票</Tag>;
+                        break;
+                    default:
+                        consumptionTypeText = <Tag style={{ color: '#777777' }}>待审核</Tag>;
+                }
+                return (
+                    consumptionTypeText
+                );
+            }
+        }
+    ];
+
+    const getList=()=>{
+        props.dispatch({
+            type:'UnopenedAllFp/fetch',
+            payload:{page,pageSize,tenantr,type,stutes}
+        })
+    };
+    const getfyInfo=()=>{
+        props.dispatch({
+            type:'UnopenedAllFp/fenye',
+            payload:{pageSize,tenantr,type,stutes}
+        })
+    };
+    useEffect(() => {
+        getList();
+        console.log('props',props)
+    }, [page,pageSize]);
+    const changeStutes=(e)=>{
+        setstutes(e);
+    };
+    useEffect(() => {
+        logFenye();
+        getfyInfo();
+    }, []);
+    const logFenye=()=>{
+        props.dispatch({
+            type:"Zuhu/fetch",
+            payload:{page:1,name:'',phone:'',pagecount:100000}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setZuhuList(res.Data);
+            }
+        })
+    };
+    const changeHouse=(e)=>{
+        settenantr(e);
+    };
+    const sousuo=()=>{
+        setPage(1);
+        getList();
+        getfyInfo();
+    };
+    const onChange=(e:number,pageSizez:number)=>{
+        setPage(e);
+        setPageSize(pageSizez);
+    };
+    return(
+        <Spin spinning={isLoading}>
+            <List>
+                <List.Item>
+                    <Space>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={changeStutes}
+                                defaultValue={stutes}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value: 0, label: '全部' },
+                                    { value: 1, label: '未开票' },
+                                    { value: 2, label: '已开票' },
+                                    { value: 3, label: '待审核' },
+                                ]}
+                            />
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                租户:
+                            </div>
+                            <Select
+                                value={tenantr}
+                                onChange={changeHouse}
+                                showSearch
+                                style={{ width: 500 }}
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = zuhuList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                    return item?.tenant_name?.toLowerCase().includes(input.toLowerCase());
+                                }}
+                            >
+                                <Select.Option value={0} key={0}>
+                                    全部
+                                </Select.Option>
+                                {zuhuList.map((item:any,index:any)=>{
+                                    return(
+                                        <Select.Option value={item.id} key={item.id}>
+                                            {item.tenant_name}-{item.tenant_phone}
+                                        </Select.Option>
+                                    )
+                                })}
+                            </Select>
+                        </Space.Compact>
+                        <Button type="primary" onClick={sousuo}>
+                            搜索
+                        </Button>
+                    </Space>
+                </List.Item>
+            </List>
+            <Table
+                columns={columns}
+                style={{border:'1px solid #ddd',borderRadius:'4px'}}
+                pagination={false}
+                size='small'
+                scroll={{y:'70vh'}}
+                rowKey={(columns) => columns.id}
+                dataSource={props.CheckFpList}
+            />
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+        </Spin>
+    )
+}
+const mapStateToProps = (state: any) => {
+    return {
+        CheckFpList: state.UnopenedAllFp.list,
+        count:state.UnopenedAllFp.count
+    }
+};
+export default connect(mapStateToProps) (UnopenedAllFp)

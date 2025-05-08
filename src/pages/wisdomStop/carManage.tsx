@@ -185,6 +185,7 @@ const CarManage=(props)=>{
     const sousuo=()=>{
         setPage(1);
         getCarList();
+        getCarListfenye();
     };
     const onChange=(e,pageSize)=>{
       setPage(e);

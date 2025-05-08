@@ -220,6 +220,7 @@ class MainPage extends Component<any> {
                 </Space>
               </div>
             </Header>
+
             <Content style={{ margin: '24px 16px' }}>
               <div
                 style={{
