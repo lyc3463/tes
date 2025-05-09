@@ -1,9 +1,11 @@
 import {useEffect, useState} from "react";
 import * as RechargeRateService from "@/services/rechargeRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {exportDataToExcel} from "@/utils/OpenTool";
+import * as ArrearsBillService from "@/services/ArrearsBill";
+import {QuestionCircleOutlined} from "@ant-design/icons";
 
 const WyList=()=>{
     // 当前页数
@@ -17,6 +19,8 @@ const WyList=()=>{
     const [dataSource,setdataSource]=useState([]);
     const [moneySum,setmoneySum]=useState(0);
     const [spinning,setspinning]=useState(false);
+    const [weiyueListInfo,setweiyueListInfo]=useState([]);
+    const [open,setOpen]=useState(false);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -90,6 +94,14 @@ const WyList=()=>{
             title: '扣费金额',
             dataIndex: 'defaultAmount',
             key: 'defaultAmount',
+            render:(text:any,record:any)=>{
+                return(
+                    <Space>
+                        {record.defaultAmount}元
+                        <Button onClick={()=>toList(record.rentId)}><QuestionCircleOutlined/></Button>
+                    </Space>
+                )
+            }
         },
         {
             title: '状态',
@@ -146,7 +158,52 @@ const WyList=()=>{
             }
         })
     };
+    const columnsz=[
+        {
+            title: '日期',
+            dataIndex: 'created',
+            key: 'created',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {dayjs(record.created).format("YYYY-MM-DD")}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '租金(元)',
+            dataIndex: 'rentAmount',
+            key: 'rentAmount',
+        },
+        {
+            title: '天数(天)',
+            dataIndex: 'defaultNum',
+            key: 'defaultNum',
 
+        },
+        {
+            title: '金额(元)',
+            dataIndex: 'defaultAmount',
+            key: 'defaultAmount',
+        },
+    ];
+    const toList=(e)=>{
+        setOpen(true);
+        getweiyuejinInfo(e);
+    };
+    const getweiyuejinInfo=(e:number)=>{
+        ArrearsBillService.weiyuejinInfoList(e).then((res:TypeErrorCode)=>{
+            setspinning(true);
+            if (res.ErrorCode==0){
+                setweiyueListInfo(res.Data);
+                setspinning(false);
+            }else {
+                setspinning(false);
+                message.error(res.Data);
+            }
+        })
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -211,6 +268,16 @@ const WyList=()=>{
                 )}
             />
             <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
+            <Modal open={open} loading={spinning} onCancel={()=>setOpen(false)} onOk={()=>setOpen(false)} title='违约金详情' width={1000}>
+                <Table
+                    columns={columnsz}
+                    pagination={false}
+                    dataSource={weiyueListInfo}
+                    scroll={{y:'70vh'}}
+                    rowKey={(columns) => columns.id}
+                    size='small'
+                />
+            </Modal>
         </Spin>
     )
 }

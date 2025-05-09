@@ -12,15 +12,8 @@ import FinanceType from '@/ModelTypes/TypeFinance';
 import { fixPathname } from '@/utils/common';
 let pl={
     page:1,
-    abstract:'',
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    stutes:1,
-    type:2,
-    companyId:0,
-    projectId:0,
-    subjectId:0,
-    account_card:'',
     pageSize:50
 
 }

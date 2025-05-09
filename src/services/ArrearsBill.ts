@@ -41,3 +41,7 @@ export function weiyueList(vals:any) {
 export function weiyueListFenye(vals:any) {
     return getData(1481, [vals.name,vals.startDate,vals.endDate,vals.stutes,vals.tenandId,vals.pageSize]);
 }
+//违约金分页
+export function weiyuejinInfoList(vals:number) {
+    return getData(1554, [vals]);
+}

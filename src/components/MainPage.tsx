@@ -28,7 +28,7 @@ import TypeMenu from '@/ModelTypes/TypeMenu';
 import * as LoginService from '@/services/login';
 import type { MenuProps } from 'antd';
 import 'dayjs/locale/zh-cn';
-import {AlertFilled} from "@ant-design/icons";
+import {AlertFilled, CloseOutlined, LeftOutlined, RightOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 const { Header, Content, Footer, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
@@ -36,7 +36,38 @@ type MenuItem = Required<MenuProps>['items'][number];
 class MainPage extends Component<any> {
   constructor(props: any) {
     super(props);
+    this.containerRef = React.createRef();
+    this.scrollStep = 150;
   }
+  componentDidUpdate(prevProps, prevState) {
+    // 当菜单项变化时，滚动到当前活动项
+    if (this.containerRef.current) {
+      const activeItem = this.containerRef.current.querySelector('.active-item');
+      if (activeItem) {
+        activeItem.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }
+  };
+  removeMenuItem = (itemId) => {
+    this.setState(prevState => ({
+      sessionStorageMune: prevState.sessionStorageMune.filter(item => item.id !== itemId)
+    }));
+  };
+  scrollToLeft = () => {
+    if (this.containerRef.current) {
+      this.containerRef.current.scrollLeft -= this.scrollStep;
+    }
+  };
+
+  scrollToRight = () => {
+    if (this.containerRef.current) {
+      this.containerRef.current.scrollLeft += this.scrollStep;
+    }
+  };
   state = {
     breadcrumbData: [],
     menuData: [],
@@ -49,7 +80,8 @@ class MainPage extends Component<any> {
     menus: new Array<any>(),
     loading: false,
     list:[],
-    open:false
+    open:false,
+    sessionStorageMune:[{ id: 0, name: '仪表盘', route: '/dashboard/', authId: 0 }]
   };
   errorBoundary: React.RefObject<ComponentErrorBoundary> = React.createRef();
   
@@ -115,6 +147,21 @@ class MainPage extends Component<any> {
   shouqicaidan() { }
   dianjicaidan = (e:any) => {
     UmiHistory.push(e.key);
+    // sessionStorage.setItem('menus',e.key);
+    let itemKey = e.key.split();
+    for (const route of itemKey) {
+      const matchedItem = menuData.find(item => item.route === route);
+      if (matchedItem) {
+        // 检查当前matchedItem的id是否已存在于sessionStorageMune中
+        const isExists = this.state.sessionStorageMune.some(item => item.id === matchedItem.id);
+        if (!isExists) {
+          this.setState(prevState => ({
+            sessionStorageMune: [...prevState.sessionStorageMune, matchedItem]
+          }));
+        }
+        return;
+      }
+    }
   };
   tuichu() {
     LoginService.outLogin(StaticInfo.userId).then((res:any)=>{
@@ -134,7 +181,6 @@ class MainPage extends Component<any> {
   getList=()=>{
     CommonService.get1166(1,'','',0).then((res:any)=>{
       if (res.ErrorCode==0){
-        console.log("res",res);
         this.setState({list:res.Data});
       }
     })
@@ -153,9 +199,12 @@ class MainPage extends Component<any> {
       }
     }
   ];
+  toHisYou=(e)=>{
+    UmiHistory.push(e.route);
+  };
+
   render() {
     // const ContentPage = loadable(() => import(`@/pages${this.props.contentPage}`));
-
     return (
       <ConfigProvider locale={zhCN}>
         <Layout style={{ minHeight: '100vh' }}>
@@ -179,9 +228,119 @@ class MainPage extends Component<any> {
             <Menu theme="dark" mode="inline"
               defaultSelectedKeys={[UmiHistory.location.pathname]}
               onClick={this.dianjicaidan.bind(this)}
-              items={this.state.menus} />
+              items={this.state.menus}/>
           </Sider>
           <Layout style={{ marginLeft: 200 }}>
+            <div style={{ position: 'relative', marginTop: '10px', width: '100%', height: '50px' }}>
+              {/* 隐藏默认滚动条 */}
+              <div
+                  ref={this.containerRef}
+                  style={{
+                    display: 'flex',
+                    overflowX: 'hidden', // 隐藏默认滚动条
+                    scrollBehavior: 'smooth', // 平滑滚动
+                    whiteSpace: 'nowrap',
+                    padding: '0 40px', // 为按钮留出空间
+                    height: '50px',
+                    alignItems:'center'
+                  }}
+              >
+                {this.state.sessionStorageMune.map((item: any) => {
+                  const isActive = window.location.pathname === item.route;
+                  return (
+                      <div
+                          key={item.id}
+                          className={isActive ? 'active-item' : ''}
+                          style={{
+                            display: 'inline-flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: "150px",
+                            height: '38px',
+                            border: `1px solid ${isActive ? '#1890ff' : '#999'}`,
+                            borderRadius: '10px',
+                            backgroundColor: isActive ? '#e6f7ff' : 'transparent',
+                            marginRight: '8px',
+                            padding: '0 8px',
+                          }}
+                      >
+                        <div
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              color: isActive ? '#1890ff' : '#8a8b8c',
+                              flex: 1,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis'
+                            }}
+                            onClick={() => this.toHisYou(item)}
+                        >
+                          {item.name}
+                        </div>
+                        <span
+                            style={{
+                              width: '10px',
+                              height: '10px',
+                              fontSize: '10px',
+                              cursor: 'pointer',
+                              color: isActive ? '#1890ff' : '#999'
+                            }}
+                            onClick={() => this.removeMenuItem(item.id)}
+                        >
+                  <CloseOutlined />
+                </span>
+                      </div>
+                  );
+                })}
+              </div>
+
+              {/* 自定义滚动按钮 */}
+              <button
+                  onClick={this.scrollToLeft}
+                  style={{
+                    position: 'absolute',
+                    left: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '30px',
+                    height: '30px',
+                    cursor: 'pointer',
+                    zIndex: 1,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)'
+                  }}
+              >
+                <LeftOutlined />
+              </button>
+              <button
+                  onClick={this.scrollToRight}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '30px',
+                    height: '30px',
+                    cursor: 'pointer',
+                    zIndex: 1,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)'
+                  }}
+              >
+                <RightOutlined />
+              </button>
+            </div>
             <Header style={{ padding: '0px 40px', background: '#ffffff' }} >
               <div style={{ display: 'flex' }}>
                 <Space style={{ marginRight: 'auto' }}>

@@ -1,9 +1,9 @@
 import { getData,postData} from '@/network/http';
 
 export function fetch(vals:any) {
-    return getData(1310, [vals.page,vals.abstract,vals.startDate,vals.endDate,vals.stutes,vals.type,vals.companyId,vals.projectId,vals.subjectId,vals.account_card,vals.pageSize]);
+    return getData(1555, [vals.page,vals.pageSize,vals.startDate,vals.endDate]);
 }
 
 export function fenye(vals:any) {
-    return getData(1311, [vals.abstract,vals.startDate,vals.endDate,vals.stutes,vals.type,vals.companyId,vals.projectId,vals.subjectId,vals.account_card,vals.pageSize]);
+    return getData(1556, [vals.pageSize,vals.startDate,vals.endDate]);
 }

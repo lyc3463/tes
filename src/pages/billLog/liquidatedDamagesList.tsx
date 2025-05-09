@@ -1,12 +1,14 @@
 import {useEffect, useState} from "react";
 import * as ArrearsBillService from "@/services/ArrearsBill";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {Button, DatePicker, Input, List, message, Pagination, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
+import {QuestionCircleOutlined} from "@ant-design/icons";
 
 const LiquidatedDamagesList=()=>{
     // 当前页数
     const [page,setPage]=useState(1);
+    const [spinning,setspinning]=useState(false);
     const [pageSize,setPageSize]=useState(50);
     // 租户姓名
     const [name,setName]=useState('');
@@ -25,6 +27,8 @@ const LiquidatedDamagesList=()=>{
     // 租金已交费用统计
     const [NotBillSum,setNotBillSum]=useState(0);
     const [stutes,setstutes]=useState(1);
+    const [weiyueListInfo,setweiyueListInfo]=useState([]);
+    const [open,setOpen]=useState(false);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -102,9 +106,10 @@ const LiquidatedDamagesList=()=>{
             key: 'defaultAmount',
             render:(text:any,record:any)=>{
                 return(
-                    <div>
+                    <Space>
                         {record.defaultAmount}元
-                    </div>
+                        <Button onClick={()=>toList(record.rentId)}><QuestionCircleOutlined/></Button>
+                    </Space>
                 )
             }
         },
@@ -181,8 +186,54 @@ const LiquidatedDamagesList=()=>{
     useEffect(() => {
         getzujinList();
     }, [page,pageSize]);
+    const toList=(e)=>{
+        setOpen(true);
+        getweiyuejinInfo(e);
+    };
+    const getweiyuejinInfo=(e:number)=>{
+        ArrearsBillService.weiyuejinInfoList(e).then((res:TypeErrorCode)=>{
+            setspinning(true);
+            if (res.ErrorCode==0){
+                setweiyueListInfo(res.Data);
+                setspinning(false);
+            }else {
+                setspinning(false);
+                message.error(res.Data);
+            }
+        })
+    };
+    const columnsz=[
+        {
+            title: '日期',
+            dataIndex: 'created',
+            key: 'created',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {dayjs(record.created).format("YYYY-MM-DD")}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '租金(元)',
+            dataIndex: 'rentAmount',
+            key: 'rentAmount',
+        },
+        {
+            title: '天数(天)',
+            dataIndex: 'defaultNum',
+            key: 'defaultNum',
+
+        },
+        {
+            title: '金额(元)',
+            dataIndex: 'defaultAmount',
+            key: 'defaultAmount',
+        },
+    ];
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -234,7 +285,17 @@ const LiquidatedDamagesList=()=>{
                 )}
             />
             <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
-        </div>
+            <Modal open={open} loading={spinning} onCancel={()=>setOpen(false)} onOk={()=>setOpen(false)} title='违约金详情' width={1000}>
+                <Table
+                    columns={columnsz}
+                    pagination={false}
+                    dataSource={weiyueListInfo}
+                    scroll={{y:'70vh'}}
+                    rowKey={(columns) => columns.id}
+                    size='small'
+                />
+            </Modal>
+        </Spin>
     )
 }
 export default LiquidatedDamagesList
