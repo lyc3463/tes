@@ -19,7 +19,6 @@ import {
 } from "antd";
 import TypeCheckFp from "@/ModelTypes/TypeCheckFp";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import ImageUploader from "@/components/ImageUploader";
 const UnopenedSdFp=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
@@ -112,11 +111,11 @@ const UnopenedSdFp=(props)=>{
     }, []);
     const logFenye=()=>{
         props.dispatch({
-            type:"Zuhu/fetch",
+            type:"BYZhuhu/fetch",
             payload:{page:1,name:'',phone:'',pagecount:100000}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('res',res)
+                console.log('客户列表',res);
                 setZuhuList(res.Data);
             }
         })

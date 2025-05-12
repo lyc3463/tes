@@ -55,7 +55,7 @@ const AllRate=(props)=>{
         setPageSize(pageSize);
     };
     useEffect(() => {
-        getAllRate()
+        getAllRate();
     }, [page,pageSize]);
     useEffect(() => {
         getAllRatefenye();
@@ -68,7 +68,7 @@ const AllRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {dayjs(record.payrentDate).format('YYYY-MM-DD')}
+                        {dayjs(record.payrentDate).format('YYYY-MM-DD HH:mm:ss')}
                     </div>
                 )
             }

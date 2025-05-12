@@ -82,6 +82,7 @@ const AddChongzhi=(props:any)=>{
         setspinning(true);
         AppUserService.userInfo(userPhone).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log(res.Data)
                 if (res.Data.userId==0){
                     message.warning('未能查询到该用户');
                     setspinning(false);
@@ -91,7 +92,7 @@ const AddChongzhi=(props:any)=>{
                     setbalance(res.Data.balance);
                     settenant_phone(res.Data.tenant_phone);
                     setUserId(res.Data.userId);
-                    settenantCompany(res.Data.tenantCompany);
+                    settenantCompany(res.Data.tenant_name);
                     setspinning(false);
                 }
 
@@ -154,7 +155,7 @@ const AddChongzhi=(props:any)=>{
                         <div className={styles.gridItem}>用户头像</div>
                         <div className={styles.gridItem}>微信昵称</div>
                         <div className={styles.gridItem}>用户手机号</div>
-                        <div className={styles.gridItem}>公司名称</div>
+                        <div className={styles.gridItem}>租户姓名</div>
                         <div className={styles.gridItem}>余额</div>
                         <div className={styles.gridItem}><Image style={{width:'50px',height:'50px'}} src={appUser_image}/></div>
                         <div className={styles.gridItem}>{appUser_name}</div>

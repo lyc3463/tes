@@ -169,7 +169,7 @@ const Alljiaoyi=(props)=>{
         setspinning(true);
         RechargeRateService.fetch({page:1,name,phone,type,startDate,endDate,userID,pageSize:100000}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let headers=['日期','租户名称','手机号','类型','金额','房屋'];
+                let headers=['日期','租户名称','手机号','类型','金额'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [
@@ -201,7 +201,7 @@ const Alljiaoyi=(props)=>{
                             }
                         })(),
                         item.consumptionMoney,
-                        item.house_name,
+                        // item.house_name,
 
                     ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
                 ];

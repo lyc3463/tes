@@ -442,7 +442,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.1.9</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.2.1</p>
                 </div>
               </Form.Item>
             </Form>

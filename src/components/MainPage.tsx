@@ -252,16 +252,17 @@ class MainPage extends Component<any> {
                           key={item.id}
                           className={isActive ? 'active-item' : ''}
                           style={{
-                            display: 'inline-flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            width: "150px",
-                            height: '38px',
-                            border: `1px solid ${isActive ? '#1890ff' : '#999'}`,
-                            borderRadius: '10px',
-                            backgroundColor: isActive ? '#e6f7ff' : 'transparent',
-                            marginRight: '8px',
-                            padding: '0 8px',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              width: "150px",
+                              height: '38px',
+                              border: `1px solid ${isActive ? '#1890ff' : '#999'}`,
+                              borderRadius: '10px',
+                              backgroundColor: isActive ? '#e6f7ff' : 'transparent',
+                              marginRight: '8px',
+                              padding: '0 8px',
+                              flexShrink: 0 // 防止宽度被压缩
                           }}
                       >
                         <div

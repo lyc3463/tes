@@ -61,9 +61,9 @@ const ManualRecharge=(props)=>{
             key: 'appUser_name',
         },
         {
-            title: '公司名称',
-            dataIndex: 'tenantCompany',
-            key: 'tenantCompany',
+            title: '租户姓名',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
         },
         {
             title: '充值类型',
@@ -131,7 +131,8 @@ const ManualRecharge=(props)=>{
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+        console.log('props',props);
+    }, [page,pageSize]);
     const toadd=()=>{
       history.push('/billLog/addChongzhi')
     };

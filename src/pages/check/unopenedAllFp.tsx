@@ -20,6 +20,7 @@ import {
 import TypeCheckFp from "@/ModelTypes/TypeCheckFp";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import ImageUploader from "@/components/ImageUploader";
+import id from "ajv/lib/vocabularies/core/id";
 const UnopenedAllFp=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
@@ -28,6 +29,7 @@ const UnopenedAllFp=(props)=>{
     const [tenantr,settenantr]=useState(0);
     const [stutes,setstutes]=useState(0);
     const [zuhuList,setZuhuList]=useState([]);
+    const [setzuhuId,setsetzuhuId]=useState(0);
     const columns =[
         {
             title: '日期',
@@ -130,7 +132,6 @@ const UnopenedAllFp=(props)=>{
     };
     useEffect(() => {
         getList();
-        console.log('props',props)
     }, [page,pageSize]);
     const changeStutes=(e)=>{
         setstutes(e);
@@ -141,16 +142,23 @@ const UnopenedAllFp=(props)=>{
     }, []);
     const logFenye=()=>{
         props.dispatch({
-            type:"Zuhu/fetch",
+            type:"BYZhuhu/fetch",
             payload:{page:1,name:'',phone:'',pagecount:100000}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('租户列表',res);
                 setZuhuList(res.Data);
             }
         })
     };
+    const  findItemById=(list, id)=> {
+        return list.find(item => item.id === id) || null;
+    }
     const changeHouse=(e)=>{
-        settenantr(e);
+        setsetzuhuId(e);
+        let a=findItemById(zuhuList,e);
+        settenantr(a.userId);
+
     };
     const sousuo=()=>{
         setPage(1);
@@ -209,7 +217,7 @@ const UnopenedAllFp=(props)=>{
                                 租户:
                             </div>
                             <Select
-                                value={tenantr}
+                                value={setzuhuId}
                                 onChange={changeHouse}
                                 showSearch
                                 style={{ width: 500 }}
