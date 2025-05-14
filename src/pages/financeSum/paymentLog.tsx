@@ -27,6 +27,7 @@ const PaymentLog=()=>{
         PaymentLogService.fetch({page,orderNum,startDate,endDate,type,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setdataSource(res.Data);
+                console.log('res',res)
             }else {
                 message.error(res.Data);
             }
@@ -118,6 +119,17 @@ const PaymentLog=()=>{
                     </div>
                 )
             }
+        },
+        {
+            title: '到账人',
+            dataIndex: 'user_name',
+            key: 'user_name',
+        },
+        {
+            title: '充值人',
+            dataIndex: 'appUserPhone',
+            key: 'appUserPhone',
+
         },
     ];
     const sousuo=()=>{

@@ -1,37 +1,36 @@
 import {useEffect, useState} from "react";
 import {connect} from "umi";
-import {Button, DatePicker, Input, List, Pagination, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, Pagination, Space, Table, Tag} from "antd";
 import dayjs from "dayjs";
 
 const WaterRate=(props:any)=>{
-    const [page,setPage]=useState(1);
-    const [pageSize,setPageSize]=useState(50);
-    const [collectorID,setCollectorID]=useState('');
+    const [address,setaddress]=useState('');
+    const [remark,setremark]=useState('');
     const [name,setName]=useState('');
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
     const columns =[
         {
-            title: '日期',
-            dataIndex: 'recordTime',
-            key: 'recordTime',
+            title: '房屋',
+            dataIndex: 'house_name',
+            key: 'house_name',
+        },
+        {
+            title: '单元',
+            dataIndex: 'house_name',
+            key: 'house_name',
             render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
                 return(
-                    <div>
-                        {dayjs(record.recordTime).format("YYYY-MM-DD HH:mm:ss")}
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
                     </div>
                 )
-            },
-        },
-        {
-            title: '采集器编号',
-            dataIndex: 'collector_id',
-            key: 'collector_id',
-        },
-        {
-            title: '通讯地址',
-            dataIndex: 'address',
-            key: 'address',
+            }
         },
         {
             title: '租户',
@@ -46,56 +45,101 @@ const WaterRate=(props:any)=>{
             },
         },
         {
-            title: '抄表前水量',
-            dataIndex: 'energyOld',
-            key: 'energyOld',
+            title: '采集器编号',
+            dataIndex: 'collectorid',
+            key: 'collectorid',
+        },
+        {
+            title: '通讯地址',
+            dataIndex: 'address',
+            key: 'address',
+        },
+        {
+            title: '水表数据开始',
+            children: [
+                {
+                    title: '开始时间',
+                    dataIndex: 'beginTime',
+                    key: 'beginTime',
+                    render: (text:any, record:any) => {
+                        return(
+                            <div>
+                                {dayjs(record.beginTime).format('YYYY-MM-DD HH:mm:ss')}
+                            </div>
+                        )
+                    },
+                },
+                {
+                    title: '度数',
+                    dataIndex: 'energyNew',
+                    key: 'energyNew',
+                    render: (text:any, record:any) => {
+                        return(
+                            <div>
+                                {record.energyNew}t
+                            </div>
+                        )
+                    },
+                },
+            ],
+        },
+        {
+            title: '水表数据结束',
+            children: [
+                {
+                    title: '开始时间',
+                    dataIndex: 'endTime',
+                    key: 'endTime',
+                    render: (text:any, record:any) => {
+                        return(
+                            <div>
+                                {dayjs(record.endTime).format('YYYY-MM-DD HH:mm:ss')}
+                            </div>
+                        )
+                    },
+                },
+                {
+                    title: '度数',
+                    dataIndex: 'energyNew2',
+                    key: 'energyNew2',
+                    render: (text:any, record:any) => {
+                        return(
+                            <div>
+                                {record.energyNew2}t
+                            </div>
+                        )
+                    },
+                },
+            ]
+        },
+        {
+            title: '金额',
+            dataIndex: 'waterMoneySum',
+            key: 'waterMoneySum',
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {text}t
+                        {record.waterMoneySum}元
                     </div>
                 )
             },
         },
-        {
-            title: '抄表后水量',
-            dataIndex: 'energyNew',
-            key: 'energyNew',
-            render: (text:any, record:any) => {
-                return(
-                    <div>
-                        {text}t
-                    </div>
-                )
-            },
-        }
     ];
 
     useEffect(() => {
         logFenye();
-    }, [page,pageSize]);
+        console.log('props',props);
+    }, []);
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"WaterRate/fetch",
-            payload:{page,name,collectorID,startDate,endDate,pageSize}
+            payload:{name,address,remark,startDate,endDate}
         })
     };
     // 搜索按钮
     const shousuo=()=>{
-        setPage(1);
-        getFenyeInfo();
         logFenye()
-    };
-    const getFenyeInfo=()=>{
-        props.dispatch({
-            type:'WaterRate/fenye',
-            payload:{page,name,collectorID,startDate,endDate,pageSize}
-        });
-    };
-    const onChange=(e:number,pageSize:number)=>{
-        setPage(e);
-        setPageSize(pageSize);
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -107,9 +151,6 @@ const WaterRate=(props:any)=>{
             setEndDate(data[1]);
         }
     };
-    useEffect(() => {
-        getFenyeInfo();
-    }, []);
     return(
         <div>
             <List>
@@ -120,8 +161,12 @@ const WaterRate=(props:any)=>{
                             onChange={(e)=>setName(e.target.value)}
                         />
                         <Input
-                            addonBefore="采集器:"
-                            onChange={(e)=>setCollectorID(e.target.value)}
+                            addonBefore="水表地址:"
+                            onChange={(e)=>setremark(e.target.value)}
+                        />
+                        <Input
+                            addonBefore="水表描述:"
+                            onChange={(e)=>setremark(e.target.value)}
                         />
                         <Space.Compact>
                             <div
@@ -154,15 +199,15 @@ const WaterRate=(props:any)=>{
                 dataSource={props.WaterRateList}
                 scroll={{x:1500}}
                 pagination={false}
-            />
-            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+            >
+
+            </Table>
         </div>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
         WaterRateList: state.WaterRate.list,
-        count: state.WaterRate.count,
     }
 };
 export default  connect(mapStateToProps) (WaterRate)

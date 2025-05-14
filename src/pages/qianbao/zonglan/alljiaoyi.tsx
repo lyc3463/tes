@@ -3,7 +3,7 @@ import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Spa
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import {calculateSums, exportDataToExcel, fuzzySearch} from "@/utils/OpenTool";
-import * as RechargeRateService from "@/services/rechargeRate";
+import * as RechargeRateService from '@/services/alljiaoyi';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Alljiaoyi=(props)=>{
@@ -169,7 +169,7 @@ const Alljiaoyi=(props)=>{
         setspinning(true);
         RechargeRateService.fetch({page:1,name,phone,type,startDate,endDate,userID,pageSize:100000}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let headers=['日期','租户名称','手机号','类型','金额'];
+                let headers=['日期','租户名称','手机号','类型','金额','房屋','单元'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [
@@ -201,8 +201,13 @@ const Alljiaoyi=(props)=>{
                             }
                         })(),
                         item.consumptionMoney,
-                        // item.house_name,
-
+                        item.house_name,
+                        (() => {
+                            // 提取单元名称，如果unitList为空则返回空字符串
+                            return item.unitList && item.unitList.length > 0
+                                ? item.unitList.map(val => val.unit_name).join(', ')
+                                : '';
+                        })()
                     ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
                 ];
                 exportDataToExcel(ws_data);

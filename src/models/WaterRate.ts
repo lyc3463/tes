@@ -11,12 +11,11 @@ import { StaticInfo } from '@/StaticInfo';
 import WaterRateType from '@/ModelTypes/TypeWaterRate';
 import { fixPathname } from '@/utils/common';
 let pl = {
-    page:1,
     name:'',
-    collectorID:'',
+    remark:'',
+    address:'',
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    pageSize:50
 };
 
 export interface WaterRateCountState {
@@ -97,12 +96,12 @@ const WaterRateModel: HireInterface = {
                         payload: location.state,
                     });
                 }
-                if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/waterRate/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/waterRate/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
 
             });
         },

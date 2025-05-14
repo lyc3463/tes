@@ -90,7 +90,7 @@ export const menuData: TypeMenu[] = [
     { id: 82, route: '/workOrderManage/', name: '工单管理', authId: 82},
     { id: 83, route: '/workOrderManage/workOrderList/', name: '工单列表', parentId: 82, authId: 83},
     { id: 84, route: '/reportFormsManage/', name: '报表管理', authId: 84},
-    { id: 85, route: '/reportFormsManage/finance/', name: '财务报表', parentId: 84, authId: 85},
+    { id: 85, route: '/reportFormsManage/finance/', name: '会员汇总', parentId: 84, authId: 85},
     // { id: 86, route: '/reportFormsManage/income/', name: '收入报表', parentId: 84, authId: 86},
     { id: 87, route: '/reportFormsManage/hire/', name: '出租报表', parentId: 84, authId: 87},
     { id: 88, route: '/reportFormsManage/waterRate/', name: '水费报表', parentId: 84, authId: 88},

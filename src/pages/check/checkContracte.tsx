@@ -278,7 +278,7 @@ const CheckContracte=(props:any)=>{
         }
     };
     const onFsOk=()=>{
-        console.log('发送');
+
     };
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
@@ -448,7 +448,7 @@ const CheckContracte=(props:any)=>{
             <Modal open={fsOpen} title='选择小程序用户' onCancel={()=>setFsOpen(false)} onOk={onFsOk} loading={spinning}>
 
             </Modal>
-        {/*    续租前合同列表弹窗*/}
+            {/* 续租前合同列表弹窗*/}
             <Modal open={xuOpen} title={'续租前合同列表'} onCancel={()=>setxuOpen(false)} width={800}>
                 <Table
                     columns={xucolumns}

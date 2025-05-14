@@ -11,12 +11,12 @@ import { StaticInfo } from '@/StaticInfo';
 import TypeElectricCharge from '@/ModelTypes/TypeElectricCharge';
 import { fixPathname } from '@/utils/common';
 let pl = {
-    page:1,
+    address:'',
+    remark:'',
     name:'',
-    collectorID:'',
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    pageSize:50
+
 };
 
 export interface ElectricChargeCountState {
@@ -46,6 +46,7 @@ const ElectricChargeModel: HireInterface = {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(ElectricChargeService.fetch,payload?payload: pl);
             if (res.ErrorCode == 0) {
+                console.log("查询出来的数据",res)
                 yield put({
                     type: 'list',
                     payload: { list: res.Data },
@@ -91,18 +92,18 @@ const ElectricChargeModel: HireInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/electricCharge/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/electricCharge/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/electricCharge/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/electricCharge/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
 
             });
         },
