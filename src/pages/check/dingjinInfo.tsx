@@ -41,7 +41,6 @@ const DingjinInfo=(props)=>{
     const getCheckCompanyList=()=>{
         CheckCompanyService.companyList({name:''}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log("客户列表",res)
                 setKehuList(res.Data);
             }else {
                 message.error(res.Data)
@@ -52,11 +51,11 @@ const DingjinInfo=(props)=>{
         StaffServer.onedj(id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 console.log('res',res);
-                sethouse_id(res.Data[0].houseId);
-                formRef.current.setFieldsValue(res.Data[0]);
-                setDayDate(dayjs(res.Data[0].beginTime).format("YYYY-MM-DD"));
-                setcontractTypeid(res.Data[0].contractType);
-                setUnitarrList(res.Data[1]);
+                sethouse_id(res.Data.houseId);
+                formRef.current.setFieldsValue(res.Data);
+                setDayDate(dayjs(res.Data.beginTime).format("YYYY-MM-DD"));
+                setcontractTypeid(res.Data.contractType);
+                setUnitarrList(res.Data.unitIds.split(',').map(item => parseInt(item, 10)));
             }else {
                 message.error(res.Data)
             }
@@ -66,7 +65,7 @@ const DingjinInfo=(props)=>{
     const getUnitList=()=>{
         props.dispatch({
             type:'Unit/fetch',
-            payload:{page:1, name: '', beginRents:0, endRents:9999999999, status:0, house_id:house_id}
+            payload:{page:1, name: '', beginRents:0, endRents:9999999999, status:0, house_id:0,pageSize:1000}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setUnitList(res.Data);

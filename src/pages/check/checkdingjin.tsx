@@ -115,7 +115,6 @@ const Checkdingjin=()=>{
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
-
         getContrantez(id);
     }, []);
     const onOk = async () => {

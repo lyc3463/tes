@@ -6,7 +6,6 @@ import * as dateWaterService from '@/services/dateWater';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {exportDataToExcel} from "@/utils/OpenTool";
 
-
 const WaterRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
@@ -166,9 +165,13 @@ const WaterRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('ChargingStartDate','2000-01-01');
+            localStorage.setItem('ChargingEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('ChargingStartDate',data[0]);
+            localStorage.setItem('ChargingEndDate',data[1]);
         }
     };
     // 导出数据
@@ -198,22 +201,37 @@ const WaterRate=(props)=>{
             }
         })
     };
+    const changeName=(e:any)=>{
+        setName(e.target.value);
+        localStorage.setItem('ChargingName',e.target.value);
+    };
+    const changeCid=(e:any)=>{
+        setCid(e.target.value);
+        localStorage.setItem('ChargingCid',e.target.value);
+    };
+    const changeRemark=(e:any)=>{
+        setremark(e.target.value)
+        localStorage.setItem('Chargingremark',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            // onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="租户姓名:"
                         />
                         <Input
-                            onChange={(e)=>setCid(e.target.value)}
+                            // onChange={(e)=>setCid(e.target.value)}
+                            onChange={changeCid}
                             addonBefore="水表地址:"
                         />
                         <Input
-                            onChange={(e)=>setremark(e.target.value)}
+                            // onChange={(e)=>setremark(e.target.value)}
                             addonBefore="水表备注:"
+                            onChange={changeRemark}
                         />
                         <Space.Compact>
                             <div

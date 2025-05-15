@@ -186,6 +186,14 @@ const Zuhuguanlian=(props:any)=>{
         setdepositSum(b.depositSum);
         setintegralSum(b.integralSum);
     };
+    const changeName=(e:any)=>{
+        setName(e.target.value);
+        localStorage.setItem('byZhName',e.target.value);
+    };
+    const changePhone=(e:any)=>{
+        setPhone(e.target.value);
+        localStorage.setItem('byZhPhone',e.target.value);
+    };
     return(
         <div>
             <List>
@@ -193,11 +201,12 @@ const Zuhuguanlian=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="姓名:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                         />
                         <Input
                             addonBefore="手机号:"
-                            onChange={(e)=>setPhone(e.target.value)}
+                            // onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
                         />
                         <Button type="primary" onClick={shousuo}>
                             搜索

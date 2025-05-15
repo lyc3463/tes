@@ -77,11 +77,14 @@ const Wcxuserlist=(props:any)=>{
     // 搜索按钮
     const shousuo=()=>{
         setPage(1);
+        getList();
+        logFenye()
+    };
+    const getList=()=>{
         props.dispatch({
             type:'AppUser/fetch',
             payload:{page,name,phone,pageSize}
         });
-        logFenye()
     };
     // 分页
     const logFenye=()=>{
@@ -96,8 +99,8 @@ const Wcxuserlist=(props:any)=>{
         setpageSize(pageSize);
     };
     useEffect(() => {
-        logFenye();
-    }, [page]);
+        getList();
+    }, [page,pageSize]);
     // 弹窗信息
     const editInfo=(vla:any)=>{
         setAppid(vla.id);

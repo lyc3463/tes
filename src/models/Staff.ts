@@ -80,22 +80,20 @@ const StaffModel: StaffInterface = {
         },
         *adddj({ payload }, { call, put,take}): any {
             const result = yield call(StaffService.adddj, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
             return result;
         },
-
         *editzs({ payload, callback }, { call, put, take }): any {
             const result = yield call(StaffService.editzs, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result;
-
         },
         *editdj({ payload, callback }, { call, put, take }): any {
             const result = yield call(StaffService.editdj, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
             return result;
 
         },

@@ -55,6 +55,11 @@ const WaterRate=(props:any)=>{
             key: 'address',
         },
         {
+            title: '描述',
+            dataIndex: 'remark',
+            key: 'remark',
+        },
+        {
             title: '水表数据开始',
             children: [
                 {
@@ -128,7 +133,6 @@ const WaterRate=(props:any)=>{
 
     useEffect(() => {
         logFenye();
-        console.log('props',props);
     }, []);
     // 分页
     const logFenye=()=>{
@@ -162,7 +166,7 @@ const WaterRate=(props:any)=>{
                         />
                         <Input
                             addonBefore="水表地址:"
-                            onChange={(e)=>setremark(e.target.value)}
+                            onChange={(e)=>setaddress(e.target.value)}
                         />
                         <Input
                             addonBefore="水表描述:"

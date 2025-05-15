@@ -6,15 +6,9 @@ import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} 
 const Finance=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [abstract,setAbstract]=useState('');
-    const [stutes,setStutes]=useState(1);
-    const [type,setType]=useState(2);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
-    const [companyId,setcompanyId]=useState(0);
-    const [projectId,setprojectId]=useState(0);
-    const [subjectId,setsubjectId]=useState(0);
-    const [account_card,setaccount_card]=useState('');
+
     const columns =[
         {
             title: '日期',
@@ -81,7 +75,6 @@ const Finance=(props)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props);
     }, [page,pageSize]);
     useEffect(() => {
         getFenyeInfo();
@@ -90,28 +83,28 @@ const Finance=(props)=>{
         <div>
             <List>
                 <List.Item>
-                    <Space>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                时间:
-                            </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
-                        </Space.Compact>
-                        <Button type="primary" onClick={sousuo}>
-                            搜索
-                        </Button>
-                    </Space>
+                    {/*<Space>*/}
+                    {/*    <Space.Compact>*/}
+                    {/*        <div*/}
+                    {/*            style={{*/}
+                    {/*                borderRadius: '6px',*/}
+                    {/*                borderStartEndRadius: 0,*/}
+                    {/*                borderEndEndRadius: 0,*/}
+                    {/*                padding: '0 11px',*/}
+                    {/*                border: '1px solid #d9d9d9',*/}
+                    {/*                display: 'flex',*/}
+                    {/*                alignItems: 'center',*/}
+                    {/*                borderInlineEnd: 0,*/}
+                    {/*            }}*/}
+                    {/*        >*/}
+                    {/*            时间:*/}
+                    {/*        </div>*/}
+                    {/*        <DatePicker.RangePicker onChange={changeDate}/>*/}
+                    {/*    </Space.Compact>*/}
+                    {/*    <Button type="primary" onClick={sousuo}>*/}
+                    {/*        搜索*/}
+                    {/*    </Button>*/}
+                    {/*</Space>*/}
                 </List.Item>
             </List>
             <Table

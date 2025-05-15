@@ -45,8 +45,9 @@ const ElectricChargeModel: HireInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(ElectricChargeService.fetch,payload?payload: pl);
+            console.log("查询出来的数据",res)
+
             if (res.ErrorCode == 0) {
-                console.log("查询出来的数据",res)
                 yield put({
                     type: 'list',
                     payload: { list: res.Data },

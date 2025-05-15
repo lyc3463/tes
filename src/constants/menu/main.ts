@@ -96,7 +96,7 @@ export const menuData: TypeMenu[] = [
     { id: 88, route: '/reportFormsManage/waterRate/', name: '水费报表', parentId: 84, authId: 88},
     { id: 89, route: '/reportFormsManage/electricCharge/', name: '电费报表', parentId: 84, authId: 89},
     { id: 90, route: '/reportFormsManage/stopCarReportForms/', name: '停车场报表', parentId: 84, authId: 90},
-    { id: 91, route: '/reportFormsManage/payReportForms/', name: '缴费报表', parentId: 84, authId: 91},
+    { id: 91, route: '/reportFormsManage/payReportForms/', name: '财务报表', parentId: 84, authId: 91},
     { id: 92, route: '/AccessControlManage/', name: '门禁管理', authId: 92},
     { id: 93, route: '/AccessControlManage/TravelRecord/', name: '通行记录', parentId: 92, authId: 93},
     { id: 94, route: '/AccessControlManage/AccessControlPurview/', name: '人员门禁权限', parentId: 92, authId: 94},

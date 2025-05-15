@@ -160,9 +160,13 @@ const Alljiaoyi=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            sessionStorage.setItem('jyStartDate','2000-01-01');
+            sessionStorage.setItem('jyEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            sessionStorage.setItem('jyStartDate','2000-01-01');
+            sessionStorage.setItem('jyEndDate','2099-01-01');
         }
     };
     const exportToExcel=()=>{
@@ -222,10 +226,18 @@ const Alljiaoyi=(props)=>{
     const chaxundanyuan=()=>{
         let a=fuzzySearch(props.RechargeRateList,unitName);
         setdataSource(a);
-        console.log('a',a);
         let b=calculateSums(a);
-        console.log('b',b);
         setmoneySum(b.moneySum);
+    };
+    // 监听输入的姓名
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('jyName',e.target.value);
+    };
+    // 监听手机号
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        localStorage.setItem('jyPhone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -233,11 +245,13 @@ const Alljiaoyi=(props)=>{
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            // onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="姓名:"
                         />
                         <Input
-                            onChange={(e)=>setPhone(e.target.value)}
+                            // onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
                             addonBefore="手机号:"
                         />
                         <Space.Compact>

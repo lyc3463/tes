@@ -11,14 +11,10 @@ import { StaticInfo } from '@/StaticInfo';
 import PayReportFormsType from '@/ModelTypes/TypePayReportForms';
 import { fixPathname } from '@/utils/common';
 let pl={
-    page:1,
     name:'',
     phone:'',
-    type:0,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    userID:0,
-    pageSize:50
 }
 
 
@@ -33,7 +29,7 @@ export interface PayReportFormsInterface {
     state: Object;
     effects: {
         fetch: Effect;
-        fenye: Effect;
+        // fenye: Effect;
     };
     reducers: {
         list: Reducer<PayReportFormsType[]>;
@@ -57,17 +53,17 @@ const PayReportFormsModel: PayReportFormsInterface = {
                 message.error(res.ErrorCode + res.Data);
             }
         },
-        *fenye({ type, payload }, { put, call, select }): any {
-            const res = yield call(payReportFormsService.fenye,payload?payload:pl);
-            if (res.ErrorCode == 0) {
-                yield put({
-                    type: 'count',
-                    payload: { count: res.Data },
-                });
-            } else {
-                message.error(res.ErrorCode + res.Data);
-            }
-        },
+        // *fenye({ type, payload }, { put, call, select }): any {
+        //     const res = yield call(payReportFormsService.fenye,payload?payload:pl);
+        //     if (res.ErrorCode == 0) {
+        //         yield put({
+        //             type: 'count',
+        //             payload: { count: res.Data },
+        //         });
+        //     } else {
+        //         message.error(res.ErrorCode + res.Data);
+        //     }
+        // },
     },
     reducers: {
         list(state, action) {

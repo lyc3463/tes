@@ -26,7 +26,6 @@ const ElectricCharge=(props:any)=>{
                         {limitedUnitList.map((item, index) => (
                             <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
                         ))}
-                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
                         {record.unitList.length > 2 && <span>...</span>}
                     </div>
                 )
@@ -117,21 +116,19 @@ const ElectricCharge=(props:any)=>{
                     },
                 },
             ]
-
         },
-
-        {
-            title: '差值',
-            dataIndex: 'xx',
-            key: 'xx',
-            render: (text:any, record:any) => {
-                return(
-                    <div>
-                        {(record.energyNew2-record.energyNew).toFixed(2)}kWh
-                    </div>
-                )
-            },
-        },
+        // {
+        //     title: '差值',
+        //     dataIndex: 'xx',
+        //     key: 'xx',
+        //     render: (text:any, record:any) => {
+        //         return(
+        //             <div>
+        //                 {(record.energyNew2-record.energyNew).toFixed(2)}kWh
+        //             </div>
+        //         )
+        //     },
+        // },
         {
             title: '金额',
             dataIndex: 'eleMoneySum',
@@ -147,7 +144,6 @@ const ElectricCharge=(props:any)=>{
     ];
     useEffect(() => {
         logFenye();
-        console.log('props',props)
     }, []);
     // 分页
     const logFenye=()=>{

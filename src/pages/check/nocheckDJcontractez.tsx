@@ -55,13 +55,13 @@ const NocheckDJcontractez=(props)=>{
         StaffServer.onedj(id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 console.log('定金合同详情',res);
-                setsethouse_id(res.Data[0].houseId);
-                setzuMoney(res.Data[0].zuMoney);
-                setdeposit(res.Data[0].deposit);
-                setclientId(res.Data[0].clientId);
-                setDayDate(dayjs(res.Data[0].beginTime).format("YYYY-MM-DD"));
-                setcontractTypeid(res.Data[0].contractType);
-                setUnitarrList(res.Data[1]);
+                setsethouse_id(res.Data.houseId);
+                setzuMoney(res.Data.zuMoney);
+                setdeposit(res.Data.deposit);
+                setclientId(res.Data.clientId);
+                setDayDate(dayjs(res.Data.beginTime).format("YYYY-MM-DD"));
+                setcontractTypeid(res.Data.contractType);
+                setUnitarrList(res.Data.unitIds.split(',').map(item => parseInt(item, 10)));
             }else {
                 message.error(res.Data);
             }

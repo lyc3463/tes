@@ -338,7 +338,8 @@ const AddStaff=(props:any)=>{
     const getCheckCompanyList=()=>{
         CheckCompanyService.companyList({name:''}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setKehuList(res.Data);
+                const filteredArray = res.Data.map(item => item.contractStatus !== 2 ? item : null).filter(item => item !== null);
+                setKehuList(filteredArray);
             }else {
                 message.error(res.Data)
             }

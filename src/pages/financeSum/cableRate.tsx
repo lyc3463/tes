@@ -145,7 +145,7 @@ const CableRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag  color='blue'>{record.eleMoney}元</Tag>
+                        <Tag color='blue'>{record.eleMoney}元</Tag>
                     </div>
                 )
             }
@@ -188,22 +188,37 @@ const CableRate=(props)=>{
             }
         })
     };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('cableRateName',e.target.value);
+    };
+    const changeCId=(e:any)=>{
+        setCId(e.target.value);
+        localStorage.setItem('cableRateName',e.target.value);
+    };
+    const changeremark=(e:any)=>{
+        setremark(e.target.value);
+        localStorage.setItem('cableRateRemark',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            // onChange={(e)=>setName(e.target.value)}
                             addonBefore="租户姓名:"
+                            onChange={changeName}
                         />
                         <Input
-                            onChange={(e)=>setCId(e.target.value)}
+                            // onChange={(e)=>setCId(e.target.value)}
                             addonBefore="电表地址:"
+                            onChange={changeCId}
                         />
                         <Input
-                            onChange={(e)=>setremark(e.target.value)}
+                            // onChange={(e)=>setremark(e.target.value)}
                             addonBefore="电表备注:"
+                            onChange={changeremark}
                         />
                         <Space.Compact>
                             <div

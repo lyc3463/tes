@@ -56,15 +56,14 @@ const EditDjContract=(props:any)=>{
     const getCheckCompanyList=()=>{
         CheckCompanyService.companyList({name:''}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log("客户列表",res)
-                setKehuList(res.Data);
+                const filteredArray = res.Data.map(item => item.contractStatus !== 2 ? item : null).filter(item => item !== null);
+                setKehuList(filteredArray);
             }else {
                 message.error(res.Data)
             }
         })
     };
     const changeunit=(e)=>{
-        console.log('选择的单元',e);
         setUnitarrList(e);
     };
     // 获取房屋列表
@@ -73,22 +72,21 @@ const EditDjContract=(props:any)=>{
             type:'House/fetch'
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('房屋id',res);
                 sethouseList(res.Data);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
             }
         })
     };
     const getOneStaff= (id:string)=>{
         StaffServer.onedj(id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                sethouse_id(res.Data[0].houseId);
-                getUnitList(res.Data[0].houseId);
-                formRef.current.setFieldsValue(res.Data[0]);
-                setDayDate(dayjs(res.Data[0].beginTime).format("YYYY-MM-DD"));
-                setcontractTypeid(res.Data[0].contractType);
-                setUnitarrList(res.Data[1]);
+                sethouse_id(res.Data.houseId);
+                getUnitList(res.Data.houseId);
+                formRef.current.setFieldsValue(res.Data);
+                setDayDate(dayjs(res.Data.beginTime).format("YYYY-MM-DD"));
+                setcontractTypeid(res.Data.contractType);
+                setUnitarrList(res.Data.unitIds.split(',').map(item => parseInt(item, 10)));
             }else {
                 message.error(res.Data)
             }
@@ -96,7 +94,6 @@ const EditDjContract=(props:any)=>{
     };
     const onFinish=(val:any)=>{
         let unit_id=unitarrList.join("|");
-        console.log('单元列表',unit_id)
         props.dispatch({
             type:'Staff/editdj',
             payload:{...val,uid,contractTypeid,dayDate,unit_id,house_id}

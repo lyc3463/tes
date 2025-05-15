@@ -94,7 +94,6 @@ const EditStaff=(props:any)=>{
         setspinning(true);
         StaffServer.one(id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log("合同详情",res);
                 setspinning(false);
                 formRef.current.setFieldsValue(res.Data[0]);
                 setEndDate(dayjs(res.Data[0].endTime).format('YYYY-MM-DD'));
@@ -141,7 +140,8 @@ const EditStaff=(props:any)=>{
     const getCheckCompanyList=()=>{
         CheckCompanyService.companyList({name:''}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setKehuList(res.Data);
+                const filteredArray = res.Data.map(item => item.contractStatus !== 2 ? item : null).filter(item => item !== null);
+                setKehuList(filteredArray);
             }else {
                 message.error(res.Data)
             }
