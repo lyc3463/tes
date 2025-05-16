@@ -37,7 +37,6 @@ const DjContract=()=>{
     const [manageFee,setmanageFee]=useState(0);
     // 用户权限
     const [uqx,setUqx]=useState([]);
-
     const columns =[
         {
             title: '合同编号',

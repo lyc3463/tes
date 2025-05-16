@@ -60,3 +60,6 @@ export function getdJContractListfy(vals:any) {
 export function removedj(vals:any) {
     return getData(1558, [vals]);
 }
+export function checkDjContract(uid:number,stutes:number) {
+    return getData(1559, [uid,stutes]);
+}

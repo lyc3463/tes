@@ -89,18 +89,18 @@ const PayReportFormsModel: PayReportFormsInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/payReportForms/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/payReportForms/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/payReportForms/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/reportFormsManage/payReportForms/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
 
             });
         },

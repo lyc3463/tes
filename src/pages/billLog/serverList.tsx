@@ -103,18 +103,6 @@ const ServerList=(props:any)=>{
                 )
             }
         },
-        // {
-        //     title: '违约金(元)',
-        //     dataIndex: 'defaultAmount',
-        //     key: 'defaultAmount',
-        //     render:(text:any,record:any)=>{
-        //         return(
-        //             <div>
-        //                 {record.defaultAmount}元
-        //             </div>
-        //         )
-        //     }
-        // },
         {
             title: '已交金额(元)',
             dataIndex: 'stopAmount',

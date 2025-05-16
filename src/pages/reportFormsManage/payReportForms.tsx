@@ -113,11 +113,10 @@ const PayReportForms=(props)=>{
         })
     };
     const sousuo=()=>{
-        logFenye();
+        // logFenye();
     };
     useEffect(() => {
-        logFenye();
-        console.log('props',props);
+        // logFenye();
     }, []);
     // 监听日期
     const changeDate=(_:any,data:string[])=>{

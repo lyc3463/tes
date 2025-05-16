@@ -120,18 +120,7 @@ const WaterKoufeiList=()=>{
                 )
             }
         },
-        // {
-        //     title: '旧度数',
-        //     dataIndex: 'energyOld',
-        //     key: 'energyOld',
-        //     render:(text:any,record:any)=>{
-        //         return(
-        //             <div>
-        //                 <Tag  color='warning'>{record.energyOld}m³</Tag>
-        //             </div>
-        //         )
-        //     }
-        // },
+
         {
             title: '消耗度数',
             dataIndex: 'energyUsage1',
@@ -139,23 +128,11 @@ const WaterKoufeiList=()=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag  color='warning'>{record.energyNew-record.energyOld}m³</Tag>
+                        <Tag  color='warning'>{(record.energyNew-record.energyOld).toFixed(3)}m³</Tag>
                     </div>
                 )
             }
         },
-        // {
-        //     title: '倍率',
-        //     dataIndex: 'rate',
-        //     key: 'rate',
-        //     render:(text:any,record:any)=>{
-        //         return(
-        //             <div>
-        //                 <Tag  color='cyan'>{record.rate}倍</Tag>
-        //             </div>
-        //         )
-        //     }
-        // },
         {
             title: '扣费金额',
             dataIndex: 'energyUsage',

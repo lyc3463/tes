@@ -7,8 +7,8 @@ const ElectricCharge=(props:any)=>{
     const [address,setaddress]=useState('');
     const [remark,setremark]=useState('');
     const [name,setName]=useState('');
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [startDate,setStartDate]=useState('2025-05-15');
+    const [endDate,setEndDate]=useState('2099-05-16');
     const columns =[
         {
             title: '房屋',
@@ -117,18 +117,6 @@ const ElectricCharge=(props:any)=>{
                 },
             ]
         },
-        // {
-        //     title: '差值',
-        //     dataIndex: 'xx',
-        //     key: 'xx',
-        //     render: (text:any, record:any) => {
-        //         return(
-        //             <div>
-        //                 {(record.energyNew2-record.energyNew).toFixed(2)}kWh
-        //             </div>
-        //         )
-        //     },
-        // },
         {
             title: '金额',
             dataIndex: 'eleMoneySum',
@@ -143,7 +131,7 @@ const ElectricCharge=(props:any)=>{
         },
     ];
     useEffect(() => {
-        logFenye();
+        // logFenye();
     }, []);
     // 分页
     const logFenye=()=>{
@@ -163,7 +151,7 @@ const ElectricCharge=(props:any)=>{
         }
     };
     const shousuo=()=>{
-        logFenye();
+        // logFenye();
     };
     return(
         <div>

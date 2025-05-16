@@ -132,7 +132,7 @@ const LiquidatedDamagesList=()=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.defaultAmount-record.stopAmount}元
+                        {(record.defaultAmount-record.stopAmount).toFixed(3)}元
                     </div>
                 )
             }

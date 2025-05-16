@@ -34,6 +34,8 @@ const ZuList=(props:any)=>{
     const getzujinList=()=>{
         ArrearsBillService.zujinList({page,name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('props',res)
+
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -54,9 +56,21 @@ const ZuList=(props:any)=>{
     };
     const columns =[
         {
-            title: '账单周期',
+            title: '交租日期',
             dataIndex: 'payrentDate',
             key: 'payrentDate',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {dayjs(record.payrentDate).format('YYYY-MM-DD')}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '账单周期',
+            dataIndex: 'xx',
+            key: 'xx',
             render:(text:any,record:any)=>{
                 return(
                     <div>
@@ -154,7 +168,7 @@ const ZuList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.preRen+record.payAmount}元
+                        {(record.preRen+record.payAmount).toFixed(3)}元
                     </div>
                 )
             }
@@ -220,7 +234,7 @@ const ZuList=(props:any)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                日期:
+                                交租日期:
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
