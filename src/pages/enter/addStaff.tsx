@@ -36,11 +36,14 @@ import ImageUploader from "@/components/ImageUploader";
 import {PlusOutlined, ReloadOutlined} from "@ant-design/icons";
 import './staff.less';
 import NoyasuoImgCmp from "@/components/NoyasuoImgCmp";
+import {companyorUnitList} from "@/services/checkCompany";
 const tailLayout = {
     wrapperCol: { offset: 3 },
 };
 const AddStaff=(props:any)=>{
     const [form] = Form.useForm();
+    const [disb,setdisb]=useState(true);
+    const [deposit,setdeposit]=useState(0);
     const [unitstutes,setunitstutes]=useState(1);
     // 合同编号房屋名称
     const [houseName,sethouseName]=useState('');
@@ -127,15 +130,10 @@ const AddStaff=(props:any)=>{
         setwupinList(prevItems => prevItems.filter(item => item.key !== key));
     };
     const onFinish= (values)=>{
-        // let mzqJson=JSON.stringify(mzformItems);
         let identifier=`${houseName}-${unitNamess}-${numNo}`;
         setspinning(true);
         let unit_id=unitarrList.join("|");
         if (contractType==2){
-            // if (mzformItems.length<1){
-            //     message.warning('请填写免租期');
-            //     setspinning(false);
-            // }
             let dayNoe=calculateTotalRentalDays(mzformItems);
             let datearr=splitDataByEndTimeAndRentPeriod(formItems,endDate);
             if (dayNoe!=mzq){
@@ -155,7 +153,7 @@ const AddStaff=(props:any)=>{
                 let jsonDate=JSON.stringify(date);
                 props.dispatch({
                     type:'Staff/addzs',
-                    payload:{...values,identifier,endDate,startDate,jsonDate,deliveryDate,documentImage,unitImage,imgs,contractTypeid,unit_id,remark,house_id,zuMoney}
+                    payload:{...values,deposit,identifier,endDate,startDate,jsonDate,deliveryDate,documentImage,unitImage,imgs,contractTypeid,unit_id,remark,house_id,zuMoney}
                 }).then((res:TypeErrorCode)=>{
                     if (res.ErrorCode==0){
                         setspinning(false);
@@ -170,7 +168,7 @@ const AddStaff=(props:any)=>{
         }else if (contractType==1){
             props.dispatch({
                 type:'Staff/adddj',
-                payload:{...values,identifier,dayDate,contractTypeid,unit_id,house_id,zuMoney}
+                payload:{...values,identifier,deposit,dayDate,contractTypeid,unit_id,house_id,zuMoney}
             }).then((res:TypeErrorCode)=>{
                 if (res.ErrorCode==0){
                     setspinning(false);
@@ -197,44 +195,6 @@ const AddStaff=(props:any)=>{
         let dataArr=calculateTimePeriods(item[0],item[1],zuMoney);
         setFormItems(dataArr);
     };
-    // const calculateTimePeriods = (start, end) => {
-    //     let currentStart = dayjs(start);
-    //     const finalEnd = dayjs(end);
-    //     return [
-    //         {
-    //             key:0,
-    //             beginTime: currentStart.format("YYYY-MM-DD"),
-    //             endTime: finalEnd.format("YYYY-MM-DD"),
-    //             incremental:0
-    //         }
-    //     ];
-    // };
-    // const calculateTimePeriods = (start, end) => {
-    //     const periods = [];
-    //     let currentStart = dayjs(start);
-    //     const finalEnd = dayjs(end);
-    //     let index = 0;
-    //     while (currentStart.isBefore(finalEnd)) {
-    //         // 下一个周期的结束时间是一年后，但不能超过总结束时间
-    //         let nextEnd = currentStart.add(1, "year").subtract(1,'day');
-    //         if (nextEnd.isAfter(finalEnd)) {
-    //             nextEnd = finalEnd; // 最后一个周期不足一年
-    //         }
-    //         periods.push({
-    //             key:index,
-    //             beginTime: currentStart.format("YYYY-MM-DD"),
-    //             endTime: nextEnd.format("YYYY-MM-DD"),
-    //             rentBeginTime:null,
-    //             rentEndTime:null,
-    //             incremental:0
-    //         });
-    //         index++;// 更新索引
-    //         // currentStart = nextEnd;
-    //         // 更新下一个周期的开始时间
-    //         currentStart = nextEnd.add(1, "day");
-    //     }
-    //     return periods;
-    // };
     // 更新起租日
     const updateqizuDate = (key, updates) => {
         setFormItems(prevItems => prevItems.map(item => item.key === key ? { ...item, ...updates } : item));
@@ -245,7 +205,6 @@ const AddStaff=(props:any)=>{
     };
      // 更新递增
     const updatedz = (key, updates) => {
-        // setFormItems(prevItems => prevItems.map(item => item.id === key ? { ...item, ...updates } : item));
         setFormItems(prevItems => {
             // 1. 更新对应的 item
             const updatedItems = prevItems.map(item =>
@@ -257,11 +216,9 @@ const AddStaff=(props:any)=>{
             return newItems;
         });
     };
-
     // 监听免租期天数
     useEffect(() => {
         setsummzqDay(calculateTotalRentalDays(mzformItems));
-        // console.log("mzformItems",mzformItems);
     }, [mzformItems]);
     // 添加递增表单项
     const addFormItem = () => {
@@ -270,7 +227,6 @@ const AddStaff=(props:any)=>{
             if (isAdd){
                 const newKey = formItems.length ? Math.max(...formItems.map(item => item.key)) + 1 : 1;
                 let FormItems=[...formItems, { key: newKey, beginTime: null, endTime: null, incremental:0}]
-                // setFormItems([...formItems, { key: newKey, beginTime: null, endTime: null, rentBeginTime: null,rentEndTime:null, incremental:0}]);
                 newArr(FormItems);
             }else {
                 message.warning('您已不能在继续添加');
@@ -301,6 +257,7 @@ const AddStaff=(props:any)=>{
     const getUnitList=()=>{
         UnitService.stutesUnit({house_id:house_id}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('单元列表',res);
                 setUnitList(res.Data);
             }else {
                 message.error(res.Data)
@@ -321,10 +278,13 @@ const AddStaff=(props:any)=>{
     };
     // 监听勾选的单元
     const changeunit=(e)=>{
-        let retUnitName=getNamesByIds(unitList,e);
-        setunitNamess(retUnitName);
-        setUnitarrList(e);
-        filterzuArea(e)
+        CheckCompanyService.companyorUnitList(e.join("|")).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setUnitarrList(e);
+            }else {
+                message.error(res.Data);
+            }
+        })
     };
     // 筛选过滤掉的租金跟面积
     const filterzuArea=(item:any)=>{
@@ -347,7 +307,6 @@ const AddStaff=(props:any)=>{
     };
     // 租户证件图片名字
     const oldImgName=(e:string)=>{
-        // setImgName(e);
         setImgName((prevItems=>[...prevItems,e]))
     };
     // 租户证件图片B64
@@ -366,12 +325,10 @@ const AddStaff=(props:any)=>{
     };
     // 单元图片名字
     const getunitImgName=(e:string)=>{
-        // setunitImgName(e);
         setunitImgName((prevItems=>[...prevItems,e]))
     };
     // 单元图片B64
     const getunitB64=(e:string)=>{
-        // setuintB64(e);
         setuintB64((prevItems=>[...prevItems,e]))
     };
     // 删除单元图片
@@ -417,7 +374,7 @@ const AddStaff=(props:any)=>{
     };
     function findById(array, id) {
         return array.find(item => item.id === id);
-    }
+    };
     const changecontractType=(e)=>{
         let result=findById(ctyList,e);
         setcontractType(result.templateType);
@@ -472,6 +429,39 @@ const AddStaff=(props:any)=>{
       setzuMoney(e);
       setFormItems(contractsDz(e,formItems));
     };
+    const changeKehu=(e)=>{
+        getcokuInfo(e);
+    };
+    const getcokuInfo=(e:number)=>{
+        CheckCompanyService.companyorDj(e).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                if (res.Data.houseId>0){
+                    setdeposit(res.Data.deposit);
+                    setdisb(true);
+                    setzuMoney(res.Data.zuMoney)
+                    sethouse_id(res.Data.houseId);
+                    setunitStutes(true);
+                    setUnitarrList(res.Data.unitIds.split("|").map(item => parseInt(item, 10)));
+                    let retunName=getHouseNameById(houseList,res.Data.houseId);
+                    sethouseName(retunName);
+
+                }else {
+                    setdisb(false);
+                    setzuMoney(0);
+                    sethouse_id(0);
+                    setUnitarrList([]);
+                    setunitStutes(true);
+                    sethouseName('');
+                    setunitNamess('');
+                    setdeposit(0);
+                }
+            }
+        })
+    };
+    useEffect(() => {
+        filterzuArea(unitarrList);
+        setunitNamess(getNamesByIds(unitList,unitarrList))
+    }, [unitList,unitarrList]);
     return(
         <Spin spinning={spinning}>
             <Form
@@ -480,7 +470,7 @@ const AddStaff=(props:any)=>{
                 form={form}
                 layout="horizontal"
                 size={'large'}
-                initialValues={{remark: '',prepayment:0,decorationCost:0,customCard:'',depositFee:0,dispatchName:'',dispatchCard:'',businessEntity:'',businessScope:'',legalPerson:''}}
+                initialValues={{remark: '',manageFeeRent:0,prepayment:0,decorationCost:0,customCard:'',depositFee:0,dispatchName:'',dispatchCard:'',businessEntity:'',businessScope:'',legalPerson:''}}
                 onFinish={onFinish}
                 style={{ marginTop:'1rem',paddingLeft:"10rem"}}
             >
@@ -509,9 +499,14 @@ const AddStaff=(props:any)=>{
                             </Form.Item>:''
                         }
                         <Form.Item label='房屋'  style={{width:'20rem'}}>
-                            <Select placeholder='房屋'
+                            <Select placeholder='请选择客户'
+                                    value={house_id}
+                                    disabled={disb}
                                     onChange={changeHouse}
                             >
+                                <Select.Option value={0} key={-1}>
+                                    请选择
+                                </Select.Option>
                                 {houseList.map((item:any,index:any)=>{
                                     return(
                                         <Select.Option value={item.id} key={index}>
@@ -521,11 +516,6 @@ const AddStaff=(props:any)=>{
                                 })}
                             </Select>
                         </Form.Item>
-                        {/*{  contractType==2?*/}
-                        {/*    <Form.Item label='起租日' style={{width:'30rem'}}>*/}
-                        {/*        <DatePicker.RangePicker onChange={changeData}/>*/}
-                        {/*    </Form.Item>:''*/}
-                        {/*}*/}
                     </Space>
                 </Form.Item>
                 <Form.Item style={{display:'flex'}}>
@@ -534,6 +524,7 @@ const AddStaff=(props:any)=>{
                             <Select
                                 notFoundContent={false}
                                 showSearch
+                                onChange={changeKehu}
                                 optionFilterProp="children"
                                 filterOption={(input, option) => {
                                     // 假设每个 option 都有一个与数据项对应的 value 属性
@@ -558,12 +549,12 @@ const AddStaff=(props:any)=>{
                         <Form.Item label='单元'  style={{width:'30rem'}}>
                             <Select placeholder='请选择单元,注:选择第一个单元决定合同用途'
                                     mode="multiple"
+                                    value={unitarrList}
                                     onChange={changeunit}
                                     disabled={unitStutes}
                                     showSearch
                                     optionFilterProp="children"
                                     filterOption={(input, option) => {
-                                        // 假设每个 option 都有一个与数据项对应的 value 属性
                                         const item = unitList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
                                         return item?.unit_name?.toLowerCase().includes(input.toLowerCase());
                                     }}
@@ -593,11 +584,11 @@ const AddStaff=(props:any)=>{
                 <Form.Item style={{display:'flex'}}>
                     <Space size='large'>
                         <Form.Item label='租金/月(元)'  style={{width:'15rem'}}>
-                            <InputNumber value={zuMoney} onChange={changeMoney}/>
-                            <div style={{fontSize:"12px",color:'#555'}}>租金不能低于{minzujin}元</div>
+                            <InputNumber value={zuMoney} onChange={changeMoney} disabled={disb}/>
+                            {disb?'':<div style={{fontSize:"12px",color:'#555'}}>租金不能低于{minzujin}元</div>}
                         </Form.Item>
-                        <Form.Item label='租金押金(元)' name='deposit' style={{width:'11rem'}} rules={[{required: true, message: ''}]}>
-                            <InputNumber/>
+                        <Form.Item label='租金押金(元)' style={{width:'11rem'}}>
+                            <InputNumber value={deposit} onChange={(e)=>setdeposit(e)} disabled={disb}/>
                         </Form.Item>
                         {
                             contractType==2?<>
@@ -610,7 +601,6 @@ const AddStaff=(props:any)=>{
                                 <Form.Item label='管理费递增%' name='manageFeeRent' style={{width:'10rem'}} rules={[{required: true, message: ''}]}>
                                     <InputNumber min={0}/>
                                 </Form.Item>
-
                             </>:''
                         }
                     </Space>

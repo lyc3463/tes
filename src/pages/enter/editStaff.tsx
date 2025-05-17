@@ -2,7 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {
     addNewData, calculateTimePeriods, calculateTotalRentalDays,
     checkEndTime, contractsDz,
-    filterAndUpdateList,
+    filterAndUpdateList, getHouseNameById, getNamesByIds,
     removeLastData, replaceEnglishCommasWithChinese,
     splitDataByEndTimeAndRentPeriod
 } from "@/utils/OpenTool";
@@ -25,6 +25,8 @@ const EditStaff=(props:any)=>{
     const formRef=useRef();
     const [formItems, setFormItems] = useState([]);
     const [spinning, setspinning] = useState(false);
+    const [disb,setdisb]=useState(true);
+    const [deposit,setdeposit]=useState(0);
     // 计算出来的免租期天数
     const [summzqDay,setsummzqDay]=useState(0);
     // 单元列表
@@ -95,6 +97,8 @@ const EditStaff=(props:any)=>{
         StaffServer.one(id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setspinning(false);
+                setdeposit(res.Data[0].deposit);
+                getcokuInfo1(res.Data[0].clientId);
                 formRef.current.setFieldsValue(res.Data[0]);
                 setEndDate(dayjs(res.Data[0].endTime).format('YYYY-MM-DD'));
                 setStartDate(dayjs(res.Data[0].beginTime).format('YYYY-MM-DD'));
@@ -134,7 +138,6 @@ const EditStaff=(props:any)=>{
     // 监听免租期天数
     useEffect(() => {
         setsummzqDay(calculateTotalRentalDays(mzformItems));
-        // console.log("mzformItems",mzformItems);
     }, [mzformItems]);
     // 获取客户列表
     const getCheckCompanyList=()=>{
@@ -195,12 +198,20 @@ const EditStaff=(props:any)=>{
         })
     };
     useEffect(() => {
+        getUnitList(house_id);
+    }, [house_id]);
+    useEffect(() => {
         filterzuArea(unitarrList);
     }, [unitList]);
     // 选择的单元ID
     const changeunit=(e)=>{
-        setUnitarrList(e);
-        filterzuArea(e);
+        CheckCompanyService.companyorUnitList(e.join("|")).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setUnitarrList(e);
+            }else {
+                message.error(res.Data);
+            }
+        })
     };
     // 筛选过滤掉的租金跟面积
     const filterzuArea=(item:any)=>{
@@ -214,10 +225,6 @@ const EditStaff=(props:any)=>{
         setspinning(true);
         let dayNoe=calculateTotalRentalDays(mzformItems);
         if (contractType==2){
-            // if (mzformItems.length<1) {
-            //     message.warning('请填写免租期');
-            //     setspinning(false);
-            // } else
             if (dayNoe!=mzq){
                 message.warning('免租期天数与填写天数不相等');
                 setspinning(false);
@@ -237,7 +244,7 @@ const EditStaff=(props:any)=>{
                 let documentImage=documentImages.join('|');
                 props.dispatch({
                     type:'Staff/editzs',
-                    payload:{...val,uid,endDate,startDate,jsonDate,deliveryDate,documentImage,unitImage,imgs,contractTypeid,unit_id,remark,house_id,zuMoney}
+                    payload:{...val,uid,endDate,startDate,deposit,jsonDate,deliveryDate,documentImage,unitImage,imgs,contractTypeid,unit_id,remark,house_id,zuMoney}
                 }).then((res:any)=>{
                     if (res.ErrorCode==0){
                         setspinning(false);
@@ -252,7 +259,7 @@ const EditStaff=(props:any)=>{
         }else if (contractType==1){
             props.dispatch({
                 type:'Staff/editdj',
-                payload:{...val,uid,zuMoney}
+                payload:{...val,uid,zuMoney,deposit}
             }).then((res:TypeErrorCode)=>{
                 if (res.ErrorCode==0){
                     setspinning(false);
@@ -275,7 +282,6 @@ const EditStaff=(props:any)=>{
     };
     // 更新起租日
     const updateqizuDate = (key, updates) => {
-        console.log('唯一值',key)
         setFormItems(prevItems => prevItems.map(item => item.id === key ? { ...item, ...updates } : item));
     };
     // 更新免租期
@@ -355,7 +361,6 @@ const EditStaff=(props:any)=>{
     };
     // 单元图片名字
     const getunitImgName=(e:string)=>{
-        // setunitImgName(e);
         setunitImgName((prevItems=>[...prevItems,e]))
     };
     // 单元图片B64
@@ -413,9 +418,6 @@ const EditStaff=(props:any)=>{
     function findById(array, id) {
         return array.find(item => item.id === id);
     }
-    const sousuoUnit=()=>{
-
-    };
     // 禁用日期函数
     const disabledDate1 = (current) => {
         // 禁用在起始日期之前或在结束日期之后的日期
@@ -440,18 +442,6 @@ const EditStaff=(props:any)=>{
         let dataArr=calculateTimePeriods(item[0],item[1],zuMoney);
         setFormItems(dataArr);
     };
-    // const calculateTimePeriods = (start, end) => {
-    //     let currentStart = dayjs(start);
-    //     const finalEnd = dayjs(end);
-    //     return [
-    //         {
-    //             id:0,
-    //             beginTime: currentStart.format("YYYY-MM-DD"),
-    //             endTime: finalEnd.format("YYYY-MM-DD"),
-    //             incremental:0
-    //         }
-    //     ];
-    // };
     const changeremark=(e)=>{
         let a=replaceEnglishCommasWithChinese(e.target.value);
         setremark(a);
@@ -459,6 +449,46 @@ const EditStaff=(props:any)=>{
     const changeMoney=(e)=>{
         setzuMoney(e);
         setFormItems(contractsDz(e,formItems));
+    };
+    const changeKehu=(e)=>{
+        getcokuInfo(e);
+    };
+    useEffect(() => {
+        filterzuArea(unitarrList);
+    }, [unitList,unitarrList]);
+    const getcokuInfo=(e:number)=>{
+        CheckCompanyService.companyorDj(e).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                if (res.Data.houseId>0){
+                    setdeposit(res.Data.deposit);
+                    setdisb(true);
+                    setzuMoney(res.Data.zuMoney)
+                    sethouse_id(res.Data.houseId);
+                    setunitStutes(true);
+                    setUnitarrList(res.Data.unitIds.split("|").map(item => parseInt(item, 10)));
+                }else {
+                    setdisb(false);
+                    setzuMoney(0);
+                    sethouse_id(0);
+                    setUnitarrList([]);
+                    setunitStutes(true);
+                    setdeposit(0);
+                }
+            }
+        })
+    };
+    const getcokuInfo1=(e:number)=>{
+        CheckCompanyService.companyorDj(e).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                if (res.Data.houseId>0){
+                    setdisb(true);
+                    setunitStutes(true);
+                }else {
+                    setdisb(false);
+                    setunitStutes(true);
+                }
+            }
+        })
     };
     return(
         <Spin spinning={spinning}>
@@ -493,10 +523,13 @@ const EditStaff=(props:any)=>{
                         <Form.Item label='房屋'  style={{width:'20rem'}}>
                             <Select placeholder='房屋'
                                     value={house_id}
+                                    disabled={disb}
                                     onChange={changeHouse}
                             >
+                                <Select.Option value={0} key={-1}>
+                                    请选择
+                                </Select.Option>
                                 {houseList.map((item:any,index:any)=>{
-
                                     return(
                                         <Select.Option value={item.id} key={index}>
                                             {item.house_name}
@@ -513,6 +546,7 @@ const EditStaff=(props:any)=>{
                             <Select
                                 notFoundContent={false}
                                 showSearch
+                                onChange={changeKehu}
                                 optionFilterProp="children"
                                 filterOption={(input, option) => {
                                     // 假设每个 option 都有一个与数据项对应的 value 属性
@@ -573,11 +607,11 @@ const EditStaff=(props:any)=>{
                 <Form.Item style={{display:'flex'}}>
                     <Space size='large'>
                         <Form.Item label='租金/月(元)'  style={{width:'15rem'}}>
-                            <InputNumber value={zuMoney} onChange={changeMoney}/>
+                            <InputNumber value={zuMoney} onChange={changeMoney} disabled={disb}/>
                             <div style={{fontSize:"12px",color:'#555'}}>租金不能低于{minzujin}元</div>
                         </Form.Item>
-                        <Form.Item label='押金(元)' name='deposit' style={{width:'15rem'}}>
-                            <InputNumber/>
+                        <Form.Item label='押金(元)'  style={{width:'15rem'}}>
+                            <InputNumber value={deposit} onChange={(e)=>setdeposit(e)} disabled={disb}/>
                         </Form.Item>
                         {
                             contractType==2?<>
@@ -638,9 +672,6 @@ const EditStaff=(props:any)=>{
                                         <Space>
                                             {startDate&&endDate? <DatePicker.RangePicker defaultValue={[dayjs(startDate), dayjs(endDate)]} onChange={changeData}/>:''}
                                             {startDate&&endDate? '':<DatePicker.RangePicker  onChange={changeData}/>}
-                                            {/*<Button type="primary" onClick={addFormItem}>*/}
-                                            {/*    <PlusOutlined />*/}
-                                            {/*</Button>*/}
                                         </Space>
                                     </Form.Item>
                                     {formItems.map((item:any,index:number) => (

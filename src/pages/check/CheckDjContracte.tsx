@@ -105,7 +105,8 @@ const CheckDjContracte=()=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        <Button type='primary' onClick={()=>{toxiazai(record)}}>下载</Button>
+                        {record.contractStatus==1&&record.contractStatus!=3? <Button type='primary' onClick={()=>{toxiazai(record)}}>下载</Button>:''}
+                        {record.contractStatus==2? <Button type='primary' onClick={()=>{checkdj(record)}}>下载</Button>:''}
                     </Space>
                 )
             }
@@ -124,7 +125,7 @@ const CheckDjContracte=()=>{
                             </>:
                             ''
                         }
-                        <Button type='primary' danger onClick={()=>isCheck(record.id)}>取消</Button>
+                        <Button type='primary' danger onClick={()=>iscancel(record.id)}>取消</Button>
                     </Space>
                 )
             }
@@ -138,6 +139,9 @@ const CheckDjContracte=()=>{
     const toxiazai=(e)=>{
         history.push(`/check/nocheckDJcontractez?id=${e.id}`);
     };
+    const checkdj=(e)=>{
+        history.push(`/check/checkdingjin?id=${e.id}`);
+    };
     const isCheck=(e)=>{
         setUid(e);
         setIsCheckOpen(true);
@@ -150,6 +154,7 @@ const CheckDjContracte=()=>{
     const getList=()=>{
         StaffService.getdJContractList({page,pageSize,contractStatus,name,startDate,endDate}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('props',res);
                 setStaffList(res.Data);
             }else {
                 message.error(res.Data);

@@ -8,3 +8,9 @@ export function fenye(vals:any) {
 export function companyList(vals:any) {
     return getData(1447, [vals.name]);
 }
+export function companyorDj(vals:any) {
+    return getData(1563, [vals]);
+}
+export function companyorUnitList(vals:any) {
+    return getData(1564, [vals]);
+}

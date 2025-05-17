@@ -133,6 +133,7 @@ const Checkdingjin=()=>{
     // 获取合同详情
     const getContrantez=(oneID)=>{
         StaffServer.oneOne(oneID).then((res:TypeErrorCode)=>{
+            console.log('详情',res)
             if (res.ErrorCode==0){
                 setbusinessEntity(res.Data[0].businessEntity);
                 setbusinessScope(res.Data[0].businessScope);

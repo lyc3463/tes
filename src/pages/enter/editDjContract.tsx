@@ -86,7 +86,7 @@ const EditDjContract=(props:any)=>{
                 formRef.current.setFieldsValue(res.Data);
                 setDayDate(dayjs(res.Data.beginTime).format("YYYY-MM-DD"));
                 setcontractTypeid(res.Data.contractType);
-                setUnitarrList(res.Data.unitIds.split(',').map(item => parseInt(item, 10)));
+                setUnitarrList(res.Data.unitIds.split('|').map(item => parseInt(item, 10)));
             }else {
                 message.error(res.Data)
             }
