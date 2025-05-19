@@ -4,18 +4,17 @@ import {useEffect, useState} from "react";
 import {Button, Input, message, Modal} from "antd";
 import * as StaffServer from "@/services/staff";
 import dayjs from "dayjs";
-import * as CustomService from "@/services/custom";
-import * as UnitService from "@/services/unit";
 import html2pdf from "html2pdf.js";
-import {numberToRMB} from "@/utils/OpenTool";
-import {oneOne} from "@/services/staff";
+import {getUnitNamesByIds, numberToRMB} from "@/utils/OpenTool";
+import {connect} from "umi";
 
-const Checkdingjin=()=>{
+const Checkdingjin=(props)=>{
     const templateType=1;
     // 客户列表
     const [kehuList,setKehuList]=useState([]);
     // 单元列表
     const [unitList,setUnitList]=useState([]);
+    const [unitarrList,setUnitarrList]=useState([]);
     // 开始时间
     const [startDate,setStartDate]=useState('');
     // 装修费
@@ -116,6 +115,7 @@ const Checkdingjin=()=>{
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
         getContrantez(id);
+        getUnitList();
     }, []);
     const onOk = async () => {
         const element = document.getElementById("pdf-content");
@@ -128,12 +128,9 @@ const Checkdingjin=()=>{
         };
         html2pdf().from(element).set(options).save();
     };
-
-
     // 获取合同详情
     const getContrantez=(oneID)=>{
-        StaffServer.oneOne(oneID).then((res:TypeErrorCode)=>{
-            console.log('详情',res)
+        StaffServer.oneOne(oneID,1).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setbusinessEntity(res.Data[0].businessEntity);
                 setbusinessScope(res.Data[0].businessScope);
@@ -149,6 +146,7 @@ const Checkdingjin=()=>{
                 setelePrice(res.Data[0].elePrice);
                 setzuMoney(res.Data[0].zuMoney);
                 setunit_name(res.Data[0].unit_name);
+                setUnitarrList(res.Data[0].unitName.split('|').map(item => parseInt(item, 10)));
                 setrentable_area(res.Data[0].rentable_area);
                 setunit_type(res.Data[0].unit_type);
                 setoffice_area(res.Data[0].office_area);
@@ -173,6 +171,18 @@ const Checkdingjin=()=>{
             }
         })
     };
+    const getUnitList=()=>{
+        props.dispatch({
+            type:'Unit/fetch',
+            payload:{page:1, name: '', beginRents:0, endRents:9999999999, status:0, house_id:0, pageSize:1000}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setUnitList(res.Data);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
     return(
         <div>
             <div>
@@ -181,11 +191,11 @@ const Checkdingjin=()=>{
             <div className="receipt-container">
                 <h1 style={{textAlign:'center'}}>定金合同</h1>
                 <div className="receipt-info">
-                    <p>甲方（付款方）：{customcompany_name}</p>
+                    <p>甲方（付款方）：{custom_name}</p>
                     <p>乙方（收款方）：{companyName}</p>
                     <p style={{marginLeft:'30px'}}>甲、乙双方因甲方拟租赁乙方商铺事宜，双方经协商一致，就定金担保事宜达成如下协议:</p>
                     <p style={{marginLeft:'30px'}}>第一条：{custom_name}已详细了解要签署的主合同并已知首年租金（大写）<span >{numberToRMB(zuMoney)}</span>，租赁地址位于{rentAddress}
-                        {unitName}
+                        {getUnitNamesByIds(unitList,unitarrList)}
                         号的物业。
                     </p>
                     <p style={{marginLeft:'30px'}}>第二条:甲方应在本合同签订之日向乙方一次性支付交付定金{deposit}元整，乙方收款账户如下：</p>
@@ -208,11 +218,11 @@ const Checkdingjin=()=>{
                 <div className="receipt-container" id='pdf-content'>
                     <h1 style={{textAlign:'center'}}>定金合同</h1>
                     <div className="receipt-info">
-                        <p>甲方（付款方）：{customcompany_name}</p>
+                        <p>甲方（付款方）：{custom_name}</p>
                         <p>乙方（收款方）：{companyName}</p>
                         <p style={{marginLeft:'30px'}}>甲、乙双方因甲方拟租赁乙方商铺事宜，双方经协商一致，就定金担保事宜达成如下协议:</p>
                         <p style={{marginLeft:'30px'}}>第一条：{custom_name}已详细了解要签署的主合同并已知首年租金（大写）<span >{numberToRMB(zuMoney)}</span>，租赁地址位于{rentAddress}
-                            {unitName}
+                            {getUnitNamesByIds(unitList,unitarrList)}
                             号的物业。
                         </p>
                         <p style={{marginLeft:'30px'}}>第二条:甲方应在本合同签订之日向乙方一次性支付交付定金{deposit}元整，乙方收款账户如下：</p>
@@ -232,4 +242,4 @@ const Checkdingjin=()=>{
         </div>
     )
 }
-export default Checkdingjin
+export default connect() (Checkdingjin)

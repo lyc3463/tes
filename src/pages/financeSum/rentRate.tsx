@@ -4,8 +4,6 @@ import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as RechargeRateService from '@/services/rechargeRate';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {alljiaofeifenye} from "@/services/ArrearsBill";
-import {zujinList} from "@/services/rechargeRate";
 import {exportDataToExcel} from "@/utils/OpenTool";
 
 const RentRate=(props)=>{
@@ -13,11 +11,11 @@ const RentRate=(props)=>{
     const [page,setPage]=useState(1);
     const [spinning,setspinning]=useState(false);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(localStorage.getItem('financeRentRateName')||'');
+    const [phone,setPhone]=useState(localStorage.getItem('financeRentRatePhone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('financeRentRateStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('financeRentRateEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     // 列表
@@ -70,9 +68,13 @@ const RentRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('financeRentRateStartDate','2000-01-01');
+            localStorage.setItem('financeRentRateEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('financeRentRateStartDate',data[0]);
+            localStorage.setItem('financeRentRateEndDate',data[1]);
         }
     };
     const columns =[
@@ -199,18 +201,28 @@ const RentRate=(props)=>{
         })
 
     };
+    const changePhone=(e)=>{
+      setPhone(e.target.value);
+      localStorage.setItem('financeRentRatePhone',e.target.value);
+    };
+    const changName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('financeRentRateName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changName}
                             addonBefore="姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
                             addonBefore="手机号:"
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -227,7 +239,7 @@ const RentRate=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

@@ -15,15 +15,15 @@ const ZsContract=(props:any)=>{
     // 审核状态 0全部  1未审核 2已审核
     const [contractStatus,setContractStatus]=useState(0);
     // 合同编号
-    const [identifier,setIdentifier]=useState('');
+    const [identifier,setIdentifier]=useState(localStorage.getItem('enterStaffZsContractIdentifier')||'');
     // 合同类型
     const [contractType,setContractType]=useState(0);
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('enterStaffZsContractStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('enterStaffZsContractEndDate')||'2099-01-01');
     // 租户姓名
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('enterStaffZsContractName')||'');
     // 列表
     const [staffList,setStaffList]=useState([]);
     // 转圈
@@ -277,9 +277,10 @@ const ZsContract=(props:any)=>{
     // 监听合同编号
     const changeIdentifier=(e)=>{
         setIdentifier(e.target.value);
+        localStorage.setItem('enterStaffZsContractIdentifier',e.target.value);
     };
     // 合同类型
-    const changeType=(e:number)=>{
+    const changeType=(e:any)=>{
         setContractType(e);
     };
     // 监听日期
@@ -287,9 +288,13 @@ const ZsContract=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('enterStaffZsContractStartDate','2000-01-01');
+            localStorage.setItem('enterStaffZsContractEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('enterStaffZsContractStartDate',data[0]);
+            localStorage.setItem('enterStaffZsContractEndDate',data[1]);
         }
     };
     // 下载页面
@@ -308,6 +313,10 @@ const ZsContract=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('enterStaffZsContractName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -319,10 +328,12 @@ const ZsContract=(props:any)=>{
                         <Input
                             onChange={changeIdentifier}
                             addonBefore="合同编号:"
+                            value={identifier}
                         />
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="租户姓名:"
+                            value={name}
                         />
                         <Space.Compact>
                             <div
@@ -340,7 +351,7 @@ const ZsContract=(props:any)=>{
                             >
                                 到期日:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate}  defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Space.Compact>
                             <div
@@ -355,7 +366,7 @@ const ZsContract=(props:any)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                合同类型:
+                                状态:
                             </div>
                             <Select
                                 onChange={changeType}
@@ -368,32 +379,6 @@ const ZsContract=(props:any)=>{
                                 ]}
                             />
                         </Space.Compact>
-                        {/*<Space.Compact>*/}
-                        {/*    <div*/}
-                        {/*        style={{*/}
-                        {/*            borderRadius: '6px',*/}
-                        {/*            borderStartEndRadius: 0,*/}
-                        {/*            borderEndEndRadius: 0,*/}
-                        {/*            padding: '0 11px',*/}
-                        {/*            border: '1px solid #d9d9d9',*/}
-                        {/*            display: 'flex',*/}
-                        {/*            alignItems: 'center',*/}
-                        {/*            borderInlineEnd: 0,*/}
-                        {/*        }}*/}
-                        {/*    >*/}
-                        {/*        状态:*/}
-                        {/*    </div>*/}
-                        {/*    <Select*/}
-                        {/*        onChange={changeStutes}*/}
-                        {/*        defaultValue={contractStatus}*/}
-                        {/*        style={{ width: 120 }}*/}
-                        {/*        options={[*/}
-                        {/*            { value:0, label: '全部' },*/}
-                        {/*            { value:1, label: '未审核' },*/}
-                        {/*            { value:2, label: '已审核' },*/}
-                        {/*        ]}*/}
-                        {/*    />*/}
-                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>

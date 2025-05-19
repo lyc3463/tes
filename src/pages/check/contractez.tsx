@@ -118,9 +118,10 @@ const Contractez = () => {
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
-        // getOneStaff(id);
+        const templateType = searchParams.get('templateType');
+                // getOneStaff(id);
         // getcontractTypeInfo();
-        getContrantez(id);
+        getContrantez(id,templateType);
     }, []);
 
     const columns = [
@@ -184,8 +185,8 @@ const Contractez = () => {
         html2pdf().from(element).set(options).save()
     };
     // 获取合同详情
-    const getContrantez=(oneID)=>{
-        StaffServer.oneOne(oneID).then((res:TypeErrorCode)=>{
+    const getContrantez=(oneID,templateType)=>{
+        StaffServer.oneOne(oneID,templateType).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 console.log('审核后的合同模板',res)
                 setCompanyName(res.Data[0].companyName);

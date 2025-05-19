@@ -9,12 +9,12 @@ import * as RechargeRateService from "@/services/rechargeRate";
 const PayCount=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(localStorage.getItem('financeSumPayCountName')||'');
+    const [phone,setPhone]=useState(localStorage.getItem('financeSumPayCountPhone')||'');
     // 消费类型 0全部 1充值、2租金、3电费、4水费、5公共缴费、6手动充值、7物业管理费、8违约金、9月保
-    const [type,setType]=useState(0);
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [type,setType]=useState(Number(localStorage.getItem('financeSumPayCountType'))||0);
+    const [startDate,setStartDate]=useState(localStorage.getItem('financeSumPayCountStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('financeSumPayCountEndDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
     const [pageSize,setpageSize]=useState(50);
     const [spinning,setspinning]=useState(false);
@@ -142,14 +142,27 @@ const PayCount=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('financeSumPayCountStartDate','2000-01-01');
+            localStorage.setItem('financeSumPayCountEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('financeSumPayCountStartDate',data[0]);
+            localStorage.setItem('financeSumPayCountEndDate',data[1]);
         }
     };
     // 监听类型
     const changeType=(e)=>{
         setType(e);
+        localStorage.setItem('financeSumPayCountType',e);
+    };
+    const changeName=(e)=>{
+      setName(e.target.value);
+      localStorage.setItem('financeSumPayCountName',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        localStorage.setItem('financeSumPayCountPhone',e.target.value);
     };
     const exportToExcel=()=>{
         RechargeRateService.fetch({page:1,name,phone,type,startDate,endDate,userID,pageSize:100000}).then((res:TypeErrorCode)=>{
@@ -206,12 +219,14 @@ const PayCount=(props)=>{
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
                             addonBefore="手机号:"
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -261,7 +276,7 @@ const PayCount=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

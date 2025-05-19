@@ -14,11 +14,11 @@ const DjContract=()=>{
     // 审核状态 0全部  1未审核 2已审核
     const [contractStatus,setContractStatus]=useState(1);
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('enterStaffDjContractStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('enterStaffDjContractEndDate')||'2099-01-01');
     // 租户姓名
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('enterStaffDjContractName')||'');
     // 列表
     const [staffList,setStaffList]=useState([]);
     // 转圈
@@ -179,9 +179,13 @@ const DjContract=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('enterStaffDjContractStartDate','2000-01-01');
+            localStorage.setItem('enterStaffDjContractEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('enterStaffDjContractStartDate',data[0]);
+            localStorage.setItem('enterStaffDjContractEndDate',data[1]);
         }
     };
     const sousuo=()=>{
@@ -211,14 +215,19 @@ const DjContract=()=>{
             }
         })
     };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('enterStaffDjContractName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="租户姓名:"
+                            value={name}
                         />
                         <Space.Compact>
                             <div
@@ -236,7 +245,7 @@ const DjContract=()=>{
                             >
                                 签订日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

@@ -11,13 +11,13 @@ const LiquidatedDamagesList=()=>{
     const [spinning,setspinning]=useState(false);
     const [pageSize,setPageSize]=useState(50);
     // 租户姓名
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('billLogMonthlyBillLiquidatedDamagesListName')||'');
     // 租户id
     const [tenandId,settenandId]=useState(0);
     // 账单开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('billLogMonthlyBillLiquidatedDamagesListStartDate')||'2000-01-01');
     // 账单结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('billLogMonthlyBillLiquidatedDamagesListEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     // 列表
@@ -170,9 +170,13 @@ const LiquidatedDamagesList=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('billLogMonthlyBillLiquidatedDamagesListStartDate','2000-01-01');
+            localStorage.setItem('billLogMonthlyBillLiquidatedDamagesListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('billLogMonthlyBillLiquidatedDamagesListStartDate',data[0]);
+            localStorage.setItem('billLogMonthlyBillLiquidatedDamagesListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -232,14 +236,19 @@ const LiquidatedDamagesList=()=>{
             key: 'defaultAmount',
         },
     ];
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('billLogMonthlyBillLiquidatedDamagesListName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
-                            addonBefore="姓名:"
+                            onChange={changeName}
+                            addonBefore="租户姓名:"
+                            value={name}
                         />
                         <Space.Compact>
                             <div
@@ -256,7 +265,7 @@ const LiquidatedDamagesList=()=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -269,7 +278,7 @@ const LiquidatedDamagesList=()=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 dataSource={dataSource}
-                scroll={{y:'70vh',x:1500}}
+                scroll={{y:'60vh',x:1500}}
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (

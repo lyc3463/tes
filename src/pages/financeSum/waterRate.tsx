@@ -11,13 +11,13 @@ const WaterRate=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户姓名
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('ChargingName')||'');
     // 表地址
-    const [cid,setCid]=useState('');
+    const [cid,setCid]=useState(localStorage.getItem('ChargingCid')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('ChargingStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('ChargingEndDate')||'2099-01-01');
     // 租户ID
     const [tenantId,settenantId]=useState(0);
     // 水费扣费列表
@@ -32,7 +32,7 @@ const WaterRate=(props)=>{
     // 消耗度数累加
     const [energyUsage,setenergyUsage]=useState(0);
     // 水表备注
-    const [remark,setremark]=useState('');
+    const [remark,setremark]=useState(localStorage.getItem('Chargingremark')||'');
     // 获取水表扣费记录
     const getwaterRateList=()=>{
         setspinning(true);
@@ -222,16 +222,19 @@ const WaterRate=(props)=>{
                             // onChange={(e)=>setName(e.target.value)}
                             onChange={changeName}
                             addonBefore="租户姓名:"
+                            value={name}
                         />
                         <Input
                             // onChange={(e)=>setCid(e.target.value)}
                             onChange={changeCid}
                             addonBefore="水表地址:"
+                            value={cid}
                         />
                         <Input
                             // onChange={(e)=>setremark(e.target.value)}
                             addonBefore="水表备注:"
                             onChange={changeRemark}
+                            value={remark}
                         />
                         <Space.Compact>
                             <div
@@ -248,7 +251,7 @@ const WaterRate=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -264,7 +267,7 @@ const WaterRate=(props)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 dataSource={waterRatelist}
-                scroll={{y:'70vh'}}
+                scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (

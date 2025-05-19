@@ -9,12 +9,12 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const ServerList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('billLogMonthlyBillServerListName')||'');
     const [pageSize,setPageSize]=useState(50);
-    const [phone,setPhone]=useState('');
+    const [phone,setPhone]=useState(localStorage.getItem('billLogMonthlyBillServerListPhone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('billLogMonthlyBillServerListStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('billLogMonthlyBillServerListEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     // 列表
@@ -133,9 +133,13 @@ const ServerList=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('billLogMonthlyBillServerListStartDate','2000-01-01');
+            localStorage.setItem('billLogMonthlyBillServerListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('billLogMonthlyBillServerListStartDate',data[0]);
+            localStorage.setItem('billLogMonthlyBillServerListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -149,18 +153,28 @@ const ServerList=(props:any)=>{
     useEffect(() => {
         getzujinList();
     }, [page,pageSize]);
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        localStorage.setItem('billLogMonthlyBillServerListPhone',e.target.value);
+    };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('billLogMonthlyBillServerListName',e.target.value);
+    };
     return(
         <div>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
                             addonBefore="电表地址:"
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -177,7 +191,7 @@ const ServerList=(props:any)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -190,7 +204,7 @@ const ServerList=(props:any)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 dataSource={dataSource}
-                scroll={{y:'70vh'}}
+                scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (

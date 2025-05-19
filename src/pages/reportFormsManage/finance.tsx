@@ -1,14 +1,17 @@
 import {connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import * as FinanceService from '@/services/finance';
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {exportDataToExcel} from "@/utils/OpenTool";
 
 const Finance=(props)=>{
     const [page,setPage]=useState(1);
+    const [spinning,setspinning]=useState(false);
     const [pageSize,setPageSize]=useState(50);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
-
     const columns =[
         {
             title: '日期',
@@ -79,32 +82,37 @@ const Finance=(props)=>{
     useEffect(() => {
         getFenyeInfo();
     }, []);
+    const exportToExcel=()=>{
+        setspinning(true);
+        FinanceService.fetch({page:1,startDate,endDate,pageSize:100000}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let headers=['日期','租户总余额(元)','充值总金额(元)','扣费总金额(元)'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })), // 表头
+                    ...res.Data.map(item => [
+                        (dayjs(item.countDate).format("YYYY-MM-DD")), // 提取日期部分
+                        item.balance,
+                        item.rechargeAmount,
+                        item.amount
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                ];
+                exportDataToExcel(ws_data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
-                    {/*<Space>*/}
-                    {/*    <Space.Compact>*/}
-                    {/*        <div*/}
-                    {/*            style={{*/}
-                    {/*                borderRadius: '6px',*/}
-                    {/*                borderStartEndRadius: 0,*/}
-                    {/*                borderEndEndRadius: 0,*/}
-                    {/*                padding: '0 11px',*/}
-                    {/*                border: '1px solid #d9d9d9',*/}
-                    {/*                display: 'flex',*/}
-                    {/*                alignItems: 'center',*/}
-                    {/*                borderInlineEnd: 0,*/}
-                    {/*            }}*/}
-                    {/*        >*/}
-                    {/*            时间:*/}
-                    {/*        </div>*/}
-                    {/*        <DatePicker.RangePicker onChange={changeDate}/>*/}
-                    {/*    </Space.Compact>*/}
-                    {/*    <Button type="primary" onClick={sousuo}>*/}
-                    {/*        搜索*/}
-                    {/*    </Button>*/}
-                    {/*</Space>*/}
+                    <Space>
+                        <Button type="primary" onClick={exportToExcel}>
+                            导出
+                        </Button>
+                    </Space>
                 </List.Item>
             </List>
             <Table
@@ -117,7 +125,7 @@ const Finance=(props)=>{
                 size='small'
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

@@ -10,13 +10,13 @@ const CableKoufeiList=()=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户名字
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('billLogMonthlyBillCableKoufeiListName')||'');
     // 电表地址
-    const [cid,setCId]=useState('');
+    const [cid,setCId]=useState(localStorage.getItem('billLogMonthlyBillCableKoufeiListCId')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('billLogMonthlyBillCableKoufeiListStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('billLogMonthlyBillCableKoufeiListEndDate')||'2099-01-01');
     // 租户id
     const [tenantId,settenantId]=useState(0);
     const [recordStatus,setrecordStatus]=useState('余额不足');
@@ -34,9 +34,13 @@ const CableKoufeiList=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('billLogMonthlyBillCableKoufeiListStartDate','2000-01-01');
+            localStorage.setItem('billLogMonthlyBillCableKoufeiListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('billLogMonthlyBillCableKoufeiListStartDate',data[0]);
+            localStorage.setItem('billLogMonthlyBillCableKoufeiListEndDate',data[1]);
         }
     };
     const sousuo=()=>{
@@ -167,18 +171,28 @@ const CableKoufeiList=()=>{
             }
         },
     ];
+    const changeCid=(e)=>{
+        setCId(e.target.value);
+        localStorage.setItem('billLogMonthlyBillCableKoufeiListCId',e.target.value);
+    };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('billLogMonthlyBillCableKoufeiListName',e.target.value);
+    };
     return(
         <div>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="租户姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>setCId(e.target.value)}
+                            onChange={changeCid}
                             addonBefore="电表地址:"
+                            value={cid}
                         />
                         <Space.Compact>
                             <div
@@ -195,7 +209,7 @@ const CableKoufeiList=()=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -208,7 +222,7 @@ const CableKoufeiList=()=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 dataSource={dataSource}
-                scroll={{y:'70vh'}}
+                scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (

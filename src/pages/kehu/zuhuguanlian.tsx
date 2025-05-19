@@ -6,9 +6,9 @@ import {calculateSums, fuzzySearch} from "@/utils/OpenTool";
 
 const Zuhuguanlian=(props:any)=>{
     // 姓名
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('kehuzuhuguanlianName')||'');
     // 手机号
-    const [phone,setPhone]=useState('');
+    const [phone,setPhone]=useState(localStorage.getItem('kehuzuhuguanlianPhone')||'');
     // 页数
     const [page,setPage]=useState(1);
     // 每页数量
@@ -118,8 +118,8 @@ const Zuhuguanlian=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        <Button type='link' onClick={()=>toguanlian(record.id)}>关联</Button>
-                        <Button type='link' onClick={()=>toyajinlist(record.id)}>押金列表</Button>
+                        <Button type='primary' onClick={()=>toguanlian(record.id)}>关联</Button>
+                        <Button type='primary' onClick={()=>toyajinlist(record.id)}>押金列表</Button>
                     </Space>
                 )
             }
@@ -188,11 +188,11 @@ const Zuhuguanlian=(props:any)=>{
     };
     const changeName=(e:any)=>{
         setName(e.target.value);
-        localStorage.setItem('byZhName',e.target.value);
+        localStorage.setItem('kehuzuhuguanlianName',e.target.value);
     };
     const changePhone=(e:any)=>{
         setPhone(e.target.value);
-        localStorage.setItem('byZhPhone',e.target.value);
+        localStorage.setItem('kehuzuhuguanlianPhone',e.target.value);
     };
     return(
         <div>
@@ -202,11 +202,12 @@ const Zuhuguanlian=(props:any)=>{
                         <Input
                             addonBefore="姓名:"
                             onChange={changeName}
+                            value={name}
                         />
                         <Input
                             addonBefore="手机号:"
-                            // onChange={(e)=>setPhone(e.target.value)}
                             onChange={changePhone}
+                            value={phone}
                         />
                         <Button type="primary" onClick={shousuo}>
                             搜索

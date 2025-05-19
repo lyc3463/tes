@@ -3,7 +3,6 @@ import {useEffect, useState} from "react";
 import * as RechargeRateService from "@/services/rechargeRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
-import {sunhaoList, sunhaoListFenye} from "@/services/rechargeRate";
 import {exportDataToExcel} from "@/utils/OpenTool";
 
 const ServerKoufei=()=>{
@@ -11,10 +10,10 @@ const ServerKoufei=()=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [name,setName]=useState(localStorage.getItem('fianceSumServerKouFeiName')||'');
+    const [phone,setCid]=useState(localStorage.getItem('fianceSumServerKouFeiCid')||'');
+    const [startDate,setStartDate]=useState(localStorage.getItem('fianceSumServerKouFeiStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('fianceSumServerKouFeiEndDate')||'2099-01-01');
     const [tenandId,settenandId]=useState(0);
     const [count,setcount]=useState(0);
     const [dataSource,setdataSource]=useState([]);
@@ -116,9 +115,13 @@ const ServerKoufei=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('fianceSumServerKouFeiStartDate','2000-01-01');
+            localStorage.setItem('fianceSumServerKouFeiEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('fianceSumServerKouFeiStartDate',data[0]);
+            localStorage.setItem('fianceSumServerKouFeiEndDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -144,7 +147,14 @@ const ServerKoufei=()=>{
                 message.error(res.Data);
             }
         })
-
+    };
+    const changeName=(e:any)=>{
+      setName(e.target.value);
+      localStorage.setItem('fianceSumServerKouFeiName',e.target.value);
+    };
+    const changeCid=(e:any)=>{
+        setCid(e.target.value);
+        localStorage.setItem('fianceSumServerKouFeiCid',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -152,12 +162,16 @@ const ServerKoufei=()=>{
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            // onChange={(e)=>setName(e.target.value)}
                             addonBefore="姓名:"
+                            value={name}
+                            onChange={changeName}
                         />
                         <Input
-                            onChange={(e)=>setPhone(e.target.value)}
+                            // onChange={(e)=>setCid(e.target.value)}
                             addonBefore="电表地址:"
+                            value={phone}
+                            onChange={changeCid}
                         />
                         <Space.Compact>
                             <div
@@ -174,7 +188,7 @@ const ServerKoufei=()=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

@@ -222,10 +222,11 @@ const CheckZsContracte=(props:any)=>{
     };
     // 下载页面
     const toxiazai=(e)=>{
+        console.log(e.id)
         if (e.templateType==2){
-            history.push(`/check/contractez?id=${e.id}`);
+            history.push(`/check/contractez?id=${e.id}&templateType=${e.templateType}`);
         }else {
-            history.push(`/check/checkdingjin?id=${e.id}`);
+            history.push(`/check/checkdingjin?id=${e.id}&templateType=${e.templateType}`);
         }
     };
     // 搜索
@@ -342,14 +343,15 @@ const CheckZsContracte=(props:any)=>{
             render:(text:any,record:any)=>{
                 return (
                     <div>
-                        <Button type='primary' onClick={()=>tooldHetong(record.id)}>详情</Button>
+                        <Button type='primary' onClick={()=>tooldHetong(record)}>详情</Button>
                     </div>
                 )
             }
         },
     ];
     const tooldHetong=(e)=>{
-        history.push(`/check/contractezold?id=${e}`);
+        // console.log('参数',e);
+        history.push(`/check/contractezold?id=${e.id}`);
     };
     return(
         <Spin spinning={spinning}>

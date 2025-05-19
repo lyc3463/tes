@@ -10,11 +10,11 @@ const RechargeRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [spinning,setspinning]=useState(false);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(localStorage.getItem('financeSumRechargeRateName')||'');
+    const [phone,setPhone]=useState(localStorage.getItem('financeSumRechargeRatePhone')||'');
     const [type,setType]=useState(1);
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('financeSumRechargeRateStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('financeSumRechargeRateEndDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
     const [pageSize,setpageSize]=useState(50);
     // 搜索
@@ -130,9 +130,13 @@ const RechargeRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('financeSumRechargeRateStartDate','2000-01-01');
+            localStorage.setItem('financeSumRechargeRateEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('financeSumRechargeRateStartDate',data[0]);
+            localStorage.setItem('financeSumRechargeRateEndDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -181,18 +185,28 @@ const RechargeRate=(props)=>{
             }
         })
     };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('financeSumRechargeRateName',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        localStorage.setItem('financeSumRechargeRatePhone',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
                             addonBefore="手机号:"
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -209,7 +223,7 @@ const RechargeRate=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

@@ -10,7 +10,6 @@ import "@/pages/contract/endContran.less";
 import html2pdf from "html2pdf.js";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {numberToRMB, calculateTotalRentalDays, calculateYearsAndMonths} from "@/utils/OpenTool";
-import {getOldOne} from "@/services/staff";
 const tailLayout = {
     wrapperCol: { offset: 3 },
 };
@@ -181,8 +180,8 @@ const Contractezold=()=>{
     // 获取合同详情
     const getContrantez=(oneID)=>{
         StaffServer.getOldOne(oneID).then((res:TypeErrorCode)=>{
+            console.log('续租合同',res)
             if (res.ErrorCode==0){
-                console.log('审核后的合同模板',res)
                 setCompanyName(res.Data[0].companyName);
                 setCompanyAddress(res.Data[0].companyAddress);
                 setopenName(res.Data[0].openName);
@@ -225,8 +224,8 @@ const Contractezold=()=>{
                 setyiphone(res.Data[0].customPhone);
                 setcustomcompany_name(res.Data[0].customCompany);
                 setunit_name(res.Data[0].unitName);
-                let sum=numReduce(res.Data[0].floor_area)
-                setrentable_area(sum);
+                // let sum=numReduce(res.Data[0].floor_area)
+                // setrentable_area(sum);
                 setunit_type(res.Data[0].unitType);
                 let unitImagesp=res.Data[0].unitImage.split('|');
                 setunitImage(unitImagesp);

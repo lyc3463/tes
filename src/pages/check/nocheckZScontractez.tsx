@@ -219,34 +219,12 @@ const NocheckZScontractez=(props)=>{
     const getUnitList=(e:any)=>{
         UnitService.stutesUnit({house_id:e}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('单元列表',res)
                 setUnitList(res.Data);
             }else {
                 message.error(res.Data)
             }
         })
-        // props.dispatch({
-        //     type:'Unit/fetch',
-        // }).then((res:TypeErrorCode)=>{
-        //     if (res.ErrorCode==0){
-        //         console.log('单元列表',res)
-        //         setUnitList(res.Data);
-        //     }else {
-        //         message.error(res.Data)
-        //     }
-        // })
     };
-    // 获取客户列表
-    // const getCheckCompanyList=()=>{
-    //     props.dispatch({
-    //         type:'CheckCompany/fetch'
-    //     }).then((res:TypeErrorCode)=>{
-    //         if (res.ErrorCode==0){
-    //             console.log('客户列表',res)
-    //             setclientList(res.Data);
-    //         }
-    //     });
-    // };
     // 获取客户列表
     const getCheckCompanyList=()=>{
         CheckCompanyService.companyList({name:''}).then((res:TypeErrorCode)=>{

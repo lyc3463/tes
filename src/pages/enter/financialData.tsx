@@ -12,11 +12,11 @@ const FinancialData=(props:any)=>{
     // 账单列表
     const [billList,setBillList]=useState([]);
     // 摘要
-    const [billAbstract,setBillAbstract]=useState('');
+    const [billAbstract,setBillAbstract]=useState(localStorage.getItem('enterFinancialDataBillAbstract')||'');
     // 开始时间
-    const [billBgeinTime,setBillBgeinTime]=useState('2000-01-01');
+    const [billBgeinTime,setBillBgeinTime]=useState(localStorage.getItem('enterFinancialDataBillBgeinTime')||'2000-01-01');
     // 结束时间
-    const [billEndTime,setBillEndTime]=useState('2099-01-01');
+    const [billEndTime,setBillEndTime]=useState(localStorage.getItem('enterFinancialDataBillBillEndTime')||'2099-01-01');
     // 账单状态
     const [billStatus,setBillStatus]=useState(2);
     // 财务类型
@@ -35,7 +35,7 @@ const FinancialData=(props:any)=>{
     const [projectlist,setProjectlist]=useState([]);
     const [uid,setUid]=useState(0);
     // 账户卡号
-    const [account_card,setaccount_card]=useState('');
+    const [account_card,setaccount_card]=useState(localStorage.getItem('enterFinancialDataAccountCard')||'');
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
     // 用户权限
@@ -192,12 +192,12 @@ const FinancialData=(props:any)=>{
                         {
                             record.bill_status==0?
                                 <Space>
-                                    <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
-                                    {uqx[200]=='1'?<Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>:''}
-                                    {uqx[201]=='1'?<Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>:''}
+                                    <Button type='primary' onClick={()=>toInfo(record.id)}>详情</Button>
+                                    {uqx[200]=='1'?<Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>:''}
+                                    {uqx[201]=='1'?<Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>:''}
                                 </Space>:
                                 <>
-                                    <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
+                                    <Button type='primary' onClick={()=>toInfo(record.id)}>详情</Button>
                                 </>
                         }
                     </div>
@@ -217,6 +217,7 @@ const FinancialData=(props:any)=>{
     // 监听摘要名称
     const changeName=(e)=>{
         setBillAbstract(e.target.value);
+        localStorage.setItem('enterFinancialDataBillAbstract',e.target.value);
     };
     // 获取分页信息
     const getBillFenye=()=>{
@@ -276,9 +277,13 @@ const FinancialData=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setBillBgeinTime('2000-01-01');
             setBillEndTime('2099-01-01');
+            localStorage.setItem('enterFinancialDataBillBgeinTime','2000-01-01');
+            localStorage.setItem('enterFinancialDataBillBillEndTime','2099-01-01');
         } else {
             setBillBgeinTime(data[0]);
             setBillEndTime(data[1]);
+            localStorage.setItem('enterFinancialDataBillBgeinTime',data[0]);
+            localStorage.setItem('enterFinancialDataBillBillEndTime',data[1]);
         }
     };
     // 监听类型
@@ -292,6 +297,9 @@ const FinancialData=(props:any)=>{
     useEffect(() => {
         logFenye();
     }, [page,pageSize]);
+    useEffect(() => {
+        getBillFenye();
+    }, []);
 
 // 获取公司列表
     const getCompanList=()=>{
@@ -419,6 +427,11 @@ const FinancialData=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
+    const changeAccount_card=(e)=>{
+        setaccount_card(e.target.value);
+        localStorage.setItem('enterFinancialDataAccountCard',e.target.value);
+
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -430,10 +443,12 @@ const FinancialData=(props:any)=>{
                         <Input
                             onChange={changeName}
                             addonBefore="摘要:"
+                            value={billAbstract}
                         />
                         <Input
-                            onChange={(e)=>setaccount_card(e.target.value)}
+                            onChange={changeAccount_card}
                             addonBefore="账户卡号:"
+                            value={account_card}
                         />
                         <Space.Compact>
                             <div
@@ -450,7 +465,7 @@ const FinancialData=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(billBgeinTime),dayjs(billEndTime)]}/>
                         </Space.Compact>
                         <Space.Compact>
                             <div
@@ -484,11 +499,6 @@ const FinancialData=(props:any)=>{
                     </Space>
                 </List.Item>
                 <List.Item>
-                    <Space>
-                        <div>
-
-                        </div>
-                    </Space>
                     <Space>
                         <Space.Compact>
                             <div
@@ -550,7 +560,6 @@ const FinancialData=(props:any)=>{
                             >
                             </Select>
                         </Space.Compact>
-
                         <Space.Compact>
                             <div
                                 style={{

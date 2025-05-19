@@ -8,7 +8,7 @@ export function addzs(vals:any) {
     return postData(1235, [vals.identifier,vals.clientId,vals.customCard,vals.unit_id,vals.zuMoney,vals.manageFee,vals.deposit,vals.contractTypeid,vals.startDate,vals.endDate,vals.businessEntity,vals.businessScope,vals.deliveryDate,vals.decorationCost,vals.documentImage,vals.dispatchName,vals.dispatchCard,vals.unitImage,vals.imgs,vals.remark,vals.manageFeeRent,vals.house_id,vals.prepayment,vals.depositFee,vals.legalPerson],vals.jsonDate);
 }
 export function adddj(vals:any) {
-    return getData(1413, [vals.identifier,vals.clientId,vals.unit_id,vals.zuMoney,vals.deposit,vals.dayDate,vals.house_id]);
+    return getData(1413, [vals.identifier,vals.clientId,vals.unit_id,vals.zuMoney,vals.deposit,vals.dayDate,vals.house_id,vals.contractType]);
 }
 
 export function editzs(vals:any) {
@@ -33,8 +33,8 @@ export function fenye(vals:any) {
 export function onedj(vals:any) {
     return getData(1415, [vals]);
 }
-export function oneOne(vals:any) {
-    return getData(1416, [vals]);
+export function oneOne(uid:any,templateType:any) {
+    return getData(1416, [uid,templateType]);
 }
 export function getHT(vals:any) {
     return getData(1490, [vals.page,vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate,vals.name,vals.pageSize]);
@@ -47,8 +47,8 @@ export function getHTfFy(vals:any) {
 export function getOldList(vals:any) {
     return getData(1495, [vals]);
 }
-export function getOldOne(vals:any) {
-    return getData(1494, [vals]);
+export function getOldOne(uid:any) {
+    return getData(1494, [uid]);
 }
 
 export function getdJContractList(vals:any) {

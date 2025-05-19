@@ -61,7 +61,7 @@ const NocheckDJcontractez=(props)=>{
                 setclientId(res.Data.clientId);
                 setDayDate(dayjs(res.Data.beginTime).format("YYYY-MM-DD"));
                 setcontractTypeid(res.Data.contractType);
-                setUnitarrList(res.Data.unitIds.split(',').map(item => parseInt(item, 10)));
+                setUnitarrList(res.Data.unitIds.split('|').map(item => parseInt(item, 10)));
             }else {
                 message.error(res.Data);
             }
@@ -100,7 +100,6 @@ const NocheckDJcontractez=(props)=>{
             type:'House/fetch'
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('房屋列表',res);
                 sethouseList(res.Data);
             }else {
                 message.error(res.Data)
@@ -111,9 +110,9 @@ const NocheckDJcontractez=(props)=>{
     const getUnitList=()=>{
         props.dispatch({
             type:'Unit/fetch',
+            payload:{page:1, name: '', beginRents:0, endRents:9999999999, status:0, house_id:0, pageSize:1000}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('单元列表',res);
                 setUnitList(res.Data);
             }else {
                 message.error(res.Data);

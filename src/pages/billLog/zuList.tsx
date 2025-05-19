@@ -10,11 +10,11 @@ const ZuList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(localStorage.getItem('billLogMonthlyBillZuListName')||'');
+    const [phone,setPhone]=useState(localStorage.getItem('billLogMonthlyBillZuListPhone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('billLogMonthlyBillZuListStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('billLogMonthlyBillZuListEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     const [stutes,setstutes]=useState(1);
@@ -192,9 +192,13 @@ const ZuList=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('billLogMonthlyBillZuListStartDate','2000-01-01');
+            localStorage.setItem('billLogMonthlyBillZuListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('billLogMonthlyBillZuListStartDate',data[0]);
+            localStorage.setItem('billLogMonthlyBillZuListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -208,18 +212,28 @@ const ZuList=(props:any)=>{
     useEffect(() => {
         getzujinList();
     }, [page,pageSize]);
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        localStorage.setItem('billLogMonthlyBillZuListPhone',e.target.value);
+    };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('billLogMonthlyBillZuListName',e.target.value);
+    };
     return(
         <div>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
                             addonBefore="手机号:"
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -236,7 +250,7 @@ const ZuList=(props:any)=>{
                             >
                                 交租日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -249,7 +263,7 @@ const ZuList=(props:any)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 dataSource={dataSource}
-                scroll={{y:'70vh',x:1500}}
+                scroll={{y:'60vh',x:1500}}
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (
@@ -257,6 +271,7 @@ const ZuList=(props:any)=>{
                         <Table.Summary.Row>
                             <Table.Summary.Cell index={1}> 统计 </Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}><span style={{color:"red"}}>{moneySum}元</span></Table.Summary.Cell>

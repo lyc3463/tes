@@ -11,9 +11,9 @@ const WyList=()=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [name,setName]=useState(localStorage.getItem('financeSumWyListName')||'');
+    const [startDate,setStartDate]=useState(localStorage.getItem('financeSumWyListStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('financeSumWyListEndDate')||'2099-01-01');
     const [tenandId,settenandId]=useState(0);
     const [count,setcount]=useState(0);
     const [dataSource,setdataSource]=useState([]);
@@ -121,9 +121,13 @@ const WyList=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('financeSumWyListStartDate','2000-01-01');
+            localStorage.setItem('financeSumWyListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('financeSumWyListStartDate',data[0]);
+            localStorage.setItem('financeSumWyListEndDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -204,14 +208,19 @@ const WyList=()=>{
             }
         })
     };
+    const changeName=(e)=>{
+      setName(e.target.value);
+      localStorage.setItem('financeSumWyListName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="姓名:"
+                            value={name}
                         />
                         <Space.Compact>
                             <div
@@ -228,7 +237,7 @@ const WyList=()=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
