@@ -1,13 +1,14 @@
 import {Button, Form, Image, Input, InputNumber, message, Radio, Select, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
-import {connect, history} from "umi";
+import {connect, history,useNavigate} from "umi";
 import CmpImageUploader from "@/components/ImageUploader";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddProperties=(props:any)=>{
-    const [isLoading,setIsLoading]=useState(false)
+    const navigate=useNavigate();
+    const [isLoading,setIsLoading]=useState(false);
     const [form] = Form.useForm();
     // 单图
     const [img, setImg] = useState<string | undefined>(undefined);
@@ -173,9 +174,14 @@ const AddProperties=(props:any)=>{
                     <InputNumber placeholder={'越大排越前'}/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

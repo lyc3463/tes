@@ -1,12 +1,12 @@
 import {useEffect, useState} from "react";
-import {Button, Form, Input, message, Select} from "antd";
-import {history} from "@@/core/history";
-import {connect} from "@@/exports";
+import {Button, Form, Input, message, Select, Space} from "antd";
+import {useNavigate,connect,history} from 'umi'
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddSubjectList=(props:any)=>{
     const [form] = Form.useForm();
+    const navigate=useNavigate();
     const onFinish=async (values)=>{
         let res=await props.dispatch({
             type:'Subject/add',
@@ -32,9 +32,14 @@ const AddSubjectList=(props:any)=>{
                 <Input placeholder="例:xx项目"/>
             </Form.Item>
             <Form.Item {...tailLayout}>
-                <Button type="primary"  htmlType="submit">
-                    添加
-                </Button>
+               <Space>
+                   <Button type="primary"  htmlType="submit">
+                       添加
+                   </Button>
+                   <Button type="primary" onClick={()=>navigate(-1)}>
+                       返回
+                   </Button>
+               </Space>
             </Form.Item>
         </Form>
     )

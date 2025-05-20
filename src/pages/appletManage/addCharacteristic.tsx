@@ -1,12 +1,14 @@
 import {useState} from "react";
-import {Button, Form, Input, message, Radio, Select, Spin} from "antd";
-import {connect, history} from "umi";
+import {Button, Form, Input, message, Radio, Select, Space, Spin} from "antd";
+import {connect, history,useNavigate} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddCharacteristic=(props:any)=>{
+    const navigate=useNavigate();
+
     const [isLoading,setIsLoading]=useState(false)
     const [form] = Form.useForm();
     const onFinish=(values)=>{
@@ -40,16 +42,15 @@ const AddCharacteristic=(props:any)=>{
                 <Form.Item label="特色名称" name="name">
                     <Input placeholder="例:性价比高"/>
                 </Form.Item>
-                {/*<Form.Item label="是否显示在小程序" name='stutes'>*/}
-                {/*    <Radio.Group>*/}
-                {/*        <Radio value={1}>是</Radio>*/}
-                {/*        <Radio value={0}>否</Radio>*/}
-                {/*    </Radio.Group>*/}
-                {/*</Form.Item>*/}
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

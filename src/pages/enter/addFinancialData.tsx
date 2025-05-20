@@ -1,6 +1,6 @@
 import {Button, DatePicker, Form, Input, InputNumber, message, Radio, Select, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 import {filterAndUpdateList, getCurrentDate} from "@/utils/OpenTool";
 import * as AccountService from '@/services/account';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -9,6 +9,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddFinancialData=(props:any)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     // 账户列表
     const [accountList,setAccountList]=useState([]);
@@ -261,9 +262,14 @@ const AddFinancialData=(props:any)=>{
                         <Input.TextArea />
                     </Form.Item>
                     <Form.Item {...tailLayout}>
-                        <Button type="primary" htmlType="submit">
-                            添加
-                        </Button>
+                        <Space>
+                            <Button type="primary" htmlType="submit">
+                                添加
+                            </Button>
+                            <Button type="primary" onClick={()=>navigate(-1)}>
+                                返回
+                            </Button>
+                        </Space>
                     </Form.Item>
                 </Form>
             </div>

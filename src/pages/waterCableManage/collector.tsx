@@ -29,18 +29,6 @@ const Collector=(props:any)=>{
                 )
             }
         },
-        // {
-        //     title: '状态',
-        //     dataIndex: 'collector_status',
-        //     key: 'collector_status',
-        //     render: (text:any, record:any) => {
-        //         return(
-        //             <div>
-        //                 {record.collector_status==1?<span style={{color:'green'}}>已连接</span>:<span style={{color:'red'}}>未连接</span>}
-        //             </div>
-        //         )
-        //     }
-        // },
         {
             title: '连接质量',
             dataIndex: 'linkQuality',
@@ -61,16 +49,6 @@ const Collector=(props:any)=>{
                 )
             }
         },
-        // {
-        //     title: '表数量',
-        //     dataIndex: 'tableNum',
-        //     key: 'tableNum',
-        //     render: (text:any, record:any) => {
-        //         return(
-        //             <span>{record.tableNum}(只)</span>
-        //         )
-        //     }
-        // },
         {
             title: '备注',
             dataIndex: 'remark',
@@ -99,8 +77,8 @@ const Collector=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        {uqx[173]=='1'? <Button type='link' onClick={()=>toedit(record.id)}>编辑</Button> :''}
-                        {uqx[175]=='1'? <Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>:''}
+                        {uqx[173]=='1'? <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button> :''}
+                        {uqx[175]=='1'? <Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>:''}
                     </Space>
                 )
             }

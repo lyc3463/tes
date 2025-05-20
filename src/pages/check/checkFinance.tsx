@@ -17,7 +17,7 @@ const CheckFinance=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 摘要
-    const [billAbstract,setBillAbstract]=useState('');
+    const [billAbstract,setBillAbstract]=useState(localStorage.getItem('checkCheckFinanceBillAbstract')||'');
     // 开始时间
     const [billBgeinTime,setBillBgeinTime]=useState('2000-01-01');
     // 结束时间
@@ -41,7 +41,7 @@ const CheckFinance=(props:any)=>{
     // 加载转圈
     const [spinning,setspinning]=useState(false);
     // 账户卡号
-    const [account_card,setaccount_card]=useState('');
+    const [account_card,setaccount_card]=useState(localStorage.getItem('checkCheckFinanceAccountCard')||'');
     // 财务账单列表
     const [billList,setBillList]=useState([]);
     // 一键审核弹窗
@@ -199,12 +199,12 @@ const CheckFinance=(props:any)=>{
                         {
                             record.bill_status==0?
                                 <Space>
-                                    {uqx[202]=='1'?<Button type='link' onClick={()=>checkOpen(record.id)}>审核通过</Button> :''}
-                                    {uqx[200]=='1'?<Button type='link' onClick={()=>toedit(record.id)}>编辑</Button> :''}
-                                    <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
+                                    {uqx[202]=='1'?<Button type='primary' onClick={()=>checkOpen(record.id)}>审核通过</Button> :''}
+                                    {uqx[200]=='1'?<Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button> :''}
+                                    <Button type='primary' onClick={()=>toInfo(record.id)}>详情</Button>
                                 </Space>:
                                 <>
-                                    <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
+                                    <Button type='primary' onClick={()=>toInfo(record.id)}>详情</Button>
                                 </>
                         }
                     </div>
@@ -251,6 +251,7 @@ const CheckFinance=(props:any)=>{
     // 监听摘要名称
     const changeName=(e)=>{
         setBillAbstract(e.target.value);
+        localStorage.setItem('checkCheckFinanceBillAbstract',e.target.value);
     };
     // 搜索
     const sousuo=()=>{
@@ -431,6 +432,13 @@ const CheckFinance=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
+    useEffect(() => {
+        getBillFenye();
+    }, []);
+    const changeAccountCard=(e)=>{
+        setaccount_card(e.target.value);
+        localStorage.setItem('checkCheckFinanceAccountCard',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -443,11 +451,14 @@ const CheckFinance=(props:any)=>{
                             onChange={changeName}
                             style={{ width: 300 }}
                             addonBefore="摘要:"
+                            value={billAbstract}
+
                         />
                         <Input
-                            onChange={(e)=>setaccount_card(e.target.value)}
+                            onChange={changeAccountCard}
                             style={{ width: 300 }}
                             addonBefore="账户卡号:"
+                            value={account_card}
                         />
                         <Space.Compact>
                             <div

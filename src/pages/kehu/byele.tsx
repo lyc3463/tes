@@ -4,6 +4,7 @@ import {Button, Form, InputNumber, message, Modal, Select, Space} from "antd";
 import {useEffect, useState} from "react";
 import * as ZuhuServer from "@/services/zuhu";
 import * as ByStagesService from "@/services/byStages";
+import {connect,history,useNavigate} from "umi";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -11,6 +12,8 @@ const filteredArray =(e,cableList)=>{
     return  e.length === 0 ? [] : cableList.filter(item => e.includes(item.id));
 };
 const Byele=(props)=>{
+    const navigate=useNavigate();
+
     // 路由参数
     const [uid,setUid]=useState('0');
     // 电表列表
@@ -34,7 +37,6 @@ const Byele=(props)=>{
     const getOneCustom=async (id:string)=>{
         let res:any=await  ZuhuServer.one(id);
         if (res.ErrorCode==0){
-            console.log('查看参数',res);
             let data=res.Data;
             let mapElectricity_id=data[2].map((item:any)=>{
                 return item.id
@@ -197,7 +199,12 @@ const Byele=(props)=>{
                         })
                     }
                 </Space>
-                <Button type='primary' onClick={onguandiandian}>确定关联电表</Button>
+               <Space>
+                   <Button type='primary' onClick={onguandiandian}>确定关联电表</Button>
+                   <Button type="primary" onClick={()=>navigate(-1)}>
+                       返回
+                   </Button>
+               </Space>
             </Form.Item>
             {/*取消电表关联的弹窗*/}
             <Modal

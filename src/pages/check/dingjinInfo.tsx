@@ -1,12 +1,15 @@
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 import {useEffect, useRef, useState} from "react";
 import * as StaffServer from "@/services/staff";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {Button, DatePicker, Form, Input, InputNumber, message, Select, Space, Tag} from "antd";
 import dayjs from "dayjs";
 import * as CheckCompanyService from "@/services/checkCompany";
-
+const tailLayout = {
+    wrapperCol: { offset: 3 },
+};
 const DingjinInfo=(props)=>{
+    const navigate=useNavigate();
     const formRef=useRef();
     // 路由参数
     const [uid,setUid]=useState('');
@@ -179,10 +182,15 @@ const DingjinInfo=(props)=>{
                         <Form.Item label='押金(元)' name='deposit' style={{width:'15rem'}}>
                             <InputNumber disabled/>
                         </Form.Item>
-
                     </Space>
                 </Form.Item>
-
+                <Form.Item {...tailLayout}>
+                    <Space>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
+                </Form.Item>
             </Form>
         </div>
     )

@@ -1,12 +1,13 @@
-import {Button, Form, Input, InputNumber, message, Radio, Spin} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 
 const AddWaterParameter=(props:any)=>{
+    const navigate=useNavigate();
     // 捡钱类型 1水价 2电价
     const we_type=1;
     const [changeValue,setChangeValue]=useState(1)
@@ -225,9 +226,14 @@ const AddWaterParameter=(props:any)=>{
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                   <Space>
+                       <Button type="primary" htmlType="submit">
+                           添加
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

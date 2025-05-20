@@ -1,5 +1,5 @@
-import {connect,history} from 'umi'
-import {Button, Form, Input, InputNumber, message, Select, Spin, Tag} from "antd";
+import {connect,history,useNavigate} from 'umi'
+import {Button, Form, Input, InputNumber, message, Select, Space, Spin, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -8,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddWater=(props:any)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     // 采集器列表
     const [collectorList,setCollectorList]=useState([]);
@@ -57,15 +58,6 @@ const AddWater=(props:any)=>{
                 message.error(res.Data)
             }
         })
-        // props.dispatch({
-        //     type:'Collector/fetch',
-        // }).then((res:TypeErrorCode)=>{
-        //     if (res.ErrorCode==0){
-        //         setCollectorList(res.Data);
-        //     }else {
-        //         message.error(res.Data)
-        //     }
-        // })
     };
     // 价格列表
     const getPriceList=()=>{
@@ -158,9 +150,14 @@ const AddWater=(props:any)=>{
                     <Input placeholder='水表备注(不能为空)'/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

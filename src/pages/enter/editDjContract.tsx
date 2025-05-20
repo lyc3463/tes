@@ -1,4 +1,4 @@
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 import {useEffect, useRef, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 import * as StaffServer from "@/services/staff";
@@ -12,6 +12,7 @@ const tailLayout = {
     wrapperCol: { offset: 3 },
 };
 const EditDjContract=(props:any)=>{
+    const navigate=useNavigate();
     const formRef=useRef();
     // 路由参数
     const [uid,setUid]=useState('');
@@ -222,9 +223,14 @@ const EditDjContract=(props:any)=>{
                     </Space>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        修改
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            修改
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </div>

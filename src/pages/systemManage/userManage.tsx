@@ -29,10 +29,10 @@ const UserManage=(props:any)=>{
             key: 'cao',
             render:(text:any,record:any)=>{
                 return(
-                    <div>
-                        {uqx[217]=='1'?<Button type='link' onClick={()=>isDelete(record.id)} >删除</Button>:''}
-                        {uqx[216]=='1'?<Button type='link' onClick={()=>toEdit(record.id)}>编辑</Button>:''}
-                    </div>
+                    <Space>
+                        {uqx[217]=='1'?<Button type='primary' danger onClick={()=>isDelete(record.id)} >删除</Button>:''}
+                        {uqx[216]=='1'?<Button type='primary' onClick={()=>toEdit(record.id)}>编辑</Button>:''}
+                    </Space>
                 )
             }
         }

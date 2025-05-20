@@ -1,11 +1,12 @@
-import {Button, Form, Input, InputNumber, message, Radio, Spin} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio, Space, Spin} from "antd";
 import {useEffect, useRef, useState} from "react";
-import {connect, history,useLocation} from "umi";
+import {connect, history,useLocation,useNavigate} from "umi";
 import * as CableParameterServer from "@/services/cableParameter";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditCableParameter=(props)=>{
+    const navigate=useNavigate();
     const [isSpinning,setIsSpinning]=useState(false);
     const we_type=2;
     const location=useLocation();
@@ -433,9 +434,14 @@ const EditCableParameter=(props)=>{
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        修改
-                    </Button>
+                   <Space>
+                       <Button type="primary" htmlType="submit">
+                           修改
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

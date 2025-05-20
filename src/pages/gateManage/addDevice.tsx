@@ -1,6 +1,6 @@
-import {Button, Form, Input, message, Radio, Select, Spin} from "antd";
+import {Button, Form, Input, message, Radio, Select, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
@@ -9,6 +9,7 @@ const tailLayout = {
 const AddDevice=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [form] = Form.useForm();
+    const navigate=useNavigate();
     const [houseList,setHouseList]=useState([]);
     const onFinish=async (values)=>{
         setIsLoading(true);
@@ -21,7 +22,7 @@ const AddDevice=(props)=>{
                 history.push('/gateManage/device');
                 setIsLoading(false);
             }else{
-                message.error(res.Data)
+                message.error(res.Data);
                 setIsLoading(false);
             }
         })
@@ -36,7 +37,6 @@ const AddDevice=(props)=>{
             type:'House/fetch',
         })
     };
-
     return(
         <div>
             <Spin spinning={isLoading}>
@@ -67,9 +67,14 @@ const AddDevice=(props)=>{
                         <Input/>
                     </Form.Item>
                     <Form.Item {...tailLayout}>
-                        <Button type="primary"  htmlType="submit" >
-                            添加
-                        </Button>
+                      <Space>
+                          <Button type="primary"  htmlType="submit" >
+                              添加
+                          </Button>
+                          <Button type="primary" onClick={()=>navigate(-1)}>
+                              返回
+                          </Button>
+                      </Space>
                     </Form.Item>
                 </Form>
             </Spin>

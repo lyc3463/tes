@@ -1,14 +1,14 @@
-import {Button, Form, Modal, Pagination, Radio, Select, Table, Input, InputNumber, message, Spin} from "antd";
-import {connect, history} from "umi";
+import {Button, Form, Modal, Pagination, Radio, Select, Table, Input, InputNumber, message, Spin, Space} from "antd";
+import {connect, history,useNavigate} from "umi";
 import {useEffect, useState} from "react";
 import * as HouseListServer from "@/services/house";
-import {filterAndUpdateList} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddUnit=(props:any)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     const [houseList,setHouseList]=useState([]);
     // 房屋可增加面积
@@ -142,17 +142,15 @@ const AddUnit=(props:any)=>{
                 <Form.Item label='可增面积㎡'>
                     <InputNumber value={add_area} disabled/>
                 </Form.Item>
-                {/*<Form.Item label='租赁状态' name='statuz'>*/}
-                {/*    <Radio.Group >*/}
-                {/*        <Radio value={1}>已租</Radio>*/}
-                {/*        <Radio value={2}>未租</Radio>*/}
-                {/*        /!*<Radio value={3}>退租</Radio>*!/*/}
-                {/*    </Radio.Group>*/}
-                {/*</Form.Item>*/}
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                   <Space>
+                       <Button type="primary" htmlType="submit">
+                           添加
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

@@ -3,21 +3,21 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 import {useEffect, useRef, useState} from "react";
 import * as GateServer from "@/services/gate";
 import dayjs from "dayjs";
-import {Button, Form, Input, message, Select, Spin} from "antd";
+import {Button, Form, Input, message, Select, Space, Spin} from "antd";
 const Editdevice=(props:any)=>{
     // 路由参数
     const [uid,setUid]=useState('0');
+    const navigate=useNavigate();
     const [isLoading,setIsLoading]=useState(false);
     const formRef=useRef();
     // 获取单个信息详情
     const getOneCustom=async (id:string)=>{
         let res:any=await  GateServer.one(id);
         if (res.ErrorCode==0){
-            console.log("闸机详情",res);
             formRef.current.setFieldsValue(res?.Data);
         }else {
             message.error(res.Data);
@@ -80,9 +80,14 @@ const Editdevice=(props:any)=>{
                     <Input/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit" >
-                        修改
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit" >
+                            修改
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

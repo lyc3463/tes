@@ -1,4 +1,4 @@
-import {useLocation,connect,history} from "umi";
+import {useLocation,connect,history,useNavigate} from "umi";
 import CmpImageUploader from "@/components/ImageUploader";
 import {Button, Form, Image, Input, InputNumber, message, Radio, Select, Space, Spin} from "antd";
 import {useEffect, useRef, useState} from "react";
@@ -8,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditResources=(props:any)=>{
+    const navigate=useNavigate();
     const [isLoading,setIsLoading]=useState(false);
     const formRef=useRef()
     const location=useLocation();
@@ -200,9 +201,14 @@ const EditResources=(props:any)=>{
                     </Space>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        修改
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            修改
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

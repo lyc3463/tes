@@ -1,5 +1,5 @@
-import {connect,useLocation,history} from 'umi'
-import {Button, Form, Input, InputNumber, message, Radio, Select, Spin, Tag} from "antd";
+import {connect,useLocation,history,useNavigate} from 'umi'
+import {Button, Form, Input, InputNumber, message, Radio, Select, Space, Spin, Tag} from "antd";
 import {useEffect, useRef, useState} from "react";
 import * as CableServer from "@/services/cable";
 import {filterAndUpdateList} from "@/utils/OpenTool";
@@ -8,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditCable=(props:any)=>{
+    const navigate=useNavigate();
     const location=useLocation();
     const formRef =useRef();
     // 路由参数
@@ -141,11 +142,15 @@ const EditCable=(props:any)=>{
                 <Form.Item label='电表备注' name='remark'   rules={[{required: true, message: '必须填表备注'}]}>
                     <Input placeholder='电表备注(不能为空)'/>
                 </Form.Item>
-
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        编辑
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit">
+                            编辑
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

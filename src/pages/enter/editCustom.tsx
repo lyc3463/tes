@@ -1,4 +1,4 @@
-import {connect,history} from "umi";
+import {connect, history,useNavigate} from "umi";
 import {useEffect, useRef, useState} from "react";
 import * as CustomServer from "@/services/custom";
 import {Button, DatePicker, Form, Input, message, Select, Space, Spin} from "antd";
@@ -10,6 +10,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditCustom=(props)=>{
+    const navigate=useNavigate();
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     const formRef=useRef();
@@ -224,9 +225,14 @@ const EditCustom=(props)=>{
                     }
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit" disabled={disp}>
-                        确定修改
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit" disabled={disp}>
+                            确定修改
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

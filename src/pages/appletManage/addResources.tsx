@@ -1,12 +1,13 @@
 import {Button, Form, Input, InputNumber, Radio, Select, Spin, message, Image, Space} from "antd";
 import {UploadOutlined} from "@ant-design/icons";
 import {useEffect, useState} from "react";
-import {connect,history} from 'umi'
+import {connect,history,useNavigate} from 'umi'
 import CmpImageUploader from "@/components/ImageUploader";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddResources=(props:any)=>{
+    const navigate=useNavigate();
     const [isLoading,setIsLoading]=useState(false)
     const [form] = Form.useForm();
     // 是否显示在小程序
@@ -164,9 +165,14 @@ const AddResources=(props:any)=>{
                     </Space>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

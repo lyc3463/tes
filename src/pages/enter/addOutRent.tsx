@@ -1,6 +1,6 @@
-import {Button, DatePicker, Form, Input, message, Select, Spin,Radio} from "antd";
+import {Button, DatePicker, Form, Input, message, Select, Spin, Radio, Space} from "antd";
 import {filterAndUpdateList, phonePattern} from "@/utils/OpenTool";
-import {history,connect} from "umi";
+import {history,connect,useNavigate} from "umi";
 import {useEffect, useState} from "react";
 import * as StaffService from "@/services/staff";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -8,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddOutRent=(props)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     // 租户名字
     const [oldName,setOldName]=useState('');
@@ -126,9 +127,14 @@ const AddOutRent=(props)=>{
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                  <Space>
+                      <Button type="primary" htmlType="submit">
+                          添加
+                      </Button>
+                      <Button type="primary" onClick={()=>navigate(-1)}>
+                          返回
+                      </Button>
+                  </Space>
                 </Form.Item>
             </Form>
         </Spin>

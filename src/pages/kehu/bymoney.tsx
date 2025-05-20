@@ -1,12 +1,12 @@
 import {Button, Form, InputNumber, message, Space, Input, Spin} from "antd";
 import {useEffect, useRef, useState} from "react";
-import {connect} from "umi";
+import {connect,history,useNavigate} from "umi";
 import * as ZuhuServer from "@/services/zuhu";
-import {history} from "@@/core/history";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const Bymoney=(props)=>{
+    const navigate=useNavigate();
     const [uid,setUid]=useState('0');
     // 预留金额
     const [reserved_amount,setreserved_amount]=useState(0);
@@ -83,9 +83,14 @@ const Bymoney=(props)=>{
                     <Input.TextArea style={{width:'400px'}}/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        确定修改
-                    </Button>
+                   <Space>
+                       <Button type="primary" htmlType="submit">
+                           确定修改
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

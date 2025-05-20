@@ -84,7 +84,7 @@ const HouseBill=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        <Button type='link' onClick={()=>toinfo(record.id)}>详情</Button>
+                        <Button type='primary' onClick={()=>toinfo(record.id)}>详情</Button>
                     </Space>
                 )
             }

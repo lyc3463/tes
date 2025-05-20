@@ -1,9 +1,7 @@
 import {useState} from "react";
-import {Button, Form, Input, Radio, Select, Spin,message} from "antd";
+import {Button, Form, Input, Radio, Select, Spin, message, Space} from "antd";
 import * as RegionService from '@/services/region';
-import {history,connect} from "umi";
-
-const park_id=sessionStorage.getItem('park_id')
+import {history,connect,useNavigate} from "umi";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -11,17 +9,21 @@ const tailLayout = {
 const AddRegion=(props:any)=>{
     const [isLoading,setIsLoading]=useState(false)
     const [form] = Form.useForm();
+    const navigate=useNavigate();
 
     const onFinish=async (values)=>{
+        setIsLoading(true);
         let res=await  props.dispatch({
             type:'Region/add',
             payload:values
         })
        if (res.ErrorCode==0){
-           message.success('添加成功')
-           history.push('/appletManage/propertyDescription/')
+           message.success('添加成功');
+           history.push('/appletManage/propertyDescription/');
+           setIsLoading(false);
        }else {
-           message.error(res.Data)
+           message.error(res.Data);
+           setIsLoading(false);
        }
     }
     return(
@@ -35,22 +37,19 @@ const AddRegion=(props:any)=>{
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                {/*<Form.Item label="所属园区" name="name">*/}
-                {/*    <Select/>*/}
-                {/*</Form.Item>*/}
                 <Form.Item label="区域名称" name="name">
                     <Input placeholder="例:天河区"/>
                 </Form.Item>
-                {/*<Form.Item label="是否显示在小程序" name='stutes'>*/}
-                {/*    <Radio.Group>*/}
-                {/*        <Radio value={1}>是</Radio>*/}
-                {/*        <Radio value={0}>否</Radio>*/}
-                {/*    </Radio.Group>*/}
-                {/*</Form.Item>*/}
+
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

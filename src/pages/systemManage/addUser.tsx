@@ -1,5 +1,5 @@
-import {connect,history} from 'umi'
-import {Button, Form, Input, InputNumber, message, Radio, Select} from "antd";
+import {connect,history,useNavigate} from 'umi'
+import {Button, Form, Input, InputNumber, message, Radio, Select, Space} from "antd";
 import CryptoUtils from '@/utils/Crypto';
 import {mmPattern, phonePattern, buildTree, filterAndUpdateList, ensureArrayLength, pwdPattern} from "@/utils/OpenTool";
 import {qxTree} from "@/constants/qxMenu";
@@ -15,6 +15,7 @@ let qxList=StaticInfo.uqx;
 let authArr =qxList.split('').map(Number);
 const AddUser=(props:any)=>{
     const [form] = Form.useForm();
+    const navigate=useNavigate();
     const treeData = buildTree(qxTree);
     const [roleList,setRoleList]=useState([]);
     const [selected, setSelected] = useState<string[]>(Array(372).fill('0'));
@@ -789,7 +790,6 @@ const AddUser=(props:any)=>{
                 const splitArray = res.Data.authority.split('');
                 const adjustedArray = ensureArrayLength(splitArray, selected.length, '0');
                 setSelected(adjustedArray);
-
             }else {
                 message.error(res.Data);
             }
@@ -830,9 +830,14 @@ const AddUser=(props:any)=>{
                     <TreeMenu tree={treeData} selected={selected} disabled={authArr} setSelected={setSelected} />
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </div>

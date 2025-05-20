@@ -1,17 +1,17 @@
-import {connect, history, useLocation} from 'umi'
+import {connect, history, useLocation,useNavigate} from 'umi'
 import {useEffect, useRef, useState} from "react";
-import {Button, Form, Input, message, Select} from "antd";
-import {filterAndUpdateList} from '@/utils/OpenTool'
+import {Button, Form, Input, message, Select, Space, Spin} from "antd";
 import * as SubjecttService from "@/services/subject";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditSubjectList=(props:any)=>{
-    const [isLoading,setIsLoading]=useState(false)
-    const location=useLocation()
-    const formRef =useRef()
+    const [isLoading,setIsLoading]=useState(false);
+    const navigate=useNavigate();
+    const location=useLocation();
+    const formRef =useRef();
     // 路由参数
-    const [uid,setUid]=useState<string|undefined>()
+    const [uid,setUid]=useState<string|undefined>();
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
@@ -27,19 +27,22 @@ const EditSubjectList=(props:any)=>{
         }
     }
     const onFinish=async (values:any)=>{
+        setIsLoading(true);
         let res=await props.dispatch({
             type:'Subject/edit',
             payload:{...values,uid}
         })
         if (res.ErrorCode==0){
-            message.success('修改成功')
-            history.push('/financeManage/list')
+            message.success('修改成功');
+            history.push('/financeManage/list');
+            setIsLoading(false);
         }else {
-            message.error(res.Data)
+            message.error(res.Data);
+            setIsLoading(false);
         }
     }
     return(
-        <div>
+        <Spin spinning={isLoading}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -53,12 +56,17 @@ const EditSubjectList=(props:any)=>{
                     <Input placeholder="例:xx项目"/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        保存
-                    </Button>
+                   <Space>
+                       <Button type="primary"  htmlType="submit">
+                           修改
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

@@ -1,6 +1,6 @@
-import {Button, DatePicker, Form, Input, InputNumber, message, Select, Spin} from "antd";
+import {Button, DatePicker, Form, Input, InputNumber, message, Select, Space, Spin} from "antd";
 import {filterAndUpdateList, phonePattern} from "@/utils/OpenTool";
-import {connect,history} from 'umi'
+import {connect,history,useNavigate} from 'umi'
 import {useEffect, useRef, useState} from "react";
 import * as ByStagesService from '@/services/byStages';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -9,6 +9,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const editByStages=(props)=>{
+    const navigate=useNavigate();
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     const formRef=useRef();
@@ -110,9 +111,14 @@ const editByStages=(props)=>{
                     <span style={{fontSize:'12px',color:'#555'}}>分期开始/结束月份每月分期租金分配给还款开始/结束日期</span>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        确定编辑
-                    </Button>
+                   <Space>
+                       <Button type="primary" htmlType="submit">
+                           确定编辑
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

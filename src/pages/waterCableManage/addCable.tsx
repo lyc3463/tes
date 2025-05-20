@@ -1,5 +1,5 @@
-import {connect,history} from 'umi'
-import {Button, Form, Input, InputNumber, message, Select, Spin, Tag} from "antd";
+import {connect,history,useNavigate} from 'umi'
+import {Button, Form, Input, InputNumber, message, Select, Space, Spin, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -8,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddCable=(props:any)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     // 采集器列表
     const [collectorList,setCollectorList]=useState([])
@@ -159,9 +160,14 @@ const AddCable=(props:any)=>{
                     <Input placeholder='电表描述(不能为空)'/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        添加
-                    </Button>
+                   <Space>
+                       <Button type="primary"  htmlType="submit">
+                           添加
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

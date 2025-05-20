@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
-import {connect, history} from "umi";
-import {Button, DatePicker, Form, Input, InputNumber, message, Radio, Spin} from "antd";
+import {connect, history,useNavigate} from "umi";
+import {Button, DatePicker, Form, Input, InputNumber, message, Radio, Space, Spin} from "antd";
 import * as Preferential from '@/services/preferential';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
@@ -8,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditPreferential=(props)=>{
+    const navigate=useNavigate();
     const [uid,setUid]=useState<string|undefined>('0');
     // 分期金额
     const [preRen,setpreRen]=useState(0);
@@ -108,9 +109,14 @@ const EditPreferential=(props)=>{
                  <span style={{color:'#555',fontSize:"12px"}}>满合同优惠，中途退租，合同未到期，历史优惠金额算到账单一起出</span>
               </Form.Item>
               <Form.Item {...tailLayout}>
-                  <Button type="primary" onClick={onOK}>
-                      确定修改
-                  </Button>
+                  <Space>
+                      <Button type="primary" onClick={onOK}>
+                          确定修改
+                      </Button>
+                      <Button type="primary" onClick={()=>navigate(-1)}>
+                          返回
+                      </Button>
+                  </Space>
               </Form.Item>
           </Form>
       </Spin>

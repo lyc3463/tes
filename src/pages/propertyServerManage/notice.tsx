@@ -119,6 +119,10 @@ const Notice=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
+    const changeName=(e)=>{
+        console.log(e.target.value)
+        setallNoticeName(e.target.value);
+    };
     return(
         <Spin spinning={loading}>
             <List>
@@ -145,7 +149,7 @@ const Notice=(props:any)=>{
                             <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
                         <Input
-                            onChange={(e)=>{setallNoticeName(e.target.value)}}
+                            onChange={changeName}
                             addonBefore="园区内容:"
                         />
 

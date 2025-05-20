@@ -1,6 +1,7 @@
 import {
   connect,
   history,
+  useNavigate
 } from 'umi';
 import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
@@ -42,6 +43,8 @@ const tailLayout = {
 const { TextArea } = Input;
 
 function Addgongsi(props: any) {
+  const navigate=useNavigate();
+
   // 收费类型 1周期性收费 2一次性收费 3押金类收费
   const [itemType,setItemType]=useState(1);
   // 月金额计算方式 1固定金额 2按照单价收费 3每户手动输入
@@ -180,9 +183,14 @@ function Addgongsi(props: any) {
         </Form.Item>
 
         <Form.Item {...tailLayout}>
-          <Button type="primary" htmlType="submit">
-            添加
-          </Button>
+         <Space>
+           <Button type="primary" htmlType="submit">
+             添加
+           </Button>
+           <Button type="primary" onClick={()=>navigate(-1)}>
+             返回
+           </Button>
+         </Space>
         </Form.Item>
       </Form>
 

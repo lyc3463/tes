@@ -1,15 +1,14 @@
 import {Button, DatePicker, Form, Input, message, Select, Space, Spin, Tooltip} from "antd";
 import {useEffect, useState} from "react";
-import {connect, history} from "umi";
+import {connect, history,useNavigate} from "umi";
 import {getCurrentDate, phonePattern,replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
 import dayjs from "dayjs";
-
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 
-
 const AddCustom=(props:any)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     const [custom_date,setCustom_date]=useState(getCurrentDate());
     // 来访渠道
@@ -207,9 +206,14 @@ const AddCustom=(props:any)=>{
                     }
                 </Form.Item>
                 <Form.Item  style={{textAlign:'center'}}>
-                    <Button type="primary" htmlType="submit"  disabled={disp}>
-                        添加
-                    </Button>
+                  <Space>
+                      <Button type="primary" htmlType="submit"  disabled={disp}>
+                          添加
+                      </Button>
+                      <Button type="primary" onClick={()=>navigate(-1)}>
+                          返回
+                      </Button>
+                  </Space>
                 </Form.Item>
             </Form>
         </Spin>

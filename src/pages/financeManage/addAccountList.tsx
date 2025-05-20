@@ -1,12 +1,13 @@
-import {Button, Form, Input, InputNumber, message, Radio, Select, Spin} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio, Select, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
-import {history,connect} from "umi";
+import {history,connect,useNavigate} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as ProjectService from '@/services/project';
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddAccountList=(props:any)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     // 公司列表
     const [companyList,setCompanyList]=useState([]);
@@ -144,9 +145,14 @@ const AddAccountList=(props:any)=>{
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

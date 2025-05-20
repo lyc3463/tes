@@ -1,7 +1,6 @@
 import * as CustomServer from "@/services/custom";
 import dayjs from "dayjs";
-import * as UmiHistory from "umi";
-
+import {connect, history,useNavigate} from "umi";
 import {useEffect, useRef, useState} from "react";
 import {Button, DatePicker, Form, Input, message, Select, Space, Spin} from "antd";
 import {phonePattern} from "@/utils/OpenTool";
@@ -9,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const CustomInfo=()=>{
+    const navigate=useNavigate();
     const formRef=useRef();
     const [visitor_channels,setvisitor_channels]=useState(1);
     const [custom_date,setCustom_date]=useState('');
@@ -171,11 +171,11 @@ const CustomInfo=()=>{
 
                     }
                 </Form.Item>
-                {/*<Form.Item {...tailLayout}>*/}
-                {/*    <Button type="primary" htmlType="submit" disabled={disp}>*/}
-                {/*        确定修改*/}
-                {/*    </Button>*/}
-                {/*</Form.Item>*/}
+                <Form.Item {...tailLayout}>
+                    <Button type="primary" onClick={()=>navigate(-1)}>
+                        返回
+                    </Button>
+                </Form.Item>
             </Form>
         </div>
     )

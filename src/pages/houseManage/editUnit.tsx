@@ -1,5 +1,5 @@
-import {Button, Form, Input, InputNumber, message, Radio, Select, Spin} from "antd";
-import {connect,useLocation,history} from 'umi';
+import {Button, Form, Input, InputNumber, message, Radio, Select, Space, Spin} from "antd";
+import {connect,useLocation,history,useNavigate} from 'umi';
 import * as UnitServer from "@/services/unit";
 import {useEffect, useRef, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
@@ -9,6 +9,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditUnit=(props:any)=>{
+    const navigate=useNavigate();
     const [houseList,setHouseList]=useState([]);
     // 房屋可增加面积
     const [add_area,setadd_area]=useState(0);
@@ -169,9 +170,14 @@ const EditUnit=(props:any)=>{
                 {/*    </Radio.Group>*/}
                 {/*</Form.Item>*/}
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        修改
-                    </Button>
+                   <Space>
+                       <Button type="primary" htmlType="submit">
+                           修改
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

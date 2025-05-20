@@ -121,7 +121,7 @@ const CheckStaff=(props:any)=>{
                                 :
                                 <Space>
                                     {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
-                                    {uqx[187]=='1'? <Button type='link' onClick={()=>check(record)}>审核通过</Button> :''}
+                                    {uqx[187]=='1'? <Button type='primary' onClick={()=>check(record)}>审核通过</Button> :''}
                                     {/*<Button type='link' color='red'>删除</Button>*/}
                                 </Space>
                         }

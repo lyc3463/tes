@@ -1,14 +1,15 @@
-import {Button, Form, Image, Input, message, Radio, Spin, Upload} from "antd";
+import {Button, Form, Image, Input, message, Radio, Space, Spin, Upload} from "antd";
 import {useEffect, useRef, useState} from "react";
 import * as BannerServer from "@/services/banner";
-import {history, useLocation,connect} from "umi";
+import {history, useLocation,connect,useNavigate} from "umi";
 import CmpImageUploader from "@/components/ImageUploader";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 
 const EditBanner=(props:any)=>{
-    const location=useLocation()
+    const navigate=useNavigate();
+    const location=useLocation();
     const [isLoading,setIsLoading]=useState(false);
     const [form] = Form.useForm();
     const formRef=useRef()
@@ -86,9 +87,14 @@ const EditBanner=(props:any)=>{
                 {/*    </Radio.Group>*/}
                 {/*</Form.Item>*/}
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        修改
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit">
+                            修改
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

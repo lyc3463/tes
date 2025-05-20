@@ -44,12 +44,7 @@ const NoticeModel: NoticeInterface = {
     state: {},
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
-
-            const res = yield call(NoticeService.fetch, pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
+            const res = yield call(NoticeService.fetch, payload?payload:pl);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',

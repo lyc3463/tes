@@ -1,5 +1,5 @@
-import {history,connect,useLocation} from "umi";
-import {Button, Form, Input, InputNumber, message, Radio, Select} from "antd";
+import {history,connect,useLocation,useNavigate} from "umi";
+import {Button, Form, Input, InputNumber, message, Radio, Select, Space} from "antd";
 import {useEffect, useRef, useState} from "react";
 import * as AccountService from "@/services/account";
 import * as ProjectService from '@/services/project';
@@ -8,14 +8,15 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditAccountList=(props:any)=>{
-    const location=useLocation()
-    const formRef =useRef()
+    const navigate=useNavigate();
+    const location=useLocation();
+    const formRef =useRef();
     // 路由参数
-    const [uid,setUid]=useState<string|undefined>()
+    const [uid,setUid]=useState<string|undefined>();
     // 公司列表
-    const [companyList,setCompanyList]=useState([])
+    const [companyList,setCompanyList]=useState([]);
     // 项目列表
-    const [projectList,setProjectList]=useState([])
+    const [projectList,setProjectList]=useState([]);
     // 项目名字
     const [projectName,setprojectName]=useState('');
     // 公司id
@@ -153,9 +154,14 @@ const EditAccountList=(props:any)=>{
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        保存
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit">
+                            修改
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </div>

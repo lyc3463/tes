@@ -311,12 +311,12 @@ const Custom=(props:any)=>{
                     <div>
                         <Space>
                             {record.custom_sattus==0?<>
-                                    {uqx[155]=='1'?<Button type='link' onClick={()=>toEdit(record.id)}>编辑</Button>:''}
-                                    {uqx[156]=='1'?<Button type='link' onClick={()=>isdel(record.id)}>删除</Button>:''}
-                                    {uqx[342]=='1'?<Button type='link' onClick={()=>onaddNum(record)}>增加到访次数</Button>:''}
+                                    {uqx[155]=='1'?<Button type='primary' onClick={()=>toEdit(record.id)}>编辑</Button>:''}
+                                    {uqx[156]=='1'?<Button type='primary' danger onClick={()=>isdel(record.id)}>删除</Button>:''}
+                                    {uqx[342]=='1'?<Button type='primary' onClick={()=>onaddNum(record)}>增加到访次数</Button>:''}
                                 </>
                                 :''}
-                            <Button type='link' onClick={()=>toinfo(record.id)}>详情</Button>
+                            <Button type='primary' onClick={()=>toinfo(record.id)}>详情</Button>
                         </Space>
                     </div>
                 )
@@ -486,7 +486,6 @@ const mapStateToProps = (state: any) => {
     return {
         CustomList: state.Custom.list,
         count: state.Custom.count
-
     }
 };
 export default connect(mapStateToProps) (Custom)

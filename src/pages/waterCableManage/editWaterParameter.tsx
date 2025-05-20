@@ -1,11 +1,12 @@
-import {Button, Form, Input, InputNumber, message, Radio, Spin} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio, Space, Spin} from "antd";
 import {useEffect, useRef, useState} from "react";
-import {connect,history,useLocation} from "umi";
+import {connect,history,useLocation,useNavigate} from "umi";
 import * as CableParameterServer from "@/services/cableParameter";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditWaterParameter=(props)=>{
+    const navigate=useNavigate();
     // 捡钱类型 1水价 2电价
     const we_type=1;
     const location=useLocation();
@@ -259,9 +260,14 @@ const EditWaterParameter=(props)=>{
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        编辑
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            编辑
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

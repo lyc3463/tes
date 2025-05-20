@@ -14,7 +14,8 @@ let pl={
     page:1,
     name:'',
     phone:'',
-    pageSize:50
+    pageSize:50,
+    balance:0
 }
 
 export interface AppUserCountState {

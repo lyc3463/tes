@@ -153,11 +153,11 @@ const CheckZsContracte=(props:any)=>{
                         {record.contractStatus==1||record.contractStatus==4?
                             <>
                                 {/*<Button type='link' onClick={()=>toedit(record)}>编辑</Button>*/}
-                                {uqx[208]=='1'? <Button type='link' onClick={()=>isCheck(record)}>审核</Button> :''}
-                                <Button type='link' onClick={()=>toInfo(record)}>详情</Button>
+                                {uqx[208]=='1'? <Button type='primary' onClick={()=>isCheck(record)}>审核</Button> :''}
+                                <Button type='primary' onClick={()=>toInfo(record)}>详情</Button>
                             </>:<>
-                                <Button type='link' onClick={()=>{toxiazai(record)}}>详情</Button>
-                                <Button type='link' onClick={()=>{toOldHetongList(record)}}>查看续租前合同</Button>
+                                <Button type='primary' onClick={()=>{toxiazai(record)}}>详情</Button>
+                                <Button type='primary' onClick={()=>{toOldHetongList(record)}}>查看续租前合同</Button>
                             </>
                         }
                     </Space>

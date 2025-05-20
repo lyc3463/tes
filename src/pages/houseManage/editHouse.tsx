@@ -1,12 +1,12 @@
-import {connect,useLocation,history} from 'umi';
+import {connect,useLocation,history,useNavigate} from 'umi';
 import * as HouseServer from "@/services/house";
 import {useEffect, useRef, useState} from "react";
-import {Button, Form, Input, InputNumber, message, Spin} from "antd";
-
+import {Button, Form, Input, InputNumber, message, Space, Spin} from "antd";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditHouse=(props:any)=>{
+    const navigate=useNavigate();
     const location=useLocation()
     const [isLoading,setIsLoading]=useState(false);
     const [form] = Form.useForm();
@@ -131,9 +131,14 @@ const EditHouse=(props:any)=>{
                     <InputNumber value={residue_add_area} disabled/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        修改
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            修改
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

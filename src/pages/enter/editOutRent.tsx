@@ -1,6 +1,6 @@
-import {Button, DatePicker, Form, Input, message, Select, Spin} from "antd";
+import {Button, DatePicker, Form, Input, message, Select, Space, Spin} from "antd";
 import {filterAndUpdateList, phonePattern} from "@/utils/OpenTool";
-import {connect,history} from 'umi'
+import {connect,history,useNavigate} from 'umi'
 import {useEffect, useRef, useState} from "react";
 import * as OutRentService from '@/services/outRent';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -9,6 +9,8 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const editOutRent=(props)=>{
+    const navigate=useNavigate();
+
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     const formRef=useRef();
@@ -88,9 +90,14 @@ const editOutRent=(props)=>{
                     <Input.TextArea/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        确定编辑
-                    </Button>
+                 <Space>
+                     <Button type="primary" htmlType="submit">
+                         编辑
+                     </Button>
+                     <Button type="primary" onClick={()=>navigate(-1)}>
+                         返回
+                     </Button>
+                 </Space>
                 </Form.Item>
             </Form>
         </Spin>

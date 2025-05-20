@@ -1,5 +1,5 @@
-import {connect, history} from "umi";
-import {Button, DatePicker, Form, Input, message, Select, Spin} from "antd";
+import {connect, history,useNavigate} from "umi";
+import {Button, DatePicker, Form, Input, message, Select, Space, Spin} from "antd";
 import * as StaffService from '@/services/staff';
 import {useEffect, useState} from "react";
 import {filterAndUpdateList, phonePattern} from "@/utils/OpenTool";
@@ -8,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddRename=(props:any)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     // 原名字
     const [oldName,setOldName]=useState('');
@@ -122,9 +123,14 @@ const AddRename=(props:any)=>{
                     <span style={{color:'red',fontSize:'12px'}}>该租户如有账单未结清，不能更名</span>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

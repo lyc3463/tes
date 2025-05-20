@@ -1,14 +1,14 @@
-import {Button, DatePicker, Form, Input, InputNumber, message, Radio, Select, Spin} from "antd";
+import {Button, DatePicker, Form, Input, InputNumber, message, Radio, Select, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 import {filterAndUpdateList, phonePattern} from "@/utils/OpenTool";
 import * as StaffService from "@/services/staff";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {data} from "@umijs/utils/compiled/cheerio/lib/api/attributes";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddPreferential=(props)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     // 租户名字
     const [oldName,setOldName]=useState('');
@@ -138,9 +138,14 @@ const AddPreferential=(props)=>{
                     <span style={{color:'red',fontSize:'12px'}}>满合同优惠，中途退租，合同未到期，历史优惠金额算到账单一起出</span>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                   <Space>
+                       <Button type="primary" htmlType="submit">
+                           添加
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

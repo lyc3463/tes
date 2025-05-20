@@ -1,4 +1,4 @@
-import {history,connect} from 'umi'
+import {history,connect,useNavigate} from 'umi'
 import {useEffect, useRef, useState} from "react";
 import * as InvoiceLookUpServer from "@/services/InvoiceLookUp";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -7,6 +7,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditInvoiceLookUp=(props)=>{
+    const navigate=useNavigate();
     const formRef=useRef();
     const [uid,setUid]=useState('');
     const [spinning,setspinning]=useState(false);
@@ -112,9 +113,14 @@ const EditInvoiceLookUp=(props)=>{
                     <Input placeholder='非必填'/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        修改
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            修改
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

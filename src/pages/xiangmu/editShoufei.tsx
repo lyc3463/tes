@@ -1,12 +1,13 @@
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 import {useEffect, useRef, useState} from "react";
-import {Button, Form, Input, InputNumber, message, Radio, Spin} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio, Space, Spin} from "antd";
 import * as GongsiService from "@/services/gongsi";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditShoufei=(props:any)=>{
+    const navigate=useNavigate();
     const formRef=useRef();
     // 路由参数
     const [uid,setUid]=useState('')
@@ -168,9 +169,14 @@ const EditShoufei=(props:any)=>{
                     <Input.TextArea/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        编辑
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            编辑
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

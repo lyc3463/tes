@@ -159,7 +159,7 @@ const SumHounsBlii=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                       <Button type='link' onClick={()=>toInfo(record)}>详情</Button>
+                       <Button type='primary' onClick={()=>toInfo(record)}>详情</Button>
                     </div>
                 )
             }

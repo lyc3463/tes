@@ -1,13 +1,13 @@
-import {Button, Form, Input, message, Radio, Spin} from "antd";
+import {Button, Form, Input, message, Radio, Space, Spin} from "antd";
 import {phonePattern} from "@/utils/OpenTool";
 import {useEffect, useRef, useState} from "react";
-import {connect} from "umi";
+import {connect,history,useNavigate} from "umi";
 import * as ZuhuServer from "@/services/zuhu";
-import {history} from "@@/core/history";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const Byappuser=(props)=>{
+    const navigate=useNavigate();
     const formRef=useRef();
     const [uid,setUid]=useState('0');
     const  [spinning,setspinning]=useState(false);
@@ -64,9 +64,14 @@ const Byappuser=(props)=>{
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        确定关联
-                    </Button>
+                 <Space>
+                     <Button type="primary" htmlType="submit">
+                         确定关联
+                     </Button>
+                     <Button type="primary" onClick={()=>navigate(-1)}>
+                         返回
+                     </Button>
+                 </Space>
                 </Form.Item>
             </Form>
         </Spin>

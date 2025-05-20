@@ -1,11 +1,10 @@
-import {Button, Form, Input, message} from "antd";
+import {Button, Form, Input, message, Space, Spin} from "antd";
 import {buildTree, mmPattern, phonePattern} from "@/utils/OpenTool";
 import {qxTree} from "@/constants/qxMenu";
 import {useState} from "react";
-import {history} from "umi";
+import {history,connect,useNavigate} from "umi";
 import TypeMenu from "@/ModelTypes/TypeMenu";
 import {StaticInfo} from "@/StaticInfo";
-import {connect} from "@@/exports";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -13,6 +12,8 @@ let qxList=StaticInfo.uqx;
 let authArr =qxList.split('').map(Number)
 const AddRole=(props)=>{
     const [form] = Form.useForm();
+    const navigate=useNavigate();
+    const [spinning,setspinning]=useState(false);
     const treeData = buildTree(qxTree);
     const [selected, setSelected] = useState<string[]>(Array(372).fill('0'));
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: TypeMenu[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void })=> {
@@ -748,20 +749,23 @@ const AddRole=(props)=>{
     };
     const onFinish= (values)=>{
         let authority=selected.join('');
+        setspinning(true);
          props.dispatch({
             type:'Role/add',
             payload:{...values,authority}
         }).then((res)=>{
             if (res.ErrorCode==0){
                 message.success('添加成功');
-                history.push('/systemManage/role')
+                history.push('/systemManage/role');
+                setspinning(false);
             }else {
-                message.error(res.Data)
+                setspinning(false);
+                message.error(res.Data);
             }
          })
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -778,12 +782,17 @@ const AddRole=(props)=>{
                     <TreeMenu tree={treeData} selected={selected} disabled={authArr} setSelected={setSelected} />
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 export default connect() (AddRole)

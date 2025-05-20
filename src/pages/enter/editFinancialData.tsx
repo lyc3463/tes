@@ -1,4 +1,4 @@
-import {connect, history} from "umi";
+import {connect, history,useNavigate} from "umi";
 import {useEffect, useRef, useState} from "react";
 import * as BillService from "@/services/bill";
 import {Button, DatePicker, Form, Input, InputNumber, message, Radio, Select, Space, Spin} from "antd";
@@ -9,6 +9,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditFinancialData=(props:any)=>{
+    const navigate=useNavigate();
     const formRef=useRef();
     // 账户列表
     const [accountList,setAccountList]=useState([]);
@@ -284,9 +285,14 @@ const EditFinancialData=(props:any)=>{
                         <Input.TextArea />
                     </Form.Item>
                     <Form.Item {...tailLayout}>
-                        <Button type="primary" htmlType="submit">
-                            修改
-                        </Button>
+                        <Space>
+                            <Button type="primary" htmlType="submit">
+                                修改
+                            </Button>
+                            <Button type="primary" onClick={()=>navigate(-1)}>
+                                返回
+                            </Button>
+                        </Space>
                     </Form.Item>
                 </Form>
             </div>

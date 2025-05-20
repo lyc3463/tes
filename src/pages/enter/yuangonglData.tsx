@@ -115,8 +115,8 @@ const YuangonglData=(props:any)=>{
                             record.emp_status==1?
                                 <Space>
                                     {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}
-                                    {uqx[188]=='1'?<Button type='link' onClick={()=>toedit(record.id)}>编辑</Button> :''}
-                                    {uqx[189]=='1'?<Button type='link' onClick={()=>isDelete(record)}>删除</Button>:''}
+                                    {uqx[188]=='1'?<Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button> :''}
+                                    {uqx[189]=='1'?<Button type='primary' danger onClick={()=>isDelete(record)}>删除</Button>:''}
                                 </Space>:
                                 <>
                                     {/*<Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>*/}

@@ -1,18 +1,20 @@
 import {useLocation,history,connect} from "umi";
 import {useEffect, useRef, useState} from "react";
-import {Button, Form, Input, message, Select, Spin} from "antd";
+import {Button, Form, Input, message, Select, Space, Spin} from "antd";
 import * as ProjectService from "@/services/project";
+import {useNavigate} from "@@/exports";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditProject=(props)=>{
-    const location=useLocation()
-    const formRef =useRef()
+    const location=useLocation();
+    const navigate=useNavigate();
+    const formRef =useRef();
     const [isLoading,setIsLoading]=useState(false);
     // 路由参数
-    const [uid,setUid]=useState<string|undefined>()
+    const [uid,setUid]=useState<string|undefined>();
     // 公司列表
-    const [company,setCompany]=useState([])
+    const [company,setCompany]=useState([]);
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
@@ -20,22 +22,25 @@ const EditProject=(props)=>{
         getCompanyOne(id)
     }, []);
     const  onFinish=async (values:any)=>{
+        setIsLoading(true);
         let res=await props.dispatch({
             type:'Project/edit',
             payload:{...values,uid}
         })
         if (res.ErrorCode==0){
-            message.success('修改成功')
-            history.push('/financeManage/list')
+            message.success('修改成功');
+            history.push('/financeManage/list');
+            setIsLoading(false);
         }else {
-            message.error(res.Data)
+            message.error(res.Data);
+            setIsLoading(false);
         }
     }
     // 获取项目详情信息
     const getCompanyOne=async (e:any)=>{
         let res=await ProjectService.one(e)
         if (res?.ErrorCode==0){
-            formRef.current.setFieldsValue(res?.Data)
+            formRef.current.setFieldsValue(res?.Data);
         }
     }
     useEffect(()=>{
@@ -75,9 +80,14 @@ const EditProject=(props)=>{
                     </Select>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        修改
-                    </Button>
+                   <Space>
+                       <Button type="primary"  htmlType="submit">
+                           修改
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

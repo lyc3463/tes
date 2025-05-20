@@ -1,10 +1,11 @@
-import {Button, Form, Input, InputNumber, message, Radio, Spin} from "antd";
+import {Button, Form, Input, InputNumber, message, Radio, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
-import {connect, history} from "umi";
+import {connect, history,useNavigate} from "umi";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddCableParameter=(props:any)=>{
+    const navigate=useNavigate();
     const we_type=2;
     const [changeValue,setChangeValue]=useState(3)
     //价格总数=基础价+附加单价
@@ -379,9 +380,14 @@ const AddCableParameter=(props:any)=>{
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

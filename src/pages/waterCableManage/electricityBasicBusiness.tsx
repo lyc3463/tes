@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {useLocation,connect} from 'umi'
+import {useLocation,connect,useNavigate} from 'umi'
 import {Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin, Tag} from "antd";
 import * as CableServer from "@/services/cable";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -8,6 +8,7 @@ const tailLayout = {
 };
 const ElectricityBasicBusiness=(props:any)=>{
     const location=useLocation();
+    const navigate=useNavigate();
     const [isSpinning,setIsSpinning]=useState(false);
     const formRef =useRef();
     // 路由参数
@@ -132,7 +133,7 @@ const ElectricityBasicBusiness=(props:any)=>{
                 {/*</Form.Item>*/}
                 <Form.Item label='其他操作'>
                     <Space>
-                        <Button type='primary' onClick={()=>{setQlOpen(true)}}>远程清零</Button>
+                        {/*<Button type='primary' onClick={()=>{setQlOpen(true)}}>远程清零</Button>*/}
                         {/*<Button type='primary'>远程销户</Button>*/}
                         <Button type='primary' onClick={()=>setlazha(true)}>拉闸</Button>
                         <Button type='primary' onClick={()=>sethezha(true)}>合闸</Button>
@@ -150,8 +151,8 @@ const ElectricityBasicBusiness=(props:any)=>{
                     <InputNumber/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        保存
+                    <Button type="primary" onClick={()=>navigate(-1)}>
+                        返回
                     </Button>
                 </Form.Item>
             </Form>

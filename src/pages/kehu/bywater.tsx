@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as ByStagesService from '@/services/byStages';
 import * as ZuhuServer from "@/services/zuhu";
-import {connect} from "@@/exports";
+import {connect,history,useNavigate} from "umi";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -11,6 +11,7 @@ const filteredWaterArray =(e,watertList)=>{
     return  e.length === 0 ? [] : watertList.filter(item => e.includes(item.id));
 };
 const Bywater=(props)=>{
+    const navigate=useNavigate();
     const [uid,setUid]=useState('0');
     // 原始水表id
     const [water_idz,setWater_id]=useState([]);
@@ -175,7 +176,7 @@ const Bywater=(props)=>{
                         {
                             elewaterList.map((item:any,index:number)=>{
                                 return(
-                                    <div  key={index}>
+                                    <div key={index}>
                                         <span>{item.remark}</span>--
                                         <span>
                                             当前用水量:
@@ -186,7 +187,12 @@ const Bywater=(props)=>{
                             })
                         }
                     </Space>
-                    <Button type='primary' onClick={onguandianshui}>确定关联水表</Button>
+                   <Space>
+                       <Button type='primary' onClick={onguandianshui}>确定关联水表</Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
             {/*取消水表关联的弹窗*/}

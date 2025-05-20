@@ -1,6 +1,6 @@
 import {Button, DatePicker, Form, Image, Input, InputNumber, message, Modal, Select, Spin, Tag} from "antd";
 import {useEffect, useRef, useState} from "react";
-import {history,useLocation,connect} from "umi";
+import {history,useLocation,connect,useNavigate} from "umi";
 import * as CheckFpService from '@/services/checkFp';
 import dayjs from "dayjs";
 import ImageUploader from "@/components/ImageUploader";
@@ -10,6 +10,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditCheckFp=(props:any)=>{
+    const navigate=useNavigate();
     const location=useLocation();
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
@@ -39,7 +40,6 @@ const EditCheckFp=(props:any)=>{
         let res:any=await  CheckFpService.one(id);
         if (res.ErrorCode==0){
             let data=res.Data;
-            console.log("抬头审批",data)
             setRise_type(data[1].rise_type);
             setDuty_paragraph(data[1].duty_paragraph);
             setWork_phone(data[1].work_phone);
@@ -187,8 +187,8 @@ const EditCheckFp=(props:any)=>{
                     <Input placeholder='单位地址' value={work_address}/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" onClick={onFs}>
-                        发送
+                    <Button type="primary" onClick={()=>navigate(-1)}>
+                        返回
                     </Button>
                 </Form.Item>
             </Form>

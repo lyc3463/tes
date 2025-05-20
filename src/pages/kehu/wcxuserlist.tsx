@@ -1,14 +1,31 @@
-import {Button, Form, Image, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    Form,
+    Image,
+    Input,
+    InputNumber,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag
+} from "antd";
 import {connect} from 'umi';
 import * as AppUserService from '@/services/appUser';
 import {useEffect, useState} from "react";
 import {qxTree} from '@/constants/qxMenu/wxMenu'
-import {buildTree, ensureArrayLength} from "@/utils/OpenTool";
+import {buildTree, ensureArrayLength, exportDataToExcel} from "@/utils/OpenTool";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Wcxuserlist=(props:any)=>{
     const treeData = buildTree(qxTree);
     const [isSpinning,setIsSpinning]=useState(false);
     const [page,setPage]=useState(1);
+    const [balance,setbalance]=useState(0);
     const [pageSize,setpageSize]=useState(50);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
@@ -83,14 +100,14 @@ const Wcxuserlist=(props:any)=>{
     const getList=()=>{
         props.dispatch({
             type:'AppUser/fetch',
-            payload:{page,name,phone,pageSize}
+            payload:{page,name,phone,pageSize,balance}
         });
     };
     // 分页
     const logFenye=()=>{
         props.dispatch({
             type:"AppUser/fenye",
-            payload:{name,phone,pageSize}
+            payload:{name,phone,pageSize,balance}
         })
     };
     // 监听页数
@@ -166,6 +183,34 @@ const Wcxuserlist=(props:any)=>{
         // 设置新的选中状态
         setSelected(newSelected);
     };
+    const changeBalance=(value)=>{
+        // 确保值不小于 0
+        const newValue = value !== undefined ? Math.max(value, 0) : 0;
+        setbalance(newValue);
+    };
+    const exportToExcel=()=>{
+        setIsSpinning(true);
+        AppUserService.fetch({page:1,name,phone,pageSize:100000,balance}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let headers=['微信昵称','用户手机号','余额(元)','账单(元)','积分'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })), // 表头
+                    ...res.Data.map(item => [
+                        item.appUser_name,
+                        item.appUser_phone,
+                        item.balance,
+                        item.billMoney,
+                        item.integral,
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                ];
+                exportDataToExcel(ws_data);
+                setIsSpinning(false);
+            }else {
+                message.error(res.Data);
+                setIsSpinning(false);
+            }
+        })
+    };
     return(
         <Spin spinning={isSpinning}>
             <List style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
@@ -179,8 +224,17 @@ const Wcxuserlist=(props:any)=>{
                             addonBefore="姓名:"
                             onChange={changeName}
                         />
+                        <InputNumber
+                            addonBefore="余额:"
+                            onChange={changeBalance}
+                            min={0}
+                            value={balance}
+                        />
                         <Button type="primary" onClick={shousuo}>
                             搜索
+                        </Button>
+                        <Button type="primary" onClick={exportToExcel}>
+                           导出
                         </Button>
                     </Space>
                 </List.Item>

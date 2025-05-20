@@ -147,9 +147,9 @@ const Water=(props:any)=>{
                 return(
                     <>
                         <Space>
-                            {uqx[251]=='1'?<Button type='link' onClick={()=>toedit(record)}>编辑</Button> :''}
-                            <Button type='link' onClick={()=>tojiben(record)}>基本业务</Button>
-                            {uqx[252]=='1'?<Button type='link' onClick={()=>isdelete(record)}>删除</Button> :''}
+                            {uqx[251]=='1'?<Button type='primary' onClick={()=>toedit(record)}>编辑</Button> :''}
+                            <Button type='primary' onClick={()=>tojiben(record)}>基本业务</Button>
+                            {uqx[252]=='1'?<Button type='primary' danger onClick={()=>isdelete(record)}>删除</Button> :''}
                         </Space>
                     </>
                 )

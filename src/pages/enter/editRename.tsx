@@ -1,6 +1,6 @@
-import {Button, Form, Input, message, Select, Spin} from "antd";
+import {Button, Form, Input, message, Select, Space, Spin} from "antd";
 import {filterAndUpdateList, phonePattern} from "@/utils/OpenTool";
-import {connect,history} from 'umi'
+import {connect,history,useNavigate} from 'umi'
 import {useEffect, useRef, useState} from "react";
 import * as RenameService from '@/services/rename';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -8,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditRename=(props)=>{
+    const navigate=useNavigate();
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     const formRef=useRef();
@@ -87,9 +88,14 @@ const EditRename=(props)=>{
                     <Input placeholder='更改后的手机号'/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        确定编辑
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            确定编辑
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

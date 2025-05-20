@@ -1,5 +1,5 @@
-import {Button, DatePicker, Form, Input, message, Select, Spin} from "antd";
-import {connect,history} from 'umi'
+import {Button, DatePicker, Form, Input, message, Select, Space, Spin} from "antd";
+import {connect,history,useNavigate} from 'umi'
 import {useEffect, useRef, useState} from "react";
 import * as RenewService from '@/services/renew';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -8,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditRenew=(props)=>{
+    const navigate=useNavigate();
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     const formRef=useRef();
@@ -106,9 +107,14 @@ const EditRenew=(props)=>{
                     <span style={{color:'red',fontSize:'12px'}}>合同结束日期三个月内才允许续签</span>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        确定编辑
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            确定编辑
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

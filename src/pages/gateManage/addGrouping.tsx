@@ -1,11 +1,12 @@
-import {Button, Form, Input, message, Select, Spin} from "antd";
+import {Button, Form, Input, message, Select, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddGrouping=(props:any)=>{
+    const navigate=useNavigate();
     const [isLoading,setIsLoading]=useState(false);
     const [form] = Form.useForm();
     const [joinGateList,setJoinGateList]=useState('');
@@ -65,9 +66,14 @@ const AddGrouping=(props:any)=>{
                         </Select>
                     </Form.Item>
                     <Form.Item {...tailLayout}>
-                        <Button type="primary"  htmlType="submit" >
-                            添加
-                        </Button>
+                       <Space>
+                           <Button type="primary"  htmlType="submit" >
+                               添加
+                           </Button>
+                           <Button type="primary" onClick={()=>navigate(-1)}>
+                               返回
+                           </Button>
+                       </Space>
                     </Form.Item>
                 </Form>
             </Spin>

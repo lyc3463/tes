@@ -881,7 +881,7 @@ const EditStaff=(props:any)=>{
                             确定
                         </Button>
                         <Button type="primary" onClick={onLikai}>
-                            取消
+                            返回
                         </Button>
                     </Space>
                 </Form.Item>

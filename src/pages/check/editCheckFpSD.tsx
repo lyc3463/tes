@@ -1,6 +1,6 @@
 import {Button, DatePicker, Form, Image, Input, InputNumber, message, Modal, Select, Spin, Tag} from "antd";
 import {useEffect, useRef, useState} from "react";
-import {history,useLocation,connect} from "umi";
+import {history,useLocation,connect,useNavigate} from "umi";
 import * as CheckFpService from '@/services/checkFpSD';
 import dayjs from "dayjs";
 import ImageUploader from "@/components/ImageUploader";
@@ -11,6 +11,7 @@ const tailLayout = {
 };
 const EditCheckFpSD=(props:any)=>{
     const location=useLocation();
+    const navigate=useNavigate();
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     const formRef=useRef();
@@ -165,8 +166,8 @@ const EditCheckFpSD=(props:any)=>{
                     <Input placeholder='单位地址' value={work_address}/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" onClick={onFs}>
-                        发送
+                    <Button type="primary" onClick={()=>navigate(-1)}>
+                        返回
                     </Button>
                 </Form.Item>
             </Form>

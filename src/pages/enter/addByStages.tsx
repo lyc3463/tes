@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react";
-import {Button, DatePicker, Form, Input, InputNumber, message, Select, Spin} from "antd";
-import {connect,history} from "umi";
-import {filterAndUpdateList} from "@/utils/OpenTool";
+import {Button, DatePicker, Form, Input, InputNumber, message, Select, Space, Spin} from "antd";
+import {connect,history,useNavigate} from "umi";
 import * as StaffService from "@/services/staff";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
@@ -14,6 +13,7 @@ const fenqiList=[
     {value:3,label:'每月20号'}
 ]
 const AddByStages=(props)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     // 租户名字
     const [oldName,setOldName]=useState('');
@@ -154,11 +154,15 @@ const AddByStages=(props)=>{
                     <span style={{fontSize:'12px',color:'#555'}}>分期开始/结束月份每月分期租金分配给还款开始/结束日期</span>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
-
             </Form>
         </Spin>
     )

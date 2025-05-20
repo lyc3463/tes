@@ -1,12 +1,13 @@
-import {connect,useLocation,history} from 'umi';
+import {connect,useLocation,history,useNavigate} from 'umi';
 import * as GroupingServer from "@/services/grouping";
 import {useEffect, useRef, useState} from "react";
-import {Button, Form, Input, InputNumber, message, Select} from "antd";
+import {Button, Form, Input, InputNumber, message, Select, Space} from "antd";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditGrouping=(props)=>{
-    const location=useLocation()
+    const location=useLocation();
+    const navigate=useNavigate();
     const [isLoading,setIsLoading]=useState(false);
     const [form] = Form.useForm();
     // 路由参数
@@ -90,12 +91,16 @@ const EditGrouping=(props)=>{
                             }
                         </Select>:''
                     }
-
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit" >
-                        编辑
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit" >
+                            修改
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </div>

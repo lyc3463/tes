@@ -1,4 +1,4 @@
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 import {
     Button,
     Form,
@@ -23,6 +23,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddChongzhi=(props:any)=>{
+    const navigate=useNavigate();
     // 充值类型
     const [handType,setHandType]=useState(1);
     const [spinning,setspinning]=useState(false);
@@ -82,7 +83,6 @@ const AddChongzhi=(props:any)=>{
         setspinning(true);
         AppUserService.userInfo(userPhone).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log(res.Data)
                 if (res.Data.userId==0){
                     message.warning('未能查询到该用户');
                     setspinning(false);
@@ -146,6 +146,7 @@ const AddChongzhi=(props:any)=>{
                             onChange={(e)=>setaddbalance(e)}
                             value={addbalance}
                         />
+                        <Button type='primary' onClick={()=>navigate(-1)}>返回</Button>
                     </Space>
                 </List.Item>
             </List>
@@ -166,7 +167,6 @@ const AddChongzhi=(props:any)=>{
                     <div style={{marginTop:'20px',textAlign:'center',width:'1000px'}}>
                         <Space>
                             <Button type='primary' onClick={chongzhiOpen}>充值</Button>
-                            <Button type='primary'>取消</Button>
                         </Space>
                     </div>
                 </>

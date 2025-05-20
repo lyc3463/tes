@@ -1,11 +1,12 @@
-import {Button, Form, Input, InputNumber, message, Spin} from "antd";
-import {connect, history} from "umi";
+import {Button, Form, Input, InputNumber, message, Space, Spin} from "antd";
+import {connect, history,useNavigate} from "umi";
 import {useEffect, useState} from "react";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddHouse=(props:any)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     const [spinning,setspinning]=useState(false);
     // 可租面积
@@ -91,9 +92,14 @@ const AddHouse=(props:any)=>{
                     <InputNumber value={residue_add_area} disabled/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                   <Space>
+                       <Button type="primary" htmlType="submit">
+                           添加
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

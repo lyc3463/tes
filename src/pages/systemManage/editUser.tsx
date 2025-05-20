@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
-import {connect,useLocation,history} from "umi";
-import {Button, Form, Input, message, Select} from "antd";
+import {connect,useLocation,history,useNavigate} from "umi";
+import {Button, Form, Input, message, Select, Space} from "antd";
 import * as UsersService from '@/services/users';
 import {buildTree, ensureArrayLength, filterAndUpdateList, mmPattern, phonePattern} from "@/utils/OpenTool";
 import {qxTree} from "@/constants/qxMenu";
@@ -14,6 +14,7 @@ const tailLayout = {
 let qxList=StaticInfo.uqx;
 let authArr =qxList.split('').map(Number);
 const EditUser=(props:any)=>{
+    const navigate=useNavigate();
     const treeData = buildTree(qxTree);
     const location=useLocation();
     const [roleList,setRoleList]=useState([]);
@@ -842,9 +843,14 @@ const EditUser=(props:any)=>{
                     <TreeMenu tree={treeData} selected={selected} disabled={authArr}  setSelected={setSelected} />
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        修改
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit">
+                            修改
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </div>

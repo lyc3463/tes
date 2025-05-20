@@ -145,9 +145,9 @@ const Cable=(props:any)=>{
                 return(
                     <>
                        <Space>
-                           <Button type='link' onClick={()=>tojiben(record)}>基本业务</Button>
-                           {uqx[177]=='1'?<Button type='link' onClick={(e)=>toedit(record.id)}>编辑</Button> :''}
-                           {uqx[179]=='1'?<Button type='link' onClick={(e)=>onDeleteOpen(record.id)}>删除</Button> :''}
+                           <Button type='primary' onClick={()=>tojiben(record)}>基本业务</Button>
+                           {uqx[177]=='1'?<Button type='primary' onClick={(e)=>toedit(record.id)}>编辑</Button> :''}
+                           {uqx[179]=='1'?<Button type='primary' danger onClick={(e)=>onDeleteOpen(record.id)}>删除</Button> :''}
                        </Space>
                     </>
                 )

@@ -1,7 +1,6 @@
-import {Button, DatePicker, Form, Image, Input, message, Radio, Select, Spin, Upload} from "antd";
+import {Button, DatePicker, Form, Image, Input, message, Radio, Select, Space, Spin, Upload} from "antd";
 import {useEffect, useState} from "react";
-import {connect,history} from "umi";
-
+import {connect,history,useNavigate} from "umi";
 import CmpImageUploader from "@/components/ImageUploader";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
@@ -9,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddBanner=(props:any)=>{
+    const navigate=useNavigate();
     const [isLoading,setIsLoading]=useState(false);
     const [form] = Form.useForm();
     // 单图
@@ -67,9 +67,14 @@ const AddBanner=(props:any)=>{
                 {/*    </Radio.Group>*/}
                 {/*</Form.Item>*/}
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit" disabled={!upImg}>
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit" disabled={!upImg}>
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

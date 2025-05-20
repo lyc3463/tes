@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {connect,history,useLocation} from "umi";
+import {connect,history,useLocation,useNavigate} from "umi";
 import * as EmpServer from "@/services/emp";
 import {Button, DatePicker, Form, Image, Input, message, Radio, Select, Space, Spin, Upload} from "antd";
 import dayjs from "dayjs";
@@ -12,6 +12,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditYuangong=(props:any)=>{
+    const navigate=useNavigate();
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     const formRef=useRef();
@@ -181,9 +182,14 @@ const EditYuangong=(props:any)=>{
                     </Space>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        编辑
-                    </Button>
+                  <Space>
+                      <Button type="primary" htmlType="submit">
+                          编辑
+                      </Button>
+                      <Button type="primary" onClick={()=>navigate(-1)}>
+                          返回
+                      </Button>
+                  </Space>
                 </Form.Item>
             </Form>
         </Spin>

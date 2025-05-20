@@ -1,12 +1,14 @@
 import {useState} from "react";
-import {Button, Form, Input, message, Radio, Select, Spin} from "antd";
+import {Button, Form, Input, message, Radio, Select, Space, Spin} from "antd";
 import * as RenovationService from '@/services/renovation';
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddRenovation=(props:any)=>{
+    const navigate=useNavigate();
+
     const [isLoading,setIsLoading]=useState(false)
     const [form] = Form.useForm();
 
@@ -41,9 +43,14 @@ const AddRenovation=(props:any)=>{
                     <Input placeholder="例:豪华装修"/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            添加
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

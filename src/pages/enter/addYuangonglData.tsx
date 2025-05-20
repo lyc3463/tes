@@ -1,6 +1,6 @@
 import {Button, Form, Input, message, Select, DatePicker, Upload, Radio, Image, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 import CmpImageUploader from "@/components/ImageUploader";
 import * as GroupingServer from "@/services/grouping";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -9,6 +9,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddYuangonglData=(props:any)=>{
+    const navigate=useNavigate();
     const [form] = Form.useForm();
     // 开始时间
     const [estarttime,setEstarttime]=useState('');
@@ -160,9 +161,14 @@ const AddYuangonglData=(props:any)=>{
                     <Input placeholder='备注'/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit">
-                        添加
-                    </Button>
+                   <Space>
+                       <Button type="primary" htmlType="submit">
+                           添加
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

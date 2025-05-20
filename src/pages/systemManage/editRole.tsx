@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
-import {connect,useLocation,history} from "umi";
-import {Button, Form, Input, message} from "antd";
+import {connect,useLocation,history,useNavigate} from "umi";
+import {Button, Form, Input, message, Space, Spin} from "antd";
 import * as RoleService from '@/services/role';
 import {buildTree, ensureArrayLength, mmPattern, phonePattern} from "@/utils/OpenTool";
 import {qxTree} from "@/constants/qxMenu";
@@ -13,7 +13,9 @@ let qxList=StaticInfo.uqx;
 let authArr =qxList.split('').map(Number);
 const EditRole=(props)=>{
     const treeData = buildTree(qxTree);
+    const navigate=useNavigate();
     const location=useLocation();
+    const [spinning,setspinning]=useState(false);
     const formRef =useRef();
     const [selected, setSelected] = useState<string[]>(Array(372).fill('0'));
     // 路由参数
@@ -770,7 +772,7 @@ const EditRole=(props)=>{
     };
     const onFinish=(value:any)=>{
         let authority=selected.join('');
-        // console.log("权限",authority);
+        setspinning(true);
         props.dispatch({
             type:'Role/edit',
             payload:{...value,uid,authority}
@@ -778,13 +780,15 @@ const EditRole=(props)=>{
             if (res.ErrorCode==0){
                 message.success('修改成功');
                 history.push('/systemManage/role');
+                setspinning(false);
             }else {
+                setspinning(false);
                 message.error(res.Data);
             }
         })
     };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
@@ -801,12 +805,17 @@ const EditRole=(props)=>{
                     <TreeMenu tree={treeData} selected={selected} disabled={authArr}  setSelected={setSelected} />
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        修改
-                    </Button>
+                    <Space>
+                        <Button type="primary"  htmlType="submit">
+                            修改
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
-        </div>
+        </Spin>
     )
 }
 export default connect() (EditRole)

@@ -137,7 +137,7 @@ const Waterjiben=(props)=>{
 
                 <Form.Item label='其他操作'>
                     <Space>
-                        <Button type='primary' onClick={()=>setQlOpen(true)}>远程清零</Button>
+                        {/*<Button type='primary' onClick={()=>setQlOpen(true)}>远程清零</Button>*/}
                         {/*<Button type='primary'>远程销户</Button>*/}
                         <Button type='primary' onClick={()=>setlazha(true)}>关阀</Button>
                         <Button type='primary' onClick={()=>sethezha(true)}>开阀</Button>
@@ -154,7 +154,7 @@ const Waterjiben=(props)=>{
                     <InputNumber/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button onClick={onLikai}>
+                    <Button onClick={onLikai} type="primary">
                         返回
                     </Button>
                 </Form.Item>

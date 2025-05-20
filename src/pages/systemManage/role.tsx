@@ -24,8 +24,8 @@ const Role=(props)=>{
             render:(text:any,record:any,)=>{
                 return(
                    <Space>
-                       {uqx[293]=='1'?<Button type='link' onClick={()=>toedit(record.id)}>编辑</Button>:''}
-                       {uqx[294]=='1'?<Button type='link' onClick={()=>isdelete(record.id)}>删除</Button>:''}
+                       {uqx[293]=='1'?<Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>:''}
+                       {uqx[294]=='1'?<Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>:''}
                    </Space>
                 )
             }

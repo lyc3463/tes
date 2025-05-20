@@ -122,10 +122,14 @@ const CheckDjContracte=()=>{
                             <>
                                 <Button type='primary' onClick={()=>toInfo(record)}>详情</Button>
                                 <Button type='primary' onClick={()=>isCheck(record.id)}>审核</Button>
-                            </>:
-                            ''
+                            </>:''
                         }
-                        <Button type='primary' danger onClick={()=>iscancel(record.id)}>取消</Button>
+                        {
+                            record.contractStatus==2?  <Button type='primary' danger onClick={()=>iscancel(record.id)}>取消</Button>:''
+                        }
+                        {
+                            record.contractStatus==3?<Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>:''
+                        }
                     </Space>
                 )
             }
@@ -154,7 +158,6 @@ const CheckDjContracte=()=>{
     const getList=()=>{
         StaffService.getdJContractList({page,pageSize,contractStatus,name,startDate,endDate}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('props',res);
                 setStaffList(res.Data);
             }else {
                 message.error(res.Data);
@@ -230,6 +233,26 @@ const CheckDjContracte=()=>{
             }
         })
     };
+    const isdelete=(e)=>{
+        setUid(e);
+        setIsCancelOpen(true);
+    };
+    const onDelete=()=>{
+        StaffService.removedj(uid).then((res:TypeErrorCode)=>{
+            setspinning(true);
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                getList();
+                setspinning(false);
+                setIsCancelOpen(false);
+            }else {
+                message.error(res.Data);
+                getList();
+                setspinning(false);
+                setIsCancelOpen(false);
+            }
+        })
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -290,6 +313,9 @@ const CheckDjContracte=()=>{
             </Modal>
             <Modal open={isCancelOpen} onOk={onCancel} onCancel={()=>setIsCancelOpen(false)} loading={spinning} title={'取消'}>
                 <div>是否取消?</div>
+            </Modal>
+            <Modal open={isCancelOpen} onOk={onDelete} onCancel={()=>setIsCancelOpen(false)} loading={spinning} title={'删除'}>
+                <div>是否删除?</div>
             </Modal>
         </Spin>
     )

@@ -1,16 +1,16 @@
-import {Button, Form, message, Select, Spin} from "antd";
-import {connect} from "umi";
+import {Button, Form, message, Select, Space, Spin} from "antd";
+import {connect,history,useNavigate} from "umi";
 import {useEffect, useState} from "react";
 import * as ByStagesService from "@/services/byStages";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as ZuhuServer from "@/services/zuhu";
-import {history} from "@@/core/history";
 import dayjs from "dayjs";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 
 const Byitem=(props)=>{
+    const navigate=useNavigate();
     // 收费项目id
     const [item_idz,setItem_idz]=useState([]);
     const [IsSpinning,setIsSpinning]=useState(false);
@@ -105,7 +105,12 @@ const Byitem=(props)=>{
                   </Select>
               </Form.Item>
               <Form.Item {...tailLayout}>
-                  <Button type='primary' onClick={okItemID}>确定关联收费项目</Button>
+                  <Space>
+                      <Button type='primary' onClick={okItemID}>确定关联收费项目</Button>
+                      <Button type="primary" onClick={()=>navigate(-1)}>
+                          返回
+                      </Button>
+                  </Space>
               </Form.Item>
           </Form>
             <Form.Item {...tailLayout}>

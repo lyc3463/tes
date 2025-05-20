@@ -1,12 +1,13 @@
-import {Button, Form, Input, InputNumber, message, Select, Spin} from "antd";
+import {Button, Form, Input, InputNumber, message, Select, Space, Spin} from "antd";
 import {useEffect, useRef, useState} from "react";
-import {useLocation, connect, history} from 'umi'
+import {useLocation, connect, history,useNavigate} from 'umi'
 import * as CollectorServer from "@/services/collector";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditCollector=(props:any)=>{
+    const navigate=useNavigate();
     const location=useLocation();
     const formRef =useRef();
     const [spinning,setspinning]=useState(false);
@@ -16,7 +17,7 @@ const EditCollector=(props:any)=>{
     const getOneCollerctor=async (id:string)=>{
         let res=await  CollectorServer.one(id);
         if (res?.ErrorCode==0){
-            formRef.current.setFieldsValue(res?.Data)
+            formRef.current.setFieldsValue(res?.Data);
         }
     };
     useEffect(()=>{
@@ -58,9 +59,14 @@ const EditCollector=(props:any)=>{
                     <Input.TextArea placeholder='备注'/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        编辑
-                    </Button>
+                  <Space>
+                      <Button type="primary"  htmlType="submit">
+                          编辑
+                      </Button>
+                      <Button type="primary" onClick={()=>navigate(-1)}>
+                          返回
+                      </Button>
+                  </Space>
                 </Form.Item>
             </Form>
         </Spin>

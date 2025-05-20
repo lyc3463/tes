@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {history, useLocation,connect} from "umi";
+import {history, useLocation,connect,useNavigate} from "umi";
 import * as propertiesServer from "@/services/properties";
 import {Button, Form, Image, Input, InputNumber, message, Radio, Space, Upload,Spin} from "antd";
 import CmpImageUploader from "@/components/ImageUploader";
@@ -8,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditProperties=(props:any)=>{
+    const navigate=useNavigate();
     const formRef=useRef();
     const location=useLocation();
     const [isLoading,setIsLoading]=useState(false);
@@ -197,9 +198,14 @@ const EditProperties=(props:any)=>{
                     <InputNumber placeholder={'越大排越前'} min={0}/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        修改
-                    </Button>
+                   <Space>
+                       <Button type="primary"  htmlType="submit">
+                           修改
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>
