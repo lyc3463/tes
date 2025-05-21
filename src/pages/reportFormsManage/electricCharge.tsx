@@ -131,7 +131,7 @@ const ElectricCharge=(props:any)=>{
         },
     ];
     useEffect(() => {
-        // logFenye();
+        logFenye();
     }, []);
     // 分页
     const logFenye=()=>{
@@ -151,7 +151,7 @@ const ElectricCharge=(props:any)=>{
         }
     };
     const shousuo=()=>{
-        // logFenye();
+        logFenye();
     };
     return(
         <div>

@@ -21,6 +21,7 @@ const WyList=()=>{
     const [spinning,setspinning]=useState(false);
     const [weiyueListInfo,setweiyueListInfo]=useState([]);
     const [open,setOpen]=useState(false);
+    const [sumweiyue,setsumweiyue]=useState(0);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -201,6 +202,7 @@ const WyList=()=>{
             setspinning(true);
             if (res.ErrorCode==0){
                 setweiyueListInfo(res.Data);
+                setsumweiyue(getTotalDefaultAmount(res.Data));
                 setspinning(false);
             }else {
                 setspinning(false);
@@ -211,6 +213,15 @@ const WyList=()=>{
     const changeName=(e)=>{
       setName(e.target.value);
       localStorage.setItem('financeSumWyListName',e.target.value);
+    };
+    const getTotalDefaultAmount = (arr) => {
+        if (!Array.isArray(arr)) return 0;
+        return arr.reduce((total, item) => {
+            const amount = item && typeof item.defaultAmount === 'number'
+                ? item.defaultAmount
+                : 0;
+            return total + amount;
+        }, 0);
     };
     return(
         <Spin spinning={spinning}>
@@ -285,6 +296,16 @@ const WyList=()=>{
                     scroll={{y:'70vh'}}
                     rowKey={(columns) => columns.id}
                     size='small'
+                    summary={(columns) => (
+                        <Table.Summary fixed>
+                            <Table.Summary.Row>
+                                <Table.Summary.Cell index={0}> 统计 </Table.Summary.Cell>
+                                <Table.Summary.Cell index={1}></Table.Summary.Cell>
+                                <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                                <Table.Summary.Cell index={3}>{sumweiyue}元</Table.Summary.Cell>
+                            </Table.Summary.Row>
+                        </Table.Summary>
+                    )}
                 />
             </Modal>
         </Spin>

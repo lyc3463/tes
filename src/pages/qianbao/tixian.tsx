@@ -9,8 +9,8 @@ const Tixian=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [stutes,setStutes]=useState(0);
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('qianbaoTixianStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('qianbaoTixianEndDate')||'2099-01-01');
     const columns =[
         {
             title: '日期',
@@ -121,9 +121,13 @@ const Tixian=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('qianbaoTixianStartDate','2000-01-01');
+            localStorage.setItem('qianbaoTixianEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('qianbaoTixianStartDate',data[0]);
+            localStorage.setItem('qianbaoTixianEndDate',data[1]);
         }
     };
     const onChange=(e:number,pageSize:number)=>{
@@ -183,7 +187,7 @@ const Tixian=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

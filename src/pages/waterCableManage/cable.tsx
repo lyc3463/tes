@@ -8,12 +8,12 @@ import {StaticInfo} from "@/StaticInfo";
 const Cable=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [collectorId,setCollectorId]=useState('');
+    const [collectorId,setCollectorId]=useState(localStorage.getItem('waterCableManageCableCollectorId')||'');
     const [did,setDid]=useState(0);
     const [open,setOpen]=useState(false);
     const [isSpinning,setIsSpinning]=useState(false);
-    const [name,setNmae]=useState('');
-    const [remark,setremark]=useState('');
+    const [name,setNmae]=useState(localStorage.getItem('waterCableManageCableName')||'');
+    const [remark,setremark]=useState(localStorage.getItem('waterCableManageCableRemark')||'');
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const toedit=(e)=>{
@@ -189,8 +189,9 @@ const Cable=(props:any)=>{
         })
     };
     // 监听采集器输入框
-    const changeName=(e)=>{
+    const changeCollectorId=(e)=>{
       setCollectorId(e.target.value);
+      localStorage.setItem('waterCableManageCableCollectorId',e.target.value);
     };
     // 删除弹窗
     const onDeleteOpen=(e)=>{
@@ -219,6 +220,14 @@ const Cable=(props:any)=>{
         setUqx(uq);
         getFenyeInfo();
     }, []);
+    const changeRemark=(e)=>{
+        setremark(e.target.value);
+        localStorage.setItem('waterCableManageCableRemark',e.target.value);
+    };
+    const changeName=(e)=>{
+        setNmae(e.target.value);
+        localStorage.setItem('waterCableManageCableName',e.target.value);
+    };
     return(
         <Spin spinning={isSpinning}>
             <List>
@@ -228,16 +237,20 @@ const Cable=(props:any)=>{
                     </div>
                     <Space>
                         <Input
-                            onChange={changeName}
+                            onChange={changeCollectorId}
                             addonBefore="电表地址:"
+                            value={collectorId}
+
                         />
                         <Input
-                            onChange={(e)=>setremark(e.target.value)}
+                            onChange={changeRemark}
                             addonBefore="电表描述:"
+                            value={remark}
                         />
                         <Input
-                            onChange={(e)=>setNmae(e.target.value)}
+                            onChange={changeName}
                             addonBefore="租户姓名:"
+                            value={name}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索

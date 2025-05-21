@@ -8,7 +8,7 @@ import {StaticInfo} from "@/StaticInfo";
 const Collector=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [collector_number,setCollector_number]=useState('');
+    const [collector_number,setCollector_number]=useState(localStorage.getItem('waterCableManageCollectorCollectorNumber')||'');
     const [stutes,setStutes]=useState(2);
     const [uid,setUid]=useState(0);
     const [isOpen,setIsOpen]=useState(false);
@@ -111,6 +111,7 @@ const Collector=(props:any)=>{
     };
     const changeName=(e:any)=>{
         setCollector_number(e.target.value);
+        localStorage.setItem('waterCableManageCollectorCollectorNumber',e.target.value);
     };
     const sousuo=()=>{
         setPage(1);
@@ -157,6 +158,7 @@ const Collector=(props:any)=>{
                         <Input
                             onChange={changeName}
                             addonBefore="采集器ID:"
+                            value={collector_number}
                         />
                         {/*<Space.Compact>*/}
                         {/*    <div*/}

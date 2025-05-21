@@ -8,15 +8,13 @@ import TypeGongsi from "@/ModelTypes/TypeGongsi";
 import {Button, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
-
-
 function Gongsiguanli(props: any) {
     const [loading, setLoading] = useState(false);
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 参数名称
-    const [cname,setCname]=useState('');
+    const [cname,setCname]=useState(localStorage.getItem('xiangmuGongsiguanliCname')||'');
     // 收费类型
     const [feetype,setFeetype]=useState(0);
     // 删除的弹窗
@@ -94,6 +92,7 @@ function Gongsiguanli(props: any) {
     // 监听收费项目名称
     const changeName=(e)=>{
         setCname(e.target.value);
+        localStorage.setItem('xiangmuGongsiguanliCname',e.target.value);
     };
     // 监听收费类型
     const changeType=(e)=>{
@@ -163,6 +162,7 @@ function Gongsiguanli(props: any) {
                             <Input
                                 onChange={changeName}
                                 addonBefore="收费项目名称:"
+                                value={cname}
                             />
                             <Space.Compact>
                                 <div

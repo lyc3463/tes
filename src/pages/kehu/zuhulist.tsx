@@ -5,8 +5,8 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {calculateSums, fuzzySearch} from "@/utils/OpenTool";
 
 const Zuhulist=(props:any)=>{
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(localStorage.getItem('kehuZuhulistName')||'');
+    const [phone,setPhone]=useState(localStorage.getItem('kehuZuhulistPhone')||'');
     const [page,setPage]=useState(1);
     // 页数
     const [pagecount,setpagecount]=useState(50);
@@ -118,8 +118,9 @@ const Zuhulist=(props:any)=>{
         logFenyeInfo();
         logFenye()
     };
-    const onChange=(val:number)=>{
-        setPage(val)
+    const onChange=(val:number,pageSize:number)=>{
+        setPage(val);
+        setpagecount(pageSize);
     };
     // 查看分页记录
     const logFenyeInfo=()=>{
@@ -146,6 +147,14 @@ const Zuhulist=(props:any)=>{
         setdepositSum(b.depositSum);
         setintegralSum(b.integralSum);
     };
+    const changeName=(e)=>{
+      setName(e.target.value);
+      localStorage.setItem('kehuZuhulistName',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        localStorage.setItem('kehuZuhulistPhone',e.target.value);
+    };
     return(
         <div>
             <List>
@@ -153,11 +162,13 @@ const Zuhulist=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="姓名:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Input
                             addonBefore="手机号:"
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
+                            value={phone}
                         />
                         <Button type="primary" onClick={shousuo}>
                             搜索
@@ -219,7 +230,7 @@ const Zuhulist=(props:any)=>{
                     </Table.Summary>
                 )}
             />
-            <Pagination showSizeChanger total={count} pageSize={pagecount} current={page}  onChange={onChange} pageSizeOptions={[50, 100, 500, 1000]}/>
+            <Pagination showSizeChanger total={count} pageSize={pagecount} current={page}  onChange={onChange} pageSizeOptions={[50, 100, 500, 1000,10000]}/>
         </div>
     )
 }

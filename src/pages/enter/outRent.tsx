@@ -1,13 +1,17 @@
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const OutRent=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
+    const [uid,setUid]=useState(0);
+    const [open,setOpen]=useState(false);
     // 手机号
     const [phone,setPhone]=useState('');
+    const [spinning,setspinning]=useState(false);
     // 状态 0全部，1未审核，2审核通过
     const [stutes,setStutes]=useState(0);
     // 开始时间
@@ -89,7 +93,7 @@ const OutRent=(props:any)=>{
                     <Space>
                         {record.renameStatus==2?'':<>
                             <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
-                            <Button type='primary' danger>删除</Button>
+                            <Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>
                         </>}
                     </Space>
                 )
@@ -147,8 +151,29 @@ const OutRent=(props:any)=>{
     const toedit=(e:number)=>{
         history.push(`/enter/editOutRent?id=${e}`);
     };
+    const isdelete=(e)=>{
+      setUid(e);
+      setOpen(true);
+    };
+    const onOk=()=>{
+      setspinning(true);
+        props.dispatch({
+            type:'OutRent/remove',
+            payload:uid
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setspinning(false);
+                setOpen(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+                setOpen(false);
+            }
+        })
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -222,7 +247,10 @@ const OutRent=(props:any)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-        </div>
+            <Modal open={open} loading={spinning} onCancel={()=>setOpen(false)} title={'删除'} onOk={onOk}>
+                是否要删除?
+            </Modal>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

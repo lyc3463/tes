@@ -25,12 +25,12 @@ const YuangonglData=(props:any)=>{
     // 审核状态 0全部  1未审核 2已审核
     const [stutes,setStutes]=useState(1);
     // 姓名
-    const [cname,setCname]=useState('');
+    const [cname,setCname]=useState(localStorage.getItem('enterYuangonglDataName')||'');
     // 昵称
-    const [nickname,setNickname]=useState('');
+    const [nickname,setNickname]=useState(localStorage.getItem('enterYuangonglDataNickname')||'');
     // 手机号
-    const [phone,setPhone]=useState('');
-    const [companyName,setcompanyName]=useState('');
+    const [phone,setPhone]=useState(localStorage.getItem('enterYuangonglDataPhone')||'');
+    const [companyName,setcompanyName]=useState(localStorage.getItem('enterYuangonglDataCompanyName')||'');
     // 唯一ID
     const [uid,setUid]=useState(0);
     // 删除的名称
@@ -177,15 +177,22 @@ const YuangonglData=(props:any)=>{
     }, [page,pageSize]);
     // 监听员工姓名
     const changeName=(e)=>{
-      setCname(e.target.value);
+        setCname(e.target.value);
+        localStorage.setItem('enterYuangonglDataName',e.target.value);
     };
     // 监听员工昵称
     const changeNickname=(e)=>{
         setNickname(e.target.value);
+        localStorage.setItem('enterYuangonglDataNickname',e.target.value);
     };
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
+        localStorage.setItem('enterYuangonglDataPhone',e.target.value);
+    };
+    const changeCompanyName=(e)=>{
+        setcompanyName(e.target.value);
+        localStorage.setItem('enterYuangonglDataCompanyName',e.target.value);
     };
     // 删除的确定按钮
     const onOk=()=>{
@@ -221,18 +228,22 @@ const YuangonglData=(props:any)=>{
                         <Input
                             onChange={changeName}
                             addonBefore="员工姓名:"
+                            value={cname}
                         />
                         <Input
                             onChange={changeNickname}
                             addonBefore="员工昵称:"
+                            value={nickname}
                         />
                         <Input
                             onChange={changePhone}
                             addonBefore="手机号:"
+                            value={phone}
                         />
                         <Input
-                            onChange={(e)=>setcompanyName(e.target.value)}
+                            onChange={changeCompanyName}
                             addonBefore="公司/单元:"
+                            value={companyName}
                         />
                         <Space.Compact>
                             <div

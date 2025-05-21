@@ -107,12 +107,12 @@ const HouseModel: HouseInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/houseManage/editUnit/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/houseManage/editUnit/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
                 // if (StaticInfo.userId > 0 && pathname === '/waterCableManage/addCable/') {
                 //     dispatch({
                 //         type: 'fetch',
@@ -125,12 +125,12 @@ const HouseModel: HouseInterface = {
                 //         payload: location.state,
                 //     });
                 // }
-                if (StaticInfo.userId > 0 && pathname === '/gateManage/addDevice/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/gateManage/addDevice/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
             });
         },
     },

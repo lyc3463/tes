@@ -9,9 +9,10 @@ import {exportDataToExcel} from "@/utils/OpenTool";
 const Finance=(props)=>{
     const [page,setPage]=useState(1);
     const [spinning,setspinning]=useState(false);
-    const [pageSize,setPageSize]=useState(50);
+    const [pageSize,setPageSize]=useState(10000);
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
+    const [dataSource,setdataSource]=useState([]);
     const columns =[
         {
             title: '日期',
@@ -41,6 +42,12 @@ const Finance=(props)=>{
             key: 'amount',
 
         },
+        {
+            title: '差异(元)',
+            dataIndex: 'difference1',
+            key: 'difference1',
+
+        },
     ];
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -66,9 +73,19 @@ const Finance=(props)=>{
     };
     // 分页
     const logFenye=()=>{
+        setspinning(true);
         props.dispatch({
             type:"Finance/fetch",
             payload:{page,startDate,endDate,pageSize}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let a=addDifferenceField(res.Data);
+                setdataSource(a);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
         })
     };
     // 监听页数
@@ -104,6 +121,30 @@ const Finance=(props)=>{
             }
         })
     };
+    const  addDifferenceField=(data)=> {
+        // 创建一个Map以便快速查找某一天的记录
+        const dateMap = new Map();
+        data.forEach(item => {
+            const date = dayjs(item.countDate).format('YYYY-MM-DD'); // 使用dayjs格式化日期，忽略时间
+            dateMap.set(date, item);
+        });
+        // 处理每条记录
+        return data.map(item => {
+            const currentDate = dayjs(item.countDate);
+            const prevDate = currentDate.subtract(1, 'day').format('YYYY-MM-DD');
+            const prevItem = dateMap.get(prevDate);
+            let difference = 0;
+            if (prevItem) {
+                const currentCalc = item.balance - item.rechargeAmount + item.amount;
+                difference = currentCalc - prevItem.balance;
+            }
+
+            return {
+                ...item,
+                difference1: parseFloat(difference.toFixed(4)) // 保留4位小数
+            };
+        });
+    }
     return(
         <Spin spinning={spinning}>
             <List>
@@ -121,7 +162,7 @@ const Finance=(props)=>{
                 pagination={false}
                 scroll={{y:'70vh'}}
                 rowKey={(columns) => columns.id}
-                dataSource={props.FinanceList}
+                dataSource={dataSource}
                 size='small'
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}

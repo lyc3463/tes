@@ -5,8 +5,8 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
 
 const HouseBill=(props:any)=>{
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(localStorage.getItem('houseManageHouseBillName')||'');
+    const [phone,setPhone]=useState(localStorage.getItem('houseManageHouseBillPhone')||'');
     const [page,setPage]=useState(1);
     const [count,setcount]=useState(1);
     const [pagecount,setpagecount]=useState(50);
@@ -93,6 +93,14 @@ const HouseBill=(props:any)=>{
     const toinfo=(e)=>{
         history.push(`/houseManage/tennerBill?id=${e}`)
     };
+    const changeName=(e)=>{
+      setName(e.target.value);
+      localStorage.setItem('houseManageHouseBillName',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        localStorage.setItem('houseManageHouseBillPhone',e.target.value);
+    };
     return(
         <div>
             <List>
@@ -100,11 +108,13 @@ const HouseBill=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="姓名:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Input
                             addonBefore="手机号:"
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
+                            value={phone}
                         />
                         <Button type="primary" onClick={shousuo}>
                             搜索

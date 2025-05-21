@@ -1,5 +1,5 @@
-import {connect,useLocation,history} from 'umi'
-import {Button, Form, Input, InputNumber, message, Radio, Select, Spin, Tag} from "antd";
+import {connect,useLocation,history,useNavigate} from 'umi'
+import {Button, Form, Input, InputNumber, message, Radio, Select, Space, Spin, Tag} from "antd";
 import {useEffect, useRef, useState} from "react";
 import * as WatertServer from "@/services/watert";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -7,6 +7,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditWater=(props)=>{
+    const navigate=useNavigate();
     const formRef =useRef();
     const [form] = Form.useForm();
     const [isSpinning,setIsSpinning]=useState(false);
@@ -133,9 +134,14 @@ const EditWater=(props)=>{
                     <Input placeholder='水表备注(不能为空)' />
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary"  htmlType="submit">
-                        编辑
-                    </Button>
+                   <Space>
+                       <Button type="primary"  htmlType="submit">
+                           编辑
+                       </Button>
+                       <Button type="primary" onClick={()=>navigate(-1)}>
+                           返回
+                       </Button>
+                   </Space>
                 </Form.Item>
             </Form>
         </Spin>

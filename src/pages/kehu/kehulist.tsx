@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import {history} from "@@/core/history";
 
 const Kehulist=(props:any)=>{
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('kehuKehulistName')||'');
     const [page,setPage]=useState(1);
     const [pageSize,setpageSize]=useState(50);
     const [startDate,setStartDate]=useState('2000-01-01');
@@ -291,6 +291,7 @@ const Kehulist=(props:any)=>{
     // 监听名字
     const changeName=(e)=>{
         setName(e.target.value);
+        localStorage.setItem('kehuKehulistName',e.target.value);
     };
     // 监听页数
     const onChange=(page:number,pageSize:number)=>{
@@ -309,9 +310,13 @@ const Kehulist=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('kehuKehulistStartDate','2000-01-01');
+            localStorage.setItem('kehuKehulistEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('kehuKehulistStartDate',data[0]);
+            localStorage.setItem('kehuKehulistEndDate',data[1]);
         }
     };
     useEffect(() => {
@@ -328,6 +333,7 @@ const Kehulist=(props:any)=>{
                         <Input
                             addonBefore="客户姓名:"
                             onChange={changeName}
+                            value={name}
                         />
                         <Space.Compact>
                             <div
@@ -344,7 +350,7 @@ const Kehulist=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={suosou}>
                             搜索

@@ -7,14 +7,15 @@ import {StaticInfo} from "@/StaticInfo";
 const Unit=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('houseManageHouseListUnitName')||'');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(999999999);
     const [status,setstatus]=useState(0);
-    const [house_id,sethouse_id]=useState(0);
+    const [house_id,sethouse_id]=useState(Number(localStorage.getItem('houseManageHouseListUnitHouseId'))||0);
     const [uid,setUid]=useState(0);
     const [open,setOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
+    const [hounsList,sethounsList]=useState([]);
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const columns =[
@@ -157,7 +158,8 @@ const Unit=(props:any)=>{
     }, [page,pageSize]);
 
     const changeName=(e:any)=>{
-        setName(e.target.value)
+        setName(e.target.value);
+        localStorage.setItem('houseManageHouseListUnitName',e.target.value);
     };
     const sousuo=()=>{
         setPage(1);
@@ -215,11 +217,18 @@ const Unit=(props:any)=>{
     const getList=()=>{
         props.dispatch({
             type:'House/fetch',
-            payload:{name,beginRents,endRents}
+            // payload:{name,beginRents,endRents}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                sethounsList(res.Data);
+            }else {
+                message.error(res.Data);
+            }
         })
     };
     const changeHouse=(e)=>{
         sethouse_id(e);
+        localStorage.setItem('houseManageHouseListUnitHouseId',e);
     };
     return(
         <Spin spinning={spinning}>
@@ -259,28 +268,29 @@ const Unit=(props:any)=>{
                                 <Select.Option value={0} key={0}>
                                     全部
                                 </Select.Option>
-                                {props.HounsList?props.HounsList.map((item:any,index:any)=>{
+                                {hounsList.map((item:any,index:any)=>{
                                     return(
                                             <Select.Option value={item.id} key={item.id}>
                                                 {item.house_name}
                                             </Select.Option>
                                     )
-                                }):''}
+                                })}
                             </Select>
                         </Space.Compact>
                         <Input
                             onChange={changeName}
                             addonBefore="单元名称:"
+                            value={name}
                         />
-                        <InputNumber
-                            min={0}
-                            onChange={changeBeginRents}
-                            addonBefore="最小租金:"
-                        />
-                        <InputNumber min={beginRents}
-                            onChange={changeEndRents}
-                            addonBefore="最大租金:"
-                        />
+                        {/*<InputNumber*/}
+                        {/*    min={0}*/}
+                        {/*    onChange={changeBeginRents}*/}
+                        {/*    addonBefore="最小租金:"*/}
+                        {/*/>*/}
+                        {/*<InputNumber min={beginRents}*/}
+                        {/*    onChange={changeEndRents}*/}
+                        {/*    addonBefore="最大租金:"*/}
+                        {/*/>*/}
                         <Space.Compact>
                             <div
                                 style={{
@@ -334,7 +344,6 @@ const Unit=(props:any)=>{
 const mapStateToProps = (state: any) => {
     return {
         UnitList: state.Unit.list,
-        HounsList: state.House.list,
         count: state.Unit.count
     }
 };

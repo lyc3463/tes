@@ -10,11 +10,11 @@ const Alljiaoyi=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(localStorage.getItem('zonglanAlljiaoyiName')||'');
+    const [phone,setPhone]=useState(localStorage.getItem('zonglanAlljiaoyiPhone')||'');
     const [type,setType]=useState(1);
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('zonglanAlljiaoyiStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('zonglanAlljiaoyiEndDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
     const [spinning,setspinning]=useState(false);
     const [dataSource,setdataSource]=useState([]);
@@ -160,13 +160,13 @@ const Alljiaoyi=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('jyStartDate','2000-01-01');
-            sessionStorage.setItem('jyEndDate','2099-01-01');
+            localStorage.setItem('zonglanAlljiaoyiStartDate','2000-01-01');
+            localStorage.setItem('zonglanAlljiaoyiEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('jyStartDate','2000-01-01');
-            sessionStorage.setItem('jyEndDate','2099-01-01');
+            localStorage.setItem('zonglanAlljiaoyiStartDate',data[0]);
+            localStorage.setItem('zonglanAlljiaoyiEndDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -232,12 +232,12 @@ const Alljiaoyi=(props)=>{
     // 监听输入的姓名
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('jyName',e.target.value);
+        localStorage.setItem('zonglanAlljiaoyiName',e.target.value);
     };
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('jyPhone',e.target.value);
+        localStorage.setItem('zonglanAlljiaoyiPhone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -248,11 +248,13 @@ const Alljiaoyi=(props)=>{
                             // onChange={(e)=>setName(e.target.value)}
                             onChange={changeName}
                             addonBefore="姓名:"
+                            value={name}
                         />
                         <Input
                             // onChange={(e)=>setPhone(e.target.value)}
                             onChange={changePhone}
                             addonBefore="手机号:"
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -269,7 +271,7 @@ const Alljiaoyi=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

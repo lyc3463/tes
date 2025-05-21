@@ -7,8 +7,8 @@ import {StaticInfo} from "@/StaticInfo";
 const Yinghangka=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(localStorage.getItem('qianbaoYinghangkaName')||'');
+    const [phone,setPhone]=useState(localStorage.getItem('qianbaoYinghangkaPhone')||'');
     const [uid,setUid]=useState(0);
     const [isOpen,setOpen]=useState(false);
     const [yhk,setYhk]=useState('');
@@ -158,6 +158,14 @@ const Yinghangka=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('qianbaoYinghangkaName',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        localStorage.setItem('qianbaoYinghangkaPhone',e.target.value);
+    };
     return(
         <div>
             <List>
@@ -168,11 +176,13 @@ const Yinghangka=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="银行卡号:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Input
                             addonBefore="预留手机号:"
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
+                            value={phone}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索

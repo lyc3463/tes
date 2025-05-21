@@ -12,11 +12,11 @@ const Custom=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setpageSize]=useState(50);
     // 客户名称
-    const [customName,setCustomName]=useState('');
+    const [customName,setCustomName]=useState(localStorage.getItem('enterCustomName')||'');
     // 开始时间
-    const [customBeginTime,setCustomBeginTime]=useState('2000-01-01');
+    const [customBeginTime,setCustomBeginTime]=useState(localStorage.getItem('enterCustomBeginTime')||'2000-01-01');
     // 结束时间
-    const [customEndTime,setCustomEndTime]=useState('2099-01-01');
+    const [customEndTime,setCustomEndTime]=useState(localStorage.getItem('enterCustomEndTime')||'2099-01-01');
     // 审核状态  2全部，0未审核，1已审核
     const [customStatus,setCustomStatus]=useState(0);
     // 增加次数的id
@@ -366,7 +366,8 @@ const Custom=(props:any)=>{
     };
     // 监听名字
     const changeName=(e)=>{
-        setCustomName(e.target.value)
+        setCustomName(e.target.value);
+        localStorage.setItem('enterCustomName',e.target.value);
     };
     // 监听页数
     const onChange=(page:number,pageSize:number)=>{
@@ -385,9 +386,13 @@ const Custom=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setCustomBeginTime('2000-01-01');
             setCustomEndTime('2099-01-01');
+            localStorage.setItem('enterCustomBeginTime','2000-01-01');
+            localStorage.setItem('enterCustomEndTime','2099-01-01');
         } else {
             setCustomBeginTime(data[0]);
             setCustomEndTime(data[1]);
+            localStorage.setItem('enterCustomBeginTime',data[0]);
+            localStorage.setItem('enterCustomEndTime',data[1]);
         }
     };
     // 监听状态
@@ -412,6 +417,7 @@ const Custom=(props:any)=>{
                         <Input
                             addonBefore="客户姓名:"
                             onChange={changeName}
+                            value={customName}
                         />
                         <Space.Compact>
                             <div
@@ -428,34 +434,34 @@ const Custom=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(customBeginTime),dayjs(customEndTime)]}/>
                         </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                状态:
-                            </div>
-                            <Select
-                                onChange={changeStutes}
-                                defaultValue={customStatus}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value:2, label: '全部' },
-                                    { value:0, label: '未审核' },
-                                    { value:1, label: '已审核' },
-                                ]}
-                            />
-                        </Space.Compact>
+                        {/*<Space.Compact>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            borderStartEndRadius: 0,*/}
+                        {/*            borderEndEndRadius: 0,*/}
+                        {/*            padding: '0 11px',*/}
+                        {/*            border: '1px solid #d9d9d9',*/}
+                        {/*            display: 'flex',*/}
+                        {/*            alignItems: 'center',*/}
+                        {/*            borderInlineEnd: 0,*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        状态:*/}
+                        {/*    </div>*/}
+                        {/*    <Select*/}
+                        {/*        onChange={changeStutes}*/}
+                        {/*        defaultValue={customStatus}*/}
+                        {/*        style={{ width: 120 }}*/}
+                        {/*        options={[*/}
+                        {/*            { value:2, label: '全部' },*/}
+                        {/*            { value:0, label: '未审核' },*/}
+                        {/*            { value:1, label: '已审核' },*/}
+                        {/*        ]}*/}
+                        {/*    />*/}
+                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={suosou}>
                             搜索
                         </Button>

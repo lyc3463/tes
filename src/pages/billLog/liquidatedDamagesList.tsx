@@ -29,6 +29,7 @@ const LiquidatedDamagesList=()=>{
     const [stutes,setstutes]=useState(1);
     const [weiyueListInfo,setweiyueListInfo]=useState([]);
     const [open,setOpen]=useState(false);
+    const [sumweiyue,setsumweiyue]=useState(0);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -39,7 +40,6 @@ const LiquidatedDamagesList=()=>{
     const getzujinList=()=>{
         ArrearsBillService.weiyueList({page,name,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('props',res);
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -200,6 +200,8 @@ const LiquidatedDamagesList=()=>{
             if (res.ErrorCode==0){
                 setweiyueListInfo(res.Data);
                 setspinning(false);
+                setsumweiyue(getTotalDefaultAmount(res.Data));
+
             }else {
                 setspinning(false);
                 message.error(res.Data);
@@ -239,6 +241,15 @@ const LiquidatedDamagesList=()=>{
     const changeName=(e)=>{
         setName(e.target.value);
         localStorage.setItem('billLogMonthlyBillLiquidatedDamagesListName',e.target.value);
+    };
+    const getTotalDefaultAmount = (arr) => {
+        if (!Array.isArray(arr)) return 0;
+        return arr.reduce((total, item) => {
+            const amount = item && typeof item.defaultAmount === 'number'
+                ? item.defaultAmount
+                : 0;
+            return total + amount;
+        }, 0);
     };
     return(
         <Spin spinning={spinning}>
@@ -299,9 +310,19 @@ const LiquidatedDamagesList=()=>{
                     columns={columnsz}
                     pagination={false}
                     dataSource={weiyueListInfo}
-                    scroll={{y:'70vh'}}
+                    scroll={{y:'60vh'}}
                     rowKey={(columns) => columns.id}
                     size='small'
+                    summary={(columns) => (
+                        <Table.Summary fixed>
+                            <Table.Summary.Row>
+                                <Table.Summary.Cell index={0}> 统计 </Table.Summary.Cell>
+                                <Table.Summary.Cell index={1}></Table.Summary.Cell>
+                                <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                                <Table.Summary.Cell index={3}>{sumweiyue}元</Table.Summary.Cell>
+                            </Table.Summary.Row>
+                        </Table.Summary>
+                    )}
                 />
             </Modal>
         </Spin>

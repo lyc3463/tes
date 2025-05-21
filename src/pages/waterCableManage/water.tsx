@@ -10,9 +10,9 @@ const Water=(props:any)=>{
     let mathNumber=getRandomNumber(1,10);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [waterAddress,setwaterAddress]=useState('');
-    const [name,setName]=useState('');
-    const [remark,setremark]=useState('');
+    const [waterAddress,setwaterAddress]=useState(localStorage.getItem('waterCableManageWaterAddress')||'');
+    const [name,setName]=useState(localStorage.getItem('waterCableManageWaterName')||'');
+    const [remark,setremark]=useState(localStorage.getItem('waterCableManageWaterRemark')||'');
     const [uid,setUid]=useState(0);
     const [open,setOpne]=useState(false);
     const [isSpinning,setIsSpinning]=useState(false);
@@ -216,6 +216,18 @@ const Water=(props:any)=>{
         setUqx(uq);
         getFenyeInfo();
     }, []);
+    const changeWaterAddress=(e)=>{
+      setwaterAddress(e.target.value);
+      localStorage.setItem('waterCableManageWaterAddress',e.target.value);
+    };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('waterCableManageWaterName',e.target.value);
+    };
+    const changeRemark=(e)=>{
+        setremark(e.target.value);
+        localStorage.setItem('waterCableManageWaterRemark',e.target.value);
+    };
     return(
         <Spin spinning={isSpinning}>
             <List>
@@ -225,16 +237,20 @@ const Water=(props:any)=>{
                     </div>
                     <Space>
                         <Input
-                            onChange={(e)=>setwaterAddress(e.target.value)}
+                            onChange={changeWaterAddress}
                             addonBefore="水表地址:"
+                            value={waterAddress}
+
                         />
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="租户姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>setremark(e.target.value)}
+                            onChange={changeRemark}
                             addonBefore="水表备注:"
+                            value={remark}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索

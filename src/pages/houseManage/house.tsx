@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import HonuseType from '@/ModelTypes/TypeHouse'
 import {StaticInfo} from "@/StaticInfo";
 const House=(props:any)=>{
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('houseManageHouseListHouseName')||'');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
     const [open,setOpne]=useState(false);
@@ -133,7 +133,8 @@ const House=(props:any)=>{
         })
     };
     const changeName=(e:any)=>{
-        setName(e.target.value)
+        setName(e.target.value);
+        localStorage.setItem('houseManageHouseListHouseName',e.target.value);
     };
     const sousuo=()=>{
         getList();
@@ -174,16 +175,17 @@ const House=(props:any)=>{
                         <Input
                             onChange={changeName}
                             addonBefore="房屋名称:"
+                            value={name}
                         />
-                        <InputNumber
-                            min={0}
-                            onChange={changeBeginRents}
-                            addonBefore="最小租金:"
-                        />
-                        <InputNumber min={beginRents}
-                                     onChange={changeEndRents}
-                                     addonBefore="最大租金:"
-                        />
+                        {/*<InputNumber*/}
+                        {/*    min={0}*/}
+                        {/*    onChange={changeBeginRents}*/}
+                        {/*    addonBefore="最小租金:"*/}
+                        {/*/>*/}
+                        {/*<InputNumber min={beginRents}*/}
+                        {/*             onChange={changeEndRents}*/}
+                        {/*             addonBefore="最大租金:"*/}
+                        {/*/>*/}
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>

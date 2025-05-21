@@ -5,7 +5,7 @@ import {useEffect, useState} from "react";
 const HouseHire=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('houseManageHouseHireName')||'');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
     const [status,setstatus]=useState(2);
@@ -137,6 +137,7 @@ const HouseHire=(props)=>{
     }, [page,pageSize]);
     const changeName=(e:any)=>{
         setName(e.target.value);
+        localStorage.setItem('houseManageHouseHireName',e.target.value)
     };
     const sousuo=()=>{
         setPage(1);
@@ -176,6 +177,7 @@ const HouseHire=(props)=>{
                         <Input
                             onChange={changeName}
                             addonBefore="单元名称:"
+                            value={name}
                         />
                         <InputNumber
                             min={0}
