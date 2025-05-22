@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import {exportDataToExcel} from "@/utils/OpenTool";
 import * as RechargeRateService from "@/services/rechargeRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const RechargeRate=(props)=>{
     // 当前页数
@@ -17,6 +18,8 @@ const RechargeRate=(props)=>{
     const [endDate,setEndDate]=useState(localStorage.getItem('financeSumRechargeRateEndDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
     const [pageSize,setpageSize]=useState(50);
+    const [uqx,setUqx]=useState([]);
+
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -46,6 +49,8 @@ const RechargeRate=(props)=>{
     }, [page,pageSize]);
     useEffect(() => {
         getFenyeInfo();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     const columns =[
         {
@@ -228,9 +233,10 @@ const RechargeRate=(props)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
-                            导出
-                        </Button>
+                        {uqx[394]=='1'?
+                            <Button type="primary" onClick={exportToExcel}>
+                                导出
+                            </Button>:''}
                     </Space>
                 </List.Item>
             </List>

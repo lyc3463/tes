@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import * as RechargeRateService from '@/services/rechargeRate';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {exportDataToExcel} from "@/utils/OpenTool";
+import {StaticInfo} from "@/StaticInfo";
 
 const RentRate=(props)=>{
     // 当前页数
@@ -22,6 +23,8 @@ const RentRate=(props)=>{
     const [dataSource,setdataSource]=useState([]);
     // 租金管理费统计
     const [moneySum,setmoneySum]=useState(0);
+    const [uqx,setUqx]=useState([]);
+
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -59,6 +62,8 @@ const RentRate=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     useEffect(() => {
         getzujinList();
@@ -244,9 +249,10 @@ const RentRate=(props)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
-                            导出
-                        </Button>
+                        {uqx[380]=='1'?
+                            <Button type="primary" onClick={exportToExcel}>
+                                导出
+                            </Button>:''}
                     </Space>
                 </List.Item>
             </List>

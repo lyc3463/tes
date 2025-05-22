@@ -20,6 +20,7 @@ import {useEffect, useState} from "react";
 import {qxTree} from '@/constants/qxMenu/wxMenu'
 import {buildTree, ensureArrayLength, exportDataToExcel} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const Wcxuserlist=(props:any)=>{
     const treeData = buildTree(qxTree);
@@ -29,6 +30,7 @@ const Wcxuserlist=(props:any)=>{
     const [pageSize,setpageSize]=useState(50);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
+    const [uqx,setUqx]=useState([]);
     // 弹窗
     const [isOpen,setIsOpen]=useState(false);
     const [selected, setSelected] = useState<string[]>(Array(372).fill('0'));
@@ -156,6 +158,12 @@ const Wcxuserlist=(props:any)=>{
             }
         })
     };
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+        logFenye();
+
+    }, []);
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: qxTree[]; selected: string[]; setSelected: (newSelected: string[]) => void })=> {
         return (
             <ul>
@@ -233,9 +241,7 @@ const Wcxuserlist=(props:any)=>{
                         <Button type="primary" onClick={shousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
-                           导出
-                        </Button>
+                        {uqx[375]=='1'?<Button type="primary" onClick={exportToExcel}>导出</Button> :''}
                     </Space>
                 </List.Item>
             </List>

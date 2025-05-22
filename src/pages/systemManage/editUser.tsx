@@ -19,7 +19,7 @@ const EditUser=(props:any)=>{
     const location=useLocation();
     const [roleList,setRoleList]=useState([]);
     const formRef =useRef();
-    const [selected, setSelected] = useState<string[]>(Array(372).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(395).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -83,6 +83,8 @@ const EditUser=(props:any)=>{
             newSelected[300] = isChecked ? '1' : '0';
             newSelected[7] = isChecked ? '1' : '0';
             newSelected[350] = isChecked ? '1' : '0';
+            newSelected[373] = isChecked ? '1' : '0';
+            newSelected[374] = isChecked ? '1' : '0';
         }
         if (id === 13) {
             newSelected[253] = '1';
@@ -185,6 +187,7 @@ const EditUser=(props:any)=>{
             newSelected[352] = isChecked ? '1' : '0';
             newSelected[353] = isChecked ? '1' : '0';
             newSelected[354] = isChecked ? '1' : '0';
+            newSelected[375] = isChecked ? '1' : '0';
             newSelected[176] = '1' ;
             newSelected[253] = '1';
             newSelected[168] = '1';
@@ -257,6 +260,10 @@ const EditUser=(props:any)=>{
             newSelected[205] = isChecked ? '1' : '0';
             newSelected[206] = isChecked ? '1' : '0';
             newSelected[207] = isChecked ? '1' : '0';
+            newSelected[387] = isChecked ? '1' : '0';
+            newSelected[388] = isChecked ? '1' : '0';
+            newSelected[389] = isChecked ? '1' : '0';
+            newSelected[390] = isChecked ? '1' : '0';
             newSelected[39] = '1';
             newSelected[11] = '1';
             newSelected[37] = '1';
@@ -358,6 +365,7 @@ const EditUser=(props:any)=>{
         if (id === 56){
             newSelected[54] = '1';
             newSelected[276] = isChecked ? '1' : '0';
+            newSelected[376] = isChecked ? '1' : '0';
             newSelected[145] = '1';
             newSelected[149] = '1';
             newSelected[157] = '1';
@@ -434,6 +442,7 @@ const EditUser=(props:any)=>{
             newSelected[149] = '1';
             newSelected[157] = '1';
             newSelected[161] = '1';
+            newSelected[376] = isChecked ? '1' : '0';
         }
         if (id === 57){
             newSelected[58] = isChecked ? '1' : '0';
@@ -450,6 +459,17 @@ const EditUser=(props:any)=>{
             newSelected[355] = isChecked ? '1' : '0';
             newSelected[259] = isChecked ? '1' : '0';
             newSelected[362] = isChecked ? '1' : '0';
+            newSelected[377] = isChecked ? '1' : '0';
+            newSelected[378] = isChecked ? '1' : '0';
+            newSelected[379] = isChecked ? '1' : '0';
+            newSelected[380] = isChecked ? '1' : '0';
+            newSelected[381] = isChecked ? '1' : '0';
+            newSelected[382] = isChecked ? '1' : '0';
+            newSelected[383] = isChecked ? '1' : '0';
+            newSelected[392] = isChecked ? '1' : '0';
+            newSelected[386] = isChecked ? '1' : '0';
+            newSelected[393] = isChecked ? '1' : '0';
+            newSelected[394] = isChecked ? '1' : '0';
         }
         if (id === 65){
             newSelected[66] = isChecked ? '1' : '0';
@@ -465,6 +485,7 @@ const EditUser=(props:any)=>{
             newSelected[356] = isChecked ? '1' : '0';
             newSelected[358] = isChecked ? '1' : '0' ;
             newSelected[359] = isChecked ? '1' : '0' ;
+            newSelected[372] = isChecked ? '1' : '0' ;
             newSelected[157] = '1' ;
             newSelected[357] = '1' ;
             newSelected[58] = '1' ;
@@ -483,6 +504,7 @@ const EditUser=(props:any)=>{
             newSelected[73] =  isChecked ? '1' : '0';
             newSelected[202] =  isChecked ? '1' : '0';
             newSelected[198] =  '1' ;
+            newSelected[387] =  '1' ;
             newSelected[74] =  isChecked ? '1' : '0' ;
             newSelected[208] =  isChecked ? '1' : '0' ;
             newSelected[206] = '1';
@@ -636,6 +658,8 @@ const EditUser=(props:any)=>{
             newSelected[90] = isChecked ? '1' : '0' ;
             newSelected[91] = isChecked ? '1' : '0' ;
             newSelected[311] = isChecked ? '1' : '0' ;
+            newSelected[384] = isChecked ? '1' : '0' ;
+            newSelected[385] = isChecked ? '1' : '0' ;
         }
         if (id === 92){
             newSelected[93] = isChecked ? '1' : '0' ;
@@ -662,6 +686,8 @@ const EditUser=(props:any)=>{
             newSelected[1] = '1';
             newSelected[118] = isChecked ? '1' : '0' ;
             newSelected[119] = isChecked ? '1' : '0' ;
+            newSelected[373] = isChecked ? '1' : '0' ;
+            newSelected[374] = isChecked ? '1' : '0' ;
         }
         if (id === 3){
             newSelected[1] = '1';
@@ -710,6 +736,7 @@ const EditUser=(props:any)=>{
             newSelected[106] = isChecked ? '1' : '0' ;
             newSelected[107] = isChecked ? '1' : '0' ;
             newSelected[314] = isChecked ? '1' : '0' ;
+            newSelected[391] = isChecked ? '1' : '0' ;
         }
         if (id === 108){
             newSelected[109] = isChecked ? '1' : '0' ;

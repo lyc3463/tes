@@ -5,6 +5,7 @@ import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spi
 import {exportDataToExcel} from "@/utils/OpenTool";
 import * as RechargeRateService from "@/services/monthlyInsurance";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const MonthlyInsuranceLog=(props:any)=>{
     // 当前页数
@@ -17,6 +18,8 @@ const MonthlyInsuranceLog=(props:any)=>{
     const [userID,setuserID]=useState(0);// 租户ID
     const [spinning,setspinning]=useState(false);
     const [pageSize,setpageSize]=useState(50);
+    const [uqx,setUqx]=useState([]);
+
     const columns =[
         {
             title: '日期',
@@ -125,6 +128,8 @@ const MonthlyInsuranceLog=(props:any)=>{
     }, [page,pageSize]);
     useEffect(() => {
         fenye();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     const exportToExcel=()=>{
         RechargeRateService.fetch({page:1,name,phone,type,startDate,endDate,userID,pageSize:100000}).then((res:TypeErrorCode)=>{
@@ -231,9 +236,10 @@ const MonthlyInsuranceLog=(props:any)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
-                            导出
-                        </Button>
+                        {uqx[383]=='1'?
+                            <Button type="primary" onClick={exportToExcel}>
+                                导出
+                            </Button>:''}
                     </Space>
                 </List.Item>
             </List>

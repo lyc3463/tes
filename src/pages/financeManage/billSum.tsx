@@ -6,6 +6,7 @@ import {useEffect, useState} from "react";
 import {exportDataToExcel} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as BillService from "@/services/billSum";
+import {StaticInfo} from "@/StaticInfo";
 const BillSum=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
@@ -34,6 +35,7 @@ const BillSum=(props:any)=>{
     // 账户卡号
     const [account_card,setaccount_card]=useState('');
     const [spinning,setspinning]=useState(false);
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '日期',
@@ -224,6 +226,8 @@ const BillSum=(props:any)=>{
         getSubjectList();
         getCompanList();
         getFenyeInfo();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -512,9 +516,9 @@ const BillSum=(props:any)=>{
                         <Button type="primary"  onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={getDcList}>
+                        {uqx[376]=='1'? <Button type="primary" onClick={getDcList}>
                             导出
-                        </Button>
+                        </Button>:''}
                     </Space>
                 </List.Item>
             </List>

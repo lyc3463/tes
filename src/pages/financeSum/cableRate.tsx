@@ -8,205 +8,14 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import Bymoney from "@/pages/kehu/bymoney";
 import HourCableRate from "@/pages/financeSum/hourCableRate";
 import DayCableRate from "@/pages/financeSum/dayCableRate";
+import {StaticInfo} from "@/StaticInfo";
 
 const CableRate=(props)=>{
-    // // 当前页数
-    // const [page,setPage]=useState(1);
-    // const [pageSize,setPageSize]=useState(50);
-    // // 租户名字
-    // const [name,setName]=useState(localStorage.getItem('cableRateName')||'');
-    // // 电表地址
-    // const [cid,setCId]=useState(localStorage.getItem('cableRateCId')||'');
-    // // 开始时间
-    // const [startDate,setStartDate]=useState(localStorage.getItem('financeSumCableRateStartDate')||'2000-01-01');
-    // // 结束时间
-    // const [endDate,setEndDate]=useState(localStorage.getItem('financeSumCableRateEndDate')||'2099-01-01');
-    // // 租户id
-    // const [tenantId,settenantId]=useState(0);
-    // // 电表备注
-    // const [remark,setremark]=useState(localStorage.getItem('cableRateRemark')||'');
-    // const [spinning,setspinning]=useState(false);
-    // const [recordStatus,setrecordStatus]=useState('扣费成功');
-    // // 搜索
-    // const sousuo=()=>{
-    //     setPage(1);
-    //     getLogFenyeInfo();
-    //     logFenye();
-    // };
-    // // 分页信息
-    // const getLogFenyeInfo=()=>{
-    //     props.dispatch({
-    //         type:'CableRate/fenye',
-    //         payload:{name,cid,startDate,endDate,tenantId,recordStatus,remark,pageSize}
-    //     });
-    // };
-    // // 列表
-    // const logFenye=()=>{
-    //     props.dispatch({
-    //         type:"CableRate/fetch",
-    //         payload:{page,name,cid,startDate,endDate,tenantId,recordStatus,remark,pageSize}
-    //     })
-    // };
-    // // 监听页数
-    // const onChange=(e:number,pageSize:number)=>{
-    //     setPage(e);
-    //     setPageSize(pageSize);
-    // };
-    // useEffect(() => {
-    //     logFenye();
-    // }, [page,pageSize]);
-    // useEffect(() => {
-    //     getLogFenyeInfo();
-    // }, []);
-    // const columns =[
-    //     {
-    //         title: '日期',
-    //         dataIndex: 'recordTime',
-    //         key: 'recordTime',
-    //         render:(text:any,record:any)=>{
-    //             return(
-    //                 <div>
-    //                     {dayjs(record.recordTime).format('YYYY-MM-DD HH:mm:ss')}
-    //                 </div>
-    //             )
-    //         }
-    //     },
-    //     {
-    //         title: '姓名',
-    //         dataIndex: 'tenant_name',
-    //         key: 'tenant_name',
-    //         render: (text:any, record:any) => {
-    //             return(
-    //                 <div>
-    //                     {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
-    //                 </div>
-    //             )
-    //         },
-    //     },
-    //     {
-    //         title: '电表地址',
-    //         dataIndex: 'address',
-    //         key: 'address',
-    //     },
-    //     {
-    //         title: '电表描述',
-    //         dataIndex: 'remark',
-    //         key: 'remark',
-    //     },
-    //     {
-    //         title: '类型',
-    //         dataIndex: 'consumptionType',
-    //         key: 'consumptionType',
-    //         render:(text:any,record:any)=>{
-    //             return(
-    //                 <div>
-    //                     <Tag  color='green'>电费</Tag>
-    //                 </div>
-    //             )
-    //         }
-    //     },
-    //     {
-    //         title: '度数',
-    //         dataIndex: 'energyNew',
-    //         key: 'energyNew',
-    //         render:(text:any,record:any)=>{
-    //             return(
-    //                 <div>
-    //                     <Tag  color='warning'>{record.energyNew}kwh</Tag>
-    //                 </div>
-    //             )
-    //         }
-    //     },
-    //     {
-    //         title: '消耗度数',
-    //         dataIndex: 'energyUsage',
-    //         key: 'energyUsage',
-    //         render:(text:any,record:any)=>{
-    //             return(
-    //                 <div>
-    //                     <Tag  color='warning'>{record.energyUsage}kwh</Tag>
-    //                 </div>
-    //             )
-    //         }
-    //     },
-    //     {
-    //         title: '倍率',
-    //         dataIndex: 'rate',
-    //         key: 'rate',
-    //         render:(text:any,record:any)=>{
-    //             return(
-    //                 <div>
-    //                     <Tag  color='cyan'>{record.rate}倍</Tag>
-    //                 </div>
-    //             )
-    //         }
-    //     },
-    //     {
-    //         title: '扣费金额',
-    //         dataIndex: 'eleMoney',
-    //         key: 'eleMoney',
-    //         render:(text:any,record:any)=>{
-    //             return(
-    //                 <div>
-    //                     <Tag color='blue'>{record.eleMoney}元</Tag>
-    //                 </div>
-    //             )
-    //         }
-    //     },
-    // ];
-    // // 监听日期
-    // const changeDate=(_:any,data:string[])=>{
-    //     if (data.length === 2 && data[0] === '' && data[1] === '') {
-    //         setStartDate('2000-01-01');
-    //         setEndDate('2099-01-01');
-    //         localStorage.setItem('financeSumCableRateStartDate','2000-01-01');
-    //         localStorage.setItem('financeSumCableRateEndDate','2099-01-01');
-    //     } else {
-    //         setStartDate(data[0]);
-    //         setEndDate(data[1]);
-    //         localStorage.setItem('financeSumCableRateStartDate',data[0]);
-    //         localStorage.setItem('financeSumCableRateEndDate',data[1]);
-    //     }
-    // };
-    // const exportToExcel=()=>{
-    //     setspinning(true);
-    //     CableRateService.fetch({page:1,name,cid,startDate,endDate,tenantId,recordStatus,remark,pageSize:1000000}).then((res:TypeErrorCode)=>{
-    //         if (res.ErrorCode==0){
-    //             let headers=['日期','租户名称','电表地址','电表描述','类型','度数kwh','消耗度数kwh','倍率','扣费金额(元)'];
-    //             const ws_data = [
-    //                 headers.map(header => ({ v: header, t: 's' })), // 表头
-    //                 ...res.Data.map(item => [
-    //                     item.recordTime.split('T')[0], // 提取日期部分
-    //                     item.tenant_name,
-    //                     item.address,
-    //                     item.remark,
-    //                     item.consumptionType='电费',
-    //                     item.energyNew,
-    //                     item.energyUsage,
-    //                     item.rate,
-    //                     item.eleMoney,
-    //                 ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
-    //             ];
-    //             exportDataToExcel(ws_data);
-    //             setspinning(false);
-    //         }else {
-    //             message.error(res.Data);
-    //             setspinning(false);
-    //         }
-    //     })
-    // };
-    // const changeName=(e)=>{
-    //     setName(e.target.value);
-    //     localStorage.setItem('cableRateName',e.target.value);
-    // };
-    // const changeCId=(e:any)=>{
-    //     setCId(e.target.value);
-    //     localStorage.setItem('cableRateCId',e.target.value);
-    // };
-    // const changeremark=(e:any)=>{
-    //     setremark(e.target.value);
-    //     localStorage.setItem('cableRateRemark',e.target.value);
-    // };
+    const [uqx,setUqx]=useState([]);
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('cableRateActive') || '1');
     const onChange = (key) => {
         setActiveKey(key);
@@ -216,11 +25,12 @@ const CableRate=(props)=>{
         <>
             <Tabs  activeKey={activeKey} onChange={onChange}>
                 <Tabs.TabPane tab='小时扣电费' key='1'>
-                   <HourCableRate/>
+                    <HourCableRate/>
                 </Tabs.TabPane>
-                <Tabs.TabPane tab='天扣电费' key='2'>
-                    <DayCableRate/>
-                </Tabs.TabPane>
+                {uqx[392]=='1'?
+                    <Tabs.TabPane tab='天扣电费' key='2'>
+                        <DayCableRate/>
+                    </Tabs.TabPane>:''}
             </Tabs>
         </>
         // <Spin spinning={spinning}>

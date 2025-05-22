@@ -18,6 +18,8 @@ class StaticInfoClass {
   public park_id: number = parseInt(sessionStorage.getItem('park_id'))>0?parseInt(sessionStorage.getItem('park_id')):0;
   public uqx: string = sessionStorage.getItem('uqx');
   public park_name: string =sessionStorage.getItem('park_name');
+  public beginTime: string =sessionStorage.getItem('loginbeginTime')||'2025-01-01';
+  public endTime: string =sessionStorage.getItem('loginendTime')||'2025-12-01';
   //根据情况添加
   //用户数据结束
 

@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import * as dateWaterService from '@/services/dateWater';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {exportDataToExcel} from "@/utils/OpenTool";
+import {StaticInfo} from "@/StaticInfo";
 
 const WaterRate=(props)=>{
     // 当前页数
@@ -33,6 +34,7 @@ const WaterRate=(props)=>{
     const [energyUsage,setenergyUsage]=useState(0);
     // 水表备注
     const [remark,setremark]=useState(localStorage.getItem('Chargingremark')||'');
+    const [uqx,setUqx]=useState([]);
     // 获取水表扣费记录
     const getwaterRateList=()=>{
         setspinning(true);
@@ -72,6 +74,8 @@ const WaterRate=(props)=>{
     useEffect(() => {
         getwaterRateList();
         getwaterFenye();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     useEffect(() => {
         getwaterRateList();
@@ -256,9 +260,10 @@ const WaterRate=(props)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
+                        {uqx[377]=='1'?   <Button type="primary" onClick={exportToExcel}>
                             导出
-                        </Button>
+                        </Button>:''}
+
                     </Space>
                 </List.Item>
             </List>

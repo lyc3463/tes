@@ -230,7 +230,6 @@ export default function Login() {
     ).then((res: any) => {
       if (res?.ErrorCode == 0) {
         console.log("登录信息",res);
-
         let data = res.Data;
         StaticInfo.userId = data.id;
         StaticInfo.userState = true;
@@ -239,6 +238,8 @@ export default function Login() {
         StaticInfo.username= data.uname;
         StaticInfo.uqx= data.authority;
         StaticInfo.park_name= data.park_name;
+        StaticInfo.beginTime= data.beginTime;
+        StaticInfo.endTime= data.endTime;
         sessionStorage.setItem('userId',data.id);
         sessionStorage.setItem('userState','true');
         sessionStorage.setItem('token',data.token);
@@ -246,6 +247,8 @@ export default function Login() {
         sessionStorage.setItem('username',data.uname);
         sessionStorage.setItem('uqx',data.authority);
         sessionStorage.setItem('park_name',data.park_name);
+        sessionStorage.setItem('loginbeginTime',data.beginTime);
+        sessionStorage.setItem('loginendTime',data.endTime);
         // if (values.jizhu) {
         //   let md5pwd = values.password;
         //   if (!yjzmm) {
@@ -442,7 +445,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.2.9</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.3.0</p>
                 </div>
               </Form.Item>
             </Form>

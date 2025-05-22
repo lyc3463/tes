@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import {exportDataToExcel} from "@/utils/OpenTool";
 import * as CableRateService from "@/services/cableRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const CableRate=(props)=>{
     // 当前页数
@@ -24,6 +25,7 @@ const CableRate=(props)=>{
     const [remark,setremark]=useState(localStorage.getItem('cableRateRemark')||'');
     const [spinning,setspinning]=useState(false);
     const [recordStatus,setrecordStatus]=useState('扣费成功');
+    const [uqx,setUqx]=useState([]);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -54,6 +56,8 @@ const CableRate=(props)=>{
     }, [page,pageSize]);
     useEffect(() => {
         getLogFenyeInfo();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     const columns =[
         {
@@ -247,9 +251,9 @@ const CableRate=(props)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
+                        {uqx[378]=='1'?   <Button type="primary" onClick={exportToExcel}>
                             导出
-                        </Button>
+                        </Button>:''}
                     </Space>
                 </List.Item>
             </List>

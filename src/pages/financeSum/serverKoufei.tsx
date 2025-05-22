@@ -4,6 +4,7 @@ import * as RechargeRateService from "@/services/rechargeRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
 import {exportDataToExcel} from "@/utils/OpenTool";
+import {StaticInfo} from "@/StaticInfo";
 
 const ServerKoufei=()=>{
     const [spinning,setspinning]=useState(false);
@@ -18,6 +19,7 @@ const ServerKoufei=()=>{
     const [count,setcount]=useState(0);
     const [dataSource,setdataSource]=useState([]);
     const [moneySum,setmoneySum]=useState(0);
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '交租日期',
@@ -109,6 +111,8 @@ const ServerKoufei=()=>{
     }, [page,pageSize]);
     useEffect(() => {
         getAllRatefenye();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -193,9 +197,10 @@ const ServerKoufei=()=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
-                            导出
-                        </Button>
+                        {uqx[393]=='1'?
+                            <Button type="primary" onClick={exportToExcel}>
+                                导出
+                            </Button>:''}
                     </Space>
                 </List.Item>
             </List>

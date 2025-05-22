@@ -1,10 +1,12 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tabs, Tag} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import {calculateSums, exportDataToExcel, fuzzySearch} from "@/utils/OpenTool";
 import * as RechargeRateService from '@/services/alljiaoyi';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
+import Bymoney from "@/pages/kehu/bymoney";
 
 const Alljiaoyi=(props)=>{
     // 当前页数
@@ -21,6 +23,7 @@ const Alljiaoyi=(props)=>{
     // 单元名称
     const [unitName,setunitName]=useState('');
     const [moneySum,setmoneySum]=useState(0);
+    const [uqx,setUqx]=useState([]);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -62,8 +65,11 @@ const Alljiaoyi=(props)=>{
         logFenye();
     }, [page]);
     useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
         getFenye();
     }, []);
+
     const columns =[
         {
             title: '日期',
@@ -221,7 +227,6 @@ const Alljiaoyi=(props)=>{
                 setspinning(false);
             }
         })
-
     };
     const chaxundanyuan=()=>{
         let a=fuzzySearch(props.RechargeRateList,unitName);
@@ -276,9 +281,7 @@ const Alljiaoyi=(props)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
-                            导出
-                        </Button>
+                        {uqx[373]=='1'?<Button type="primary" onClick={exportToExcel}>导出</Button>:''}
                     </Space>
                 </List.Item>
                 <List.Item>

@@ -29,6 +29,11 @@ const Staff=(props:any)=>{
         setActiveKey(key);
         sessionStorage.setItem('activecontract', key);
     };
+    const [uqx,setUqx]=useState([]);
+    useEffect(() => {
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
+    }, []);
     // const [isDeltOpen,setIsDeleteOpen]=useState(false);
     // const [uid,setUid]=useState(0);
     // // 当前页数
@@ -337,9 +342,10 @@ const Staff=(props:any)=>{
                 <Tabs.TabPane tab='正式合同'  key='1'>
                     <ZsContract/>
                 </Tabs.TabPane>
-                <Tabs.TabPane tab='定金合同'  key='2'>
+                {uqx[387]=='1'? <Tabs.TabPane tab='定金合同'  key='2'>
                     <DjContract/>
-                </Tabs.TabPane>
+                </Tabs.TabPane>:''
+                }
             </Tabs>
         </>
         // <Spin spinning={spinning}>

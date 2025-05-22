@@ -364,10 +364,13 @@ class MainPage extends Component<any> {
                   }
                 </Modal>
                 <Space size="large">
-                  <Button type="link" onClick={()=>this.setState({open:true})}>
-                    {this.state.list.length}
-                    <AlertFilled />
-                  </Button>
+                  {/*<Button type="link" onClick={()=>this.setState({open:true})}>*/}
+                  {/*  {this.state.list.length}*/}
+                  {/*  <AlertFilled />*/}
+                  {/*</Button>*/}
+                    <span>
+                        园区有效期:{`${dayjs(StaticInfo.beginTime).format('YYYY-MM-DD')}至${dayjs(StaticInfo.endTime).format('YYYY-MM-DD')}`}
+                    </span>
                   <span>
                     用户姓名:{StaticInfo.username}
                   </span>

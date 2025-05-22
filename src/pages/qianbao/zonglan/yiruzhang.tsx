@@ -6,6 +6,7 @@ import * as RechargeRateService from "@/services/rechargeRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {exportDataToExcel} from "@/utils/OpenTool";
 import * as TixianService from "@/services/ruzhang";
+import {StaticInfo} from "@/StaticInfo";
 const Yiruzhang=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
@@ -13,6 +14,7 @@ const Yiruzhang=(props)=>{
     const [startDate,setStartDate]=useState(localStorage.getItem('zonglanYiruzhangStartDate')||'2000-01-01');
     const [endDate,setEndDate]=useState(localStorage.getItem('zonglanYiruzhangEndDate')||'2099-01-01');
     const [spinning,setspinning]=useState(false);
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '日期',
@@ -111,6 +113,8 @@ const Yiruzhang=(props)=>{
     }, [page,pageSize]);
     useEffect(() => {
         getFenye();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     const exportToExcel=()=>{
         setspinning(true);
@@ -137,40 +141,12 @@ const Yiruzhang=(props)=>{
                 setspinning(false);
             }
         })
-
     };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
-                        {/*<Space.Compact>*/}
-                        {/*    <div*/}
-                        {/*        style={{*/}
-                        {/*            borderRadius: '6px',*/}
-                        {/*            borderStartEndRadius: 0,*/}
-                        {/*            borderEndEndRadius: 0,*/}
-                        {/*            padding: '0 11px',*/}
-                        {/*            border: '1px solid #d9d9d9',*/}
-                        {/*            display: 'flex',*/}
-                        {/*            alignItems: 'center',*/}
-                        {/*            borderInlineEnd: 0,*/}
-                        {/*        }}*/}
-                        {/*    >*/}
-                        {/*        状态:*/}
-                        {/*    </div>*/}
-                        {/*    <Select*/}
-                        {/*        onChange={(e:number)=>setStutes(e)}*/}
-                        {/*        defaultValue={stutes}*/}
-                        {/*        style={{ width: 120 }}*/}
-                        {/*        options={[*/}
-                        {/*            { value: 0, label: '全部' },*/}
-                        {/*            { value: 1, label: '未审核' },*/}
-                        {/*            { value: 2, label: '已审核' },*/}
-                        {/*            { value: 3, label: '未通过' },*/}
-                        {/*        ]}*/}
-                        {/*    />*/}
-                        {/*</Space.Compact>*/}
                         <Space.Compact>
                             <div
                                 style={{
@@ -191,9 +167,8 @@ const Yiruzhang=(props)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
-                            导出
-                        </Button>
+                        {uqx[374]=='1'?<Button type="primary" onClick={exportToExcel}>导出</Button>:''}
+
                     </Space>
                 </List.Item>
             </List>

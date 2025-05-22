@@ -5,6 +5,7 @@ import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spi
 import * as FinanceService from '@/services/finance';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {exportDataToExcel} from "@/utils/OpenTool";
+import {StaticInfo} from "@/StaticInfo";
 
 const Finance=(props)=>{
     const [page,setPage]=useState(1);
@@ -13,6 +14,7 @@ const Finance=(props)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     const [endDate,setEndDate]=useState('2099-01-01');
     const [dataSource,setdataSource]=useState([]);
+    const [uqx,setUqx]=useState([]);
     const columns =[
         {
             title: '日期',
@@ -98,6 +100,8 @@ const Finance=(props)=>{
     }, [page,pageSize]);
     useEffect(() => {
         getFenyeInfo();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     const exportToExcel=()=>{
         setspinning(true);
@@ -150,9 +154,10 @@ const Finance=(props)=>{
             <List>
                 <List.Item>
                     <Space>
-                        <Button type="primary" onClick={exportToExcel}>
-                            导出
-                        </Button>
+                        {uqx[384]=='1'?
+                            <Button type="primary" onClick={exportToExcel}>
+                                导出
+                            </Button>:''}
                     </Space>
                 </List.Item>
             </List>

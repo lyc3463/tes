@@ -1,11 +1,19 @@
 import {useEffect, useState} from "react";
 import {connect} from "umi";
-import {Button, DatePicker, Input, InputNumber, List, Pagination, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, InputNumber, List, message, Pagination, Space, Spin, Table, Tag} from "antd";
+import * as FinanceService from "@/services/finance";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import dayjs from "dayjs";
+import {exportDataToExcel} from "@/utils/OpenTool";
+import * as HireService from "@/services/hire";
+import {StaticInfo} from "@/StaticInfo";
 
 const Hire=(props:any)=>{
+    const [spinning,setspinning]=useState(false);
     const [name,setName]=useState('');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
+    const [uqx,setUqx]=useState([]);
 
     const columns =[
         {
@@ -120,6 +128,8 @@ const Hire=(props:any)=>{
     ];
     useEffect(() => {
         logFenye();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     // 分页
     const logFenye=()=>{
@@ -148,27 +158,45 @@ const Hire=(props:any)=>{
             setEndRents(999999);
         }
     };
+    const exportToExcel=()=>{
+        setspinning(true);
+        HireService.fetch({name,beginRents,endRents}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let headers=['房屋名称','总楼层(层)','建筑面积㎡','可租面积㎡','剩余可增加面积㎡','单元数量(间)','已租面积㎡','已租租金','租户数量(个)','平均单价(元)','出租率(%)','使用率(%)'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })), // 表头
+                    ...res.Data.map(item => [
+                        item.house_name,
+                        item.floors,
+                        item.floor_area,
+                        item.rentable_area,
+                        item.residue_add_area,
+                        item.unitCount,
+                        item.rentable_areaSum,
+                        item.priceSum,
+                        item.tenantCount,
+                        ((item.rentable_areaSum !== 0) ? (item.priceSum / item.rentable_areaSum).toFixed(2) : 0),
+                        ((item.rentable_areaSum/item.rentable_area)*100).toFixed(2),
+                        ((item.rentable_area/item.floor_area)*100).toFixed(2)
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
+                ];
+                exportDataToExcel(ws_data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
-                        {/*<Input*/}
-                        {/*    addonBefore="房屋名称:"*/}
-                        {/*    onChange={(e)=>setName(e.target.value)}*/}
-                        {/*/>*/}
-                        {/*<InputNumber*/}
-                        {/*    min={0}*/}
-                        {/*    onChange={changeBeginRents}*/}
-                        {/*    addonBefore="最小租金:"*/}
-                        {/*/>*/}
-                        {/*<InputNumber min={beginRents}*/}
-                        {/*             onChange={changeEndRents}*/}
-                        {/*             addonBefore="最大租金:"*/}
-                        {/*/>*/}
-                        {/*<Button type="primary" onClick={shousuo}>*/}
-                        {/*    搜索*/}
-                        {/*</Button>*/}
+                        {uqx[385]=='1'?
+                            <Button type="primary" onClick={exportToExcel}>
+                                导出
+                            </Button>:''}
                     </Space>
                 </List.Item>
             </List>
@@ -181,7 +209,7 @@ const Hire=(props:any)=>{
                 scroll={{x:1500}}
                 pagination={false}
             />
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

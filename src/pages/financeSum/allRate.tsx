@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import * as RechargeRateService from '@/services/rechargeRate';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {exportDataToExcel} from "@/utils/OpenTool";
+import {StaticInfo} from "@/StaticInfo";
 
 const AllRate=(props)=>{
     // 当前页数
@@ -19,6 +20,8 @@ const AllRate=(props)=>{
     const [count,setcount]=useState(0);
     const [dataSource,setdataSource]=useState([]);
     const [moneySum,setmoneySum]=useState(0);
+    const [uqx,setUqx]=useState([]);
+
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -59,6 +62,8 @@ const AllRate=(props)=>{
     }, [page,pageSize]);
     useEffect(() => {
         getAllRatefenye();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     const columns =[
         {
@@ -189,9 +194,10 @@ const AllRate=(props)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
-                            导出
-                        </Button>
+                        {uqx[379]=='1'?
+                            <Button type="primary" onClick={exportToExcel}>
+                                导出
+                            </Button>:''}
                     </Space>
                 </List.Item>
             </List>

@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {exportDataToExcel} from "@/utils/OpenTool";
 import * as RechargeRateService from "@/services/rechargeRate";
+import {StaticInfo} from "@/StaticInfo";
 
 const PayCount=(props)=>{
     // 当前页数
@@ -18,6 +19,7 @@ const PayCount=(props)=>{
     const [userID,setuserID]=useState(0);
     const [pageSize,setpageSize]=useState(50);
     const [spinning,setspinning]=useState(false);
+    const [uqx,setUqx]=useState([]);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -48,6 +50,8 @@ const PayCount=(props)=>{
     }, [page,pageSize]);
     useEffect(() => {
         fenye();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     const columns =[
         {
@@ -281,9 +285,10 @@ const PayCount=(props)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
-                            导出
-                        </Button>
+                        {uqx[381]=='1'?
+                            <Button type="primary" onClick={exportToExcel}>
+                                导出
+                            </Button>:''}
                     </Space>
                 </List.Item>
             </List>

@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import {exportDataToExcel} from "@/utils/OpenTool";
 import * as DayCableRateService from "@/services/dayCableRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {StaticInfo} from "@/StaticInfo";
 
 const CableRate=(props)=>{
     // 当前页数
@@ -27,6 +28,7 @@ const CableRate=(props)=>{
     // 电表备注
     const [remark,setremark]=useState(localStorage.getItem('daycableRateRemark')||'');
     const [spinning,setspinning]=useState(false);
+    const [uqx,setUqx]=useState([]);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -71,6 +73,8 @@ const CableRate=(props)=>{
     }, [page,pageSize]);
     useEffect(() => {
         getLogFenyeInfo();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     const columns =[
         {
@@ -250,9 +254,9 @@ const CableRate=(props)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
+                        {uqx[386]=='1'?   <Button type="primary" onClick={exportToExcel}>
                             导出
-                        </Button>
+                        </Button>:''}
                     </Space>
                 </List.Item>
             </List>

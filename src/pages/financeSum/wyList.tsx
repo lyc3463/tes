@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import {exportDataToExcel} from "@/utils/OpenTool";
 import * as ArrearsBillService from "@/services/ArrearsBill";
 import {QuestionCircleOutlined} from "@ant-design/icons";
+import {StaticInfo} from "@/StaticInfo";
 
 const WyList=()=>{
     // 当前页数
@@ -22,6 +23,7 @@ const WyList=()=>{
     const [weiyueListInfo,setweiyueListInfo]=useState([]);
     const [open,setOpen]=useState(false);
     const [sumweiyue,setsumweiyue]=useState(0);
+    const [uqx,setUqx]=useState([]);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -65,6 +67,8 @@ const WyList=()=>{
     }, [page,pageSize]);
     useEffect(() => {
         getAllRatefenye();
+        let uq=StaticInfo.uqx.split('');
+        setUqx(uq);
     }, []);
     const columns =[
         {
@@ -253,9 +257,10 @@ const WyList=()=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        <Button type="primary" onClick={exportToExcel}>
-                            导出
-                        </Button>
+                        {uqx[382]=='1'?
+                            <Button type="primary" onClick={exportToExcel}>
+                                导出
+                            </Button>:''}
                     </Space>
                 </List.Item>
             </List>
