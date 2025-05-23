@@ -115,7 +115,6 @@ const UnopenedSdFp=(props)=>{
             payload:{page:1,name:'',phone:'',pagecount:100000}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('客户列表',res);
                 setZuhuList(res.Data);
             }
         })

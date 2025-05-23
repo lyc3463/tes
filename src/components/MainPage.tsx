@@ -28,7 +28,7 @@ import TypeMenu from '@/ModelTypes/TypeMenu';
 import * as LoginService from '@/services/login';
 import type { MenuProps } from 'antd';
 import 'dayjs/locale/zh-cn';
-import {AlertFilled, CloseOutlined, LeftOutlined, RightOutlined} from "@ant-design/icons";
+import {AlertFilled, CloseOutlined, LeftOutlined, QuestionCircleOutlined, RightOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 const { Header, Content, Footer, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
@@ -202,7 +202,9 @@ class MainPage extends Component<any> {
   toHisYou=(e)=>{
     UmiHistory.push(e.route);
   };
-
+    toOpen=()=>{
+        UmiHistory.push('/systemManage/renewPark');
+    };
   render() {
     // const ContentPage = loadable(() => import(`@/pages${this.props.contentPage}`));
     return (
@@ -370,6 +372,7 @@ class MainPage extends Component<any> {
                   {/*</Button>*/}
                     <span>
                         园区有效期:{`${dayjs(StaticInfo.beginTime).format('YYYY-MM-DD')}至${dayjs(StaticInfo.endTime).format('YYYY-MM-DD')}`}
+                        <Button style={{border:'none',padding:'0',margin:'0'}} onClick={this.toOpen}><QuestionCircleOutlined/></Button>
                     </span>
                   <span>
                     用户姓名:{StaticInfo.username}
@@ -383,7 +386,6 @@ class MainPage extends Component<any> {
                 </Space>
               </div>
             </Header>
-
             <Content style={{ margin: '24px 16px' }}>
               <div
                 style={{

@@ -13,9 +13,12 @@ export function one() {
     return getData(1286, []);
 }
 export function addchongzhi(vals:any) {
-    return getData(8001, [vals.newMoney,vals.remarks,vals.numberItems]);
+    return getData(8001, [vals.newMoney,vals.remarks,vals.numberItems,vals.rechargetype,vals.startDate]);
 }
 //充值的时候调用一下轮询查看订单号是否支付成功
 export function lunxun(dingdan:string) {
     return getData(8003, [dingdan]);
+}
+export function infoMealId(vals:any) {
+    return getData(1569, [vals]);
 }

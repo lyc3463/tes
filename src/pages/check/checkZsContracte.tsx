@@ -15,15 +15,15 @@ const CheckZsContracte=(props:any)=>{
     // 审核状态 0全部  1未审核 2已审核
     const [contractStatus,setContractStatus]=useState(0);
     // 合同编号
-    const [identifier,setIdentifier]=useState('');
+    const [identifier,setIdentifier]=useState(localStorage.getItem('checkCheckZsContracteIdentifier')||'');
     // 合同类型ID
     const [contractType,setContractType]=useState(0);
     // 租户姓名
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('checkCheckZsContracteName')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem('checkCheckZsContracteStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('checkCheckZsContracteEndDate')||'2099-01-01');
     // 发送弹窗
     const [fsOpen,setFsOpen]=useState(false);
     const [templateType,settemplateType]=useState(0);
@@ -263,6 +263,11 @@ const CheckZsContracte=(props:any)=>{
     // 监听合同编号
     const changeIdentifier=(e)=>{
         setIdentifier(e.target.value);
+        localStorage.setItem('checkCheckZsContracteIdentifier',e.target.value);
+    };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('checkCheckZsContracteName',e.target.value);
     };
     // 合同类型
     const changeType=(e:number)=>{
@@ -273,9 +278,13 @@ const CheckZsContracte=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('checkCheckZsContracteStartDate','2000-01-01');
+            localStorage.setItem('checkCheckZsContracteEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('checkCheckZsContracteStartDate',data[0]);
+            localStorage.setItem('checkCheckZsContracteEndDate',data[1]);
         }
     };
     const onFsOk=()=>{
@@ -350,7 +359,6 @@ const CheckZsContracte=(props:any)=>{
         },
     ];
     const tooldHetong=(e)=>{
-        // console.log('参数',e);
         history.push(`/check/contractezold?id=${e.id}`);
     };
     return(
@@ -361,10 +369,12 @@ const CheckZsContracte=(props:any)=>{
                         <Input
                             onChange={changeIdentifier}
                             addonBefore="合同编号:"
+                            value={identifier}
                         />
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="租户姓名:"
+                            value={name}
                         />
                         <Space.Compact>
                             <div
@@ -382,7 +392,7 @@ const CheckZsContracte=(props:any)=>{
                             >
                                 到期日:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Space.Compact>
                             <div

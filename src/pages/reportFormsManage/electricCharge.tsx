@@ -1,14 +1,18 @@
 import {useEffect, useState} from "react";
 import {connect} from "umi";
-import {Button, DatePicker, Input, List, Pagination, Space, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table} from "antd";
 import dayjs from "dayjs";
+import * as WaterRateService from "@/services/electricCharge";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {exportDataToExcel} from "@/utils/OpenTool";
 
 const ElectricCharge=(props:any)=>{
-    const [address,setaddress]=useState('');
-    const [remark,setremark]=useState('');
-    const [name,setName]=useState('');
-    const [startDate,setStartDate]=useState('2025-05-15');
-    const [endDate,setEndDate]=useState('2099-05-16');
+    const [address,setaddress]=useState(localStorage.getItem('reportFormsManageElectricChargeAddress')||'');
+    const [remark,setremark]=useState(localStorage.getItem('reportFormsManageElectricChargeRemark')||'');
+    const [name,setName]=useState(localStorage.getItem('reportFormsManageElectricChargeName')||'');
+    const [startDate,setStartDate]=useState(localStorage.getItem('reportFormsManageElectricChargeStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem('reportFormsManageElectricChargeEndDate')||'2099-01-01');
+    const [spinning,setspinning]=useState(false);
     const columns =[
         {
             title: '房屋',
@@ -69,7 +73,7 @@ const ElectricCharge=(props:any)=>{
                     render: (text:any, record:any) => {
                         return(
                             <div>
-                                {dayjs(record.beginTime).format('YYYY-MM-DD HH:mm:ss')}
+                                {dayjs(record.beginTime).format('YYYY-MM-DD')}
                             </div>
                         )
                     },
@@ -98,7 +102,7 @@ const ElectricCharge=(props:any)=>{
                     render: (text:any, record:any) => {
                         return(
                             <div>
-                                {dayjs(record.endTime).format('YYYY-MM-DD HH:mm:ss')}
+                                {dayjs(record.endTime).format('YYYY-MM-DD')}
                             </div>
                         )
                     },
@@ -135,9 +139,11 @@ const ElectricCharge=(props:any)=>{
     }, []);
     // 分页
     const logFenye=()=>{
+        const originalDate = dayjs(endDate);
+        const newDate = originalDate.add(1, 'day');
         props.dispatch({
             type:"ElectricCharge/fetch",
-            payload:{address,remark,name,startDate,endDate}
+            payload:{address,remark,name,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD')}
         })
     };
     // 监听日期
@@ -145,30 +151,85 @@ const ElectricCharge=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem('reportFormsManageElectricChargeStartDate','2000-01-01');
+            localStorage.setItem('reportFormsManageElectricChargeEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem('reportFormsManageElectricChargeStartDate',data[0]);
+            localStorage.setItem('reportFormsManageElectricChargeEndDate',data[1]);
         }
     };
     const shousuo=()=>{
         logFenye();
     };
+    const changName=(e)=>{
+        setName(e.target.value);
+        localStorage.setItem('reportFormsManageElectricChargeName',e.target.value);
+    };
+    const changeAddress=(e)=>{
+        setaddress(e.target.value);
+        localStorage.setItem('reportFormsManageElectricChargeAddress',e.target.value);
+    };
+    const changeRemark=(e)=>{
+        setremark(e.target.value);
+        localStorage.setItem('reportFormsManageElectricChargeRemark',e.target.value);
+    };
+    const exportToExcel=()=>{
+        setspinning(true);
+        const originalDate = dayjs(endDate);
+        const newDate = originalDate.add(1, 'day');
+        WaterRateService.fetch({address,remark,name,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD')}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let headers=['房屋','单元','租户','采集器编号','通讯地址','描述','水表数据开始时间','开始度数(t)','水表数据结束时间','结束度数(t)','金额(元)'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })), // 表头
+                    ...res.Data.map(item => [
+                        item.house_name,
+                        (() => {
+                            // 提取单元名称，如果unitList为空则返回空字符串
+                            return item.unitList && item.unitList.length > 0
+                                ? item.unitList.map(val => val.unit_name).join(', ')
+                                : '';
+                        })(),
+                        item.tenant_name,
+                        item.collectorid,
+                        item.address,
+                        item.remark,
+                        (dayjs(item.beginTime).format('YYYY-MM-DD')),
+                        item.energyNew,
+                        (dayjs(item.endTime).format('YYYY-MM-DD')),
+                        item.energyNew2,
+                        item.waterMoneySum,
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
+                ];
+                exportDataToExcel(ws_data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
                             addonBefore="租户姓名:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changName}
+                            value={name}
                         />
                         <Input
-                            addonBefore="电表地址:"
-                            onChange={(e)=>setaddress(e.target.value)}
+                            addonBefore="水表地址:"
+                            onChange={changeAddress}
+                            value={address}
                         />
                         <Input
-                            addonBefore="电表描述:"
-                            onChange={(e)=>setremark(e.target.value)}
+                            addonBefore="水表描述:"
+                            onChange={changeRemark}
+                            value={remark}
                         />
                         <Space.Compact>
                             <div
@@ -185,7 +246,7 @@ const ElectricCharge=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Button type="primary" onClick={shousuo}>
                             搜索
@@ -202,7 +263,7 @@ const ElectricCharge=(props:any)=>{
                 scroll={{x:1500}}
                 pagination={false}
             />
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

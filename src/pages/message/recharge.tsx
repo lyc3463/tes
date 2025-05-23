@@ -6,6 +6,7 @@ import {connect} from "umi";
 import ErrorCodeType from "@/ModelTypes/TypeErrorCode";
 import Myqrcode from "@/components/Myqrcode";
 import {RedoOutlined} from "@ant-design/icons";
+import dayjs from "dayjs";
 
 const Recharge=(props)=>{
     const data=[
@@ -43,7 +44,6 @@ const Recharge=(props)=>{
     const getOneNuber=()=>{
         RechargeService.one().then((res:ErrorCodeType)=>{
             if (res.ErrorCode==0){
-                console.log("刷新条数",res);
                 setRemaining(res.Data.SmsNumber);
                 setParkName(res.Data.park_name);
             }else {
@@ -62,7 +62,7 @@ const Recharge=(props)=>{
             let remarks=`短信充值;充值金额${newMoney}分;充值条数${numberItems}条`;
             props.dispatch({
                 type:'Recharge/addchongzhi',
-                payload:{newMoney,remarks,numberItems}
+                payload:{newMoney,remarks,numberItems,rechargetype:1,startDate:dayjs().format('YYYY-MM-DD')}
             }).then((res:ErrorCodeType)=>{
                 if (res.ErrorCode==0){
                     setCode(res.Data);

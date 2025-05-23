@@ -30,12 +30,12 @@ const CheckStaff=(props:any)=>{
     // 审核状态 0全部  1未审核 2已审核
     const [stutes,setStutes]=useState(0);
     // 姓名
-    const [cname,setCname]=useState('');
+    const [cname,setCname]=useState(localStorage.getItem('checkCheckStaffName')||'');
     // 昵称
-    const [nickname,setNickname]=useState('');
+    const [nickname,setNickname]=useState(localStorage.getItem('checkCheckStaffNickname')||'');
     // 手机号
-    const [phone,setPhone]=useState('');
-    const [companyName,setcompanyName]=useState('');
+    const [phone,setPhone]=useState(localStorage.getItem('checkCheckStaffPhone')||'');
+    const [companyName,setcompanyName]=useState(localStorage.getItem('checkCheckStaffCompanyName')||'');
     const [spinning,setspinning]=useState(false);
     // 用户权限
     const [uqx,setUqx]=useState([]);
@@ -134,7 +134,6 @@ const CheckStaff=(props:any)=>{
     const toInfo=(e:number)=>{
         history.push(`/enter/yuangongInfo?id=${e}`);
     };
-
     // 审核弹窗
     const check=(e)=>{
         setUid(e.id);
@@ -161,10 +160,7 @@ const CheckStaff=(props:any)=>{
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        props.dispatch({
-            type:'CheckEmp/fenye',
-            payload:{cname,nickname,phone,stutes,companyName,pageSize}
-        })
+        getFenye();
         logFenye();
     };
     // 分页
@@ -172,6 +168,12 @@ const CheckStaff=(props:any)=>{
         props.dispatch({
             type:"CheckEmp/fetch",
             payload:{page,cname,nickname,phone,stutes,companyName,pageSize}
+        })
+    };
+    const getFenye=()=>{
+        props.dispatch({
+            type:'CheckEmp/fenye',
+            payload:{cname,nickname,phone,stutes,companyName,pageSize}
         })
     };
     // 监听页数
@@ -189,19 +191,27 @@ const CheckStaff=(props:any)=>{
     // 监听员工姓名
     const changeName=(e)=>{
         setCname(e.target.value);
+        localStorage.setItem('checkCheckStaffName',e.target.value);
     };
     // 监听员工昵称
     const changeNickname=(e)=>{
         setNickname(e.target.value);
+        localStorage.setItem('checkCheckStaffNickname',e.target.value);
     };
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
+        localStorage.setItem('checkCheckStaffPhone',e.target.value);
     };
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFenye();
     }, []);
+    const changeCompanyName=(e)=>{
+      setcompanyName(e.target.value);
+      localStorage.setItem('checkCheckStaffCompanyName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -210,18 +220,22 @@ const CheckStaff=(props:any)=>{
                         <Input
                             onChange={changeName}
                             addonBefore="员工姓名:"
+                            value={cname}
                         />
                         <Input
                             onChange={changeNickname}
                             addonBefore="员工昵称:"
+                            value={nickname}
                         />
                         <Input
                             onChange={changePhone}
                             addonBefore="手机号:"
+                            value={phone}
                         />
                         <Input
-                            onChange={(e)=>setcompanyName(e.target.value)}
+                            onChange={changeCompanyName}
                             addonBefore="公司/单元:"
+                            value={companyName}
                         />
                         <Space.Compact>
                             <div

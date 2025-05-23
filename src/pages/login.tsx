@@ -240,6 +240,7 @@ export default function Login() {
         StaticInfo.park_name= data.park_name;
         StaticInfo.beginTime= data.beginTime;
         StaticInfo.endTime= data.endTime;
+        StaticInfo.meal_id= data.meal_id;
         sessionStorage.setItem('userId',data.id);
         sessionStorage.setItem('userState','true');
         sessionStorage.setItem('token',data.token);
@@ -249,6 +250,7 @@ export default function Login() {
         sessionStorage.setItem('park_name',data.park_name);
         sessionStorage.setItem('loginbeginTime',data.beginTime);
         sessionStorage.setItem('loginendTime',data.endTime);
+        sessionStorage.setItem('loginmeal_id',data.meal_id);
         // if (values.jizhu) {
         //   let md5pwd = values.password;
         //   if (!yjzmm) {
