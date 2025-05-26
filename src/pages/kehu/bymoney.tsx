@@ -17,14 +17,18 @@ const Bymoney=(props)=>{
     const formRef=useRef();
     // 租户金额
     const [tenantAmount,settenantAmount]=useState(0);
+    // 原先预留金额
+    const [oldreserved_amount,setoldreserved_amount]=useState(0);
     const  [spinning,setspinning]=useState(false);
     const getOneCustom=async (id:string)=>{
         let res:any=await  ZuhuServer.one(id);
         if (res.ErrorCode==0){
             let data=res.Data;
+            console.log('res',res);
             formRef.current.setFieldsValue(data[0]);
             settenantAmount(data[0].tenantAmount);
             setminimum_recharge(data[0].minimum_recharge);
+            setoldreserved_amount(data[0].reserved_amount);
             setreserved_amount(data[0].reserved_amount);
             setwarn_amount(data[0].warn_amount);
         }else {
@@ -39,7 +43,7 @@ const Bymoney=(props)=>{
         setspinning(true);
         props.dispatch({
             type:'Zuhu/newbyzhuhu',
-            payload:{...vals,uid,tenantAmount,warn_amount,reserved_amount}
+            payload:{...vals,uid,tenantAmount,warn_amount,reserved_amount,oldreserved_amount}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('绑定成功');
@@ -76,7 +80,8 @@ const Bymoney=(props)=>{
                         <InputNumber min={1} value={minimum_recharge} onChange={(e)=>setminimum_recharge(e)}/>
                         {/*<Button type='primary' onClick={byRearge}>确定修改</Button>*/}
                         {/*<span style={{fontSize:'12px',color:'#999'}}>注:有账单欠费的情况下,只能通过该确定按钮修改最低充值,下面确定关联按钮修改不了最低充值</span>*/}
-                        <span style={{fontSize:'12px',color:'#999'}}>租户最低充值金额</span>
+                        <span style={{fontSize:'12px',color:'#999'}}>租户最低充值金额,</span>
+                        <span style={{fontSize:'12px',color:'red'}}>最低充值不能与预留金额同时修改</span>
                     </Space>
                 </Form.Item>
                 <Form.Item label='备注' name='remark'>

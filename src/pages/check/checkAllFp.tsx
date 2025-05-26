@@ -25,13 +25,13 @@ const CheckAllFp=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [openId,setOpenId]=useState(0);
-    const [stutes,setStutes]=useState(0);
+    const [stutes,setStutes]=useState(Number(localStorage.getItem('checkFpCheckAllFpStutes'))||0);
     const [uid,setUid]=useState(0);
     const [checkOpen,setCheckOpen]=useState(false);
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(localStorage.getItem("checkFpCheckAllFpStartDate")||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(localStorage.getItem("checkFpCheckAllFpEndDate")||'2099-01-01');
     // 发送消息给小程序用户
     const [appId,setFSAppUser]=useState(0);
     // 发送的弹窗
@@ -254,6 +254,8 @@ const CheckAllFp=(props)=>{
                 message.success('审核通过');
                 setCheckOpen(false);
                 setIsLoading(false);
+                getfenyeInfo();
+                logFenye();
             }else {
                 message.error(res.Data);
                 setIsLoading(false);
@@ -265,14 +267,19 @@ const CheckAllFp=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            localStorage.setItem("checkFpCheckAllFpStartDate",'2000-01-01');
+            localStorage.setItem("checkFpCheckAllFpEndDate",'2000-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            localStorage.setItem("checkFpCheckAllFpStartDate",data[0]);
+            localStorage.setItem("checkFpCheckAllFpEndDate",data[1]);
         }
     };
     // 状态
     const changeStutes=(e)=>{
-        setStutes(e)
+        setStutes(e);
+        localStorage.setItem("checkFpCheckAllFpStutes",e);
     };
     const sousuo=()=>{
         setPage(1);
@@ -332,7 +339,7 @@ const CheckAllFp=(props)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
                         </Space.Compact>
                         <Space.Compact>
                             <div

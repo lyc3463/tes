@@ -34,12 +34,12 @@ const Yinghangka=(props:any)=>{
     const columns =[
         {
             title: '日期',
-            dataIndex: 'billDate',
-            key: 'billDate',
+            dataIndex: 'created',
+            key: 'created',
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        {dayjs(record.billDate).format('YYYY-MM-DD')}
+                        {dayjs(record.created).format('YYYY-MM-DD HH:mm:ss')}
                     </div>
                 )
             }
@@ -139,6 +139,11 @@ const Yinghangka=(props:any)=>{
             payload:{page,name,startDate,endDate,pageSize}
         })
     };
+    const AccountList=()=>{
+        props.dispatch({
+            type:"Account/fetch",
+        })
+    };
     useEffect(() => {
         logFenye();
     }, [page,pageSize]);
@@ -147,6 +152,7 @@ const Yinghangka=(props:any)=>{
     };
     useEffect(() => {
         fenyeInfo();
+        AccountList();
     }, []);
     return(
         <div>

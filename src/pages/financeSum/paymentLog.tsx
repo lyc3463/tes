@@ -1,8 +1,9 @@
 import dayjs from "dayjs";
-import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import * as PaymentLogService from '@/services/paymentLog';
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {exportDataToExcel} from "@/utils/OpenTool";
 
 const PaymentLog=()=>{
     const [page,setPage]=useState(1);
@@ -22,12 +23,12 @@ const PaymentLog=()=>{
     // 支付状态
     const [stutes,setStutes]=useState(Number(localStorage.getItem('financeSumPaymentLogStutes'))||-1);
     const [moneySum,setmoneySum]=useState(0);
+    const [spinning,setspinning]=useState(false);
     // 订单列表
     const getPaymentLogList=()=>{
         PaymentLogService.fetch({page,orderNum,startDate,endDate,type,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setdataSource(res.Data);
-                console.log('res',res)
             }else {
                 message.error(res.Data);
             }
@@ -38,8 +39,7 @@ const PaymentLog=()=>{
         PaymentLogService.fenye({orderNum,startDate,endDate,type,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
-                setmoneySum(res.Data.moneySum)
-
+                setmoneySum(res.Data.moneySum);
             }else {
                 message.error(res.Data);
             }
@@ -113,9 +113,21 @@ const PaymentLog=()=>{
             dataIndex: 'orderType',
             key: 'orderType',
             render:(text:any,record:any)=>{
+                let textStutes;
+                if (record.orderType==1){
+                    textStutes=<Tag color='green'>短信充值</Tag>
+                }else if (record.orderType==2){
+                    textStutes=<Tag color='blue'>微信充值</Tag>
+                }else if (record.orderType==3){
+                    textStutes=<Tag color='red'>代充值</Tag>
+                }else if (record.orderType==4){
+                    textStutes=<Tag color='red'>园区续费</Tag>
+                }else {
+                    textStutes=<Tag color='red'>未知类型</Tag>
+                }
                 return(
                     <div>
-                        {record.orderType==1?<Tag color='green'>短信充值</Tag>:<Tag color='red'>微信充值</Tag>}
+                        {textStutes}
                     </div>
                 )
             }
@@ -168,8 +180,57 @@ const PaymentLog=()=>{
         setorderNum(e.target.value);
         localStorage.setItem('financeSumPaymentLogOrderNum',e.target.value);
     };
+    const exportToExcel=()=>{
+        setspinning(true);
+        PaymentLogService.fetch({page:1,orderNum,startDate,endDate,type,stutes,pageSize:10000}).then((res:any)=>{
+            if (res.ErrorCode==0){
+                let headers=['日期','订单编号','充值金额','支付状态','订单类型','订单描述'];
+                const ws_data = [
+                    headers.map(header => ({ v: header, t: 's' })), // 表头
+                    ...res.Data.map(item => [
+                        (dayjs(item.created).format('YYYY-MM-DD HH:mm:ss')), // 提取日期部分
+                        item.orderNum,
+                        (item.orderAmount/100).toFixed(2),
+                        (() => {
+                            switch (item.orderStatus) {
+                                case 1:
+                                    return '充值成功';
+                                case 2:
+                                    return '充值失败';
+                                case 3:
+                                    return '支付错误';
+                                case 0:
+                                    return '用户未支付';
+                                default:
+                                    return '付款失败'; // 处理未知类型的情况
+                            }
+                        })(),
+                        (() => {
+                            switch (item.orderType) {
+                                case 1:
+                                    return '短信充值';
+                                case 2:
+                                    return '微信充值';
+                                case 3:
+                                    return '代充值';
+                                case 4:
+                                    return '园区续费';
+                                default:
+                                    return '未知类型'; // 处理未知类型的情况
+                            }
+                        })(),
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                ];
+                exportDataToExcel(ws_data);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+    };
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -230,8 +291,8 @@ const PaymentLog=()=>{
                                     { value:0, label: '全部' },
                                     { value:1, label: '短信充值' },
                                     { value:2, label: '微信充值' },
-                                    // { value:2, label: '充值失败' },
-                                    // { value:3, label: '支付错误' },
+                                    { value:3, label: '代充值' },
+                                    { value:4, label: '园区续费' },
 
                                 ]}
                             />
@@ -255,6 +316,9 @@ const PaymentLog=()=>{
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
+                        </Button>
+                        <Button type="primary" onClick={exportToExcel}>
+                            导出
                         </Button>
                     </Space>
                 </List.Item>
@@ -288,7 +352,7 @@ const PaymentLog=()=>{
 
             />
             <Pagination total={count}showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
-        </div>
+        </Spin>
     )
 }
 export default PaymentLog

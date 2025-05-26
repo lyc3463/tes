@@ -58,7 +58,6 @@ const CheckFpSDModels: CheckFpInterface = {
         },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(CheckFpService.fenye, payload?payload:pl);
-
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'count',
@@ -70,8 +69,8 @@ const CheckFpSDModels: CheckFpInterface = {
         },
         *check({ payload, callback }, { call, put, take }): any {
             const result = yield call(CheckFpService.check, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
             return result
         },
 

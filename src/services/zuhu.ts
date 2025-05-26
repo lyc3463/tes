@@ -42,7 +42,7 @@ export function depoListFenye(itemName:string,uid:string) {
     return getData(1455, [itemName,uid]);
 }
 export function newbyzhuhu(vals:any) {
-    return getData(1496, [vals.uid,vals.reserved_amount,vals.warn_amount,vals.minimum_recharge,vals.remark,vals.tenantAmount]);
+    return getData(1496, [vals.uid,vals.reserved_amount,vals.warn_amount,vals.minimum_recharge,vals.remark,vals.tenantAmount,vals.oldreserved_amount]);
 }
 export function newbyappuser(vals:any) {
     return getData(1423, [vals.uid,vals.tenant_phone,vals.is_deduction]);

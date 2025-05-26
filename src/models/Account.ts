@@ -138,12 +138,12 @@ const AccountModels: AccountInterface = {
                         payload: location.state,
                     });
                 }
-                if (StaticInfo.userId > 0 && pathname === '/billLog/yinghangka/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/billLog/yinghangka/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
             });
         },
     },
