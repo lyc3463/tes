@@ -6,7 +6,6 @@ import { StaticInfo } from '@/StaticInfo';
 import CustomType from "@/ModelTypes/TypeCustom";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
-
 const Custom=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
@@ -48,14 +47,17 @@ const Custom=(props:any)=>{
                 message.success('修改成功');
                 setRemark('');
                 setAOpen(false);
+                getFenyeInfo();
+                logFenye();
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setAOpen(false);
             }
         })
     };
     const onlikai=()=>{
         setRemark('');
-        setAOpen(false)
+        setAOpen(false);
     };
     const columns =[
         {
@@ -347,6 +349,8 @@ const Custom=(props:any)=>{
             if (res.ErrorCode==0){
                 setspinning(false);
                 setDopen(false);
+                getFenyeInfo();
+                logFenye();
                 message.success('删除成功');
             }else{
                 setspinning(false);
@@ -358,11 +362,14 @@ const Custom=(props:any)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
+        getFenyeInfo();
+        logFenye();
+    };
+    const getFenyeInfo=()=>{
         props.dispatch({
             type:'Custom/fenye',
             payload:{customName,customBeginTime,customEndTime,customStatus,userId:StaticInfo.userId,pageSize}
         })
-        logFenye();
     };
     // 监听名字
     const changeName=(e)=>{
@@ -405,6 +412,7 @@ const Custom=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFenyeInfo();
     }, []);
     return(
         <Spin spinning={spinning}>

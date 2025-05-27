@@ -245,32 +245,32 @@ const YuangonglData=(props:any)=>{
                             addonBefore="公司/单元:"
                             value={companyName}
                         />
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                状态:
-                            </div>
-                            <Select
-                                onChange={changeStutes}
-                                defaultValue={stutes}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value:0, label: '全部' },
-                                    { value:1, label: '未审核' },
-                                    { value:2, label: '已审核' },
-                                ]}
-                            />
-                        </Space.Compact>
+                        {/*<Space.Compact>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            borderStartEndRadius: 0,*/}
+                        {/*            borderEndEndRadius: 0,*/}
+                        {/*            padding: '0 11px',*/}
+                        {/*            border: '1px solid #d9d9d9',*/}
+                        {/*            display: 'flex',*/}
+                        {/*            alignItems: 'center',*/}
+                        {/*            borderInlineEnd: 0,*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        状态:*/}
+                        {/*    </div>*/}
+                        {/*    <Select*/}
+                        {/*        onChange={changeStutes}*/}
+                        {/*        defaultValue={stutes}*/}
+                        {/*        style={{ width: 120 }}*/}
+                        {/*        options={[*/}
+                        {/*            { value:0, label: '全部' },*/}
+                        {/*            { value:1, label: '未审核' },*/}
+                        {/*            { value:2, label: '已审核' },*/}
+                        {/*        ]}*/}
+                        {/*    />*/}
+                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>

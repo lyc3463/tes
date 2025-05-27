@@ -275,7 +275,6 @@ const Kehulist=(props:any)=>{
     const toinfo=(e:number)=>{
         history.push(`/enter/customInfo?id=${e}`)
     };
-
     // 搜索
     const suosou=()=>{
         setPage(1);

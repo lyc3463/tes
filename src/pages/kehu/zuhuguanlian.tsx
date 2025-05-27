@@ -127,17 +127,19 @@ const Zuhuguanlian=(props:any)=>{
     ];
     // 去关联页面
     const toguanlian=(e:number)=>{
-        history.push(`/kehu/byzhuhu?id=${e}`)
+        history.push(`/kehu/byzhuhu?id=${e}`);
     };
     // 去关联页面
     const toyajinlist=(e:number)=>{
-        history.push(`/kehu/yajinlist?id=${e}`)
+        history.push(`/kehu/yajinlist?id=${e}`);
     };
     useEffect(() => {
         logFenye();
     }, [page,pagecount]);
     useEffect(() => {
         logFenyeInfo();
+        console.log('props',props)
+
     }, []);
     // 分页
     const logFenye=()=>{

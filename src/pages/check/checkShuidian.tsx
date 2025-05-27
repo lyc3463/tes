@@ -20,6 +20,8 @@ import {
 import TypeCheckFp from "@/ModelTypes/TypeCheckFp";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import ImageUploader from "@/components/ImageUploader";
+import * as AppUserService from '@/services/appUser';
+
 const CheckShuidian=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
@@ -42,6 +44,7 @@ const CheckShuidian=(props)=>{
     const [imgB64,setImgB64]=useState('');
     // 发送给小程序内容
     const [conten,setconten]=useState('');
+    const [zuhuList,setZuhuList]=useState([]);
     const columns =[
         {
             title: '申请日期',
@@ -219,6 +222,7 @@ const CheckShuidian=(props)=>{
     }, [page,pageSize]);
     useEffect(() => {
         getfenyeInfo();
+        // getKuHuList();
     }, []);
     // 审核通过弹窗
     const onTongguo=(e:TypeCheckFp)=>{
@@ -298,6 +302,33 @@ const CheckShuidian=(props)=>{
     const onb64=(e)=>{
         setImgB64(e);
     };
+    const getKuHuList=()=>{
+        // props.dispatch({
+        //     type:"BYZhuhu/fetch",
+        //     payload:{page:1,name:'',phone:'',pagecount:10000}
+        // }).then((res:TypeErrorCode)=>{
+        //     if (res.ErrorCode==0){
+        //         const filteredArray = res.Data.filter(item => item.userId >0);
+        //         console.log('res',res);
+        //         setZuhuList(filteredArray);
+        //         console.log(filteredArray);
+        //
+        //     }else {
+        //         message.error(res.Data);
+        //     }
+        // })
+        AppUserService.fetch({page:1,name:'',phone:'',pageSize:10000,balance:0}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setZuhuList(res.Data);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
+    const changZuHu=(e)=>{
+        setOpenId(e);
+
+    };
     return(
         <Spin spinning={isLoading} style={{zIndex:'1000'}}>
             <List>
@@ -346,6 +377,46 @@ const CheckShuidian=(props)=>{
                                 ]}
                             />
                         </Space.Compact>
+                        {/*<Space.Compact>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            borderStartEndRadius: 0,*/}
+                        {/*            borderEndEndRadius: 0,*/}
+                        {/*            padding: '0 11px',*/}
+                        {/*            border: '1px solid #d9d9d9',*/}
+                        {/*            display: 'flex',*/}
+                        {/*            alignItems: 'center',*/}
+                        {/*            borderInlineEnd: 0,*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        租户:*/}
+                        {/*    </div>*/}
+                        {/*    <Select*/}
+                        {/*        onChange={changZuHu}*/}
+                        {/*        defaultValue={openId}*/}
+                        {/*        style={{ width: 120 }}*/}
+                        {/*        notFoundContent={false}*/}
+                        {/*        showSearch*/}
+                        {/*        optionFilterProp="children"*/}
+                        {/*        filterOption={(input, option) => {*/}
+                        {/*            // 假设每个 option 都有一个与数据项对应的 value 属性*/}
+                        {/*            const item = zuhuList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程*/}
+                        {/*            return item?.tenant_name?.toLowerCase().includes(input.toLowerCase());*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        <Select.Option value={0} key={0}>*/}
+                        {/*            全部*/}
+                        {/*        </Select.Option>*/}
+                        {/*        {zuhuList.map((item:any,index:any)=>{*/}
+                        {/*            return(*/}
+                        {/*                <Select.Option value={item.id} key={item.id}>*/}
+                        {/*                    {item.tenant_name}*/}
+                        {/*                </Select.Option>*/}
+                        {/*            )*/}
+                        {/*        })}*/}
+                        {/*    </Select>*/}
+                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
