@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import {history} from "@@/core/history";
 
 const Kehulist=(props:any)=>{
-    const [name,setName]=useState(localStorage.getItem('kehuKehulistName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('kehuKehulistName')||'');
     const [page,setPage]=useState(1);
     const [pageSize,setpageSize]=useState(50);
     const [startDate,setStartDate]=useState('2000-01-01');
@@ -290,7 +290,7 @@ const Kehulist=(props:any)=>{
     // 监听名字
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('kehuKehulistName',e.target.value);
+        sessionStorage.setItem('kehuKehulistName',e.target.value);
     };
     // 监听页数
     const onChange=(page:number,pageSize:number)=>{
@@ -309,18 +309,18 @@ const Kehulist=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('kehuKehulistStartDate','2000-01-01');
-            localStorage.setItem('kehuKehulistEndDate','2099-01-01');
+            sessionStorage.setItem('kehuKehulistStartDate','2000-01-01');
+            sessionStorage.setItem('kehuKehulistEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('kehuKehulistStartDate',data[0]);
-            localStorage.setItem('kehuKehulistEndDate',data[1]);
+            sessionStorage.setItem('kehuKehulistStartDate',data[0]);
+            sessionStorage.setItem('kehuKehulistEndDate',data[1]);
         }
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pageSize]);
     useEffect(() => {
         getFYInfo();
     }, []);
@@ -349,7 +349,7 @@ const Kehulist=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={suosou}>
                             搜索
@@ -360,7 +360,7 @@ const Kehulist=(props:any)=>{
             <Table
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
-                scroll={{x:2000,y:'65vh'}} pagination={false}
+                scroll={{x:2000,y:'60vh'}} pagination={false}
                 rowKey={(columns) => columns.id}
                 dataSource={props.CheckCompanyList}
                 size='small'

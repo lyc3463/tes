@@ -15,15 +15,15 @@ const ZsContract=(props:any)=>{
     // 审核状态 0全部  1未审核 2已审核
     const [contractStatus,setContractStatus]=useState(0);
     // 合同编号
-    const [identifier,setIdentifier]=useState(localStorage.getItem('enterStaffZsContractIdentifier')||'');
+    const [identifier,setIdentifier]=useState(sessionStorage.getItem('enterStaffZsContractIdentifier')||'');
     // 合同类型
     const [contractType,setContractType]=useState(0);
     // 开始时间
-    const [startDate,setStartDate]=useState(localStorage.getItem('enterStaffZsContractStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('enterStaffZsContractStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(localStorage.getItem('enterStaffZsContractEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('enterStaffZsContractEndDate')||'2099-01-01');
     // 租户姓名
-    const [name,setName]=useState(localStorage.getItem('enterStaffZsContractName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('enterStaffZsContractName')||'');
     // 列表
     const [staffList,setStaffList]=useState([]);
     // 转圈
@@ -277,7 +277,7 @@ const ZsContract=(props:any)=>{
     // 监听合同编号
     const changeIdentifier=(e)=>{
         setIdentifier(e.target.value);
-        localStorage.setItem('enterStaffZsContractIdentifier',e.target.value);
+        sessionStorage.setItem('enterStaffZsContractIdentifier',e.target.value);
     };
     // 合同类型
     const changeType=(e:any)=>{
@@ -288,13 +288,13 @@ const ZsContract=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('enterStaffZsContractStartDate','2000-01-01');
-            localStorage.setItem('enterStaffZsContractEndDate','2099-01-01');
+            sessionStorage.setItem('enterStaffZsContractStartDate','2000-01-01');
+            sessionStorage.setItem('enterStaffZsContractEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('enterStaffZsContractStartDate',data[0]);
-            localStorage.setItem('enterStaffZsContractEndDate',data[1]);
+            sessionStorage.setItem('enterStaffZsContractStartDate',data[0]);
+            sessionStorage.setItem('enterStaffZsContractEndDate',data[1]);
         }
     };
     // 下载页面
@@ -315,7 +315,7 @@ const ZsContract=(props:any)=>{
     }, []);
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('enterStaffZsContractName',e.target.value);
+        sessionStorage.setItem('enterStaffZsContractName',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -351,7 +351,7 @@ const ZsContract=(props:any)=>{
                             >
                                 到期日:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}  defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Space.Compact>
                             <div

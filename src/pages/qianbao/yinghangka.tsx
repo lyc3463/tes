@@ -7,8 +7,8 @@ import {StaticInfo} from "@/StaticInfo";
 const Yinghangka=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(localStorage.getItem('qianbaoYinghangkaName')||'');
-    const [phone,setPhone]=useState(localStorage.getItem('qianbaoYinghangkaPhone')||'');
+    const [name,setName]=useState(sessionStorage.getItem('qianbaoYinghangkaName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('qianbaoYinghangkaPhone')||'');
     const [uid,setUid]=useState(0);
     const [isOpen,setOpen]=useState(false);
     const [yhk,setYhk]=useState('');
@@ -160,11 +160,11 @@ const Yinghangka=(props:any)=>{
     }, []);
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('qianbaoYinghangkaName',e.target.value);
+        sessionStorage.setItem('qianbaoYinghangkaName',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('qianbaoYinghangkaPhone',e.target.value);
+        sessionStorage.setItem('qianbaoYinghangkaPhone',e.target.value);
     };
     return(
         <div>

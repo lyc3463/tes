@@ -5,8 +5,8 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
 
 const HouseBill=(props:any)=>{
-    const [name,setName]=useState(localStorage.getItem('houseManageHouseBillName')||'');
-    const [phone,setPhone]=useState(localStorage.getItem('houseManageHouseBillPhone')||'');
+    const [name,setName]=useState(sessionStorage.getItem('houseManageHouseBillName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('houseManageHouseBillPhone')||'');
     const [page,setPage]=useState(1);
     const [count,setcount]=useState(1);
     const [pagecount,setpagecount]=useState(50);
@@ -94,12 +94,12 @@ const HouseBill=(props:any)=>{
         history.push(`/houseManage/tennerBill?id=${e}`)
     };
     const changeName=(e)=>{
-      setName(e.target.value);
-      localStorage.setItem('houseManageHouseBillName',e.target.value);
+        setName(e.target.value);
+        sessionStorage.setItem('houseManageHouseBillName',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('houseManageHouseBillPhone',e.target.value);
+        sessionStorage.setItem('houseManageHouseBillPhone',e.target.value);
     };
     return(
         <div>

@@ -7,11 +7,11 @@ import {StaticInfo} from "@/StaticInfo";
 const Unit=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(localStorage.getItem('houseManageHouseListUnitName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('houseManageHouseListUnitName')||'');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(999999999);
     const [status,setstatus]=useState(0);
-    const [house_id,sethouse_id]=useState(Number(localStorage.getItem('houseManageHouseListUnitHouseId'))||0);
+    const [house_id,sethouse_id]=useState(Number(sessionStorage.getItem('houseManageHouseListUnitHouseId'))||0);
     const [uid,setUid]=useState(0);
     const [open,setOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
@@ -159,7 +159,7 @@ const Unit=(props:any)=>{
 
     const changeName=(e:any)=>{
         setName(e.target.value);
-        localStorage.setItem('houseManageHouseListUnitName',e.target.value);
+        sessionStorage.setItem('houseManageHouseListUnitName',e.target.value);
     };
     const sousuo=()=>{
         setPage(1);
@@ -228,7 +228,7 @@ const Unit=(props:any)=>{
     };
     const changeHouse=(e)=>{
         sethouse_id(e);
-        localStorage.setItem('houseManageHouseListUnitHouseId',e);
+        sessionStorage.setItem('houseManageHouseListUnitHouseId',e);
     };
     return(
         <Spin spinning={spinning}>

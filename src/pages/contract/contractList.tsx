@@ -19,7 +19,7 @@ const ContractList=(props:any)=>{
             width:300,
             render: (text:any, record:any) => {
                 return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
                         {record.identifier}
                     </div>
                 )
@@ -32,7 +32,7 @@ const ContractList=(props:any)=>{
             align:'center',
             render: (text:any, record:any) => {
                 return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
                         {record.customName}
                     </div>
                 )

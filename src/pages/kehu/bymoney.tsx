@@ -80,8 +80,7 @@ const Bymoney=(props)=>{
                         <InputNumber min={1} value={minimum_recharge} onChange={(e)=>setminimum_recharge(e)}/>
                         {/*<Button type='primary' onClick={byRearge}>确定修改</Button>*/}
                         {/*<span style={{fontSize:'12px',color:'#999'}}>注:有账单欠费的情况下,只能通过该确定按钮修改最低充值,下面确定关联按钮修改不了最低充值</span>*/}
-                        <span style={{fontSize:'12px',color:'#999'}}>租户最低充值金额,</span>
-                        <span style={{fontSize:'12px',color:'red'}}>最低充值不能与预留金额同时修改</span>
+                        <span style={{fontSize:'12px',color:'#999'}}>租户最低充值金额</span>
                     </Space>
                 </Form.Item>
                 <Form.Item label='备注' name='remark'>

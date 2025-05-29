@@ -86,7 +86,7 @@ export const qxTree: TypeMenu[] = [
     { id: 80, name: '车辆管理', parentId: 77, authId: 80},
     { id: 81, name: '月卡管理', parentId: 77, authId: 81},
     { id: 82, name: '工单管理', authId: 82},
-    { id: 83, name: '工单列表', parentId: 82, authId: 83},
+    { id: 83, name: '工单列表', parentId: 49, authId: 83},
     { id: 84, name: '报表管理', authId: 84},
     { id: 85, name: '会员汇总', parentId: 84, authId: 85},
     // { id: 86, name: '收入报表', parentId: 84, authId: 86},

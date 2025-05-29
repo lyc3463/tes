@@ -110,7 +110,7 @@ const SumHounsBlii=(props:any)=>{
             width:300,
             render: (text:any, record:any) => {
                 return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '300px' }}>
                         {record.tenant_name}
                     </div>
                 )
@@ -252,6 +252,7 @@ const SumHounsBlii=(props:any)=>{
                 rowKey={(columns) => columns.index}
                 pagination={false}
                 size='small'
+                scroll={{y:'60vh'}}
                 dataSource={tenntrList}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 summary={(columns) => (

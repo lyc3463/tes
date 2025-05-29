@@ -25,12 +25,12 @@ const YuangonglData=(props:any)=>{
     // 审核状态 0全部  1未审核 2已审核
     const [stutes,setStutes]=useState(1);
     // 姓名
-    const [cname,setCname]=useState(localStorage.getItem('enterYuangonglDataName')||'');
+    const [cname,setCname]=useState(sessionStorage.getItem('enterYuangonglDataName')||'');
     // 昵称
-    const [nickname,setNickname]=useState(localStorage.getItem('enterYuangonglDataNickname')||'');
+    const [nickname,setNickname]=useState(sessionStorage.getItem('enterYuangonglDataNickname')||'');
     // 手机号
-    const [phone,setPhone]=useState(localStorage.getItem('enterYuangonglDataPhone')||'');
-    const [companyName,setcompanyName]=useState(localStorage.getItem('enterYuangonglDataCompanyName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('enterYuangonglDataPhone')||'');
+    const [companyName,setcompanyName]=useState(sessionStorage.getItem('enterYuangonglDataCompanyName')||'');
     // 唯一ID
     const [uid,setUid]=useState(0);
     // 删除的名称
@@ -178,21 +178,21 @@ const YuangonglData=(props:any)=>{
     // 监听员工姓名
     const changeName=(e)=>{
         setCname(e.target.value);
-        localStorage.setItem('enterYuangonglDataName',e.target.value);
+        sessionStorage.setItem('enterYuangonglDataName',e.target.value);
     };
     // 监听员工昵称
     const changeNickname=(e)=>{
         setNickname(e.target.value);
-        localStorage.setItem('enterYuangonglDataNickname',e.target.value);
+        sessionStorage.setItem('enterYuangonglDataNickname',e.target.value);
     };
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('enterYuangonglDataPhone',e.target.value);
+        sessionStorage.setItem('enterYuangonglDataPhone',e.target.value);
     };
     const changeCompanyName=(e)=>{
         setcompanyName(e.target.value);
-        localStorage.setItem('enterYuangonglDataCompanyName',e.target.value);
+        sessionStorage.setItem('enterYuangonglDataCompanyName',e.target.value);
     };
     // 删除的确定按钮
     const onOk=()=>{

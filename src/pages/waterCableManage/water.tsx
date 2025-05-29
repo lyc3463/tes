@@ -10,9 +10,9 @@ const Water=(props:any)=>{
     let mathNumber=getRandomNumber(1,10);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [waterAddress,setwaterAddress]=useState(localStorage.getItem('waterCableManageWaterAddress')||'');
-    const [name,setName]=useState(localStorage.getItem('waterCableManageWaterName')||'');
-    const [remark,setremark]=useState(localStorage.getItem('waterCableManageWaterRemark')||'');
+    const [waterAddress,setwaterAddress]=useState(sessionStorage.getItem('waterCableManageWaterAddress')||'');
+    const [name,setName]=useState(sessionStorage.getItem('waterCableManageWaterName')||'');
+    const [remark,setremark]=useState(sessionStorage.getItem('waterCableManageWaterRemark')||'');
     const [uid,setUid]=useState(0);
     const [open,setOpne]=useState(false);
     const [isSpinning,setIsSpinning]=useState(false);
@@ -217,16 +217,16 @@ const Water=(props:any)=>{
         getFenyeInfo();
     }, []);
     const changeWaterAddress=(e)=>{
-      setwaterAddress(e.target.value);
-      localStorage.setItem('waterCableManageWaterAddress',e.target.value);
+        setwaterAddress(e.target.value);
+        sessionStorage.setItem('waterCableManageWaterAddress',e.target.value);
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('waterCableManageWaterName',e.target.value);
+        sessionStorage.setItem('waterCableManageWaterName',e.target.value);
     };
     const changeRemark=(e)=>{
         setremark(e.target.value);
-        localStorage.setItem('waterCableManageWaterRemark',e.target.value);
+        sessionStorage.setItem('waterCableManageWaterRemark',e.target.value);
     };
     return(
         <Spin spinning={isSpinning}>
@@ -240,7 +240,6 @@ const Water=(props:any)=>{
                             onChange={changeWaterAddress}
                             addonBefore="水表地址:"
                             value={waterAddress}
-
                         />
                         <Input
                             onChange={changeName}

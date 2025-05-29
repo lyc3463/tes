@@ -102,7 +102,7 @@ const Recharge=(props)=>{
                     </div>
                     <div className={styles.okCss}>扫码成功后，如没有反应请点击下面确定付款按钮</div>
                     <Space>
-                        <Button type='primary' onClick={cancelOk}>离开</Button>
+                        <Button type='primary' onClick={cancelOk}>我已付款，并且离开</Button>
                     </Space>
                 </div>:<>
                     <form className={styles.content}>

@@ -41,8 +41,8 @@ const MovementCable=(props:any)=>{
             key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
-                    <div>
-                        {record.tenant_name==null?<Tag color='red'>未绑定租户</Tag>:<Tag color='green'>{record.tenant_name}</Tag>}
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '200px' }}>
+                        {record.tenant_name==null?<span>未绑定租户</span>:<span>{record.tenant_name}</span>}
                     </div>
                 )
             },

@@ -12,11 +12,11 @@ const Alljiaoyi=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(localStorage.getItem('zonglanAlljiaoyiName')||'');
-    const [phone,setPhone]=useState(localStorage.getItem('zonglanAlljiaoyiPhone')||'');
+    const [name,setName]=useState(sessionStorage.getItem('zonglanAlljiaoyiName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('zonglanAlljiaoyiPhone')||'');
     const [type,setType]=useState(1);
-    const [startDate,setStartDate]=useState(localStorage.getItem('zonglanAlljiaoyiStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(localStorage.getItem('zonglanAlljiaoyiEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('zonglanAlljiaoyiStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('zonglanAlljiaoyiEndDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
     const [spinning,setspinning]=useState(false);
     const [dataSource,setdataSource]=useState([]);
@@ -166,13 +166,13 @@ const Alljiaoyi=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('zonglanAlljiaoyiStartDate','2000-01-01');
-            localStorage.setItem('zonglanAlljiaoyiEndDate','2099-01-01');
+            sessionStorage.setItem('zonglanAlljiaoyiStartDate','2000-01-01');
+            sessionStorage.setItem('zonglanAlljiaoyiEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('zonglanAlljiaoyiStartDate',data[0]);
-            localStorage.setItem('zonglanAlljiaoyiEndDate',data[1]);
+            sessionStorage.setItem('zonglanAlljiaoyiStartDate',data[0]);
+            sessionStorage.setItem('zonglanAlljiaoyiEndDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -237,12 +237,12 @@ const Alljiaoyi=(props)=>{
     // 监听输入的姓名
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('zonglanAlljiaoyiName',e.target.value);
+        sessionStorage.setItem('zonglanAlljiaoyiName',e.target.value);
     };
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('zonglanAlljiaoyiPhone',e.target.value);
+        sessionStorage.setItem('zonglanAlljiaoyiPhone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -276,7 +276,7 @@ const Alljiaoyi=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -301,7 +301,7 @@ const Alljiaoyi=(props)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 dataSource={dataSource}
-                scroll={{y:'70vh'}}
+                scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (

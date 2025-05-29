@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import HonuseType from '@/ModelTypes/TypeHouse'
 import {StaticInfo} from "@/StaticInfo";
 const House=(props:any)=>{
-    const [name,setName]=useState(localStorage.getItem('houseManageHouseListHouseName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('houseManageHouseListHouseName')||'');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
     const [open,setOpne]=useState(false);
@@ -134,7 +134,7 @@ const House=(props:any)=>{
     };
     const changeName=(e:any)=>{
         setName(e.target.value);
-        localStorage.setItem('houseManageHouseListHouseName',e.target.value);
+        sessionStorage.setItem('houseManageHouseListHouseName',e.target.value);
     };
     const sousuo=()=>{
         getList();

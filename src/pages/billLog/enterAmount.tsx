@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 const EnterAmount=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
+    const [name,setName]=useState(localStorage.getItem('billLogEnterAmountName')||'');
     const [open,setOpen]=useState(false);
     const [tenantId,settenantId]=useState(0);
     const [spinning,setspinning]=useState(false);
@@ -17,6 +17,13 @@ const EnterAmount=(props)=>{
             title: '租户姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '200px' }}>
+                        {record.tenant_name}
+                    </div>
+                )
+            }
         },
         {
             title: '收费项目名称',
@@ -92,7 +99,11 @@ const EnterAmount=(props)=>{
                 message.error(res.Data);
             }
         })
-    }
+    };
+    const changeName=(e)=>{
+      setName(e.target.value);
+      localStorage.setItem('billLogEnterAmountName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -100,7 +111,8 @@ const EnterAmount=(props)=>{
                     <Space>
                         <Input
                             addonBefore="租户姓名:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索

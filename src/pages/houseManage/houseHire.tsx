@@ -201,6 +201,7 @@ const HouseHire=(props)=>{
                 dataSource={props.UnitList}
                 pagination={false}
                 size='small'
+                scroll={{y:'60vh'}}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 // summary={(columns) => (
                 //     <Table.Summary fixed>

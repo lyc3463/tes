@@ -11,8 +11,8 @@ const Yiruzhang=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [stutes,setStutes]=useState(2);
-    const [startDate,setStartDate]=useState(localStorage.getItem('zonglanYiruzhangStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(localStorage.getItem('zonglanYiruzhangEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('zonglanYiruzhangStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('zonglanYiruzhangEndDate')||'2099-01-01');
     const [spinning,setspinning]=useState(false);
     const [uqx,setUqx]=useState([]);
     const columns =[
@@ -95,13 +95,13 @@ const Yiruzhang=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('zonglanYiruzhangStartDate','2000-01-01');
-            localStorage.setItem('zonglanYiruzhangEndDate','2099-01-01');
+            sessionStorage.setItem('zonglanYiruzhangStartDate','2000-01-01');
+            sessionStorage.setItem('zonglanYiruzhangEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('zonglanYiruzhangStartDate',data[0]);
-            localStorage.setItem('zonglanYiruzhangEndDate',data[1]);
+            sessionStorage.setItem('zonglanYiruzhangStartDate',data[0]);
+            sessionStorage.setItem('zonglanYiruzhangEndDate',data[1]);
         }
     };
     const  onChange=(e,pageSize)=>{
@@ -162,7 +162,7 @@ const Yiruzhang=(props)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -178,6 +178,7 @@ const Yiruzhang=(props)=>{
                 dataSource={props.TixianList}
                 pagination={false}
                 size='small'
+                scroll={{y:'60vh'}}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
@@ -201,8 +202,6 @@ const Yiruzhang=(props)=>{
                                 index={7}
                             >
                                 {props.count?props.count.withdAmountSum:''}元
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={8}>
                                 {props.count?props.count.actualAmountSum:''}元

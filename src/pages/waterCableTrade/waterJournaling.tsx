@@ -14,7 +14,7 @@ const WaterJournaling=(props)=>{
     // 租户名称
     const [name,setName]=useState('');
     // 电表描述
-    const [remark,setremark]=useState('');
+    const [remark,setremark]=useState(sessionStorage.getItem('waterCableTradeWaterJournalingRemark')||'');
     // 页码
     const [count,setcount]=useState(0);
     // 当前电量统计
@@ -175,6 +175,18 @@ const WaterJournaling=(props)=>{
     useEffect(() => {
         getCableList();
     }, [page,pageSize]);
+    const changeRemark=(e)=>{
+      setremark(e.target.value);
+      sessionStorage.setItem('waterCableTradeWaterJournalingRemark',e.target.value);
+    };
+    const changeName=(e)=>{
+      setName(e.target.value);
+      sessionStorage.setItem('waterCableTradeWaterJournalingName',e.target.value);
+    };
+    const changeCollectorId=(e)=>{
+      setcollectorId(e.target.value);
+      sessionStorage.setItem('waterCableTradeWaterJournalingCollectorId',e.target.value);
+    };
     return(
         <div>
             <List>
@@ -182,15 +194,18 @@ const WaterJournaling=(props)=>{
                     <Space>
                         <Input
                             addonBefore="电表地址:"
-                            onChange={(e)=>setcollectorId(e.target.value)}
+                            onChange={changeCollectorId}
+                            value={collectorId}
                         />
                         <Input
                             addonBefore="电表描述:"
-                            onChange={(e)=>setremark(e.target.value)}
+                            onChange={changeRemark}
+                            value={remark}
                         />
                         <Input
                             addonBefore="租户名称:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索

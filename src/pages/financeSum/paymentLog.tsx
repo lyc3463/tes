@@ -328,7 +328,7 @@ const PaymentLog=()=>{
                 dataSource={dataSource}
                 rowKey={(columns) => columns.id}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
-                scroll={{y:"70vh"}}
+                scroll={{y:"60vh"}}
                 pagination={false}
                 size='small'
                 summary={(columns) => (

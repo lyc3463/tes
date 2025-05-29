@@ -12,11 +12,11 @@ const FinancialData=(props:any)=>{
     // 账单列表
     const [billList,setBillList]=useState([]);
     // 摘要
-    const [billAbstract,setBillAbstract]=useState(localStorage.getItem('enterFinancialDataBillAbstract')||'');
+    const [billAbstract,setBillAbstract]=useState(sessionStorage.getItem('enterFinancialDataBillAbstract')||'');
     // 开始时间
-    const [billBgeinTime,setBillBgeinTime]=useState(localStorage.getItem('enterFinancialDataBillBgeinTime')||'2000-01-01');
+    const [billBgeinTime,setBillBgeinTime]=useState(sessionStorage.getItem('enterFinancialDataBillBgeinTime')||'2000-01-01');
     // 结束时间
-    const [billEndTime,setBillEndTime]=useState(localStorage.getItem('enterFinancialDataBillBillEndTime')||'2099-01-01');
+    const [billEndTime,setBillEndTime]=useState(sessionStorage.getItem('enterFinancialDataBillBillEndTime')||'2099-01-01');
     // 账单状态
     const [billStatus,setBillStatus]=useState(2);
     // 财务类型
@@ -35,7 +35,7 @@ const FinancialData=(props:any)=>{
     const [projectlist,setProjectlist]=useState([]);
     const [uid,setUid]=useState(0);
     // 账户卡号
-    const [account_card,setaccount_card]=useState(localStorage.getItem('enterFinancialDataAccountCard')||'');
+    const [account_card,setaccount_card]=useState(sessionStorage.getItem('enterFinancialDataAccountCard')||'');
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
     // 用户权限
@@ -217,7 +217,7 @@ const FinancialData=(props:any)=>{
     // 监听摘要名称
     const changeName=(e)=>{
         setBillAbstract(e.target.value);
-        localStorage.setItem('enterFinancialDataBillAbstract',e.target.value);
+        sessionStorage.setItem('enterFinancialDataBillAbstract',e.target.value);
     };
     // 获取分页信息
     const getBillFenye=()=>{
@@ -277,13 +277,13 @@ const FinancialData=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setBillBgeinTime('2000-01-01');
             setBillEndTime('2099-01-01');
-            localStorage.setItem('enterFinancialDataBillBgeinTime','2000-01-01');
-            localStorage.setItem('enterFinancialDataBillBillEndTime','2099-01-01');
+            sessionStorage.setItem('enterFinancialDataBillBgeinTime','2000-01-01');
+            sessionStorage.setItem('enterFinancialDataBillBillEndTime','2099-01-01');
         } else {
             setBillBgeinTime(data[0]);
             setBillEndTime(data[1]);
-            localStorage.setItem('enterFinancialDataBillBgeinTime',data[0]);
-            localStorage.setItem('enterFinancialDataBillBillEndTime',data[1]);
+            sessionStorage.setItem('enterFinancialDataBillBgeinTime',data[0]);
+            sessionStorage.setItem('enterFinancialDataBillBillEndTime',data[1]);
         }
     };
     // 监听类型
@@ -429,8 +429,7 @@ const FinancialData=(props:any)=>{
     }, []);
     const changeAccount_card=(e)=>{
         setaccount_card(e.target.value);
-        localStorage.setItem('enterFinancialDataAccountCard',e.target.value);
-
+        sessionStorage.setItem('enterFinancialDataAccountCard',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -465,7 +464,7 @@ const FinancialData=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(billBgeinTime),dayjs(billEndTime)]}/>
+                            {billBgeinTime=='2000-01-01'&&billEndTime=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(billBgeinTime),dayjs(billEndTime)]}/>}
                         </Space.Compact>
                         <Space.Compact>
                             <div

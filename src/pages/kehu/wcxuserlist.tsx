@@ -26,10 +26,10 @@ const Wcxuserlist=(props:any)=>{
     const treeData = buildTree(qxTree);
     const [isSpinning,setIsSpinning]=useState(false);
     const [page,setPage]=useState(1);
-    const [balance,setbalance]=useState(0);
+    const [balance,setbalance]=useState(Number(sessionStorage.getItem('kehuWcxuserlistBalance'))||0);
     const [pageSize,setpageSize]=useState(50);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(sessionStorage.getItem('kehuWcxuserlistName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('kehuWcxuserlistPhone')||'');
     const [uqx,setUqx]=useState([]);
     // 弹窗
     const [isOpen,setIsOpen]=useState(false);
@@ -87,11 +87,13 @@ const Wcxuserlist=(props:any)=>{
 
     // 监听手机号
     const changePhone=(e)=>{
-        setPhone(e.target.value)
+        setPhone(e.target.value);
+        sessionStorage.setItem('kehuWcxuserlistPhone',e.target.value);
     };
     // 监听名字
     const changeName=(e)=>{
-        setName(e.target.value)
+        setName(e.target.value);
+        sessionStorage.setItem('kehuWcxuserlistName',e.target.value);
     };
     // 搜索按钮
     const shousuo=()=>{
@@ -195,6 +197,7 @@ const Wcxuserlist=(props:any)=>{
         // 确保值不小于 0
         const newValue = value !== undefined ? Math.max(value, 0) : 0;
         setbalance(newValue);
+        sessionStorage.setItem('kehuWcxuserlistBalance',newValue.toString());
     };
     const exportToExcel=()=>{
         setIsSpinning(true);
@@ -227,10 +230,12 @@ const Wcxuserlist=(props:any)=>{
                         <Input
                             addonBefore="手机号:"
                             onChange={changePhone}
+                            value={phone}
                         />
                         <Input
                             addonBefore="姓名:"
                             onChange={changeName}
+                            value={name}
                         />
                         <InputNumber
                             addonBefore="余额:"
@@ -286,8 +291,8 @@ const Wcxuserlist=(props:any)=>{
             {/*编辑权限弹窗*/}
             <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk} loading={isSpinning}>
                 <Space>
-                    <Button type='primary' onClick={()=>setSelected(Array(372).fill('1'))}>全选</Button>
-                    <Button type='primary' onClick={()=>setSelected(Array(372).fill('0'))}>反选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(395).fill('1'))}>全选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(395).fill('0'))}>反选</Button>
                 </Space>
                 <TreeMenu tree={treeData} selected={selected} setSelected={setSelected} />
             </Modal>

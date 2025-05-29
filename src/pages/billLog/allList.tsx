@@ -86,6 +86,11 @@ const AllList=(props:any)=>{
             }
         },
         {
+            title: '缴费名称',
+            dataIndex: 'itemName',
+            key: 'itemName',
+        },
+        {
             title: '缴费金额(元)',
             dataIndex: 'payAmount',
             key: 'payAmount',
@@ -208,6 +213,7 @@ const AllList=(props:any)=>{
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>{moneySum}元</Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

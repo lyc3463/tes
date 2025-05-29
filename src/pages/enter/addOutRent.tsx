@@ -85,6 +85,7 @@ const AddOutRent=(props)=>{
                 form={form}
                 layout="horizontal"
                 size={'large'}
+                initialValues={{reason:''}}
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >

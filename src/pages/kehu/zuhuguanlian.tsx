@@ -6,9 +6,9 @@ import {calculateSums, fuzzySearch} from "@/utils/OpenTool";
 
 const Zuhuguanlian=(props:any)=>{
     // 姓名
-    const [name,setName]=useState(localStorage.getItem('kehuzuhuguanlianName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('kehuzuhuguanlianName')||'');
     // 手机号
-    const [phone,setPhone]=useState(localStorage.getItem('kehuzuhuguanlianPhone')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('kehuzuhuguanlianPhone')||'');
     // 页数
     const [page,setPage]=useState(1);
     // 每页数量
@@ -138,8 +138,6 @@ const Zuhuguanlian=(props:any)=>{
     }, [page,pagecount]);
     useEffect(() => {
         logFenyeInfo();
-        console.log('props',props)
-
     }, []);
     // 分页
     const logFenye=()=>{
@@ -190,11 +188,11 @@ const Zuhuguanlian=(props:any)=>{
     };
     const changeName=(e:any)=>{
         setName(e.target.value);
-        localStorage.setItem('kehuzuhuguanlianName',e.target.value);
+        sessionStorage.setItem('kehuzuhuguanlianName',e.target.value);
     };
     const changePhone=(e:any)=>{
         setPhone(e.target.value);
-        localStorage.setItem('kehuzuhuguanlianPhone',e.target.value);
+        sessionStorage.setItem('kehuzuhuguanlianPhone',e.target.value);
     };
     return(
         <div>

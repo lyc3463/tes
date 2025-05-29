@@ -14,7 +14,7 @@ function Gongsiguanli(props: any) {
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 参数名称
-    const [cname,setCname]=useState(localStorage.getItem('xiangmuGongsiguanliCname')||'');
+    const [cname,setCname]=useState(sessionStorage.getItem('xiangmuGongsiguanliCname')||'');
     // 收费类型
     const [feetype,setFeetype]=useState(0);
     // 删除的弹窗
@@ -92,7 +92,7 @@ function Gongsiguanli(props: any) {
     // 监听收费项目名称
     const changeName=(e)=>{
         setCname(e.target.value);
-        localStorage.setItem('xiangmuGongsiguanliCname',e.target.value);
+        sessionStorage.setItem('xiangmuGongsiguanliCname',e.target.value);
     };
     // 监听收费类型
     const changeType=(e)=>{

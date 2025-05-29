@@ -39,7 +39,7 @@ const CableJournaling=(props)=>{
             key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
-                    <div>
+                    <div style={{width:'200px'}}>
                         {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span>{record.tenant_name}</span>}
                     </div>
                 )
@@ -136,17 +136,18 @@ const CableJournaling=(props)=>{
                 dataSource={waterList}
                 pagination={false}
                 size='small'
+                scroll={{y:'60vh'}}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
                 summary={(columns) => (
                     <Table.Summary fixed>
                         <Table.Summary.Row>
-                            <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={1}></Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={3}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={4}>{waterNumSum}m³</Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}>{total_used_amount}m³</Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}>{waterNumSum}m³</Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}>{total_used_amount}m³</Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
