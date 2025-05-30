@@ -10,11 +10,11 @@ import {StaticInfo} from "@/StaticInfo";
 const MonthlyInsuranceLog=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);//页码
-    const [name,setName]=useState(localStorage.getItem('financemonthlyInsuranceLogName')||'');// 租户姓名
-    const [phone,setPhone]=useState(localStorage.getItem('financemonthlyInsuranceLogPhone')||'');// 租户手机号
+    const [name,setName]=useState(sessionStorage.getItem('financemonthlyInsuranceLogName')||'');// 租户姓名
+    const [phone,setPhone]=useState(sessionStorage.getItem('financemonthlyInsuranceLogPhone')||'');// 租户手机号
     const [type,setType]=useState(9);// 消费类型 0全部 1充值、2租金、3电费、4水费、5公共缴费、6手动充值、7物业管理费、8违约金、9月保
-    const [startDate,setStartDate]=useState(localStorage.getItem('financemonthlyInsuranceLogStartDate')||'2000-01-01');//开始时间
-    const [endDate,setEndDate]=useState(localStorage.getItem('financemonthlyInsuranceLogEndDate')||'2099-01-01');// 结束时间
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('financemonthlyInsuranceLogStartDate')||'2000-01-01');//开始时间
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('financemonthlyInsuranceLogEndDate')||'2099-01-01');// 结束时间
     const [userID,setuserID]=useState(0);// 租户ID
     const [spinning,setspinning]=useState(false);
     const [pageSize,setpageSize]=useState(50);
@@ -183,23 +183,23 @@ const MonthlyInsuranceLog=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('financemonthlyInsuranceLogStartDate','2000-01-01');
-            localStorage.setItem('financemonthlyInsuranceLogEndDate','2099-01-01');
+            sessionStorage.setItem('financemonthlyInsuranceLogStartDate','2000-01-01');
+            sessionStorage.setItem('financemonthlyInsuranceLogEndDate','2099-01-01');
 
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('financemonthlyInsuranceLogStartDate',data[0]);
-            localStorage.setItem('financemonthlyInsuranceLogEndDate',data[1]);
+            sessionStorage.setItem('financemonthlyInsuranceLogStartDate',data[0]);
+            sessionStorage.setItem('financemonthlyInsuranceLogEndDate',data[1]);
         }
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('financemonthlyInsuranceLogName',e.target.value);
+        sessionStorage.setItem('financemonthlyInsuranceLogName',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('financemonthlyInsuranceLogPhone',e.target.value);
+        sessionStorage.setItem('financemonthlyInsuranceLogPhone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -231,7 +231,7 @@ const MonthlyInsuranceLog=(props:any)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

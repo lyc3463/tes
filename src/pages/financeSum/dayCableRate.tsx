@@ -16,17 +16,17 @@ const CableRate=(props)=>{
     const [count,setcount]=useState(0);
     const [pageSize,setPageSize]=useState(50);
     // 租户名字
-    const [name,setName]=useState(localStorage.getItem('daycableRateName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('daycableRateName')||'');
     // 电表地址
-    const [cid,setCId]=useState(localStorage.getItem('daycableRateCId')||'');
+    const [cid,setCId]=useState(sessionStorage.getItem('daycableRateCId')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(localStorage.getItem('dayfinanceSumCableRateStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('dayfinanceSumCableRateStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(localStorage.getItem('dayfinanceSumCableRateEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('dayfinanceSumCableRateEndDate')||'2099-01-01');
     // 租户id
     const [tenantId,settenantId]=useState(0);
     // 电表备注
-    const [remark,setremark]=useState(localStorage.getItem('daycableRateRemark')||'');
+    const [remark,setremark]=useState(sessionStorage.getItem('daycableRateRemark')||'');
     const [spinning,setspinning]=useState(false);
     const [uqx,setUqx]=useState([]);
     // 搜索
@@ -41,7 +41,6 @@ const CableRate=(props)=>{
             setspinning(true);
             if (res.ErrorCode==0){
                 setspinning(false);
-                console.log('天收费详情',res);
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
             }else {
@@ -135,18 +134,6 @@ const CableRate=(props)=>{
                 )
             }
         },
-        // {
-        //     title: '旧度数',
-        //     dataIndex: 'energyOld',
-        //     key: 'energyOld',
-        //     render:(text:any,record:any)=>{
-        //         return(
-        //             <div>
-        //                 <Tag  color='warning'>{record.energyOld}kwh</Tag>
-        //             </div>
-        //         )
-        //     }
-        // },
         {
             title: '扣费金额',
             dataIndex: 'eleMoney',
@@ -165,13 +152,13 @@ const CableRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('dayfinanceSumCableRateStartDate','2000-01-01');
-            localStorage.setItem('dayfinanceSumCableRateEndDate','2099-01-01');
+            sessionStorage.setItem('dayfinanceSumCableRateStartDate','2000-01-01');
+            sessionStorage.setItem('dayfinanceSumCableRateEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('dayfinanceSumCableRateStartDate',data[0]);
-            localStorage.setItem('dayfinanceSumCableRateEndDate',data[1]);
+            sessionStorage.setItem('dayfinanceSumCableRateStartDate',data[0]);
+            sessionStorage.setItem('dayfinanceSumCableRateEndDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -201,15 +188,15 @@ const CableRate=(props)=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('daycableRateName',e.target.value);
+        sessionStorage.setItem('daycableRateName',e.target.value);
     };
     const changeCId=(e:any)=>{
         setCId(e.target.value);
-        localStorage.setItem('daycableRateCId',e.target.value);
+        sessionStorage.setItem('daycableRateCId',e.target.value);
     };
     const changeremark=(e:any)=>{
         setremark(e.target.value);
-        localStorage.setItem('daycableRateRemark',e.target.value);
+        sessionStorage.setItem('daycableRateRemark',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -249,7 +236,7 @@ const CableRate=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

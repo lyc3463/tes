@@ -10,7 +10,7 @@ import Rename from "@/pages/enter/rename";
 const Notice=(props:any)=>{
     const [loading,setLoading]=useState(false);
     // 园区内容
-    const [allNoticeName,setallNoticeName]=useState('');
+    const [allNoticeName,setallNoticeName]=useState(sessionStorage.getItem('propertyServerManageNoticeName')||'');
     // 开始时间
     const [beginTimeNotice,setbeginTimeNotice]=useState('2000-01-01');
     // 结束时间
@@ -120,8 +120,8 @@ const Notice=(props:any)=>{
         setUqx(uq);
     }, []);
     const changeName=(e)=>{
-        console.log(e.target.value)
         setallNoticeName(e.target.value);
+        sessionStorage.setItem('propertyServerManageNoticeName',e.target.value);
     };
     return(
         <Spin spinning={loading}>
@@ -151,6 +151,7 @@ const Notice=(props:any)=>{
                         <Input
                             onChange={changeName}
                             addonBefore="园区内容:"
+                            value={allNoticeName}
                         />
 
                         <Button type="primary" onClick={sousuo}>

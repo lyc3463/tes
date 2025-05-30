@@ -11,13 +11,13 @@ const WaterKoufeiList=()=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户姓名
-    const [name,setName]=useState(localStorage.getItem('billLogMonthlyBillWaterKoufeiListName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillWaterKoufeiListName')||'');
     // 表地址
-    const [cid,setCid]=useState(localStorage.getItem('billLogMonthlyBillWaterKoufeiListCid')||'');
+    const [cid,setCid]=useState(sessionStorage.getItem('billLogMonthlyBillWaterKoufeiListCid')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(localStorage.getItem('billLogMonthlyBillWaterKoufeiListStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillWaterKoufeiListStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(localStorage.getItem('billLogMonthlyBillWaterKoufeiListEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillWaterKoufeiListEndDate')||'2099-01-01');
     // 租户ID
     const [tenantId,settenantId]=useState(0);
     // 水费扣费列表
@@ -151,22 +151,22 @@ const WaterKoufeiList=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('billLogMonthlyBillWaterKoufeiListStartDate','2000-01-01');
-            localStorage.setItem('billLogMonthlyBillWaterKoufeiListEndDate','2099-01-01');
+            sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListStartDate','2000-01-01');
+            sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('billLogMonthlyBillWaterKoufeiListStartDate',data[0]);
-            localStorage.setItem('billLogMonthlyBillWaterKoufeiListEndDate',data[1]);
+            sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListStartDate',data[0]);
+            sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListEndDate',data[1]);
         }
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('billLogMonthlyBillWaterKoufeiListName',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListName',e.target.value);
     };
     const changeCid=(e)=>{
         setCid(e.target.value);
-        localStorage.setItem('billLogMonthlyBillWaterKoufeiListCid',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListCid',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -198,7 +198,7 @@ const WaterKoufeiList=()=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

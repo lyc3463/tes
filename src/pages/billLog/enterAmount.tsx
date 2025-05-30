@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 const EnterAmount=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(localStorage.getItem('billLogEnterAmountName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('billLogEnterAmountName')||'');
     const [open,setOpen]=useState(false);
     const [tenantId,settenantId]=useState(0);
     const [spinning,setspinning]=useState(false);
@@ -101,8 +101,8 @@ const EnterAmount=(props)=>{
         })
     };
     const changeName=(e)=>{
-      setName(e.target.value);
-      localStorage.setItem('billLogEnterAmountName',e.target.value);
+        setName(e.target.value);
+        sessionStorage.setItem('billLogEnterAmountName',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

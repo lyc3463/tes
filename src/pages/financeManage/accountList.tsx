@@ -7,7 +7,7 @@ import {StaticInfo} from "@/StaticInfo";
 const AccountList=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
-    const [name,setName]=useState('');
+    const [name,setName]=useState(sessionStorage.getItem('financeManageAccountListName')||'');
     const [account_type,setAccount_type]=useState(2);
     // 用户权限
     const [uqx,setUqx]=useState([]);
@@ -103,6 +103,10 @@ const AccountList=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
+    const changeName=(e)=>{
+        setName(e.target.value);
+        sessionStorage.setItem('financeManageAccountListName',e.target.value);
+    };
     return(
         <div>
             <List>
@@ -117,7 +121,8 @@ const AccountList=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="账户名称:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Space.Compact>
                             <div

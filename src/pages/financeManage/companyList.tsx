@@ -11,7 +11,7 @@ const CompanyList=(props:any)=>{
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
     // 公司关联有的所有项目
     const [projectList,setProjectList]=useState([]);
-    const [name,setName]=useState('');
+    const [name,setName]=useState(sessionStorage.getItem('financeManageCompanyListName')||'');
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const columns =[
@@ -80,6 +80,10 @@ const CompanyList=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
+    const changeName=(e)=>{
+      setName(e.target.value);
+      sessionStorage.setItem('financeManageCompanyListName',e.target.value);
+    };
     return(
         <div>
             <List>
@@ -94,9 +98,9 @@ const CompanyList=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="公司名称:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
-
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>

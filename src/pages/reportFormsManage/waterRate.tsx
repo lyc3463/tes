@@ -7,11 +7,11 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {exportDataToExcel} from "@/utils/OpenTool";
 
 const WaterRate=(props:any)=>{
-    const [address,setaddress]=useState(localStorage.getItem('reportFormsManageWaterRateAddress')||'');
-    const [remark,setremark]=useState(localStorage.getItem('reportFormsManageWaterRateRemark')||'');
-    const [name,setName]=useState(localStorage.getItem('reportFormsManageWaterRateName')||'');
-    const [startDate,setStartDate]=useState(localStorage.getItem('reportFormsManageWaterRateStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(localStorage.getItem('reportFormsManageWaterRateEndDate')||'2099-01-01');
+    const [address,setaddress]=useState(sessionStorage.getItem('reportFormsManageWaterRateAddress')||'');
+    const [remark,setremark]=useState(sessionStorage.getItem('reportFormsManageWaterRateRemark')||'');
+    const [name,setName]=useState(sessionStorage.getItem('reportFormsManageWaterRateName')||'');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('reportFormsManageWaterRateStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('reportFormsManageWaterRateEndDate')||'2099-01-01');
     const [spinning,setspinning]=useState(false);
     const columns =[
         {
@@ -155,26 +155,26 @@ const WaterRate=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('reportFormsManageWaterRateStartDate','2000-01-01');
-            localStorage.setItem('reportFormsManageWaterRateEndDate','2099-01-01');
+            sessionStorage.setItem('reportFormsManageWaterRateStartDate','2000-01-01');
+            sessionStorage.setItem('reportFormsManageWaterRateEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('reportFormsManageWaterRateStartDate',data[0]);
-            localStorage.setItem('reportFormsManageWaterRateEndDate',data[1]);
+            sessionStorage.setItem('reportFormsManageWaterRateStartDate',data[0]);
+            sessionStorage.setItem('reportFormsManageWaterRateEndDate',data[1]);
         }
     };
     const changName=(e)=>{
-      setName(e.target.value);
-      localStorage.setItem('reportFormsManageWaterRateName',e.target.value);
+        setName(e.target.value);
+        sessionStorage.setItem('reportFormsManageWaterRateName',e.target.value);
     };
     const changeAddress=(e)=>{
-      setaddress(e.target.value);
-      localStorage.setItem('reportFormsManageWaterRateAddress',e.target.value);
+        setaddress(e.target.value);
+        sessionStorage.setItem('reportFormsManageWaterRateAddress',e.target.value);
     };
     const changeRemark=(e)=>{
-      setremark(e.target.value);
-      localStorage.setItem('reportFormsManageWaterRateRemark',e.target.value);
+        setremark(e.target.value);
+        sessionStorage.setItem('reportFormsManageWaterRateRemark',e.target.value);
     };
     const exportToExcel=()=>{
         setspinning(true);
@@ -247,7 +247,7 @@ const WaterRate=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={shousuo}>
                             搜索

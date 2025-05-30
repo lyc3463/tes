@@ -12,13 +12,13 @@ const WaterRate=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户姓名
-    const [name,setName]=useState(localStorage.getItem('ChargingName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('ChargingName')||'');
     // 表地址
-    const [cid,setCid]=useState(localStorage.getItem('ChargingCid')||'');
+    const [cid,setCid]=useState(sessionStorage.getItem('ChargingCid')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(localStorage.getItem('ChargingStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('ChargingStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(localStorage.getItem('ChargingEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('ChargingEndDate')||'2099-01-01');
     // 租户ID
     const [tenantId,settenantId]=useState(0);
     // 水费扣费列表
@@ -33,7 +33,7 @@ const WaterRate=(props)=>{
     // 消耗度数累加
     const [energyUsage,setenergyUsage]=useState(0);
     // 水表备注
-    const [remark,setremark]=useState(localStorage.getItem('Chargingremark')||'');
+    const [remark,setremark]=useState(sessionStorage.getItem('Chargingremark')||'');
     const [uqx,setUqx]=useState([]);
     // 获取水表扣费记录
     const getwaterRateList=()=>{
@@ -169,13 +169,13 @@ const WaterRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('ChargingStartDate','2000-01-01');
-            localStorage.setItem('ChargingEndDate','2099-01-01');
+            sessionStorage.setItem('ChargingStartDate','2000-01-01');
+            sessionStorage.setItem('ChargingEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('ChargingStartDate',data[0]);
-            localStorage.setItem('ChargingEndDate',data[1]);
+            sessionStorage.setItem('ChargingStartDate',data[0]);
+            sessionStorage.setItem('ChargingEndDate',data[1]);
         }
     };
     // 导出数据
@@ -207,15 +207,15 @@ const WaterRate=(props)=>{
     };
     const changeName=(e:any)=>{
         setName(e.target.value);
-        localStorage.setItem('ChargingName',e.target.value);
+        sessionStorage.setItem('ChargingName',e.target.value);
     };
     const changeCid=(e:any)=>{
         setCid(e.target.value);
-        localStorage.setItem('ChargingCid',e.target.value);
+        sessionStorage.setItem('ChargingCid',e.target.value);
     };
     const changeRemark=(e:any)=>{
         setremark(e.target.value)
-        localStorage.setItem('Chargingremark',e.target.value);
+        sessionStorage.setItem('Chargingremark',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -255,7 +255,7 @@ const WaterRate=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

@@ -149,14 +149,19 @@ const CheckByStages=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            sessionStorage.setItem('checkCheckAfterSalesCheckByStagesStartDate','2000-01-01');
+            sessionStorage.setItem('checkCheckAfterSalesCheckByStagesEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            sessionStorage.setItem('checkCheckAfterSalesCheckByStagesStartDate',data[0]);
+            sessionStorage.setItem('checkCheckAfterSalesCheckByStagesEndDate',data[1]);
         }
     };
     // 监听姓名
     const changePhone=(e)=>{
         setPhone(e.target.value);
+        sessionStorage.setItem('checkCheckAfterSalesCheckByStagesPhone',e.target.value);
     };
     // 监听状态
     const changeStutes=(e:number)=>{
@@ -211,7 +216,7 @@ const CheckByStages=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Space.Compact>
                             <div

@@ -17,7 +17,7 @@ const CheckFinance=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 摘要
-    const [billAbstract,setBillAbstract]=useState(localStorage.getItem('checkCheckFinanceBillAbstract')||'');
+    const [billAbstract,setBillAbstract]=useState(sessionStorage.getItem('checkCheckFinanceBillAbstract')||'');
     // 开始时间
     const [billBgeinTime,setBillBgeinTime]=useState('2000-01-01');
     // 结束时间
@@ -41,7 +41,7 @@ const CheckFinance=(props:any)=>{
     // 加载转圈
     const [spinning,setspinning]=useState(false);
     // 账户卡号
-    const [account_card,setaccount_card]=useState(localStorage.getItem('checkCheckFinanceAccountCard')||'');
+    const [account_card,setaccount_card]=useState(sessionStorage.getItem('checkCheckFinanceAccountCard')||'');
     // 财务账单列表
     const [billList,setBillList]=useState([]);
     // 一键审核弹窗
@@ -251,7 +251,7 @@ const CheckFinance=(props:any)=>{
     // 监听摘要名称
     const changeName=(e)=>{
         setBillAbstract(e.target.value);
-        localStorage.setItem('checkCheckFinanceBillAbstract',e.target.value);
+        sessionStorage.setItem('checkCheckFinanceBillAbstract',e.target.value);
     };
     // 搜索
     const sousuo=()=>{
@@ -437,7 +437,7 @@ const CheckFinance=(props:any)=>{
     }, []);
     const changeAccountCard=(e)=>{
         setaccount_card(e.target.value);
-        localStorage.setItem('checkCheckFinanceAccountCard',e.target.value);
+        sessionStorage.setItem('checkCheckFinanceAccountCard',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

@@ -1,6 +1,7 @@
 //permission 1显示 0隐藏/禁用
 
 import TypeMenu from "@/ModelTypes/TypeMenu";
+import WorlOrder from "@/pages/workOrderManage/worlOrder";
 
 export const menuData: TypeMenu[] = [
     { id: 0, name: '仪表盘', route: '/dashboard/', authId: 0 },
@@ -88,7 +89,7 @@ export const menuData: TypeMenu[] = [
     { id: 80, route: '/wisdomStop/carManage/', name: '车辆管理', parentId: 77, authId: 80},
     { id: 81, route: '/wisdomStop/monthlyCard/', name: '月卡管理', parentId: 77, authId: 81},
     // { id: 82, route: '/workOrderManage/', name: '工单管理', authId: 82},
-    { id: 83, route: '/workOrderManage/workOrderList/', name: '工单列表', parentId: 49, authId: 83},
+    { id: 83, route: '/workOrderManage/worlOrder/', name: '工单列表', parentId: 49, authId: 83},
     { id: 84, route: '/reportFormsManage/', name: '报表管理', authId: 84},
     { id: 85, route: '/reportFormsManage/finance/', name: '会员汇总', parentId: 84, authId: 85},
     // { id: 86, route: '/reportFormsManage/income/', name: '收入报表', parentId: 84, authId: 86},

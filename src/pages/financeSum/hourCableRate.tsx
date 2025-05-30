@@ -12,17 +12,17 @@ const CableRate=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户名字
-    const [name,setName]=useState(localStorage.getItem('cableRateName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('cableRateName')||'');
     // 电表地址
-    const [cid,setCId]=useState(localStorage.getItem('cableRateCId')||'');
+    const [cid,setCId]=useState(sessionStorage.getItem('cableRateCId')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(localStorage.getItem('financeSumCableRateStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('financeSumCableRateStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(localStorage.getItem('financeSumCableRateEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('financeSumCableRateEndDate')||'2099-01-01');
     // 租户id
     const [tenantId,settenantId]=useState(0);
     // 电表备注
-    const [remark,setremark]=useState(localStorage.getItem('cableRateRemark')||'');
+    const [remark,setremark]=useState(sessionStorage.getItem('cableRateRemark')||'');
     const [spinning,setspinning]=useState(false);
     const [recordStatus,setrecordStatus]=useState('扣费成功');
     const [uqx,setUqx]=useState([]);
@@ -160,13 +160,13 @@ const CableRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('financeSumCableRateStartDate','2000-01-01');
-            localStorage.setItem('financeSumCableRateEndDate','2099-01-01');
+            sessionStorage.setItem('financeSumCableRateStartDate','2000-01-01');
+            sessionStorage.setItem('financeSumCableRateEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('financeSumCableRateStartDate',data[0]);
-            localStorage.setItem('financeSumCableRateEndDate',data[1]);
+            sessionStorage.setItem('financeSumCableRateStartDate',data[0]);
+            sessionStorage.setItem('financeSumCableRateEndDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -198,15 +198,15 @@ const CableRate=(props)=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('cableRateName',e.target.value);
+        sessionStorage.setItem('cableRateName',e.target.value);
     };
     const changeCId=(e:any)=>{
         setCId(e.target.value);
-        localStorage.setItem('cableRateCId',e.target.value);
+        sessionStorage.setItem('cableRateCId',e.target.value);
     };
     const changeremark=(e:any)=>{
         setremark(e.target.value);
-        localStorage.setItem('cableRateRemark',e.target.value);
+        sessionStorage.setItem('cableRateRemark',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -246,7 +246,7 @@ const CableRate=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

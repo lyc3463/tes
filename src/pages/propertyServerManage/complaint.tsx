@@ -18,14 +18,13 @@ import {useEffect, useState} from "react";
 import {connect} from "umi";
 import dayjs from "dayjs";
 import ImageUploader from "@/components/ImageUploader";
-import {history} from "@@/core/history";
 
 const Complaint=(props:any)=>{
     const [loading, setLoading] = useState(false);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(sessionStorage.getItem('propertyServerManageComplaintName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('propertyServerManageComplaintPhone')||'');
     const [state,setState]=useState(0);
     const [startDate,setstartDate]=useState('2000-01-01');
     const [endDate,setendDate]=useState('2099-01-01');
@@ -163,6 +162,14 @@ const Complaint=(props:any)=>{
             }
         })
     };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        sessionStorage.setItem('propertyServerManageComplaintName',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        sessionStorage.setItem('propertyServerManageComplaintPhone',e.target.value);
+    };
     return(
         <div>
             <Spin spinning={loading}>
@@ -170,12 +177,14 @@ const Complaint=(props:any)=>{
                     <List.Item>
                         <Space>
                             <Input
-                                onChange={(e)=>{setName(e.target.value)}}
+                                onChange={changeName}
                                 addonBefore="姓名:"
+                                value={name}
                             />
                             <Input
-                                onChange={(e)=>{setPhone(e.target.value)}}
+                                onChange={changePhone}
                                 addonBefore="手机号:"
+                                value={phone}
                             />
                             <Space.Compact>
                                 <div

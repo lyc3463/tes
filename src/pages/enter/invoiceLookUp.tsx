@@ -9,7 +9,7 @@ const InvoiceLookUp=(props:any)=>{
     // 状态 0全部，1未审核，2审核通过
     const [stutes,setStutes]=useState(0);
     const [openID,setOpenID]=useState(0);
-    const [name,setName]=useState('');
+    const [name,setName]=useState(sessionStorage.getItem('enterInvoiceLookUpName')||'');
     const [checkOpen,setCheckOpen]=useState(false);
     // 审核id
     const [uid,setUid]=useState(0);
@@ -22,16 +22,6 @@ const InvoiceLookUp=(props:any)=>{
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const columns =[
-        // {
-        //     title: '日期',
-        //     dataIndex: 'created',
-        //     key: 'created',
-        //     render:(_:any,record:any)=>(
-        //         <div>
-        //             {dayjs(record.created).format("YYYY-MM-DD")}
-        //         </div>
-        //     )
-        // },
         {
             title: '抬头类型',
             dataIndex: 'rise_type',
@@ -184,6 +174,10 @@ const InvoiceLookUp=(props:any)=>{
         setUqx(uq);
         getFenyeInfo();
     }, []);
+    const changeName=(e)=>{
+      setName(e.target.value);
+      sessionStorage.setItem('enterInvoiceLookUpName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -191,7 +185,8 @@ const InvoiceLookUp=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="抬头名称:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Space.Compact>
                             <div

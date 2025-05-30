@@ -11,11 +11,11 @@ const AllList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(localStorage.getItem('billLogMonthlyBillAllListName')||'');
-    const [phone,setPhone]=useState(localStorage.getItem('billLogMonthlyBillAllListPhone')||'');
+    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillAllListName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('billLogMonthlyBillAllListPhone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState(localStorage.getItem('billLogMonthlyBillAllListStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(localStorage.getItem('billLogMonthlyBillAllListEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillAllListStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillAllListEndDate')||'2099-01-01');
     const [stutes,setstutes]=useState(1);
     // 总页码
     const [count,setcount]=useState(0);
@@ -132,13 +132,13 @@ const AllList=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('billLogMonthlyBillAllListStartDate','2000-01-01');
-            localStorage.setItem('billLogMonthlyBillAllListEndDate','2099-01-01');
+            sessionStorage.setItem('billLogMonthlyBillAllListStartDate','2000-01-01');
+            sessionStorage.setItem('billLogMonthlyBillAllListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('billLogMonthlyBillAllListStartDate',data[0]);
-            localStorage.setItem('billLogMonthlyBillAllListEndDate',data[1]);
+            sessionStorage.setItem('billLogMonthlyBillAllListStartDate',data[0]);
+            sessionStorage.setItem('billLogMonthlyBillAllListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -154,11 +154,11 @@ const AllList=(props:any)=>{
     }, [page,pageSize]);
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('billLogMonthlyBillAllListPhone',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillAllListPhone',e.target.value);
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('billLogMonthlyBillAllListName',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillAllListName',e.target.value);
     };
     return(
         <div>
@@ -190,7 +190,7 @@ const AllList=(props:any)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

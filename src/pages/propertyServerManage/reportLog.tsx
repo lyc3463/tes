@@ -8,9 +8,9 @@ import {StaticInfo} from "@/StaticInfo";
 const ReportLog=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setname]=useState('');
+    const [name,setname]=useState(sessionStorage.getItem('propertyServerManageReportLogName')||'');
     const [state,setstate]=useState(0);
-    const [phone,setPhone]=useState('');
+    const [phone,setPhone]=useState(sessionStorage.getItem('propertyServerManageReportLogPhone')||'');
     const [openID,setopenID]=useState(0);
     const [startDate,setstartDate]=useState('2000-01-01');
     const [endDate,setendDate]=useState('2099-01-01');
@@ -222,18 +222,28 @@ const ReportLog=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
+    const changeName=(e)=>{
+      setname(e.target.value);
+      sessionStorage.setItem('propertyServerManageReportLogName',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        sessionStorage.setItem('propertyServerManageReportLogPhone',e.target.value);
+    };
     return(
         <Spin spinning={loading}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>{setname(e.target.value)}}
+                            onChange={changeName}
                             addonBefore="姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>{setPhone(e.target.value)}}
+                            onChange={changePhone}
                             addonBefore="手机号:"
+                            value={phone}
                         />
                         <Space.Compact>
                             <div

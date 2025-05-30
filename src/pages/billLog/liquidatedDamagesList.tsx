@@ -11,13 +11,13 @@ const LiquidatedDamagesList=()=>{
     const [spinning,setspinning]=useState(false);
     const [pageSize,setPageSize]=useState(50);
     // 租户姓名
-    const [name,setName]=useState(localStorage.getItem('billLogMonthlyBillLiquidatedDamagesListName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillLiquidatedDamagesListName')||'');
     // 租户id
     const [tenandId,settenandId]=useState(0);
     // 账单开始时间
-    const [startDate,setStartDate]=useState(localStorage.getItem('billLogMonthlyBillLiquidatedDamagesListStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillLiquidatedDamagesListStartDate')||'2000-01-01');
     // 账单结束时间
-    const [endDate,setEndDate]=useState(localStorage.getItem('billLogMonthlyBillLiquidatedDamagesListEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillLiquidatedDamagesListEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     // 列表
@@ -170,13 +170,13 @@ const LiquidatedDamagesList=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('billLogMonthlyBillLiquidatedDamagesListStartDate','2000-01-01');
-            localStorage.setItem('billLogMonthlyBillLiquidatedDamagesListEndDate','2099-01-01');
+            sessionStorage.setItem('billLogMonthlyBillLiquidatedDamagesListStartDate','2000-01-01');
+            sessionStorage.setItem('billLogMonthlyBillLiquidatedDamagesListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('billLogMonthlyBillLiquidatedDamagesListStartDate',data[0]);
-            localStorage.setItem('billLogMonthlyBillLiquidatedDamagesListEndDate',data[1]);
+            sessionStorage.setItem('billLogMonthlyBillLiquidatedDamagesListStartDate',data[0]);
+            sessionStorage.setItem('billLogMonthlyBillLiquidatedDamagesListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -240,7 +240,7 @@ const LiquidatedDamagesList=()=>{
     ];
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('billLogMonthlyBillLiquidatedDamagesListName',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillLiquidatedDamagesListName',e.target.value);
     };
     const getTotalDefaultAmount = (arr) => {
         if (!Array.isArray(arr)) return 0;
@@ -276,7 +276,7 @@ const LiquidatedDamagesList=()=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

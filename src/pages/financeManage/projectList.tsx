@@ -15,7 +15,7 @@ const ProjectList=(props:any)=>{
     // 需要删除的id
     const [uid,setUid]=useState();
     // 项目名字
-    const [name,setName]=useState('');
+    const [name,setName]=useState(sessionStorage.getItem('financeManageProjectListName')||'');
     // 公司id
     const [companyId,setCompanyId]=useState(0);
     // 公司列表
@@ -126,6 +126,10 @@ const ProjectList=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
+    const changeName=(e)=>{
+        setName(e.target.value);
+        sessionStorage.setItem('financeManageProjectListName',e.target.value);
+    };
     return(
         <div>
             <List>
@@ -140,7 +144,8 @@ const ProjectList=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="项目名称:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Space.Compact>
                             <div

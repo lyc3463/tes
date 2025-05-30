@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
 
 const Grouping=(props)=>{
-    const [name,setName]=useState('');
+    const [name,setName]=useState(sessionStorage.getItem('gateManageGroupingName')||'');
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const columns = [
@@ -42,6 +42,10 @@ const Grouping=(props)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
+    const changeName=(e)=>{
+      setName(e.target.value);
+      sessionStorage.setItem('gateManageGroupingName',e.target.value);
+    };
     return(
         <div>
             <List>
@@ -52,7 +56,8 @@ const Grouping=(props)=>{
                     <Space>
                         <Input
                             addonBefore="分组名称:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索

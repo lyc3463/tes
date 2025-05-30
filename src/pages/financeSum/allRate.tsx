@@ -12,10 +12,10 @@ const AllRate=(props)=>{
     const [page,setPage]=useState(1);
     const [spinning,setspinning]=useState(false);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(localStorage.getItem('financeSumAllRateName')||'');
-    const [phone,setPhone]=useState(localStorage.getItem('financeSumAllRatePhone')||'');
-    const [startDate,setStartDate]=useState(localStorage.getItem('financeSumAllRateStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(localStorage.getItem('financeSumAllRateEndDate')||'2099-01-01');
+    const [name,setName]=useState(sessionStorage.getItem('financeSumAllRateName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('financeSumAllRatePhone')||'');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('financeSumAllRateStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('financeSumAllRateEndDate')||'2099-01-01');
     const [tenandId,settenandId]=useState(0);
     const [count,setcount]=useState(0);
     const [dataSource,setdataSource]=useState([]);
@@ -123,13 +123,13 @@ const AllRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('financeSumAllRateStartDate','2000-01-01');
-            localStorage.setItem('financeSumAllRateEndDate','2099-01-01');
+            sessionStorage.setItem('financeSumAllRateStartDate','2000-01-01');
+            sessionStorage.setItem('financeSumAllRateEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('financeSumAllRateStartDate',data[0]);
-            localStorage.setItem('financeSumAllRateEndDate',data[1]);
+            sessionStorage.setItem('financeSumAllRateStartDate',data[0]);
+            sessionStorage.setItem('financeSumAllRateEndDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -157,12 +157,12 @@ const AllRate=(props)=>{
         })
     };
     const changeName=(e)=>{
-      setName(e.target.value);
-      localStorage.setItem('financeSumAllRateName',e.target.value);
+        setName(e.target.value);
+        sessionStorage.setItem('financeSumAllRateName',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('financeSumAllRatePhone',e.target.value);
+        sessionStorage.setItem('financeSumAllRatePhone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -194,7 +194,7 @@ const AllRate=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

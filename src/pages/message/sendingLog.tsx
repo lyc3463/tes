@@ -6,7 +6,7 @@ import {useEffect, useState} from "react";
 const SendingLog=(props:any)=>{
     const [current, setCurrent] = useState(1);
     const [pageSize, setpageSize] = useState(50);
-    const [phone,setPhone]=useState('');
+    const [phone,setPhone]=useState(sessionStorage.getItem('messageSendingLogPhone')||'');
     const [starTime,setStarTime]=useState('2000-01-01');
     const [endTime,setEndTime]=useState('2099-01-01');
     const columns =[
@@ -54,7 +54,8 @@ const SendingLog=(props:any)=>{
         }
     };
     const changePhone=(e)=>{
-        setPhone(e.target.value)
+        setPhone(e.target.value);
+        sessionStorage.setItem('messageSendingLogPhone',e.target.value);
     };
     const sousuo=()=>{
         setCurrent(1);
@@ -78,8 +79,28 @@ const SendingLog=(props:any)=>{
             <List>
                 <List.Item>
                     <Space>
-                        <DatePicker.RangePicker onChange={changeDate}/>
-                        <Input addonBefore="手机号:" onChange={changePhone}/>
+                        <Input
+                            onChange={changePhone}
+                            addonBefore="手机号:"
+                            value={phone}
+                        />
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                日期:
+                            </div>
+                            {starTime=='2000-01-01'&&endTime=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(starTime),dayjs(endTime)]}/>}
+                        </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>

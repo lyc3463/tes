@@ -12,11 +12,11 @@ const RentRate=(props)=>{
     const [page,setPage]=useState(1);
     const [spinning,setspinning]=useState(false);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(localStorage.getItem('financeRentRateName')||'');
-    const [phone,setPhone]=useState(localStorage.getItem('financeRentRatePhone')||'');
+    const [name,setName]=useState(sessionStorage.getItem('financeRentRateName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('financeRentRatePhone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState(localStorage.getItem('financeRentRateStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(localStorage.getItem('financeRentRateEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('financeRentRateStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('financeRentRateEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     // 列表
@@ -73,13 +73,13 @@ const RentRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('financeRentRateStartDate','2000-01-01');
-            localStorage.setItem('financeRentRateEndDate','2099-01-01');
+            sessionStorage.setItem('financeRentRateStartDate','2000-01-01');
+            sessionStorage.setItem('financeRentRateEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('financeRentRateStartDate',data[0]);
-            localStorage.setItem('financeRentRateEndDate',data[1]);
+            sessionStorage.setItem('financeRentRateStartDate',data[0]);
+            sessionStorage.setItem('financeRentRateEndDate',data[1]);
         }
     };
     const columns =[
@@ -207,12 +207,12 @@ const RentRate=(props)=>{
 
     };
     const changePhone=(e)=>{
-      setPhone(e.target.value);
-      localStorage.setItem('financeRentRatePhone',e.target.value);
+        setPhone(e.target.value);
+        sessionStorage.setItem('financeRentRatePhone',e.target.value);
     };
     const changName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('financeRentRateName',e.target.value);
+        sessionStorage.setItem('financeRentRateName',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -244,7 +244,7 @@ const RentRate=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

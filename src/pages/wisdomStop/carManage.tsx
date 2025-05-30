@@ -6,7 +6,7 @@ import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Spa
 const CarManage=(props)=>{
     const [page,setPage]=useState(1);// 页码
     const [pageSize,setPageSize]=useState(50);// 页数
-    const [carNo,setCarNo]=useState('');//车牌号
+    const [carNo,setCarNo]=useState(sessionStorage.getItem('wisdomStopCarManageCarNo')||'');//车牌号
     const [appId,setAppid]=useState(0);
     const [stutes,setStutes]=useState(0);
     const [uid,setUid]=useState(0);
@@ -215,14 +215,19 @@ const CarManage=(props)=>{
     const toInfo=(e:number)=>{
         history.push(`/wisdomStop/carInfo?id=${e}`)
     };
+    const changeCarNo=(e)=>{
+      setCarNo(e.target.value);
+      sessionStorage.setItem('wisdomStopCarManageCarNo',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setCarNo(e.target.value)}
+                            onChange={changeCarNo}
                             addonBefore="车牌号:"
+                            value={carNo}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索

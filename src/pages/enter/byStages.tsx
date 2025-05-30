@@ -9,9 +9,9 @@ const ByStages=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 手机号
-    const [phone,setPhone]=useState('');
+    const [phone,setPhone]=useState(sessionStorage.getItem('enterByStagesPhone')||'');
     // 状态 0全部，1未审核，2审核通过
-    const [stutes,setStutes]=useState(0);
+    const [stutes,setStutes]=useState(1);
     // 开始时间
     const [startDate,setStartDate]=useState('2000-01-01');
     // 结束时间
@@ -129,6 +129,7 @@ const ByStages=(props)=>{
     // 监听姓名
     const changePhone=(e)=>{
         setPhone(e.target.value);
+        sessionStorage.setItem('enterByStagesPhone',e.target.value);
     };
     // 监听状态
     const changeStutes=(e:number)=>{
@@ -190,6 +191,7 @@ const ByStages=(props)=>{
                         <Input
                             addonBefore="手机号:"
                             onChange={changePhone}
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -208,32 +210,32 @@ const ByStages=(props)=>{
                             </div>
                             <DatePicker.RangePicker onChange={changeDate}/>
                         </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                状态:
-                            </div>
-                            <Select
-                                onChange={changeStutes}
-                                defaultValue={stutes}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value:0, label: '全部' },
-                                    { value:1, label: '未审核' },
-                                    { value:2, label: '已审核' },
-                                ]}
-                            />
-                        </Space.Compact>
+                        {/*<Space.Compact>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            borderStartEndRadius: 0,*/}
+                        {/*            borderEndEndRadius: 0,*/}
+                        {/*            padding: '0 11px',*/}
+                        {/*            border: '1px solid #d9d9d9',*/}
+                        {/*            display: 'flex',*/}
+                        {/*            alignItems: 'center',*/}
+                        {/*            borderInlineEnd: 0,*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        状态:*/}
+                        {/*    </div>*/}
+                        {/*    <Select*/}
+                        {/*        onChange={changeStutes}*/}
+                        {/*        defaultValue={stutes}*/}
+                        {/*        style={{ width: 120 }}*/}
+                        {/*        options={[*/}
+                        {/*            { value:0, label: '全部' },*/}
+                        {/*            { value:1, label: '未审核' },*/}
+                        {/*            { value:2, label: '已审核' },*/}
+                        {/*        ]}*/}
+                        {/*    />*/}
+                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={suosou}>
                             搜索
                         </Button>

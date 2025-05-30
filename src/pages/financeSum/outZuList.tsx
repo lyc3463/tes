@@ -10,25 +10,25 @@ const OutZuList=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户名字
-    const [name,setName]=useState(localStorage.getItem('financeSumOutZuListName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('financeSumOutZuListName')||'');
     // 手机号
-    const [phone,setPhone]=useState(localStorage.getItem('financeSumOutZuListPhone')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('financeSumOutZuListPhone')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(localStorage.getItem('financeSumOutZuListStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('financeSumOutZuListStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(localStorage.getItem('financeSumOutZuListEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('financeSumOutZuListEndDate')||'2099-01-01');
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('financeSumOutZuListStartDate','2000-01-01');
-            localStorage.setItem('financeSumOutZuListEndDate','2099-01-01');
+            sessionStorage.setItem('financeSumOutZuListStartDate','2000-01-01');
+            sessionStorage.setItem('financeSumOutZuListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('financeSumOutZuListStartDate',data[0]);
-            localStorage.setItem('financeSumOutZuListEndDate',data[1]);
+            sessionStorage.setItem('financeSumOutZuListStartDate',data[0]);
+            sessionStorage.setItem('financeSumOutZuListEndDate',data[1]);
         }
     };
     const columns =[
@@ -109,12 +109,12 @@ const OutZuList=(props)=>{
         logFney();
     }, []);
     const changeName=(e)=>{
-      setName(e.target.value);
-      localStorage.setItem('financeSumOutZuListName',e.target.value);
+        setName(e.target.value);
+        sessionStorage.setItem('financeSumOutZuListName',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('financeSumOutZuListPhone',e.target.value);
+        sessionStorage.setItem('financeSumOutZuListPhone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -146,7 +146,7 @@ const OutZuList=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

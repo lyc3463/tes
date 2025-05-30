@@ -27,12 +27,12 @@ const AccessControlPurview=(props:any)=>{
     const [pageSize,setpageSize]=useState(50);
     const [stutes,setStutes]=useState(2);
     // 姓名
-    const [cname,setCname]=useState('');
+    const [cname,setCname]=useState(sessionStorage.getItem('accessControlManageAccessControlPurviewName')||'');
     // 昵称
-    const [nickname,setNickname]=useState('');
+    const [nickname,setNickname]=useState(sessionStorage.getItem('accessControlManageAccessControlPurviewNickname')||'');
     // 手机号
-    const [phone,setPhone]=useState('');
-    const [companyName,setcompanyName]=useState('');
+    const [phone,setPhone]=useState(sessionStorage.getItem('accessControlManageAccessControlPurviewPhone')||'');
+    const [companyName,setcompanyName]=useState(sessionStorage.getItem('accessControlManageAccessControlPurviewCompanyName')||'');
     // 弹窗状态
     const [isOpen,setOpen]=useState(false);
     // 删除的名字
@@ -138,14 +138,17 @@ const AccessControlPurview=(props:any)=>{
     // 监听员工姓名
     const changeName=(e)=>{
         setCname(e.target.value);
+        sessionStorage.setItem('accessControlManageAccessControlPurviewName',e.target.value);
     };
     // 监听员工昵称
     const changeNickname=(e)=>{
         setNickname(e.target.value);
+        sessionStorage.setItem('accessControlManageAccessControlPurviewNickname',e.target.value);
     };
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
+        sessionStorage.setItem('accessControlManageAccessControlPurviewPhone',e.target.value);
     };
     // 删除弹窗
     const isDelete=(e:any)=>{
@@ -177,6 +180,10 @@ const AccessControlPurview=(props:any)=>{
         setUqx(uq);
         getFenyeInfo();
     }, []);
+    const changeCompanyName=(e)=>{
+      setcompanyName(e.target.value);
+      sessionStorage.setItem('accessControlManageAccessControlPurviewCompanyName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -185,18 +192,22 @@ const AccessControlPurview=(props:any)=>{
                         <Input
                             onChange={changeName}
                             addonBefore="员工姓名:"
+                            value={cname}
                         />
                         <Input
                             onChange={changeNickname}
                             addonBefore="员工昵称:"
+                            value={nickname}
                         />
                         <Input
                             onChange={changePhone}
                             addonBefore="手机号:"
+                            value={phone}
                         />
                         <Input
-                            onChange={(e)=>setcompanyName(e.target.value)}
+                            onChange={changeCompanyName}
                             addonBefore="公司/单元:"
+                            value={companyName}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -211,7 +222,7 @@ const AccessControlPurview=(props:any)=>{
                 dataSource={props.EmpList}
                 rowKey={(columns) => columns.id}
                 size='small'
-                scroll={{y:'70vh'}}
+                scroll={{y:'60vh'}}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal onOk={onOk} title='删除员工' open={isOpen} onCancel={()=>setOpen(false)}>

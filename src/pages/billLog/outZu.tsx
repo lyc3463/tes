@@ -28,13 +28,13 @@ const OutZu=(props:any)=>{
     // 转圈
     const [spinning,setspinning]=useState(false);
     // 租户名称
-    const [name,setName]=useState(localStorage.getItem('billLogMonthlyBillOutZuName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillOutZuName')||'');
     // 租户手机号
-    const [phone,setPhone]=useState(localStorage.getItem('billLogMonthlyBillOutZuPhone')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('billLogMonthlyBillOutZuPhone')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(localStorage.getItem('billLogMonthlyBillOutZuStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillOutZuStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(localStorage.getItem('billLogMonthlyBillOutZuEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillOutZuEndDate')||'2099-01-01');
     // 唯一id
     const [uid,setUid]=useState(0);
     // 缴费弹窗
@@ -279,13 +279,13 @@ const OutZu=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('billLogMonthlyBillOutZuStartDate','2000-01-01');
-            localStorage.setItem('billLogMonthlyBillOutZuEndDate','2099-01-01');
+            sessionStorage.setItem('billLogMonthlyBillOutZuStartDate','2000-01-01');
+            sessionStorage.setItem('billLogMonthlyBillOutZuEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('billLogMonthlyBillOutZuStartDate',data[0]);
-            localStorage.setItem('billLogMonthlyBillOutZuEndDate',data[1]);
+            sessionStorage.setItem('billLogMonthlyBillOutZuStartDate',data[0]);
+            sessionStorage.setItem('billLogMonthlyBillOutZuEndDate',data[1]);
         }
     };
     // 监听页数
@@ -301,11 +301,11 @@ const OutZu=(props:any)=>{
     }, []);
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('billLogMonthlyBillOutZuName',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillOutZuName',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('billLogMonthlyBillOutZuPhone',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillOutZuPhone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -337,7 +337,7 @@ const OutZu=(props:any)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

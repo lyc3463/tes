@@ -49,7 +49,6 @@ const Alljiaoyi=(props)=>{
             payload:{page,name,phone,type,startDate,endDate,userID,pageSize}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('res',res);
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -62,14 +61,13 @@ const Alljiaoyi=(props)=>{
         setPageSize(pageSize);
     };
     useEffect(() => {
-        logFenye();
-    }, [page]);
-    useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
         getFenye();
     }, []);
-
+    useEffect(() => {
+        logFenye();
+    }, [page]);
     const columns =[
         {
             title: '日期',

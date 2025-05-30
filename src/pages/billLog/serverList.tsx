@@ -9,12 +9,12 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const ServerList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
-    const [name,setName]=useState(localStorage.getItem('billLogMonthlyBillServerListName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillServerListName')||'');
     const [pageSize,setPageSize]=useState(50);
-    const [phone,setPhone]=useState(localStorage.getItem('billLogMonthlyBillServerListPhone')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('billLogMonthlyBillServerListPhone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState(localStorage.getItem('billLogMonthlyBillServerListStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(localStorage.getItem('billLogMonthlyBillServerListEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillServerListStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillServerListEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     // 列表
@@ -35,8 +35,6 @@ const ServerList=(props:any)=>{
     const getzujinList=()=>{
         ArrearsBillService.sunhaoList({page,name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('服务费',res)
-
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -50,7 +48,6 @@ const ServerList=(props:any)=>{
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
                 setNotBillSum(res.Data.NotBillSum);
-
             }else {
                 message.error(res.Data);
             }
@@ -133,13 +130,13 @@ const ServerList=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('billLogMonthlyBillServerListStartDate','2000-01-01');
-            localStorage.setItem('billLogMonthlyBillServerListEndDate','2099-01-01');
+            sessionStorage.setItem('billLogMonthlyBillServerListStartDate','2000-01-01');
+            sessionStorage.setItem('billLogMonthlyBillServerListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('billLogMonthlyBillServerListStartDate',data[0]);
-            localStorage.setItem('billLogMonthlyBillServerListEndDate',data[1]);
+            sessionStorage.setItem('billLogMonthlyBillServerListStartDate',data[0]);
+            sessionStorage.setItem('billLogMonthlyBillServerListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -155,11 +152,11 @@ const ServerList=(props:any)=>{
     }, [page,pageSize]);
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('billLogMonthlyBillServerListPhone',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillServerListPhone',e.target.value);
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('billLogMonthlyBillServerListName',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillServerListName',e.target.value);
     };
     return(
         <div>
@@ -191,7 +188,7 @@ const ServerList=(props:any)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

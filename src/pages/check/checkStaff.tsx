@@ -30,12 +30,12 @@ const CheckStaff=(props:any)=>{
     // 审核状态 0全部  1未审核 2已审核
     const [stutes,setStutes]=useState(0);
     // 姓名
-    const [cname,setCname]=useState(localStorage.getItem('checkCheckStaffName')||'');
+    const [cname,setCname]=useState(sessionStorage.getItem('checkCheckStaffName')||'');
     // 昵称
-    const [nickname,setNickname]=useState(localStorage.getItem('checkCheckStaffNickname')||'');
+    const [nickname,setNickname]=useState(sessionStorage.getItem('checkCheckStaffNickname')||'');
     // 手机号
-    const [phone,setPhone]=useState(localStorage.getItem('checkCheckStaffPhone')||'');
-    const [companyName,setcompanyName]=useState(localStorage.getItem('checkCheckStaffCompanyName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('checkCheckStaffPhone')||'');
+    const [companyName,setcompanyName]=useState(sessionStorage.getItem('checkCheckStaffCompanyName')||'');
     const [spinning,setspinning]=useState(false);
     // 用户权限
     const [uqx,setUqx]=useState([]);
@@ -191,17 +191,17 @@ const CheckStaff=(props:any)=>{
     // 监听员工姓名
     const changeName=(e)=>{
         setCname(e.target.value);
-        localStorage.setItem('checkCheckStaffName',e.target.value);
+        sessionStorage.setItem('checkCheckStaffName',e.target.value);
     };
     // 监听员工昵称
     const changeNickname=(e)=>{
         setNickname(e.target.value);
-        localStorage.setItem('checkCheckStaffNickname',e.target.value);
+        sessionStorage.setItem('checkCheckStaffNickname',e.target.value);
     };
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('checkCheckStaffPhone',e.target.value);
+        sessionStorage.setItem('checkCheckStaffPhone',e.target.value);
     };
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
@@ -209,8 +209,8 @@ const CheckStaff=(props:any)=>{
         getFenye();
     }, []);
     const changeCompanyName=(e)=>{
-      setcompanyName(e.target.value);
-      localStorage.setItem('checkCheckStaffCompanyName',e.target.value);
+        setcompanyName(e.target.value);
+        sessionStorage.setItem('checkCheckStaffCompanyName',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

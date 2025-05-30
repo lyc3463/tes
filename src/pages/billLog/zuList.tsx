@@ -10,11 +10,11 @@ const ZuList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(localStorage.getItem('billLogMonthlyBillZuListName')||'');
-    const [phone,setPhone]=useState(localStorage.getItem('billLogMonthlyBillZuListPhone')||'');
+    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillZuListName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('billLogMonthlyBillZuListPhone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState(localStorage.getItem('billLogMonthlyBillZuListStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(localStorage.getItem('billLogMonthlyBillZuListEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillZuListStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillZuListEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     const [stutes,setstutes]=useState(1);
@@ -34,8 +34,6 @@ const ZuList=(props:any)=>{
     const getzujinList=()=>{
         ArrearsBillService.zujinList({page,name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('props',res)
-
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -192,13 +190,13 @@ const ZuList=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('billLogMonthlyBillZuListStartDate','2000-01-01');
-            localStorage.setItem('billLogMonthlyBillZuListEndDate','2099-01-01');
+            sessionStorage.setItem('billLogMonthlyBillZuListStartDate','2000-01-01');
+            sessionStorage.setItem('billLogMonthlyBillZuListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('billLogMonthlyBillZuListStartDate',data[0]);
-            localStorage.setItem('billLogMonthlyBillZuListEndDate',data[1]);
+            sessionStorage.setItem('billLogMonthlyBillZuListStartDate',data[0]);
+            sessionStorage.setItem('billLogMonthlyBillZuListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -214,11 +212,11 @@ const ZuList=(props:any)=>{
     }, [page,pageSize]);
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('billLogMonthlyBillZuListPhone',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillZuListPhone',e.target.value);
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('billLogMonthlyBillZuListName',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillZuListName',e.target.value);
     };
     return(
         <div>
@@ -250,7 +248,7 @@ const ZuList=(props:any)=>{
                             >
                                 交租日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

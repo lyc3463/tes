@@ -11,7 +11,7 @@ const HouseBill=(props:any)=>{
     const [count,setcount]=useState(1);
     const [pagecount,setpagecount]=useState(50);
     useEffect(() => {
-        shousuo();
+        getFenye();
     }, []);
     useEffect(() => {
         logFenye();
@@ -26,6 +26,13 @@ const HouseBill=(props:any)=>{
     // 搜索按钮
     const shousuo=()=>{
         setPage(1);
+        getFenye();
+        logFenye();
+    };
+    const onChange=(val:number)=>{
+        setPage(val);
+    };
+    const getFenye=()=>{
         props.dispatch({
             type:'Zuhu/fenye',
             payload:{name,phone,pagecount}
@@ -34,10 +41,6 @@ const HouseBill=(props:any)=>{
                 setcount(res.Data.count)
             }
         });
-        logFenye()
-    };
-    const onChange=(val:number)=>{
-        setPage(val)
     };
     const columns =[
         {
@@ -134,11 +137,10 @@ const HouseBill=(props:any)=>{
            <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
         </div>
     )
-}
+};
 const mapStateToProps = (state: any) => {
     return {
         ZuhuList: state.Zuhu.list,
-
     }
 };
 export default connect(mapStateToProps) (HouseBill)

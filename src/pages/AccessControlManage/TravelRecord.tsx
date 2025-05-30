@@ -5,13 +5,13 @@ import dayjs from "dayjs";
 
 const TravelRecord=(props:any)=>{
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('accessControlManageTravelRecordStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('accessControlManageTravelRecordEndDate')||'2099-01-01');
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 闸机编号
-    const [deviceSn,setDeviceSn]=useState('');
+    const [deviceSn,setDeviceSn]=useState(sessionStorage.getItem('accessControlManageTravelRecordDeviceSn')||'');
     const columns = [
         {
             title: '闸机编号',
@@ -49,9 +49,13 @@ const TravelRecord=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            sessionStorage.setItem('accessControlManageTravelRecordStartDate','2000-01-01');
+            sessionStorage.setItem('accessControlManageTravelRecordEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            sessionStorage.setItem('accessControlManageTravelRecordStartDate',data[0]);
+            sessionStorage.setItem('accessControlManageTravelRecordEndDate',data[1]);
         }
     };
     // 分页
@@ -64,6 +68,9 @@ const TravelRecord=(props:any)=>{
     useEffect(() => {
         logFenye();
     }, [page,pageSize]);
+    useEffect(() => {
+        getFenyeInfo();
+    }, []);
     const onChange=(e:number,pageSize:number)=>{
         setPage(e);
         setPageSize(pageSize);
@@ -80,6 +87,10 @@ const TravelRecord=(props:any)=>{
             dispatch:{deviceSn,startDate,endDate,pageSize}
         });
     };
+    const changeDeviceSn=(e)=>{
+      setDeviceSn(e.target.value);
+      sessionStorage.setItem('accessControlManageTravelRecordDeviceSn',e.target.value);
+    };
     return(
         <div>
             <List>
@@ -87,7 +98,8 @@ const TravelRecord=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="闸机编号:"
-                            onChange={(e)=>{setDeviceSn(e.target.value)}}
+                            onChange={changeDeviceSn}
+                            value={deviceSn}
                         />
                         <Space.Compact>
                             <div
@@ -104,7 +116,7 @@ const TravelRecord=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

@@ -9,19 +9,19 @@ const PaymentLog=()=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 订单编号
-    const [orderNum,setorderNum]=useState(localStorage.getItem('financeSumPaymentLogOrderNum')||'');
+    const [orderNum,setorderNum]=useState(sessionStorage.getItem('financeSumPaymentLogOrderNum')||'');
     // 充值开始时间
-    const [startDate,setstartDate]=useState(localStorage.getItem('financeSumPaymentLogStartDate')||'2000-01-01');
+    const [startDate,setstartDate]=useState(sessionStorage.getItem('financeSumPaymentLogStartDate')||'2000-01-01');
     // 充值结束时间
-    const [endDate,setendDate]=useState(localStorage.getItem('financeSumPaymentLogEndDate')||'2099-01-01');
+    const [endDate,setendDate]=useState(sessionStorage.getItem('financeSumPaymentLogEndDate')||'2099-01-01');
     // 订单查询列表
     const [dataSource,setdataSource]=useState([]);
     // 总条数
     const [count,setcount]=useState(0);
     // 支付类型
-    const [type,setType]=useState(Number(localStorage.getItem('financeSumPaymentLogType'))||0);
+    const [type,setType]=useState(Number(sessionStorage.getItem('financeSumPaymentLogType'))||0);
     // 支付状态
-    const [stutes,setStutes]=useState(Number(localStorage.getItem('financeSumPaymentLogStutes'))||-1);
+    const [stutes,setStutes]=useState(Number(sessionStorage.getItem('financeSumPaymentLogStutes'))||-1);
     const [moneySum,setmoneySum]=useState(0);
     const [spinning,setspinning]=useState(false);
     // 订单列表
@@ -154,13 +154,13 @@ const PaymentLog=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setstartDate('2000-01-01');
             setendDate('2099-01-01');
-            localStorage.setItem('financeSumPaymentLogStartDate','2000-01-01');
-            localStorage.setItem('financeSumPaymentLogEndDate','2099-01-01');
+            sessionStorage.setItem('financeSumPaymentLogStartDate','2000-01-01');
+            sessionStorage.setItem('financeSumPaymentLogEndDate','2099-01-01');
         } else {
             setstartDate(data[0]);
             setendDate(data[1]);
-            localStorage.setItem('financeSumPaymentLogStartDate',data[0]);
-            localStorage.setItem('financeSumPaymentLogEndDate',data[1]);
+            sessionStorage.setItem('financeSumPaymentLogStartDate',data[0]);
+            sessionStorage.setItem('financeSumPaymentLogEndDate',data[1]);
         }
     };
     useEffect(() => {
@@ -169,16 +169,16 @@ const PaymentLog=()=>{
     // 监听支付状态
     const changeStute=(e)=>{
         setStutes(e);
-        localStorage.setItem('financeSumPaymentLogStutes',e);
+        sessionStorage.setItem('financeSumPaymentLogStutes',e);
     };
     // 监听支付类型
     const changeType=(e)=>{
         setType(e);
-        localStorage.setItem('financeSumPaymentLogType',e);
+        sessionStorage.setItem('financeSumPaymentLogType',e);
     };
     const changeOrderNum=(e)=>{
         setorderNum(e.target.value);
-        localStorage.setItem('financeSumPaymentLogOrderNum',e.target.value);
+        sessionStorage.setItem('financeSumPaymentLogOrderNum',e.target.value);
     };
     const exportToExcel=()=>{
         setspinning(true);
@@ -312,7 +312,7 @@ const PaymentLog=()=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

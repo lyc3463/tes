@@ -9,13 +9,13 @@ const CheckRename=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 手机号
-    const [phone,setPhone]=useState('');
+    const [phone,setPhone]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckRenamePhone')||'');
     // 状态 0全部，1未审核，2审核通过
     const [stutes,setStutes]=useState(0);
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckRenameStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckRenameEndDate')||'2099-01-01');
     // 审核弹窗
     const [isOpen,setOpen]=useState(false);
     // 更名的手机号
@@ -101,14 +101,19 @@ const CheckRename=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            sessionStorage.setItem('checkCheckAfterSalesCheckRenameStartDate','2000-01-01');
+            sessionStorage.setItem('checkCheckAfterSalesCheckRenameEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            sessionStorage.setItem('checkCheckAfterSalesCheckRenameStartDate',data[0]);
+            sessionStorage.setItem('checkCheckAfterSalesCheckRenameEndDate',data[1]);
         }
     };
     // 监听姓名
     const changePhone=(e)=>{
         setPhone(e.target.value);
+        sessionStorage.setItem('checkCheckAfterSalesCheckRenamePhone',e.target.value);
     };
     // 监听状态
     const changeStutes=(e:number)=>{
@@ -129,6 +134,7 @@ const CheckRename=(props:any)=>{
         setPage(1);
         fenyeinfo();
         logFenye();
+
     };
     const fenyeinfo=()=>{
         props.dispatch({
@@ -166,6 +172,7 @@ const CheckRename=(props:any)=>{
                         <Input
                             addonBefore="原手机号:"
                             onChange={changePhone}
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -182,7 +189,7 @@ const CheckRename=(props:any)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Space.Compact>
                             <div
@@ -221,7 +228,7 @@ const CheckRename=(props:any)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 size='small'
-                scroll={{y:'70vh',x:1500}}
+                scroll={{y:'60vh',x:1500}}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }

@@ -11,11 +11,11 @@ const RechargeRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [spinning,setspinning]=useState(false);
-    const [name,setName]=useState(localStorage.getItem('financeSumRechargeRateName')||'');
-    const [phone,setPhone]=useState(localStorage.getItem('financeSumRechargeRatePhone')||'');
+    const [name,setName]=useState(sessionStorage.getItem('financeSumRechargeRateName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('financeSumRechargeRatePhone')||'');
     const [type,setType]=useState(1);
-    const [startDate,setStartDate]=useState(localStorage.getItem('financeSumRechargeRateStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(localStorage.getItem('financeSumRechargeRateEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('financeSumRechargeRateStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('financeSumRechargeRateEndDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
     const [pageSize,setpageSize]=useState(50);
     const [uqx,setUqx]=useState([]);
@@ -135,13 +135,13 @@ const RechargeRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('financeSumRechargeRateStartDate','2000-01-01');
-            localStorage.setItem('financeSumRechargeRateEndDate','2099-01-01');
+            sessionStorage.setItem('financeSumRechargeRateStartDate','2000-01-01');
+            sessionStorage.setItem('financeSumRechargeRateEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('financeSumRechargeRateStartDate',data[0]);
-            localStorage.setItem('financeSumRechargeRateEndDate',data[1]);
+            sessionStorage.setItem('financeSumRechargeRateStartDate',data[0]);
+            sessionStorage.setItem('financeSumRechargeRateEndDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -192,11 +192,11 @@ const RechargeRate=(props)=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('financeSumRechargeRateName',e.target.value);
+        sessionStorage.setItem('financeSumRechargeRateName',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        localStorage.setItem('financeSumRechargeRatePhone',e.target.value);
+        sessionStorage.setItem('financeSumRechargeRatePhone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -228,7 +228,7 @@ const RechargeRate=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

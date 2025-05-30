@@ -26,7 +26,7 @@ const Device=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setpageSize]=useState(50);
     // 闸机编号
-    const [deviceSn,setDeviceSn]=useState('');
+    const [deviceSn,setDeviceSn]=useState(sessionStorage.getItem('gateManageDeviceDeviceSn')||'');
     // 二维码弹窗
     const [open,setOpen]=useState(false);
     const [code,setCode]=useState('');
@@ -148,6 +148,10 @@ const Device=(props)=>{
         setUqx(uq);
         getFenYeInfo();
     }, []);
+    const changeDeviceSn=(e)=>{
+      setDeviceSn(e.target.value);
+      sessionStorage.setItem('gateManageDeviceDeviceSn',e.target.value);
+    };
     return(
         <Spin spinning={spinning} style={{zIndex:'10000'}}>
             <List>
@@ -160,7 +164,8 @@ const Device=(props)=>{
                     <Space>
                         <Input
                             addonBefore="闸机编号:"
-                            onChange={(e)=>setDeviceSn(e.target.value)}
+                            onChange={changeDeviceSn}
+                            value={deviceSn}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索

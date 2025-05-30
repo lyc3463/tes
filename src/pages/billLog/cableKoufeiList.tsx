@@ -10,13 +10,13 @@ const CableKoufeiList=()=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户名字
-    const [name,setName]=useState(localStorage.getItem('billLogMonthlyBillCableKoufeiListName')||'');
+    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillCableKoufeiListName')||'');
     // 电表地址
-    const [cid,setCId]=useState(localStorage.getItem('billLogMonthlyBillCableKoufeiListCId')||'');
+    const [cid,setCId]=useState(sessionStorage.getItem('billLogMonthlyBillCableKoufeiListCId')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(localStorage.getItem('billLogMonthlyBillCableKoufeiListStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillCableKoufeiListStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(localStorage.getItem('billLogMonthlyBillCableKoufeiListEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillCableKoufeiListEndDate')||'2099-01-01');
     // 租户id
     const [tenantId,settenantId]=useState(0);
     const [recordStatus,setrecordStatus]=useState('余额不足');
@@ -34,13 +34,13 @@ const CableKoufeiList=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('billLogMonthlyBillCableKoufeiListStartDate','2000-01-01');
-            localStorage.setItem('billLogMonthlyBillCableKoufeiListEndDate','2099-01-01');
+            sessionStorage.setItem('billLogMonthlyBillCableKoufeiListStartDate','2000-01-01');
+            sessionStorage.setItem('billLogMonthlyBillCableKoufeiListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('billLogMonthlyBillCableKoufeiListStartDate',data[0]);
-            localStorage.setItem('billLogMonthlyBillCableKoufeiListEndDate',data[1]);
+            sessionStorage.setItem('billLogMonthlyBillCableKoufeiListStartDate',data[0]);
+            sessionStorage.setItem('billLogMonthlyBillCableKoufeiListEndDate',data[1]);
         }
     };
     const sousuo=()=>{
@@ -173,11 +173,11 @@ const CableKoufeiList=()=>{
     ];
     const changeCid=(e)=>{
         setCId(e.target.value);
-        localStorage.setItem('billLogMonthlyBillCableKoufeiListCId',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillCableKoufeiListCId',e.target.value);
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('billLogMonthlyBillCableKoufeiListName',e.target.value);
+        sessionStorage.setItem('billLogMonthlyBillCableKoufeiListName',e.target.value);
     };
     return(
         <div>
@@ -209,7 +209,7 @@ const CableKoufeiList=()=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

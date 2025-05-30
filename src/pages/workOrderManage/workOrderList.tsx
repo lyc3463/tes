@@ -44,12 +44,11 @@ const WorkOrderList=()=>{
                 </Space>
             ),
         },
-    ]
+    ];
     return(
         <Spin spinning={loading}>
             <List>
                 <List.Item>
-
                 </List.Item>
             </List>
             <Table

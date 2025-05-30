@@ -7,11 +7,11 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {exportDataToExcel} from "@/utils/OpenTool";
 
 const ElectricCharge=(props:any)=>{
-    const [address,setaddress]=useState(localStorage.getItem('reportFormsManageElectricChargeAddress')||'');
-    const [remark,setremark]=useState(localStorage.getItem('reportFormsManageElectricChargeRemark')||'');
-    const [name,setName]=useState(localStorage.getItem('reportFormsManageElectricChargeName')||'');
-    const [startDate,setStartDate]=useState(localStorage.getItem('reportFormsManageElectricChargeStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(localStorage.getItem('reportFormsManageElectricChargeEndDate')||'2099-01-01');
+    const [address,setaddress]=useState(sessionStorage.getItem('reportFormsManageElectricChargeAddress')||'');
+    const [remark,setremark]=useState(sessionStorage.getItem('reportFormsManageElectricChargeRemark')||'');
+    const [name,setName]=useState(sessionStorage.getItem('reportFormsManageElectricChargeName')||'');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('reportFormsManageElectricChargeStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('reportFormsManageElectricChargeEndDate')||'2099-01-01');
     const [spinning,setspinning]=useState(false);
     const columns =[
         {
@@ -151,13 +151,13 @@ const ElectricCharge=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            localStorage.setItem('reportFormsManageElectricChargeStartDate','2000-01-01');
-            localStorage.setItem('reportFormsManageElectricChargeEndDate','2099-01-01');
+            sessionStorage.setItem('reportFormsManageElectricChargeStartDate','2000-01-01');
+            sessionStorage.setItem('reportFormsManageElectricChargeEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            localStorage.setItem('reportFormsManageElectricChargeStartDate',data[0]);
-            localStorage.setItem('reportFormsManageElectricChargeEndDate',data[1]);
+            sessionStorage.setItem('reportFormsManageElectricChargeStartDate',data[0]);
+            sessionStorage.setItem('reportFormsManageElectricChargeEndDate',data[1]);
         }
     };
     const shousuo=()=>{
@@ -165,15 +165,15 @@ const ElectricCharge=(props:any)=>{
     };
     const changName=(e)=>{
         setName(e.target.value);
-        localStorage.setItem('reportFormsManageElectricChargeName',e.target.value);
+        sessionStorage.setItem('reportFormsManageElectricChargeName',e.target.value);
     };
     const changeAddress=(e)=>{
         setaddress(e.target.value);
-        localStorage.setItem('reportFormsManageElectricChargeAddress',e.target.value);
+        sessionStorage.setItem('reportFormsManageElectricChargeAddress',e.target.value);
     };
     const changeRemark=(e)=>{
         setremark(e.target.value);
-        localStorage.setItem('reportFormsManageElectricChargeRemark',e.target.value);
+        sessionStorage.setItem('reportFormsManageElectricChargeRemark',e.target.value);
     };
     const exportToExcel=()=>{
         setspinning(true);
@@ -246,7 +246,7 @@ const ElectricCharge=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={shousuo}>
                             搜索

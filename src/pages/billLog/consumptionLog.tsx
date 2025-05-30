@@ -8,12 +8,12 @@ const ConsumptionLog=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(sessionStorage.getItem('billLogConsumptionLogName')||'');
+    const [phone,setPhone]=useState(sessionStorage.getItem('billLogConsumptionLogPhone')||'');
     // 消费类型 0全部 1充值、2租金、3电费、4水费、5公共缴费、6手动充值、7物业管理费、8违约金、9月保
     const [type,setType]=useState(0);
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogConsumptionLogStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogConsumptionLogEndDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
     // 搜索
     const sousuo=()=>{
@@ -139,14 +139,26 @@ const ConsumptionLog=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            sessionStorage.setItem('billLogConsumptionLogStartDate','2000-01-01');
+            sessionStorage.setItem('billLogConsumptionLogEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            sessionStorage.setItem('billLogConsumptionLogStartDate',data[0]);
+            sessionStorage.setItem('billLogConsumptionLogEndDate',data[1]);
         }
     };
     // 监听类型
     const changeType=(e)=>{
         setType(e);
+    };
+    const changeName=(e)=>{
+      setName(e.target.value);
+      sessionStorage.setItem('billLogConsumptionLogName',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        sessionStorage.setItem('billLogConsumptionLogPhone',e.target.value);
     };
     return(
         <div>
@@ -154,12 +166,14 @@ const ConsumptionLog=(props)=>{
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
                             addonBefore="手机号:"
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -209,7 +223,7 @@ const ConsumptionLog=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
