@@ -2,11 +2,11 @@ import {Button, Input, Table, Form, List, Space, Pagination} from "antd";
 import {connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {calculateSums, fuzzySearch} from "@/utils/OpenTool";
+import {calculateSums, checkSessionStorage, fuzzySearch, updateSessionStorage} from "@/utils/OpenTool";
 
 const Zuhulist=(props:any)=>{
-    const [name,setName]=useState(sessionStorage.getItem('kehuZuhulistName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('kehuZuhulistPhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/kehu/zuhulist/','name')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/kehu/zuhulist/','phone')||'');
     const [page,setPage]=useState(1);
     // 页数
     const [pagecount,setpagecount]=useState(50);
@@ -149,11 +149,11 @@ const Zuhulist=(props:any)=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('kehuZuhulistName',e.target.value);
+        updateSessionStorage('/kehu/zuhulist/','name',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('kehuZuhulistPhone',e.target.value);
+        updateSessionStorage('/kehu/zuhulist/','phone',e.target.value);
     };
     return(
         <div>

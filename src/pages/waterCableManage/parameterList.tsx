@@ -3,17 +3,18 @@ import {useEffect, useState} from "react";
 import {Button, Input, List, message, Modal, Select, Space, Spin, Table, Tag} from "antd";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const ParameterList=(props:any)=>{
     const [loading, setLoading] = useState(false);
     // 删除的弹窗
     const [isOpen,setIsOpen]=useState(false);
     const [uid,setUid]=useState(0);
     // 参数名称
-    const [cname,setCname]=useState('');
+    const [cname,setCname]=useState(checkSessionStorage('/waterCableManage/parameter/','cname')||'');
     // 收费类型
-    const [priceType,setPriceType]=useState(0);
+    const [priceType,setPriceType]=useState(checkSessionStorage('/waterCableManage/parameter/','priceType')||0);
     // 1水价 2电价 0全部
-    const [we_type,setwe_type]=useState(0);
+    const [we_type,setwe_type]=useState(checkSessionStorage('/waterCableManage/parameter/','we_type')||0);
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const columns = [
@@ -79,10 +80,13 @@ const ParameterList=(props:any)=>{
     // 监听参数名称
     const changeName=(e)=>{
         setCname(e.target.value);
+        updateSessionStorage('/waterCableManage/parameter/','cname',e.target.value);
+
     };
     // 监听价钱类型
     const changeType=(e)=>{
-        setPriceType(e)
+        setPriceType(e);
+        updateSessionStorage('/waterCableManage/parameter/','priceType',e);
     };
     // 搜索
     const sousuo= ()=>{
@@ -119,6 +123,7 @@ const ParameterList=(props:any)=>{
     }, []);
     const changeWeType=(e)=>{
         setwe_type(e);
+        updateSessionStorage('/waterCableManage/parameter/','we_type',e);
     };
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
@@ -158,9 +163,9 @@ const ParameterList=(props:any)=>{
                                     收费类型:
                                 </div>
                                 <Select
-                                    defaultValue={0}
                                     style={{ width: 120 }}
                                     onChange={changeType}
+                                    value={priceType}
                                     options={[
                                         { value: 0, label: '全部' },
                                         { value: 1, label: '水价' },

@@ -4,15 +4,15 @@ import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as RechargeRateService from "@/services/rechargeRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import * as TixianService from "@/services/ruzhang";
 import {StaticInfo} from "@/StaticInfo";
 const Yiruzhang=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [stutes,setStutes]=useState(2);
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('zonglanYiruzhangStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('zonglanYiruzhangEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/qianbao/zonglan/yiruzhang/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/qianbao/zonglan/yiruzhang/','endDate')||'2099-01-01');
     const [spinning,setspinning]=useState(false);
     const [uqx,setUqx]=useState([]);
     const columns =[
@@ -95,13 +95,13 @@ const Yiruzhang=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('zonglanYiruzhangStartDate','2000-01-01');
-            sessionStorage.setItem('zonglanYiruzhangEndDate','2099-01-01');
+            updateSessionStorage('/qianbao/zonglan/yiruzhang/','startDate','2000-01-01');
+            updateSessionStorage('/qianbao/zonglan/yiruzhang/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('zonglanYiruzhangStartDate',data[0]);
-            sessionStorage.setItem('zonglanYiruzhangEndDate',data[1]);
+            updateSessionStorage('/qianbao/zonglan/yiruzhang/','startDate',data[0]);
+            updateSessionStorage('/qianbao/zonglan/yiruzhang/','endDate',data[1]);
         }
     };
     const  onChange=(e,pageSize)=>{

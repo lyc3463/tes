@@ -1,14 +1,15 @@
 import {Button, Form, Input, List, Pagination, Space, Table, Tag, Tooltip} from "antd";
-import {connect,history} from "umi";
+import {connect,history,useLocation} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {calculateSums, fuzzySearch} from "@/utils/OpenTool";
+import {calculateSums, checkSessionStorage, fuzzySearch, updateSessionStorage} from "@/utils/OpenTool";
 
 const Zuhuguanlian=(props:any)=>{
+    const location=useLocation();
     // 姓名
-    const [name,setName]=useState(sessionStorage.getItem('kehuzuhuguanlianName')||'');
+    const [name,setName]=useState(checkSessionStorage('/kehu/zuhuguanlian/','name')||'');
     // 手机号
-    const [phone,setPhone]=useState(sessionStorage.getItem('kehuzuhuguanlianPhone')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/kehu/zuhuguanlian/','phone')||'');
     // 页数
     const [page,setPage]=useState(1);
     // 每页数量
@@ -188,11 +189,11 @@ const Zuhuguanlian=(props:any)=>{
     };
     const changeName=(e:any)=>{
         setName(e.target.value);
-        sessionStorage.setItem('kehuzuhuguanlianName',e.target.value);
+        updateSessionStorage('/kehu/zuhuguanlian/','name',e.target.value);
     };
     const changePhone=(e:any)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('kehuzuhuguanlianPhone',e.target.value);
+        updateSessionStorage('/kehu/zuhuguanlian/','phone',e.target.value);
     };
     return(
         <div>

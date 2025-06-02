@@ -1,6 +1,6 @@
 import {Button, Form, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import {connect,history} from 'umi'
-import {getRandomNumber} from "@/utils/OpenTool";
+import {checkSessionStorage, getRandomNumber, updateSessionStorage} from "@/utils/OpenTool";
 import {useEffect, useState} from "react";
 import * as HouseBillService from '@/services/houseBill';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -10,9 +10,9 @@ const Water=(props:any)=>{
     let mathNumber=getRandomNumber(1,10);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [waterAddress,setwaterAddress]=useState(sessionStorage.getItem('waterCableManageWaterAddress')||'');
-    const [name,setName]=useState(sessionStorage.getItem('waterCableManageWaterName')||'');
-    const [remark,setremark]=useState(sessionStorage.getItem('waterCableManageWaterRemark')||'');
+    const [waterAddress,setwaterAddress]=useState(checkSessionStorage('/waterCableManage/water','waterAddress')||'');
+    const [name,setName]=useState(checkSessionStorage('/waterCableManage/water','name')||'');
+    const [remark,setremark]=useState(checkSessionStorage('/waterCableManage/water','remark')||'');
     const [uid,setUid]=useState(0);
     const [open,setOpne]=useState(false);
     const [isSpinning,setIsSpinning]=useState(false);
@@ -218,15 +218,15 @@ const Water=(props:any)=>{
     }, []);
     const changeWaterAddress=(e)=>{
         setwaterAddress(e.target.value);
-        sessionStorage.setItem('waterCableManageWaterAddress',e.target.value);
+        updateSessionStorage('/waterCableManage/water','waterAddress',e.target.value);
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('waterCableManageWaterName',e.target.value);
+        updateSessionStorage('/waterCableManage/water','name',e.target.value);
     };
     const changeRemark=(e)=>{
         setremark(e.target.value);
-        sessionStorage.setItem('waterCableManageWaterRemark',e.target.value);
+        updateSessionStorage('/waterCableManage/water','remark',e.target.value);
     };
     return(
         <Spin spinning={isSpinning}>

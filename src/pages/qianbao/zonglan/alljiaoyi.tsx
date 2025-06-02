@@ -2,7 +2,13 @@ import {connect} from "umi";
 import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tabs, Tag} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
-import {calculateSums, exportDataToExcel, fuzzySearch} from "@/utils/OpenTool";
+import {
+    calculateSums,
+    checkSessionStorage,
+    exportDataToExcel,
+    fuzzySearch,
+    updateSessionStorage
+} from "@/utils/OpenTool";
 import * as RechargeRateService from '@/services/alljiaoyi';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
@@ -12,11 +18,11 @@ const Alljiaoyi=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('zonglanAlljiaoyiName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('zonglanAlljiaoyiPhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/qianbao/zonglan/alljiaoyi/','name')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/qianbao/zonglan/alljiaoyi/','phone')||'');
     const [type,setType]=useState(1);
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('zonglanAlljiaoyiStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('zonglanAlljiaoyiEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/qianbao/zonglan/alljiaoyi/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/qianbao/zonglan/alljiaoyi/','endDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
     const [spinning,setspinning]=useState(false);
     const [dataSource,setdataSource]=useState([]);
@@ -164,13 +170,13 @@ const Alljiaoyi=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('zonglanAlljiaoyiStartDate','2000-01-01');
-            sessionStorage.setItem('zonglanAlljiaoyiEndDate','2099-01-01');
+            updateSessionStorage('/qianbao/zonglan/alljiaoyi/','startDate','2000-01-01');
+            updateSessionStorage('/qianbao/zonglan/alljiaoyi/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('zonglanAlljiaoyiStartDate',data[0]);
-            sessionStorage.setItem('zonglanAlljiaoyiEndDate',data[1]);
+            updateSessionStorage('/qianbao/zonglan/alljiaoyi/','startDate',data[0]);
+            updateSessionStorage('/qianbao/zonglan/alljiaoyi/','endDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -235,12 +241,12 @@ const Alljiaoyi=(props)=>{
     // 监听输入的姓名
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('zonglanAlljiaoyiName',e.target.value);
+        updateSessionStorage('/qianbao/zonglan/alljiaoyi/','name',e.target.value);
     };
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('zonglanAlljiaoyiPhone',e.target.value);
+        updateSessionStorage('/qianbao/zonglan/alljiaoyi/','phone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

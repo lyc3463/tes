@@ -3,12 +3,13 @@ import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const Yinghangka=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('qianbaoYinghangkaName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('qianbaoYinghangkaPhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/qianbao/yinghangka/','name')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/qianbao/yinghangka/','phone')||'');
     const [uid,setUid]=useState(0);
     const [isOpen,setOpen]=useState(false);
     const [yhk,setYhk]=useState('');
@@ -160,11 +161,11 @@ const Yinghangka=(props:any)=>{
     }, []);
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('qianbaoYinghangkaName',e.target.value);
+        updateSessionStorage('/qianbao/yinghangka/','name',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('qianbaoYinghangkaPhone',e.target.value);
+        updateSessionStorage('/qianbao/yinghangka/','phone',e.target.value);
     };
     return(
         <div>

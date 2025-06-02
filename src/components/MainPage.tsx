@@ -30,6 +30,7 @@ import type { MenuProps } from 'antd';
 import 'dayjs/locale/zh-cn';
 import {AlertFilled, CloseOutlined, LeftOutlined, QuestionCircleOutlined, RightOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
+import {deleteSessionStorageRoute} from "@/utils/OpenTool";
 const { Header, Content, Footer, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -53,9 +54,10 @@ class MainPage extends Component<any> {
     }
   };
   removeMenuItem = (itemId) => {
-    this.setState(prevState => ({
-      sessionStorageMune: prevState.sessionStorageMune.filter(item => item.id !== itemId)
-    }));
+      deleteSessionStorageRoute(itemId.route);
+      this.setState(prevState => ({
+          sessionStorageMune: prevState.sessionStorageMune.filter(item => item.id !== itemId.id)
+      }));
   };
   scrollToLeft = () => {
     if (this.containerRef.current) {
@@ -146,22 +148,33 @@ class MainPage extends Component<any> {
   }
   shouqicaidan() { }
   dianjicaidan = (e:any) => {
-    UmiHistory.push(e.key);
-    // sessionStorage.setItem('menus',e.key);
-    let itemKey = e.key.split();
-    for (const route of itemKey) {
-      const matchedItem = menuData.find(item => item.route === route);
-      if (matchedItem) {
-        // 检查当前matchedItem的id是否已存在于sessionStorageMune中
-        const isExists = this.state.sessionStorageMune.some(item => item.id === matchedItem.id);
-        if (!isExists) {
-          this.setState(prevState => ({
-            sessionStorageMune: [...prevState.sessionStorageMune, matchedItem]
-          }));
-        }
-        return;
+      UmiHistory.push(e.key);
+      let sessMumeList=JSON.parse(sessionStorage.getItem('sessMumeList'));
+      // 如果缓存不存在，初始化空对象
+      if (!sessMumeList) {
+          sessMumeList = {};
       }
-    }
+        // 检查当前路由名称是否已存在于缓存中
+      if (!sessMumeList.hasOwnProperty(e.key)) {
+          // 如果不存在，则初始化为空对象
+          sessMumeList[e.key] = {};
+          // 保存回 sessionStorage
+          sessionStorage.setItem('sessMumeList', JSON.stringify(sessMumeList));
+      }
+      let itemKey = e.key.split();
+      for (const route of itemKey) {
+          const matchedItem = menuData.find(item => item.route === route);
+          if (matchedItem) {
+              // 检查当前matchedItem的id是否已存在于sessionStorageMune中
+              const isExists = this.state.sessionStorageMune.some(item => item.id === matchedItem.id);
+              if (!isExists) {
+                  this.setState(prevState => ({
+                      sessionStorageMune: [...prevState.sessionStorageMune, matchedItem]
+                  }));
+              }
+              return;
+          }
+      }
   };
   tuichu() {
     LoginService.outLogin(StaticInfo.userId).then((res:any)=>{
@@ -199,9 +212,9 @@ class MainPage extends Component<any> {
       }
     }
   ];
-  toHisYou=(e)=>{
-    UmiHistory.push(e.route);
-  };
+    toHisYou=(e)=>{
+        UmiHistory.push(`${e.route}`);
+    };
     toOpen=()=>{
         UmiHistory.push('/systemManage/renewPark');
     };
@@ -289,7 +302,7 @@ class MainPage extends Component<any> {
                               cursor: 'pointer',
                               color: isActive ? '#1890ff' : '#999'
                             }}
-                            onClick={() => this.removeMenuItem(item.id)}
+                            onClick={() => this.removeMenuItem(item)}
                         >
                   <CloseOutlined />
                 </span>

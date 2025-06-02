@@ -3,9 +3,10 @@ import {connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {history} from "@@/core/history";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const Kehulist=(props:any)=>{
-    const [name,setName]=useState(sessionStorage.getItem('kehuKehulistName')||'');
+    const [name,setName]=useState(checkSessionStorage('/kehu/kehulist/','name')||'');
     const [page,setPage]=useState(1);
     const [pageSize,setpageSize]=useState(50);
     const [startDate,setStartDate]=useState('2000-01-01');
@@ -290,7 +291,7 @@ const Kehulist=(props:any)=>{
     // 监听名字
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('kehuKehulistName',e.target.value);
+        updateSessionStorage('/kehu/kehulist/','name',e.target.value);
     };
     // 监听页数
     const onChange=(page:number,pageSize:number)=>{

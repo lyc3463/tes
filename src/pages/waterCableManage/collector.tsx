@@ -2,13 +2,13 @@ import {Button, Form, Input, List, message, Modal, Pagination, Select, Space, Sp
 import  {history,connect} from 'umi'
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
-import {getRandomNumber, getTimeDifference} from "@/utils/OpenTool";
+import {checkSessionStorage, getRandomNumber, getTimeDifference, updateSessionStorage} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 const Collector=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [collector_number,setCollector_number]=useState(sessionStorage.getItem('waterCableManageCollectorCollectorNumber')||'');
+    const [collector_number,setCollector_number]=useState(checkSessionStorage('/waterCableManage/collector','name')||'');
     const [stutes,setStutes]=useState(2);
     const [uid,setUid]=useState(0);
     const [isOpen,setIsOpen]=useState(false);
@@ -111,7 +111,7 @@ const Collector=(props:any)=>{
     };
     const changeName=(e:any)=>{
         setCollector_number(e.target.value);
-        sessionStorage.setItem('waterCableManageCollectorCollectorNumber',e.target.value);
+        updateSessionStorage('/waterCableManage/collector','name',e.target.value);
     };
     const sousuo=()=>{
         setPage(1);

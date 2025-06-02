@@ -4,13 +4,14 @@ import {useEffect, useState} from "react";
 import {Simulate} from "react-dom/test-utils";
 import change = Simulate.change;
 import dayjs from "dayjs";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const Tixian=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [stutes,setStutes]=useState(0);
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('qianbaoTixianStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('qianbaoTixianEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/qianbao/tixian/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/qianbao/tixian/','endDate')||'2099-01-01');
     const columns =[
         {
             title: '日期',
@@ -121,13 +122,13 @@ const Tixian=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('qianbaoTixianStartDate','2000-01-01');
-            sessionStorage.setItem('qianbaoTixianEndDate','2099-01-01');
+            updateSessionStorage('/qianbao/tixian/','startDate','2000-01-01');
+            updateSessionStorage('/qianbao/tixian/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('qianbaoTixianStartDate',data[0]);
-            sessionStorage.setItem('qianbaoTixianEndDate',data[1]);
+            updateSessionStorage('/qianbao/tixian/','startDate',data[0]);
+            updateSessionStorage('/qianbao/tixian/','endDate',data[1]);
         }
     };
     const onChange=(e:number,pageSize:number)=>{

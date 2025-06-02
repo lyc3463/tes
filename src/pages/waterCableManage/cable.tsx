@@ -1,19 +1,19 @@
 import {Button, Form, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
-import {getRandomNumber} from "@/utils/OpenTool";
+import {checkSessionStorage, getRandomNumber, updateSessionStorage} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 
 const Cable=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [collectorId,setCollectorId]=useState(sessionStorage.getItem('waterCableManageCableCollectorId')||'');
+    const [collectorId,setCollectorId]=useState(checkSessionStorage('/waterCableManage/cable','collectorId')||'');
     const [did,setDid]=useState(0);
     const [open,setOpen]=useState(false);
     const [isSpinning,setIsSpinning]=useState(false);
-    const [name,setNmae]=useState(sessionStorage.getItem('waterCableManageCableName')||'');
-    const [remark,setremark]=useState(sessionStorage.getItem('waterCableManageCableRemark')||'');
+    const [name,setNmae]=useState(checkSessionStorage('/waterCableManage/cable','name')||'');
+    const [remark,setremark]=useState(checkSessionStorage('/waterCableManage/cable','remark')||'');
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const toedit=(e)=>{
@@ -191,7 +191,7 @@ const Cable=(props:any)=>{
     // 监听采集器输入框
     const changeCollectorId=(e)=>{
         setCollectorId(e.target.value);
-        sessionStorage.setItem('waterCableManageCableCollectorId',e.target.value);
+        updateSessionStorage('/waterCableManage/cable','collectorId',e.target.value);
     };
     // 删除弹窗
     const onDeleteOpen=(e)=>{
@@ -222,11 +222,11 @@ const Cable=(props:any)=>{
     }, []);
     const changeRemark=(e)=>{
         setremark(e.target.value);
-        sessionStorage.setItem('waterCableManageCableRemark',e.target.value);
+        updateSessionStorage('/waterCableManage/cable','remark',e.target.value);
     };
     const changeName=(e)=>{
         setNmae(e.target.value);
-        sessionStorage.setItem('waterCableManageCableName',e.target.value);
+        updateSessionStorage('/waterCableManage/cable','name',e.target.value);
     };
     return(
         <Spin spinning={isSpinning}>

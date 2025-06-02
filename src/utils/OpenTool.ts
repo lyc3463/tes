@@ -985,3 +985,63 @@ export async function compressBase642(base64: any) {
         });
     });
 }
+
+// 读取路由缓存
+export  const checkSessionStorage=(routeName:string, valueName:string)=>{
+    // 从 sessionStorage 获取 sessMumeList
+    const sessMumeList = JSON.parse(sessionStorage.getItem('sessMumeList'));
+    // 如果 sessMumeList 不存在，返回 false
+    if (!sessMumeList) {
+        return false;
+    }
+    // 检查 sessMumeList 中是否存在 routeName
+    if (sessMumeList.hasOwnProperty(routeName)) {
+        const tenantList = sessMumeList[routeName];
+
+        // 检查 tenantList 中是否存在 valueName
+        if (tenantList.hasOwnProperty(valueName)) {
+            // 如果存在，返回 ziti 的值
+            return tenantList[valueName];
+        } else {
+            // 如果 tenantList 存在但 ziti 不存在，返回 false
+            return false;
+        }
+    } else {
+        // 如果 sessMumeList 存在但 routeName 不存在，返回 false
+        return false;
+    }
+}
+//更新路由缓存
+export const updateSessionStorage=(routeParam, key, value)=>{
+    // 从 sessionStorage 获取 sessMumeList
+    let sessMumeList = JSON.parse(sessionStorage.getItem('sessMumeList'));
+
+    // 如果 sessMumeList 不存在，初始化一个空对象
+    if (!sessMumeList) {
+        sessMumeList = {};
+    }
+
+    // 如果 sessMumeList 中不存在 routeParam，初始化一个空对象
+    if (!sessMumeList.hasOwnProperty(routeParam)) {
+        sessMumeList[routeParam] = {};
+    }
+
+    // 更新或添加键值对
+    sessMumeList[routeParam][key] = value;
+
+    // 将更新后的 sessMumeList 保存回 sessionStorage
+    sessionStorage.setItem('sessMumeList', JSON.stringify(sessMumeList));
+
+};
+// 删除路由缓存
+export const deleteSessionStorageRoute=(routeParam)=> {
+    // 从 sessionStorage 获取 sessMumeList
+    let sessMumeList = JSON.parse(sessionStorage.getItem('sessMumeList'));
+
+    // 如果 sessMumeList 存在且包含 routeParam，则删除该路由名称对应的条目
+    if (sessMumeList && sessMumeList.hasOwnProperty(routeParam)) {
+        delete sessMumeList[routeParam];
+        // 将更新后的 sessMumeList 保存回 sessionStorage
+        sessionStorage.setItem('sessMumeList', JSON.stringify(sessMumeList));
+    }
+}

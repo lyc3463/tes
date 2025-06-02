@@ -4,17 +4,18 @@ import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import * as CableService from '@/services/cable';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const WaterJournaling=(props)=>{
     const [page,setpage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [collectorId,setcollectorId]=useState('');
+    const [collectorId,setcollectorId]=useState(checkSessionStorage('/waterCableTrade/waterJournaling','collectorId')||'');
     // 列表
     const [dataSource,setdataSource]=useState([]);
     // 租户名称
-    const [name,setName]=useState('');
+    const [name,setName]=useState(checkSessionStorage('/waterCableTrade/waterJournaling','name')||'');
     // 电表描述
-    const [remark,setremark]=useState(sessionStorage.getItem('waterCableTradeWaterJournalingRemark')||'');
+    const [remark,setremark]=useState(checkSessionStorage('/waterCableTrade/waterJournaling','remark')||'');
     // 页码
     const [count,setcount]=useState(0);
     // 当前电量统计
@@ -176,16 +177,16 @@ const WaterJournaling=(props)=>{
         getCableList();
     }, [page,pageSize]);
     const changeRemark=(e)=>{
-      setremark(e.target.value);
-      sessionStorage.setItem('waterCableTradeWaterJournalingRemark',e.target.value);
+        setremark(e.target.value);
+        updateSessionStorage('/waterCableTrade/waterJournaling','remark',e.target.value);
     };
     const changeName=(e)=>{
-      setName(e.target.value);
-      sessionStorage.setItem('waterCableTradeWaterJournalingName',e.target.value);
+        setName(e.target.value);
+        updateSessionStorage('/waterCableTrade/waterJournaling','name',e.target.value);
     };
     const changeCollectorId=(e)=>{
-      setcollectorId(e.target.value);
-      sessionStorage.setItem('waterCableTradeWaterJournalingCollectorId',e.target.value);
+        setcollectorId(e.target.value);
+        updateSessionStorage('/waterCableTrade/waterJournaling','collectorId',e.target.value);
     };
     return(
         <div>

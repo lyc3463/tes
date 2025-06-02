@@ -18,7 +18,13 @@ import {connect} from 'umi';
 import * as AppUserService from '@/services/appUser';
 import {useEffect, useState} from "react";
 import {qxTree} from '@/constants/qxMenu/wxMenu'
-import {buildTree, ensureArrayLength, exportDataToExcel} from "@/utils/OpenTool";
+import {
+    buildTree,
+    checkSessionStorage,
+    ensureArrayLength,
+    exportDataToExcel,
+    updateSessionStorage
+} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 
@@ -26,14 +32,14 @@ const Wcxuserlist=(props:any)=>{
     const treeData = buildTree(qxTree);
     const [isSpinning,setIsSpinning]=useState(false);
     const [page,setPage]=useState(1);
-    const [balance,setbalance]=useState(Number(sessionStorage.getItem('kehuWcxuserlistBalance'))||0);
+    const [balance,setbalance]=useState(checkSessionStorage('/kehu/wcxuserlist/','balance')||0);
     const [pageSize,setpageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('kehuWcxuserlistName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('kehuWcxuserlistPhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/kehu/wcxuserlist/','name')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/kehu/wcxuserlist/','phone')||'');
     const [uqx,setUqx]=useState([]);
     // 弹窗
     const [isOpen,setIsOpen]=useState(false);
-    const [selected, setSelected] = useState<string[]>(Array(372).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(395).fill('0'));
     const [appid,setAppid]=useState(0);
     const columns =[
         {
@@ -88,12 +94,12 @@ const Wcxuserlist=(props:any)=>{
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('kehuWcxuserlistPhone',e.target.value);
+        updateSessionStorage('/kehu/wcxuserlist/','phone',e.target.value);
     };
     // 监听名字
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('kehuWcxuserlistName',e.target.value);
+        updateSessionStorage('/kehu/wcxuserlist/','name',e.target.value);
     };
     // 搜索按钮
     const shousuo=()=>{
@@ -197,7 +203,7 @@ const Wcxuserlist=(props:any)=>{
         // 确保值不小于 0
         const newValue = value !== undefined ? Math.max(value, 0) : 0;
         setbalance(newValue);
-        sessionStorage.setItem('kehuWcxuserlistBalance',newValue.toString());
+        updateSessionStorage('/kehu/wcxuserlist/','balance',newValue);
     };
     const exportToExcel=()=>{
         setIsSpinning(true);

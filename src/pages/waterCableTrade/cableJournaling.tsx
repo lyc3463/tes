@@ -6,6 +6,7 @@ import * as WatertService from '@/services/watert';
 
 import {useEffect, useState} from "react";
 import {fenye} from "@/services/watert";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const CableJournaling=(props)=>{
     const [page,setPage]=useState(1);
@@ -13,11 +14,11 @@ const CableJournaling=(props)=>{
     const [count,setcount]=useState(0);
     const [waterList,setwaterList]=useState([]);
     // 水表地址
-    const [waterAddress,setwaterAddress]=useState('');
+    const [waterAddress,setwaterAddress]=useState(checkSessionStorage('/waterCableTrade/cableJournaling','waterAddress')||'');
     // 租户名称
-    const [name,setName]=useState('');
+    const [name,setName]=useState(checkSessionStorage('/waterCableTrade/cableJournaling','name')||'');
     // 水表备注
-    const [remark,setremark]=useState('');
+    const [remark,setremark]=useState(checkSessionStorage('/waterCableTrade/cableJournaling','remark')||'');
     // 当前水量统计
     const [total_used_amount,settotal_used_amount]=useState(0);
     // 积累用水
@@ -107,6 +108,18 @@ const CableJournaling=(props)=>{
       setPage(e);
       setPageSize(pageSize);
     };
+    const changeRemark=(e)=>{
+        setremark(e.target.value);
+        updateSessionStorage('/waterCableTrade/cableJournaling','remark',e.target.value);
+    };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        updateSessionStorage('/waterCableTrade/cableJournaling','name',e.target.value);
+    };
+    const changeWaterAddress=(e)=>{
+        setwaterAddress(e.target.value);
+        updateSessionStorage('/waterCableTrade/cableJournaling','waterAddress',e.target.value);
+    };
     return(
         <div>
             <List>
@@ -114,15 +127,18 @@ const CableJournaling=(props)=>{
                     <Space>
                         <Input
                             addonBefore="水表编号:"
-                            onChange={(e)=>setwaterAddress(e.target.value)}
+                            onChange={changeWaterAddress}
+                            value={waterAddress}
                         />
                         <Input
                             addonBefore="租户名称:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Input
                             addonBefore="水表备注:"
-                            onChange={(e)=>setremark(e.target.value)}
+                            onChange={changeRemark}
+                            value={remark}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索

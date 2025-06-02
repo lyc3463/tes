@@ -118,7 +118,7 @@ const AddOutRent=(props)=>{
                 <Form.Item label='退租时间'>
                    <DatePicker onChange={changeDate}/>
                 </Form.Item>
-                <Form.Item label='退租原因' name='reason'>
+                <Form.Item label='退租原因' name='reason' rules={[{required: true, message: '请输入' }]}>
                     <Input.TextArea placeholder='退租原因'/>
                 </Form.Item>
                 <Form.Item label='退租类型'>
