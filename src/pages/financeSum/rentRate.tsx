@@ -1,10 +1,24 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Image,
+    Input,
+    List,
+    message,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as RechargeRateService from '@/services/rechargeRate';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
 
 const RentRate=(props)=>{
@@ -12,11 +26,11 @@ const RentRate=(props)=>{
     const [page,setPage]=useState(1);
     const [spinning,setspinning]=useState(false);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('financeRentRateName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('financeRentRatePhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/financeSum/rentRate/','name')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/financeSum/rentRate/','phone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('financeRentRateStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('financeRentRateEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/financeSum/rentRate/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/financeSum/rentRate/','endDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     // 列表
@@ -24,7 +38,6 @@ const RentRate=(props)=>{
     // 租金管理费统计
     const [moneySum,setmoneySum]=useState(0);
     const [uqx,setUqx]=useState([]);
-
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -73,13 +86,13 @@ const RentRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('financeRentRateStartDate','2000-01-01');
-            sessionStorage.setItem('financeRentRateEndDate','2099-01-01');
+            updateSessionStorage('/financeSum/rentRate/','startDate','2000-01-01');
+            updateSessionStorage('/financeSum/rentRate/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('financeRentRateStartDate',data[0]);
-            sessionStorage.setItem('financeRentRateEndDate',data[1]);
+            updateSessionStorage('/financeSum/rentRate/','startDate',data[0]);
+            updateSessionStorage('/financeSum/rentRate/','endDate',data[1]);
         }
     };
     const columns =[
@@ -111,6 +124,15 @@ const RentRate=(props)=>{
             title: '姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '手机号',
@@ -208,11 +230,11 @@ const RentRate=(props)=>{
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('financeRentRatePhone',e.target.value);
+        updateSessionStorage('/financeSum/rentRate/','phone',e.target.value);
     };
     const changName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('financeRentRateName',e.target.value);
+        updateSessionStorage('/financeSum/rentRate/','name',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

@@ -16,7 +16,7 @@ import {
 import dayjs from "dayjs";
 import {connect} from "umi";
 import {useEffect, useState} from "react";
-import {filterAndUpdateList} from "@/utils/OpenTool";
+import {checkSessionStorage, filterAndUpdateList, updateSessionStorage} from "@/utils/OpenTool";
 
 const Yinghangka=(props:any)=>{
     const [form] = Form.useForm();
@@ -26,11 +26,11 @@ const Yinghangka=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/yinghangka/','startDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/yinghangka/','endDate')||'2099-01-01');
     // 对账人
-    const [name,setName]=useState('');
+    const [name,setName]=useState(checkSessionStorage('/billLog/yinghangka/','name')||'');
     const columns =[
         {
             title: '日期',
@@ -116,9 +116,14 @@ const Yinghangka=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/billLog/yinghangka/','startDate','2000-01-01');
+            updateSessionStorage('/billLog/yinghangka/','endDate','2099-01-01');
+
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/billLog/yinghangka/','startDate',data[0]);
+            updateSessionStorage('/billLog/yinghangka/','endDate',data[1]);
         }
     };
     const suosou=()=>{
@@ -148,7 +153,8 @@ const Yinghangka=(props:any)=>{
         logFenye();
     }, [page,pageSize]);
     const changeName=(e)=>{
-      setName(e.target.value);
+        setName(e.target.value);
+        updateSessionStorage('/billLog/yinghangka/','name',e.target.value);
     };
     useEffect(() => {
         fenyeInfo();
@@ -165,6 +171,7 @@ const Yinghangka=(props:any)=>{
                         <Input
                             addonBefore="账户名称:"
                             onChange={changeName}
+                            value={name}
                         />
                         <Space.Compact>
                             <div
@@ -181,7 +188,7 @@ const Yinghangka=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={suosou}>
                             搜索

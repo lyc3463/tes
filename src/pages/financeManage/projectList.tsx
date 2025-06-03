@@ -6,6 +6,7 @@ import {getContainInfo, remove} from "@/services/project";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 import CompanyList from "@/pages/financeManage/companyList";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const ProjectList=(props:any)=>{
     // 删除的弹窗
@@ -15,9 +16,9 @@ const ProjectList=(props:any)=>{
     // 需要删除的id
     const [uid,setUid]=useState();
     // 项目名字
-    const [name,setName]=useState(sessionStorage.getItem('financeManageProjectListName')||'');
+    const [name,setName]=useState(checkSessionStorage('/financeManage/list/','projectListName')||'');
     // 公司id
-    const [companyId,setCompanyId]=useState(0);
+    const [companyId,setCompanyId]=useState(checkSessionStorage('/financeManage/list/','projectListCompanyId')||0);
     // 公司列表
     const [companyList,setCompanyList]=useState([]);
     // 用户权限
@@ -98,6 +99,7 @@ const ProjectList=(props:any)=>{
     // 监听公司id
     const changeCompany=(e:number)=>{
         setCompanyId(e);
+        updateSessionStorage('/financeManage/list/','projectListCompanyId',e);
     };
     // 公司拼接
     const conterCompay=(item)=>{
@@ -128,7 +130,7 @@ const ProjectList=(props:any)=>{
     }, []);
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('financeManageProjectListName',e.target.value);
+        updateSessionStorage('/financeManage/list/','projectListName',e.target.value);
     };
     return(
         <div>
@@ -189,6 +191,7 @@ const ProjectList=(props:any)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 dataSource={props.ProjectList} pagination={false}
                 size='small'
+                scroll={{y:'60vh'}}
             />
             {/*删除的弹窗*/}
             <Modal open={isDeleteOpen} onCancel={()=>setIsDeleteOpen(false)} onOk={ConfirmDelete}>

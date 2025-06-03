@@ -1,7 +1,22 @@
 import {useEffect, useState} from "react";
-import {Button, DatePicker, Form, Input, InputNumber, List, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Form,
+    Input,
+    InputNumber,
+    List,
+    Modal,
+    Pagination,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import dayjs from "dayjs";
 import {connect} from "umi";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const OutZuList=(props)=>{
     // 转圈
@@ -10,25 +25,25 @@ const OutZuList=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户名字
-    const [name,setName]=useState(sessionStorage.getItem('financeSumOutZuListName')||'');
+    const [name,setName]=useState(checkSessionStorage('/financeSum/outZuList','name')||'');
     // 手机号
-    const [phone,setPhone]=useState(sessionStorage.getItem('financeSumOutZuListPhone')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/financeSum/outZuList','phone')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('financeSumOutZuListStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/financeSum/outZuList','startDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('financeSumOutZuListEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/financeSum/outZuList','endDate')||'2099-01-01');
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('financeSumOutZuListStartDate','2000-01-01');
-            sessionStorage.setItem('financeSumOutZuListEndDate','2099-01-01');
+            updateSessionStorage('/financeSum/outZuList','startDate','2000-01-01');
+            updateSessionStorage('/financeSum/outZuList','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('financeSumOutZuListStartDate',data[0]);
-            sessionStorage.setItem('financeSumOutZuListEndDate',data[1]);
+            updateSessionStorage('/financeSum/outZuList','startDate',data[0]);
+            updateSessionStorage('/financeSum/outZuList','endDate',data[1]);
         }
     };
     const columns =[
@@ -48,6 +63,15 @@ const OutZuList=(props)=>{
             title: '租户姓名',
             dataIndex: 'tenantName',
             key: 'tenantName',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenantName}>
+                            {record.tenantName}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '租户手机号',
@@ -110,11 +134,11 @@ const OutZuList=(props)=>{
     }, []);
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('financeSumOutZuListName',e.target.value);
+        updateSessionStorage('/financeSum/outZuList','name',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('financeSumOutZuListPhone',e.target.value);
+        updateSessionStorage('/financeSum/outZuList','phone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

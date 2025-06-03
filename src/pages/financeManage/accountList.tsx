@@ -3,12 +3,13 @@ import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import * as CompanService from "@/services/compan";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const AccountList=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
-    const [name,setName]=useState(sessionStorage.getItem('financeManageAccountListName')||'');
-    const [account_type,setAccount_type]=useState(2);
+    const [name,setName]=useState(checkSessionStorage('/financeManage/list/','accountListName')||'');
+    const [account_type,setAccount_type]=useState(checkSessionStorage('/financeManage/list/','accountListAccount_type')||2);
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const columns =[
@@ -97,7 +98,8 @@ const AccountList=(props:any)=>{
     };
     // 监听类型变换
     const changeType=(e)=>{
-      setAccount_type(e);
+        setAccount_type(e);
+        updateSessionStorage('/financeManage/list/','accountListAccount_type',e);
     };
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
@@ -105,7 +107,7 @@ const AccountList=(props:any)=>{
     }, []);
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('financeManageAccountListName',e.target.value);
+        updateSessionStorage('/financeManage/list/','accountListName',e.target.value);
     };
     return(
         <div>
@@ -162,6 +164,7 @@ const AccountList=(props:any)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 size='small'
+                scroll={{y:'60vh'}}
                 dataSource={props.AccountList}
             />
             {/*删除的弹窗*/}

@@ -1,10 +1,24 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Image,
+    Input,
+    List,
+    message,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as dateWaterService from '@/services/dateWater';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
 
 const WaterRate=(props)=>{
@@ -12,13 +26,13 @@ const WaterRate=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户姓名
-    const [name,setName]=useState(sessionStorage.getItem('ChargingName')||'');
+    const [name,setName]=useState(checkSessionStorage('/financeSum/waterRate/','name')||'');
     // 表地址
-    const [cid,setCid]=useState(sessionStorage.getItem('ChargingCid')||'');
+    const [cid,setCid]=useState(checkSessionStorage('/financeSum/waterRate/','cid')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('ChargingStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/financeSum/waterRate/','startDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('ChargingEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/financeSum/waterRate/','endDate')||'2099-01-01');
     // 租户ID
     const [tenantId,settenantId]=useState(0);
     // 水费扣费列表
@@ -99,8 +113,10 @@ const WaterRate=(props)=>{
             key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
-                    <div>
-                        {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
                     </div>
                 )
             },
@@ -169,13 +185,13 @@ const WaterRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('ChargingStartDate','2000-01-01');
-            sessionStorage.setItem('ChargingEndDate','2099-01-01');
+            updateSessionStorage('/financeSum/waterRate/','startDate','2000-01-01');
+            updateSessionStorage('/financeSum/waterRate/','endDate','2000-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('ChargingStartDate',data[0]);
-            sessionStorage.setItem('ChargingEndDate',data[1]);
+            updateSessionStorage('/financeSum/waterRate/','startDate',data[0]);
+            updateSessionStorage('/financeSum/waterRate/','endDate',data[1]);
         }
     };
     // 导出数据
@@ -207,15 +223,15 @@ const WaterRate=(props)=>{
     };
     const changeName=(e:any)=>{
         setName(e.target.value);
-        sessionStorage.setItem('ChargingName',e.target.value);
+        updateSessionStorage('/financeSum/waterRate/','name',e.target.value);
     };
     const changeCid=(e:any)=>{
         setCid(e.target.value);
-        sessionStorage.setItem('ChargingCid',e.target.value);
+        updateSessionStorage('/financeSum/waterRate/','cid',e.target.value);
     };
     const changeRemark=(e:any)=>{
         setremark(e.target.value)
-        sessionStorage.setItem('Chargingremark',e.target.value);
+        updateSessionStorage('/financeSum/waterRate/','remark',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

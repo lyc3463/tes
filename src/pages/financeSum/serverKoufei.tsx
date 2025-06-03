@@ -1,9 +1,9 @@
-import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table, Tag, Tooltip} from "antd";
 import {useEffect, useState} from "react";
 import * as RechargeRateService from "@/services/rechargeRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
 
 const ServerKoufei=()=>{
@@ -11,10 +11,10 @@ const ServerKoufei=()=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('fianceSumServerKouFeiName')||'');
-    const [phone,setCid]=useState(sessionStorage.getItem('fianceSumServerKouFeiCid')||'');
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('fianceSumServerKouFeiStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('fianceSumServerKouFeiEndDate')||'2099-01-01');
+    const [name,setName]=useState(checkSessionStorage('/financeSum/serverKoufei/','name')||'');
+    const [phone,setCid]=useState(checkSessionStorage('/financeSum/serverKoufei/','cid')||'');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/financeSum/serverKoufei/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/financeSum/serverKoufei/','endDate')||'2099-01-01');
     const [tenandId,settenandId]=useState(0);
     const [count,setcount]=useState(0);
     const [dataSource,setdataSource]=useState([]);
@@ -39,8 +39,10 @@ const ServerKoufei=()=>{
             key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
-                    <div>
-                        {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
                     </div>
                 )
             },
@@ -51,7 +53,7 @@ const ServerKoufei=()=>{
             key: 'address',
         },
         {
-            title: '扣费金额',
+            title: '扣费金额(元)',
             dataIndex: 'payAmount',
             key: 'payAmount',
         },
@@ -119,13 +121,13 @@ const ServerKoufei=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('fianceSumServerKouFeiStartDate','2000-01-01');
-            sessionStorage.setItem('fianceSumServerKouFeiEndDate','2099-01-01');
+            updateSessionStorage('/financeSum/serverKoufei/','startDate','2000-01-01');
+            updateSessionStorage('/financeSum/serverKoufei/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('fianceSumServerKouFeiStartDate',data[0]);
-            sessionStorage.setItem('fianceSumServerKouFeiEndDate',data[1]);
+            updateSessionStorage('/financeSum/serverKoufei/','startDate',data[0]);
+            updateSessionStorage('/financeSum/serverKoufei/','endDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -153,12 +155,12 @@ const ServerKoufei=()=>{
         })
     };
     const changeName=(e:any)=>{
-      setName(e.target.value);
-        sessionStorage.setItem('fianceSumServerKouFeiName',e.target.value);
+        setName(e.target.value);
+        updateSessionStorage('/financeSum/serverKoufei/','name',e.target.value);
     };
     const changeCid=(e:any)=>{
         setCid(e.target.value);
-        sessionStorage.setItem('fianceSumServerKouFeiCid',e.target.value);
+        updateSessionStorage('/financeSum/serverKoufei/','cid',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

@@ -6,15 +6,16 @@ import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 import Rename from "@/pages/enter/rename";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const Notice=(props:any)=>{
     const [loading,setLoading]=useState(false);
     // 园区内容
-    const [allNoticeName,setallNoticeName]=useState(sessionStorage.getItem('propertyServerManageNoticeName')||'');
+    const [allNoticeName,setallNoticeName]=useState(checkSessionStorage('/propertyServerManage/notice/','name')||'');
     // 开始时间
-    const [beginTimeNotice,setbeginTimeNotice]=useState('2000-01-01');
+    const [beginTimeNotice,setbeginTimeNotice]=useState(checkSessionStorage('/propertyServerManage/notice/','startDate')||'2000-01-01');
     // 结束时间
-    const [endTimeNotice,setendTimeNotice]=useState('2099-01-01');
+    const [endTimeNotice,setendTimeNotice]=useState(checkSessionStorage('/propertyServerManage/notice/','endDate')||'2099-01-01');
     // 删除的弹窗
     const [Dopen,setDopen]=useState(false);
     const [uid,setUid]=useState(0);
@@ -41,9 +42,13 @@ const Notice=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setbeginTimeNotice('2000-01-01');
             setendTimeNotice('2099-01-01');
+            updateSessionStorage('/propertyServerManage/notice/','startDate','2000-01-01');
+            updateSessionStorage('/propertyServerManage/notice/','endDate','2099-01-01');
         } else {
             setbeginTimeNotice(data[0]);
             setendTimeNotice(data[1]);
+            updateSessionStorage('/propertyServerManage/notice/','startDate',data[0]);
+            updateSessionStorage('/propertyServerManage/notice/','endDate',data[1]);
         }
     };
     const columns =[
@@ -63,18 +68,6 @@ const Notice=(props:any)=>{
                <Input.TextArea defaultValue={record.notice_content}/>
             ),
         },
-        // {
-        //     title: '状态',
-        //     dataIndex: 'park_status',
-        //     key: 'park_status',
-        //     render:(_:any,record:any)=>{
-        //         return(
-        //             <Space>
-        //              {record.park_status? <span style={{color:'green'}}>已发布</span>:<span style={{color:"red"}}>未发布</span>}
-        //             </Space>
-        //         )
-        //     }
-        // },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -121,7 +114,7 @@ const Notice=(props:any)=>{
     }, []);
     const changeName=(e)=>{
         setallNoticeName(e.target.value);
-        sessionStorage.setItem('propertyServerManageNoticeName',e.target.value);
+        updateSessionStorage('/propertyServerManage/notice/','name',e.target.value);
     };
     return(
         <Spin spinning={loading}>
@@ -146,7 +139,7 @@ const Notice=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {beginTimeNotice=='2000-01-01'&&endTimeNotice=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(beginTimeNotice),dayjs(endTimeNotice)]}/>}
                         </Space.Compact>
                         <Input
                             onChange={changeName}

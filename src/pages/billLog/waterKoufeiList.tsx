@@ -1,9 +1,24 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Image,
+    Input,
+    List,
+    message,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as dateWaterService from '@/services/dateWater';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 
 const WaterKoufeiList=()=>{
@@ -11,13 +26,13 @@ const WaterKoufeiList=()=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户姓名
-    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillWaterKoufeiListName')||'');
+    const [name,setName]=useState(checkSessionStorage('/billLog/monthlyBill/','waterKoufeiListName')||'');
     // 表地址
-    const [cid,setCid]=useState(sessionStorage.getItem('billLogMonthlyBillWaterKoufeiListCid')||'');
+    const [cid,setCid]=useState(checkSessionStorage('/billLog/monthlyBill/','waterKoufeiListCid')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillWaterKoufeiListStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/monthlyBill/','waterKoufeiListStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillWaterKoufeiListEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/monthlyBill/','waterKoufeiListEndDate')||'2099-01-01');
     // 租户ID
     const [tenantId,settenantId]=useState(0);
     // 水费扣费列表
@@ -90,6 +105,15 @@ const WaterKoufeiList=()=>{
             title: '姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '水表地址',
@@ -151,22 +175,22 @@ const WaterKoufeiList=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListStartDate','2000-01-01');
-            sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListEndDate','2099-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','waterKoufeiListStartDate','2000-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','waterKoufeiListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListStartDate',data[0]);
-            sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListEndDate',data[1]);
+            updateSessionStorage('/billLog/monthlyBill/','waterKoufeiListStartDate',data[0]);
+            updateSessionStorage('/billLog/monthlyBill/','waterKoufeiListEndDate',data[1]);
         }
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListName',e.target.value);
+        updateSessionStorage('/billLog/monthlyBill/','waterKoufeiListName',e.target.value);
     };
     const changeCid=(e)=>{
         setCid(e.target.value);
-        sessionStorage.setItem('billLogMonthlyBillWaterKoufeiListCid',e.target.value);
+        updateSessionStorage('/billLog/monthlyBill/','waterKoufeiListCid',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

@@ -1,19 +1,34 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import {useEffect, useState} from "react";
 import {connect} from "umi";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const ReportLog=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setname]=useState(sessionStorage.getItem('propertyServerManageReportLogName')||'');
-    const [state,setstate]=useState(0);
-    const [phone,setPhone]=useState(sessionStorage.getItem('propertyServerManageReportLogPhone')||'');
+    const [name,setname]=useState(checkSessionStorage('/propertyServerManage/reportLog/','name')||'');
+    const [state,setstate]=useState(checkSessionStorage('/propertyServerManage/reportLog/','state')||0);
+    const [phone,setPhone]=useState(checkSessionStorage('/propertyServerManage/reportLog/','phone')||'');
     const [openID,setopenID]=useState(0);
-    const [startDate,setstartDate]=useState('2000-01-01');
-    const [endDate,setendDate]=useState('2099-01-01');
+    const [startDate,setstartDate]=useState(checkSessionStorage('/propertyServerManage/reportLog/','startDate')||'2000-01-01');
+    const [endDate,setendDate]=useState(checkSessionStorage('/propertyServerManage/reportLog/','endDate')||'2099-01-01');
     const [loading, setLoading] = useState(false);
     const [isOpen,setIsOpen]=useState(false);
     const [uid,setUid]=useState(0);
@@ -61,12 +76,12 @@ const ReportLog=(props:any)=>{
             render: (text:any, record:any) => {
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
-                        {limitedUnitList.map((item, index) => (
-                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
-                        ))}
-                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
-                        {record.unitList.length > 2 && <span>...</span>}
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
+                            {limitedUnitList.map((item, index) => (
+                                <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                            ))}
+                            {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                            {record.unitList.length > 2 && <span>...</span>}
                     </div>
                 )
             }
@@ -74,6 +89,15 @@ const ReportLog=(props:any)=>{
         {
             title: '报修用户',
             dataIndex: 'tenant_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '用户联系方式',
@@ -196,9 +220,6 @@ const ReportLog=(props:any)=>{
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getListfenye();
-    }, []);
     const sousuo=()=>{
         setPage(1);
         getList();
@@ -209,26 +230,32 @@ const ReportLog=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setstartDate('2000-01-01');
             setendDate('2099-01-01');
+            updateSessionStorage('/propertyServerManage/reportLog/','startDate','2000-01-01');
+            updateSessionStorage('/propertyServerManage/reportLog/','endDate','2099-01-01');
         } else {
             setstartDate(data[0]);
             setendDate(data[1]);
+            updateSessionStorage('/propertyServerManage/reportLog/','startDate',data[0]);
+            updateSessionStorage('/propertyServerManage/reportLog/','endDate',data[1]);
         }
     };
     // 监听状态
     const changeState=(e)=>{
-      setstate(e);
+        setstate(e);
+        updateSessionStorage('/propertyServerManage/reportLog/','state',e);
     };
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getListfenye();
     }, []);
     const changeName=(e)=>{
-      setname(e.target.value);
-      sessionStorage.setItem('propertyServerManageReportLogName',e.target.value);
+        setname(e.target.value);
+        updateSessionStorage('/propertyServerManage/reportLog/','name',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('propertyServerManageReportLogPhone',e.target.value);
+        updateSessionStorage('/propertyServerManage/reportLog/','phone',e.target.value);
     };
     return(
         <Spin spinning={loading}>
@@ -260,7 +287,7 @@ const ReportLog=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Space.Compact>
                             <div

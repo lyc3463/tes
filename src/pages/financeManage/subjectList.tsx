@@ -2,11 +2,12 @@ import {Button, Form, Input, List, message, Modal, Select, Space, Table} from "a
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const SubjectList=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
-    const [name,setName]=useState(sessionStorage.getItem('financeManageSubjectListName')||'');
+    const [name,setName]=useState(checkSessionStorage('/financeManage/list/','subjectListName')||'');
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const columns =[
@@ -72,7 +73,7 @@ const SubjectList=(props:any)=>{
     }, []);
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('financeManageSubjectListName',e.target.value);
+        updateSessionStorage('/financeManage/list/','subjectListName',e.target.value);
     };
     return(
         <div>
@@ -103,6 +104,7 @@ const SubjectList=(props:any)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 dataSource={props.SubjectList} pagination={false}
                 size='small'
+                scroll={{y:'60vh'}}
             />
             {/*删除的弹窗*/}
             <Modal open={isDeleteOpen} onOk={determineDelete} onCancel={()=>setIsDeleteOpen(false)}>

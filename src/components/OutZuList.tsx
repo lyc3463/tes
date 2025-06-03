@@ -1,20 +1,21 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Table, Tag, Tooltip} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as ArrearsBillService from '@/services/ArrearsBill';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 
 const OutZuList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
-    const [phone,setPhone]=useState('');
+    const [name,setName]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outZuListName')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outZuListPhone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outZuListStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outZuListEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     const [stutes,setstutes]=useState(3);
@@ -69,6 +70,15 @@ const OutZuList=(props:any)=>{
             title: '租户姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            <span >{record.tenant_name}</span>
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '租户手机号',
@@ -192,9 +202,13 @@ const OutZuList=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/billLog/outMonthlyBill/','outZuListStartDate','2000-01-01');
+            updateSessionStorage('/billLog/outMonthlyBill/','outZuListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/billLog/outMonthlyBill/','outZuListStartDate',data[0]);
+            updateSessionStorage('/billLog/outMonthlyBill/','outZuListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -208,18 +222,28 @@ const OutZuList=(props:any)=>{
     useEffect(() => {
         getzujinList();
     }, [page,pageSize]);
+    const changeName=(e)=>{
+        setName(e.target.value);
+        updateSessionStorage('/billLog/outMonthlyBill/','outZuListName',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        updateSessionStorage('/billLog/outMonthlyBill/','outZuListPhone',e.target.value);
+    };
     return(
         <div>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
                             addonBefore="手机号:"
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -236,7 +260,7 @@ const OutZuList=(props:any)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

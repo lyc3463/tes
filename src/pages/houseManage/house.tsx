@@ -3,8 +3,9 @@ import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import HonuseType from '@/ModelTypes/TypeHouse'
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const House=(props:any)=>{
-    const [name,setName]=useState(sessionStorage.getItem('houseManageHouseListHouseName')||'');
+    const [name,setName]=useState(checkSessionStorage('/houseManage/houseList/','houseName')||'');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
     const [open,setOpne]=useState(false);
@@ -134,7 +135,7 @@ const House=(props:any)=>{
     };
     const changeName=(e:any)=>{
         setName(e.target.value);
-        sessionStorage.setItem('houseManageHouseListHouseName',e.target.value);
+        updateSessionStorage('/houseManage/houseList/','houseName',e.target.value);
     };
     const sousuo=()=>{
         getList();

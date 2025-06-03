@@ -12,13 +12,14 @@ import {
     Space,
     Spin,
     Table,
-    Tag
+    Tag, Tooltip
 } from "antd";
 import {connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {QuestionCircleOutlined} from "@ant-design/icons";
 import MyoutList from "@/components/MyoutList";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const OutZu=(props:any)=>{
     // 页码
@@ -28,13 +29,13 @@ const OutZu=(props:any)=>{
     // 转圈
     const [spinning,setspinning]=useState(false);
     // 租户名称
-    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillOutZuName')||'');
+    const [name,setName]=useState(checkSessionStorage('/billLog/monthlyBill/','outZuName')||'');
     // 租户手机号
-    const [phone,setPhone]=useState(sessionStorage.getItem('billLogMonthlyBillOutZuPhone')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/billLog/monthlyBill/','outZuPhone')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillOutZuStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/monthlyBill/','outZuStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillOutZuEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/monthlyBill/','outZuEndDate')||'2099-01-01');
     // 唯一id
     const [uid,setUid]=useState(0);
     // 缴费弹窗
@@ -67,6 +68,15 @@ const OutZu=(props:any)=>{
             title: '租户姓名',
             dataIndex: 'tenantName',
             key: 'tenantName',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenantName}>
+                            {record.tenantName==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenantName}</span>}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '租户手机号',
@@ -279,13 +289,13 @@ const OutZu=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('billLogMonthlyBillOutZuStartDate','2000-01-01');
-            sessionStorage.setItem('billLogMonthlyBillOutZuEndDate','2099-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','outZuStartDate','2000-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','outZuEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('billLogMonthlyBillOutZuStartDate',data[0]);
-            sessionStorage.setItem('billLogMonthlyBillOutZuEndDate',data[1]);
+            updateSessionStorage('/billLog/monthlyBill/','outZuStartDate',data[0]);
+            updateSessionStorage('/billLog/monthlyBill/','outZuEndDate',data[1]);
         }
     };
     // 监听页数
@@ -301,11 +311,11 @@ const OutZu=(props:any)=>{
     }, []);
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('billLogMonthlyBillOutZuName',e.target.value);
+        updateSessionStorage('/billLog/monthlyBill/','outZuName',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('billLogMonthlyBillOutZuPhone',e.target.value);
+        updateSessionStorage('/billLog/monthlyBill/','outZuPhone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

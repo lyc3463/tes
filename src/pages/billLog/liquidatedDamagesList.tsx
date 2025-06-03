@@ -1,9 +1,10 @@
 import {useEffect, useState} from "react";
 import * as ArrearsBillService from "@/services/ArrearsBill";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag, Tooltip} from "antd";
 import dayjs from "dayjs";
 import {QuestionCircleOutlined} from "@ant-design/icons";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const LiquidatedDamagesList=()=>{
     // 当前页数
@@ -11,13 +12,13 @@ const LiquidatedDamagesList=()=>{
     const [spinning,setspinning]=useState(false);
     const [pageSize,setPageSize]=useState(50);
     // 租户姓名
-    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillLiquidatedDamagesListName')||'');
+    const [name,setName]=useState(checkSessionStorage('/billLog/monthlyBill/','liquidatedDamagesListName')||'');
     // 租户id
     const [tenandId,settenandId]=useState(0);
     // 账单开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillLiquidatedDamagesListStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/monthlyBill/','liquidatedDamagesListStartDate')||'2000-01-01');
     // 账单结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillLiquidatedDamagesListEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/monthlyBill/','liquidatedDamagesListEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     // 列表
@@ -75,6 +76,15 @@ const LiquidatedDamagesList=()=>{
             title: '租户姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '账单类型',
@@ -170,13 +180,13 @@ const LiquidatedDamagesList=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('billLogMonthlyBillLiquidatedDamagesListStartDate','2000-01-01');
-            sessionStorage.setItem('billLogMonthlyBillLiquidatedDamagesListEndDate','2099-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','liquidatedDamagesListStartDate','2000-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','liquidatedDamagesListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('billLogMonthlyBillLiquidatedDamagesListStartDate',data[0]);
-            sessionStorage.setItem('billLogMonthlyBillLiquidatedDamagesListEndDate',data[1]);
+            updateSessionStorage('/billLog/monthlyBill/','liquidatedDamagesListStartDate',data[0]);
+            updateSessionStorage('/billLog/monthlyBill/','liquidatedDamagesListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -240,7 +250,7 @@ const LiquidatedDamagesList=()=>{
     ];
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('billLogMonthlyBillLiquidatedDamagesListName',e.target.value);
+        updateSessionStorage('/billLog/monthlyBill/','liquidatedDamagesListName',e.target.value);
     };
     const getTotalDefaultAmount = (arr) => {
         if (!Array.isArray(arr)) return 0;

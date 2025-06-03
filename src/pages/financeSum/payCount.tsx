@@ -1,21 +1,35 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Image,
+    Input,
+    List,
+    message,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import * as RechargeRateService from "@/services/rechargeRate";
 import {StaticInfo} from "@/StaticInfo";
 
 const PayCount=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
-    const [name,setName]=useState(sessionStorage.getItem('financeSumPayCountName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('financeSumPayCountPhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/financeSum/payCount/','name')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/financeSum/payCount/','phone')||'');
     // 消费类型 0全部 1充值、2租金、3电费、4水费、5公共缴费、6手动充值、7物业管理费、8违约金、9月保
-    const [type,setType]=useState(Number(sessionStorage.getItem('financeSumPayCountType'))||0);
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('financeSumPayCountStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('financeSumPayCountEndDate')||'2099-01-01');
+    const [type,setType]=useState(checkSessionStorage('/financeSum/payCount/','type')||0);
+    const [startDate,setStartDate]=useState(checkSessionStorage('/financeSum/payCount/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/financeSum/payCount/','endDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
     const [pageSize,setpageSize]=useState(50);
     const [spinning,setspinning]=useState(false);
@@ -70,6 +84,15 @@ const PayCount=(props)=>{
             title: '姓名',
             dataIndex: 'user_name',
             key: 'user_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.user_name}>
+                            {record.user_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.user_name}</span>}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '手机号',
@@ -146,27 +169,27 @@ const PayCount=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('financeSumPayCountStartDate','2000-01-01');
-            sessionStorage.setItem('financeSumPayCountEndDate','2099-01-01');
+            updateSessionStorage('/financeSum/payCount/','startDate','2000-01-01');
+            updateSessionStorage('/financeSum/payCount/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('financeSumPayCountStartDate',data[0]);
-            sessionStorage.setItem('financeSumPayCountEndDate',data[1]);
+            updateSessionStorage('/financeSum/payCount/','startDate',data[0]);
+            updateSessionStorage('/financeSum/payCount/','endDate',data[1]);
         }
     };
     // 监听类型
     const changeType=(e)=>{
         setType(e);
-        sessionStorage.setItem('financeSumPayCountType',e);
+        updateSessionStorage('/financeSum/payCount/','type',e);
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('financeSumPayCountName',e.target.value);
+        updateSessionStorage('/financeSum/payCount/','name',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('financeSumPayCountPhone',e.target.value);
+        updateSessionStorage('/financeSum/payCount/','phone',e.target.value);
     };
     const exportToExcel=()=>{
         RechargeRateService.fetch({page:1,name,phone,type,startDate,endDate,userID,pageSize:100000}).then((res:TypeErrorCode)=>{

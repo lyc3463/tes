@@ -1,16 +1,31 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const TenantInfo=(props:any)=>{
     const [loading,setLoading]=useState(false)
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/propertyServerManage/tenantInfo/','startDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/propertyServerManage/tenantInfo/','endDate')||'2099-01-01');
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [stutes,setStutes]=useState(0);
@@ -38,6 +53,15 @@ const TenantInfo=(props:any)=>{
             title: '租户名称',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '消息内容',
@@ -49,16 +73,6 @@ const TenantInfo=(props:any)=>{
                 </Input.TextArea>
             )
         },
-        // {
-        //     title: '状态',
-        //     dataIndex: 'messageStatus',
-        //     key: 'messageStatus',
-        //     render:(text:any,record:any)=>(
-        //         <>
-        //             {record.messageStatus==0?<Tag color='red'>未读</Tag>:<Tag color='green'>已读</Tag>}
-        //         </>
-        //     )
-        // },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -87,9 +101,13 @@ const TenantInfo=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/propertyServerManage/tenantInfo/','startDate','2000-01-01');
+            updateSessionStorage('/propertyServerManage/tenantInfo/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/propertyServerManage/tenantInfo/','startDate',data[0]);
+            updateSessionStorage('/propertyServerManage/tenantInfo/','endDate',data[1]);
         }
     };
     const logFenye=()=>{
@@ -100,11 +118,14 @@ const TenantInfo=(props:any)=>{
     };
     const sousuo=()=>{
         setPage(1);
+        getFenye();
+        logFenye();
+    };
+    const getFenye=()=>{
         props.dispatch({
             type:"TenantInfo/fenye",
             payload:{content,phone,startDate,endDate,stutes,openid,pageSize}
         });
-        logFenye();
     };
     const onChange=(e:number,pageSize:number)=>{
       setPage(e);
@@ -131,6 +152,7 @@ const TenantInfo=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getFenye();
     }, []);
     return(
         <Spin spinning={loading}>
@@ -157,7 +179,7 @@ const TenantInfo=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -170,7 +192,7 @@ const TenantInfo=(props:any)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 size='small'
-                scroll={{y:'70vh'}}
+                scroll={{y:'60vh'}}
                 dataSource={props.TenantInfoList}
                 // rowClassName={(record, index) =>
                 //     index % 2 === 1 ? 'tbodd' : 'tbeven'

@@ -1,21 +1,36 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import { StaticInfo } from '@/StaticInfo';
 import CustomType from "@/ModelTypes/TypeCustom";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const Custom=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setpageSize]=useState(50);
     // 客户名称
-    const [customName,setCustomName]=useState(sessionStorage.getItem('enterCustomName')||'');
+    const [customName,setCustomName]=useState(checkSessionStorage('/enter/custom/','name')||'');
     // 开始时间
-    const [customBeginTime,setCustomBeginTime]=useState(sessionStorage.getItem('enterCustomBeginTime')||'2000-01-01');
+    const [customBeginTime,setCustomBeginTime]=useState(checkSessionStorage('/enter/custom/','startDate')||'2000-01-01');
     // 结束时间
-    const [customEndTime,setCustomEndTime]=useState(sessionStorage.getItem('enterCustomEndTime')||'2099-01-01');
+    const [customEndTime,setCustomEndTime]=useState(checkSessionStorage('/enter/custom/','endDate')||'2099-01-01');
     // 审核状态  2全部，0未审核，1已审核
     const [customStatus,setCustomStatus]=useState(0);
     // 增加次数的id
@@ -79,7 +94,9 @@ const Custom=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.remark}
+                        <Tooltip title={record.remark}>
+                            {record.remark}
+                        </Tooltip>
                     </div>
                 )
             }
@@ -89,6 +106,15 @@ const Custom=(props:any)=>{
             dataIndex: 'custom_name',
             key: 'custom_name',
             align:'center',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.custom_name}>
+                            {record.custom_name}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '联系方式',
@@ -123,7 +149,15 @@ const Custom=(props:any)=>{
             dataIndex: 'company_name',
             key: 'company_name',
             align:'center',
-
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.company_name}>
+                            {record.company_name}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
 
         {
@@ -265,12 +299,12 @@ const Custom=(props:any)=>{
             key: 'office_area',
             align:'center',
         },
-        // {
-        //     title: '录入人',
-        //     dataIndex: 'user_name',
-        //     key: 'user_name',
-        //     align:'center',
-        // },
+        {
+            title: '录入人',
+            dataIndex: 'user_name',
+            key: 'user_name',
+            align:'center',
+        },
         {
             title: '来访次数',
             dataIndex: 'visitor_number',
@@ -374,7 +408,7 @@ const Custom=(props:any)=>{
     // 监听名字
     const changeName=(e)=>{
         setCustomName(e.target.value);
-        sessionStorage.setItem('enterCustomName',e.target.value);
+        updateSessionStorage('/enter/custom/','name',e.target.value);
     };
     // 监听页数
     const onChange=(page:number,pageSize:number)=>{
@@ -393,13 +427,13 @@ const Custom=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setCustomBeginTime('2000-01-01');
             setCustomEndTime('2099-01-01');
-            sessionStorage.setItem('enterCustomBeginTime','2000-01-01');
-            sessionStorage.setItem('enterCustomEndTime','2099-01-01');
+            updateSessionStorage('/enter/custom/','startDate','2000-01-01');
+            updateSessionStorage('/enter/custom/','endDate','2099-01-01');
         } else {
             setCustomBeginTime(data[0]);
             setCustomEndTime(data[1]);
-            sessionStorage.setItem('enterCustomBeginTime',data[0]);
-            sessionStorage.setItem('enterCustomEndTime',data[1]);
+            updateSessionStorage('/enter/custom/','startDate',data[0]);
+            updateSessionStorage('/enter/custom/','endDate',data[1]);
         }
     };
     // 监听状态
@@ -408,7 +442,8 @@ const Custom=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-    }, [page]);
+        console.log('props',props)
+    }, [page,pageSize]);
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);

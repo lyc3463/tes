@@ -1,15 +1,18 @@
-import {Button, Input, InputNumber, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, Input, InputNumber, List, message, Pagination, Select, Space, Table, Tag} from "antd";
 import {connect} from "umi";
 import {useEffect, useState} from "react";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const HouseHire=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(localStorage.getItem('houseManageHouseHireName')||'');
+    const [name,setName]=useState(checkSessionStorage('/houseManage/houseHire/','name')||'');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
     const [status,setstatus]=useState(2);
-    const [house_id,sethouse_id]=useState(0);
+    const [house_id,sethouse_id]=useState(checkSessionStorage('/houseManage/houseHire/','house_id')||0);
+    const [hounsList,sethounsList]=useState([]);
     const columns =[
         {
             title: '所属房屋',
@@ -137,7 +140,7 @@ const HouseHire=(props)=>{
     }, [page,pageSize]);
     const changeName=(e:any)=>{
         setName(e.target.value);
-        localStorage.setItem('houseManageHouseHireName',e.target.value)
+        updateSessionStorage('/houseManage/houseHire/','name',e.target.value);
     };
     const sousuo=()=>{
         setPage(1);
@@ -150,24 +153,24 @@ const HouseHire=(props)=>{
             payload:{name,beginRents,endRents,status,house_id,pageSize}
         })
     };
-    const changeBeginRents=(e)=>{
-        if (e){
-            setBeginRents(e);
-        }else {
-            setBeginRents(0);
-        }
+    const getList=()=>{
+        props.dispatch({
+            type:'House/fetch',
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                sethounsList(res.Data);
+            }else {
+                message.error(res.Data);
+            }
+        })
     };
-    const changeEndRents=(e)=>{
-        if (e<beginRents){
-            setEndRents(beginRents);
-        }else if(e>0){
-            setEndRents(e);
-        }else {
-            setEndRents(999999);
-        }
+    const changeHouse=(e)=>{
+        sethouse_id(e);
+        updateSessionStorage('/houseManage/houseHire/','house_id',e);
     };
     useEffect(() => {
         getFenyeInfo();
+        getList();
     }, []);
     return(
         <div>
@@ -179,16 +182,45 @@ const HouseHire=(props)=>{
                             addonBefore="单元名称:"
                             value={name}
                         />
-                        <InputNumber
-                            min={0}
-                            onChange={changeBeginRents}
-                            addonBefore="最小租金:"
-                        />
-                        <InputNumber
-                            min={beginRents}
-                            onChange={changeEndRents}
-                            addonBefore="最大租金:"
-                        />
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                所属房屋:
+                            </div>
+                            <Select
+                                value={house_id}
+                                onChange={changeHouse}
+                                showSearch
+                                style={{ width: 150 }}
+                                optionFilterProp="children"
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = hounsList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                    return item?.house_name?.toLowerCase().includes(input.toLowerCase());
+                                }}
+                            >
+                                <Select.Option value={0} key={0}>
+                                    全部
+                                </Select.Option>
+                                {hounsList.map((item:any,index:any)=>{
+                                    return(
+                                        <Select.Option value={item.id} key={item.id}>
+                                            {item.house_name}
+                                        </Select.Option>
+                                    )
+                                })}
+                            </Select>
+                        </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>

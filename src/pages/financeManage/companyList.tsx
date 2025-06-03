@@ -3,6 +3,7 @@ import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import * as CompanService from "@/services/compan";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const CompanyList=(props:any)=>{
     // 需要删除的id
@@ -11,7 +12,7 @@ const CompanyList=(props:any)=>{
     const [isDeleteOpen,setIsDeleteOpen]=useState(false);
     // 公司关联有的所有项目
     const [projectList,setProjectList]=useState([]);
-    const [name,setName]=useState(sessionStorage.getItem('financeManageCompanyListName')||'');
+    const [name,setName]=useState(checkSessionStorage('/financeManage/list/','companyListName')||'');
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const columns =[
@@ -43,6 +44,8 @@ const CompanyList=(props:any)=>{
         if (res?.ErrorCode==0){
             setIsDeleteOpen(true);
             setProjectList(res.Data);
+        }else {
+            message.error(res.Data);
         }
     };
     const toedit=(e:number)=>{
@@ -61,7 +64,6 @@ const CompanyList=(props:any)=>{
                 setIsDeleteOpen(false)
             }else {
                 message.error(res.Data)
-
             }
         })};
     const getList=()=>{
@@ -70,19 +72,18 @@ const CompanyList=(props:any)=>{
             payload:{name}
         })
     };
-    useEffect(() => {
-        getList();
-    }, []);
+
     const sousuo=()=>{
         getList()
     };
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        getList();
     }, []);
     const changeName=(e)=>{
-      setName(e.target.value);
-      sessionStorage.setItem('financeManageCompanyListName',e.target.value);
+        setName(e.target.value);
+        updateSessionStorage('/financeManage/list/','companyListName',e.target.value);
     };
     return(
         <div>
@@ -113,6 +114,7 @@ const CompanyList=(props:any)=>{
                 dataSource={props.CompanList} pagination={false}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 size='small'
+                scroll={{y:'60vh'}}
             />
             <Modal open={isDeleteOpen} onOk={determineDelete} onCancel={()=>setIsDeleteOpen(false)}>
                 {projectList.length === 0? (

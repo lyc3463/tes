@@ -1,10 +1,26 @@
-import {Button, DatePicker, Form, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Form,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import * as StaffService from '@/services/staff';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const ZsContract=(props:any)=>{
     const [isDeltOpen,setIsDeleteOpen]=useState(false);
@@ -15,15 +31,15 @@ const ZsContract=(props:any)=>{
     // 审核状态 0全部  1未审核 2已审核
     const [contractStatus,setContractStatus]=useState(0);
     // 合同编号
-    const [identifier,setIdentifier]=useState(sessionStorage.getItem('enterStaffZsContractIdentifier')||'');
+    const [identifier,setIdentifier]=useState(checkSessionStorage('/enter/staff/','identifier')||'');
     // 合同类型
     const [contractType,setContractType]=useState(0);
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('enterStaffZsContractStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/enter/staff/','startDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('enterStaffZsContractEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/enter/staff/','endDate')||'2099-01-01');
     // 租户姓名
-    const [name,setName]=useState(sessionStorage.getItem('enterStaffZsContractName')||'');
+    const [name,setName]=useState(checkSessionStorage('/enter/staff/','name')||'');
     // 列表
     const [staffList,setStaffList]=useState([]);
     // 转圈
@@ -50,7 +66,9 @@ const ZsContract=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.identifier}
+                        <Tooltip title={record.identifier}>
+                            {record.identifier}
+                        </Tooltip>
                     </div>
                 )
             }
@@ -59,6 +77,15 @@ const ZsContract=(props:any)=>{
             title: '租户',
             dataIndex: 'customName',
             key: 'customName',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.customName}>
+                            {record.customName}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '起租日',
@@ -277,7 +304,7 @@ const ZsContract=(props:any)=>{
     // 监听合同编号
     const changeIdentifier=(e)=>{
         setIdentifier(e.target.value);
-        sessionStorage.setItem('enterStaffZsContractIdentifier',e.target.value);
+        updateSessionStorage('/enter/staff/','identifier',e.target.value);
     };
     // 合同类型
     const changeType=(e:any)=>{
@@ -288,13 +315,15 @@ const ZsContract=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('enterStaffZsContractStartDate','2000-01-01');
-            sessionStorage.setItem('enterStaffZsContractEndDate','2099-01-01');
+            updateSessionStorage('/enter/staff/','startDate','2000-01-01');
+            updateSessionStorage('/enter/staff/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
             sessionStorage.setItem('enterStaffZsContractStartDate',data[0]);
             sessionStorage.setItem('enterStaffZsContractEndDate',data[1]);
+            updateSessionStorage('/enter/staff/','startDate',data[0]);
+            updateSessionStorage('/enter/staff/','endDate',data[1]);
         }
     };
     // 下载页面
@@ -315,7 +344,7 @@ const ZsContract=(props:any)=>{
     }, []);
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('enterStaffZsContractName',e.target.value);
+        updateSessionStorage('/enter/staff/','name',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -352,32 +381,6 @@ const ZsContract=(props:any)=>{
                                 到期日:
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
-                        </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                状态:
-                            </div>
-                            <Select
-                                onChange={changeType}
-                                defaultValue={contractType}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value:0, label: '全部' },
-                                    { value:1, label: '未审核' },
-                                    { value:4, label: '续租' },
-                                ]}
-                            />
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

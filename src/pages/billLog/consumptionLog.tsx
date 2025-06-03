@@ -1,19 +1,20 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag, Tooltip} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const ConsumptionLog=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('billLogConsumptionLogName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('billLogConsumptionLogPhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/billLog/consumptionLog/','name')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/billLog/consumptionLog/','phone')||'');
     // 消费类型 0全部 1充值、2租金、3电费、4水费、5公共缴费、6手动充值、7物业管理费、8违约金、9月保
-    const [type,setType]=useState(0);
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogConsumptionLogStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogConsumptionLogEndDate')||'2099-01-01');
+    const [type,setType]=useState(checkSessionStorage('/billLog/consumptionLog/','type')||0);
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/consumptionLog/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/consumptionLog/','endDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
     // 搜索
     const sousuo=()=>{
@@ -63,6 +64,15 @@ const ConsumptionLog=(props)=>{
             title: '姓名',
             dataIndex: 'user_name',
             key: 'user_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.user_name}>
+                            {record.user_name}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '手机号',
@@ -139,26 +149,27 @@ const ConsumptionLog=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('billLogConsumptionLogStartDate','2000-01-01');
-            sessionStorage.setItem('billLogConsumptionLogEndDate','2099-01-01');
+            updateSessionStorage('/billLog/consumptionLog/','startDate','2000-01-01');
+            updateSessionStorage('/billLog/consumptionLog/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('billLogConsumptionLogStartDate',data[0]);
-            sessionStorage.setItem('billLogConsumptionLogEndDate',data[1]);
+            updateSessionStorage('/billLog/consumptionLog/','startDate',data[0]);
+            updateSessionStorage('/billLog/consumptionLog/','endDate',data[1]);
         }
     };
     // 监听类型
     const changeType=(e)=>{
         setType(e);
+        updateSessionStorage('/billLog/consumptionLog/','type',e);
     };
     const changeName=(e)=>{
-      setName(e.target.value);
-      sessionStorage.setItem('billLogConsumptionLogName',e.target.value);
+        setName(e.target.value);
+        updateSessionStorage('/billLog/consumptionLog/','name',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('billLogConsumptionLogPhone',e.target.value);
+        updateSessionStorage('/billLog/consumptionLog/','phone',e.target.value);
     };
     return(
         <div>

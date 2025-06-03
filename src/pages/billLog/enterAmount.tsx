@@ -2,10 +2,11 @@ import {connect} from "umi";
 import {useEffect, useState} from "react";
 import {Button, Form, Input, InputNumber, List, message, Modal, Pagination, Space, Spin, Table} from "antd";
 import dayjs from "dayjs";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const EnterAmount=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('billLogEnterAmountName')||'');
+    const [name,setName]=useState(checkSessionStorage('/billLog/enterAmount/','name')||'');
     const [open,setOpen]=useState(false);
     const [tenantId,settenantId]=useState(0);
     const [spinning,setspinning]=useState(false);
@@ -102,7 +103,7 @@ const EnterAmount=(props)=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('billLogEnterAmountName',e.target.value);
+        updateSessionStorage('/billLog/enterAmount/','name',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

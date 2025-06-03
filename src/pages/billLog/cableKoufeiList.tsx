@@ -1,22 +1,23 @@
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
-import {Button, DatePicker, Input, List, message, Pagination, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Space, Table, Tag, Tooltip} from "antd";
 import * as ArrearsBillService from '@/services/ArrearsBill';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {eleList} from "@/services/ArrearsBill";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const CableKoufeiList=()=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户名字
-    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillCableKoufeiListName')||'');
+    const [name,setName]=useState(checkSessionStorage('/billLog/monthlyBill/','cableKoufeiListName')||'');
     // 电表地址
-    const [cid,setCId]=useState(sessionStorage.getItem('billLogMonthlyBillCableKoufeiListCId')||'');
+    const [cid,setCId]=useState(checkSessionStorage('/billLog/monthlyBill/','cableKoufeiListCId')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillCableKoufeiListStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/monthlyBill/','cableKoufeiListStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillCableKoufeiListEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/monthlyBill/','cableKoufeiListEndDate')||'2099-01-01');
     // 租户id
     const [tenantId,settenantId]=useState(0);
     const [recordStatus,setrecordStatus]=useState('余额不足');
@@ -34,13 +35,13 @@ const CableKoufeiList=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('billLogMonthlyBillCableKoufeiListStartDate','2000-01-01');
-            sessionStorage.setItem('billLogMonthlyBillCableKoufeiListEndDate','2099-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','cableKoufeiListStartDate','2000-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','cableKoufeiListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('billLogMonthlyBillCableKoufeiListStartDate',data[0]);
-            sessionStorage.setItem('billLogMonthlyBillCableKoufeiListEndDate',data[1]);
+            updateSessionStorage('/billLog/monthlyBill/','cableKoufeiListStartDate',data[0]);
+            updateSessionStorage('/billLog/monthlyBill/','cableKoufeiListEndDate',data[1]);
         }
     };
     const sousuo=()=>{
@@ -99,8 +100,10 @@ const CableKoufeiList=()=>{
             key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
-                    <div>
-                        {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
                     </div>
                 )
             },
@@ -173,11 +176,11 @@ const CableKoufeiList=()=>{
     ];
     const changeCid=(e)=>{
         setCId(e.target.value);
-        sessionStorage.setItem('billLogMonthlyBillCableKoufeiListCId',e.target.value);
+        updateSessionStorage('/billLog/monthlyBill/','cableKoufeiListCId',e.target.value);
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('billLogMonthlyBillCableKoufeiListName',e.target.value);
+        updateSessionStorage('/billLog/monthlyBill/','cableKoufeiListName',e.target.value);
     };
     return(
         <div>

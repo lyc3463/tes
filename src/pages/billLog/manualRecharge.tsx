@@ -1,17 +1,18 @@
-import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag, Tooltip} from "antd";
 import {connect,history} from "umi";
 import AppUserType from '@/ModelTypes/TypeAppUser'
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const ManualRecharge=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 状态 0全部，1未审核，2审核通过
-    const [stutes,setStutes]=useState(0);
+    const [stutes,setStutes]=useState(checkSessionStorage('/billLog/manualRecharge/','stutes')||0);
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/manualRecharge/','startDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/manualRecharge/','endDate')||'2099-01-01');
 
     const columns =[
         {
@@ -59,11 +60,29 @@ const ManualRecharge=(props)=>{
             title: '微信昵称',
             dataIndex: 'appUser_name',
             key: 'appUser_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.appUser_name}>
+                            <span >{record.appUser_name}</span>
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '租户姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '充值类型',
@@ -111,11 +130,14 @@ const ManualRecharge=(props)=>{
     // 搜索按钮
     const shousuo=()=>{
         setPage(1);
+        getFenye();
+        logFenye()
+    };
+    const getFenye=()=>{
         props.dispatch({
             type:'ManualRecharge/fenye',
             payload:{startDate,endDate,stutes,pageSize}
         });
-        logFenye()
     };
     // 分页
     const logFenye=()=>{
@@ -131,7 +153,6 @@ const ManualRecharge=(props)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props);
     }, [page,pageSize]);
     const toadd=()=>{
       history.push('/billLog/addChongzhi')
@@ -141,15 +162,23 @@ const ManualRecharge=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/billLog/manualRecharge/','startDate','2000-01-01');
+            updateSessionStorage('/billLog/manualRecharge/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/billLog/manualRecharge/','startDate',data[0]);
+            updateSessionStorage('/billLog/manualRecharge/','endDate',data[1]);
         }
     };
     // 监听状态
     const changeStutes=(e:number)=>{
         setStutes(e);
+        updateSessionStorage('/billLog/manualRecharge/','stutes',e);
     };
+    useEffect(() => {
+        getFenye();
+    }, []);
     return(
         <div>
             <List>
@@ -175,7 +204,7 @@ const ManualRecharge=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Space.Compact>
                             <div
@@ -194,7 +223,7 @@ const ManualRecharge=(props)=>{
                             </div>
                             <Select
                                 onChange={changeStutes}
-                                defaultValue={stutes}
+                                value={stutes}
                                 style={{ width: 120 }}
                                 options={[
                                     { value:0, label: '全部' },

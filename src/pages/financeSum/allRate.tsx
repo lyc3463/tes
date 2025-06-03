@@ -1,10 +1,24 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Image,
+    Input,
+    List,
+    message,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as RechargeRateService from '@/services/rechargeRate';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
 
 const AllRate=(props)=>{
@@ -12,10 +26,10 @@ const AllRate=(props)=>{
     const [page,setPage]=useState(1);
     const [spinning,setspinning]=useState(false);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('financeSumAllRateName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('financeSumAllRatePhone')||'');
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('financeSumAllRateStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('financeSumAllRateEndDate')||'2099-01-01');
+    const [name,setName]=useState(checkSessionStorage('/financeSum/allRate/','name')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/financeSum/allRate/','phone')||'');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/financeSum/allRate/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/financeSum/allRate/','endDate')||'2099-01-01');
     const [tenandId,settenandId]=useState(0);
     const [count,setcount]=useState(0);
     const [dataSource,setdataSource]=useState([]);
@@ -84,8 +98,10 @@ const AllRate=(props)=>{
             key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
-                    <div>
-                        {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
                     </div>
                 )
             },
@@ -123,13 +139,13 @@ const AllRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('financeSumAllRateStartDate','2000-01-01');
-            sessionStorage.setItem('financeSumAllRateEndDate','2099-01-01');
+            updateSessionStorage('/financeSum/allRate/','startDate','2000-01-01');
+            updateSessionStorage('/financeSum/allRate/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('financeSumAllRateStartDate',data[0]);
-            sessionStorage.setItem('financeSumAllRateEndDate',data[1]);
+            updateSessionStorage('/financeSum/allRate/','startDate',data[0]);
+            updateSessionStorage('/financeSum/allRate/','endDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -158,11 +174,11 @@ const AllRate=(props)=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('financeSumAllRateName',e.target.value);
+        updateSessionStorage('/financeSum/allRate/','name',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('financeSumAllRatePhone',e.target.value);
+        updateSessionStorage('/financeSum/allRate/','phone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

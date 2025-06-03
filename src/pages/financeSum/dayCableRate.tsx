@@ -1,8 +1,22 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Image,
+    Input,
+    List,
+    message,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import * as DayCableRateService from "@/services/dayCableRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
@@ -16,17 +30,17 @@ const CableRate=(props)=>{
     const [count,setcount]=useState(0);
     const [pageSize,setPageSize]=useState(50);
     // 租户名字
-    const [name,setName]=useState(sessionStorage.getItem('daycableRateName')||'');
+    const [name,setName]=useState(checkSessionStorage('/financeSum/CableRate/','dayCableRateName')||'');
     // 电表地址
-    const [cid,setCId]=useState(sessionStorage.getItem('daycableRateCId')||'');
+    const [cid,setCId]=useState(checkSessionStorage('/financeSum/CableRate/','dayCableRateCId')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('dayfinanceSumCableRateStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/financeSum/CableRate/','dayCableRateStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('dayfinanceSumCableRateEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/financeSum/CableRate/','dayCableRateEndDate')||'2099-01-01');
     // 租户id
     const [tenantId,settenantId]=useState(0);
     // 电表备注
-    const [remark,setremark]=useState(sessionStorage.getItem('daycableRateRemark')||'');
+    const [remark,setremark]=useState(checkSessionStorage('/financeSum/CableRate/','dayCableRateRemark')||'');
     const [spinning,setspinning]=useState(false);
     const [uqx,setUqx]=useState([]);
     // 搜索
@@ -94,8 +108,10 @@ const CableRate=(props)=>{
             key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
-                    <div>
-                        {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
                     </div>
                 )
             },
@@ -152,13 +168,13 @@ const CableRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('dayfinanceSumCableRateStartDate','2000-01-01');
-            sessionStorage.setItem('dayfinanceSumCableRateEndDate','2099-01-01');
+            updateSessionStorage('/financeSum/CableRate/','dayCableRateStartDate','2000-01-01');
+            updateSessionStorage('/financeSum/CableRate/','dayCableRateEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('dayfinanceSumCableRateStartDate',data[0]);
-            sessionStorage.setItem('dayfinanceSumCableRateEndDate',data[1]);
+            updateSessionStorage('/financeSum/CableRate/','dayCableRateStartDate',data[0]);
+            updateSessionStorage('/financeSum/CableRate/','dayCableRateEndDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -188,15 +204,15 @@ const CableRate=(props)=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('daycableRateName',e.target.value);
+        updateSessionStorage('/financeSum/CableRate/','dayCableRateName',e.target.value);
     };
     const changeCId=(e:any)=>{
         setCId(e.target.value);
-        sessionStorage.setItem('daycableRateCId',e.target.value);
+        updateSessionStorage('/financeSum/CableRate/','dayCableRateCId',e.target.value);
     };
     const changeremark=(e:any)=>{
         setremark(e.target.value);
-        sessionStorage.setItem('daycableRateRemark',e.target.value);
+        updateSessionStorage('/financeSum/CableRate/','dayCableRateRemark',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

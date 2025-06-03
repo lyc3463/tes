@@ -1,20 +1,21 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Table, Tag, Tooltip} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as ArrearsBillService from '@/services/ArrearsBill';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 
 const ZuList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillZuListName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('billLogMonthlyBillZuListPhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/billLog/monthlyBill/','zuListName')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/billLog/monthlyBill/','zuListPhone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillZuListStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillZuListEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/monthlyBill/','zuListStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/monthlyBill/','zuListEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     const [stutes,setstutes]=useState(1);
@@ -81,6 +82,15 @@ const ZuList=(props:any)=>{
             title: '租户姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '租户手机号',
@@ -190,13 +200,13 @@ const ZuList=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('billLogMonthlyBillZuListStartDate','2000-01-01');
-            sessionStorage.setItem('billLogMonthlyBillZuListEndDate','2099-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','zuListStartDate','2000-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','zuListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('billLogMonthlyBillZuListStartDate',data[0]);
-            sessionStorage.setItem('billLogMonthlyBillZuListEndDate',data[1]);
+            updateSessionStorage('/billLog/monthlyBill/','zuListStartDate',data[0]);
+            updateSessionStorage('/billLog/monthlyBill/','zuListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -212,11 +222,11 @@ const ZuList=(props:any)=>{
     }, [page,pageSize]);
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('billLogMonthlyBillZuListPhone',e.target.value);
+        updateSessionStorage('/billLog/monthlyBill/','zuListPhone',e.target.value);
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('billLogMonthlyBillZuListName',e.target.value);
+        updateSessionStorage('/billLog/monthlyBill/','zuListName',e.target.value);
     };
     return(
         <div>

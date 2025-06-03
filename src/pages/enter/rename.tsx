@@ -1,8 +1,23 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const Rename=(props)=>{
     // 当前页数
@@ -10,13 +25,13 @@ const Rename=(props)=>{
     const [pageSize,setPageSize]=useState(50);
     const [uid,setUid]=useState(0);
     // 手机号
-    const [phone,setPhone]=useState(sessionStorage.getItem('enterRenamePhone')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/enter/afterSales/','renamePhone')||'');
     // 状态 0全部，1未审核，2审核通过
     const [stutes,setStutes]=useState(1);
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/enter/afterSales/','renameStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/enter/afterSales/','renameEndDate')||'2099-01-01');
     const [open,setOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
     const columns =[
@@ -34,16 +49,43 @@ const Rename=(props)=>{
             title: '合同编号',
             dataIndex: 'identifier',
             key: 'identifier',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.identifier}>
+                            {record.identifier}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '原名字',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '更改后的名字',
             dataIndex: 'rename',
             key: 'rename',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.rename}>
+                            {record.rename}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '原手机号',
@@ -112,15 +154,19 @@ const Rename=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/enter/afterSales/','renameStartDate','2000-01-01');
+            updateSessionStorage('/enter/afterSales/','renameEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/enter/afterSales/','renameStartDate',data[0]);
+            updateSessionStorage('/enter/afterSales/','renameEndDate',data[1]);
         }
     };
     // 监听姓名
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('enterRenamePhone',e.target.value);
+        updateSessionStorage('/enter/afterSales/','renamePhone',e.target.value);
     };
     // 监听状态
     const changeStutes=(e:number)=>{
@@ -194,34 +240,8 @@ const Rename=(props)=>{
                             >
                                 日期:
                             </div>
-                           <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        {/*<Space.Compact>*/}
-                        {/*    <div*/}
-                        {/*        style={{*/}
-                        {/*            borderRadius: '6px',*/}
-                        {/*            borderStartEndRadius: 0,*/}
-                        {/*            borderEndEndRadius: 0,*/}
-                        {/*            padding: '0 11px',*/}
-                        {/*            border: '1px solid #d9d9d9',*/}
-                        {/*            display: 'flex',*/}
-                        {/*            alignItems: 'center',*/}
-                        {/*            borderInlineEnd: 0,*/}
-                        {/*        }}*/}
-                        {/*    >*/}
-                        {/*        状态:*/}
-                        {/*    </div>*/}
-                        {/*    <Select*/}
-                        {/*        onChange={changeStutes}*/}
-                        {/*        defaultValue={stutes}*/}
-                        {/*        style={{ width: 120 }}*/}
-                        {/*        options={[*/}
-                        {/*            { value:0, label: '全部' },*/}
-                        {/*            { value:1, label: '未审核' },*/}
-                        {/*            { value:2, label: '已审核' },*/}
-                        {/*        ]}*/}
-                        {/*    />*/}
-                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={suosou}>
                             搜索
                         </Button>

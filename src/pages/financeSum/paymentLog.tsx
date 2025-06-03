@@ -1,27 +1,27 @@
 import dayjs from "dayjs";
-import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
 import * as PaymentLogService from '@/services/paymentLog';
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 
 const PaymentLog=()=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 订单编号
-    const [orderNum,setorderNum]=useState(sessionStorage.getItem('financeSumPaymentLogOrderNum')||'');
+    const [orderNum,setorderNum]=useState(checkSessionStorage('/financeSum/paymentLog/','orderNum')||'');
     // 充值开始时间
-    const [startDate,setstartDate]=useState(sessionStorage.getItem('financeSumPaymentLogStartDate')||'2000-01-01');
+    const [startDate,setstartDate]=useState(checkSessionStorage('/financeSum/paymentLog/','startDate')||'2000-01-01');
     // 充值结束时间
-    const [endDate,setendDate]=useState(sessionStorage.getItem('financeSumPaymentLogEndDate')||'2099-01-01');
+    const [endDate,setendDate]=useState(checkSessionStorage('/financeSum/paymentLog/','endDate')||'2099-01-01');
     // 订单查询列表
     const [dataSource,setdataSource]=useState([]);
     // 总条数
     const [count,setcount]=useState(0);
     // 支付类型
-    const [type,setType]=useState(Number(sessionStorage.getItem('financeSumPaymentLogType'))||0);
+    const [type,setType]=useState(checkSessionStorage('/financeSum/paymentLog/','type')||0);
     // 支付状态
-    const [stutes,setStutes]=useState(Number(sessionStorage.getItem('financeSumPaymentLogStutes'))||-1);
+    const [stutes,setStutes]=useState(checkSessionStorage('/financeSum/paymentLog/','stutes')||-1);
     const [moneySum,setmoneySum]=useState(0);
     const [spinning,setspinning]=useState(false);
     // 订单列表
@@ -136,6 +136,15 @@ const PaymentLog=()=>{
             title: '到账人',
             dataIndex: 'user_name',
             key: 'user_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.user_name}>
+                            {record.user_name}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '充值人',
@@ -154,13 +163,13 @@ const PaymentLog=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setstartDate('2000-01-01');
             setendDate('2099-01-01');
-            sessionStorage.setItem('financeSumPaymentLogStartDate','2000-01-01');
-            sessionStorage.setItem('financeSumPaymentLogEndDate','2099-01-01');
+            updateSessionStorage('/financeSum/paymentLog/','startDate','2000-01-01');
+            updateSessionStorage('/financeSum/paymentLog/','endDate','2099-01-01');
         } else {
             setstartDate(data[0]);
             setendDate(data[1]);
-            sessionStorage.setItem('financeSumPaymentLogStartDate',data[0]);
-            sessionStorage.setItem('financeSumPaymentLogEndDate',data[1]);
+            updateSessionStorage('/financeSum/paymentLog/','startDate',data[0]);
+            updateSessionStorage('/financeSum/paymentLog/','endDate',data[1]);
         }
     };
     useEffect(() => {
@@ -169,16 +178,16 @@ const PaymentLog=()=>{
     // 监听支付状态
     const changeStute=(e)=>{
         setStutes(e);
-        sessionStorage.setItem('financeSumPaymentLogStutes',e);
+        updateSessionStorage('/financeSum/paymentLog/','stutes',e);
     };
     // 监听支付类型
     const changeType=(e)=>{
         setType(e);
-        sessionStorage.setItem('financeSumPaymentLogType',e);
+        updateSessionStorage('/financeSum/paymentLog/','type',e);
     };
     const changeOrderNum=(e)=>{
         setorderNum(e.target.value);
-        sessionStorage.setItem('financeSumPaymentLogOrderNum',e.target.value);
+        updateSessionStorage('/financeSum/paymentLog/','orderNum',e.target.value);
     };
     const exportToExcel=()=>{
         setspinning(true);

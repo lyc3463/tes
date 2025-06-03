@@ -12,22 +12,23 @@ import {
     Space,
     Spin,
     Table,
-    Tag
+    Tag, Tooltip
 } from "antd";
 import {useEffect, useState} from "react";
 import {connect} from "umi";
 import dayjs from "dayjs";
 import ImageUploader from "@/components/ImageUploader";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const Complaint=(props:any)=>{
     const [loading, setLoading] = useState(false);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('propertyServerManageComplaintName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('propertyServerManageComplaintPhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/propertyServerManage/complaint/','name')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/propertyServerManage/complaint/','phone')||'');
     const [state,setState]=useState(0);
-    const [startDate,setstartDate]=useState('2000-01-01');
-    const [endDate,setendDate]=useState('2099-01-01');
+    const [startDate,setstartDate]=useState(checkSessionStorage('/propertyServerManage/complaint/','startDate')||'2000-01-01');
+    const [endDate,setendDate]=useState(checkSessionStorage('/propertyServerManage/complaint/','endDate')||'2099-01-01');
     const [openID,setopenID]=useState(0);
     const [open,setOpen]=useState(false);
     const [tenantId,settenantId]=useState(0);
@@ -57,7 +58,7 @@ const Complaint=(props:any)=>{
             render: (text:any, record:any) => {
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
                         {limitedUnitList.map((item, index) => (
                             <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
                         ))}
@@ -71,6 +72,15 @@ const Complaint=(props:any)=>{
             title: '姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '用户联系方式',
@@ -124,9 +134,13 @@ const Complaint=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setstartDate('2000-01-01');
             setendDate('2099-01-01');
+            updateSessionStorage('/propertyServerManage/complaint/','startDate','2000-01-01');
+            updateSessionStorage('/propertyServerManage/complaint/','endDate','2099-01-01');
         } else {
             setstartDate(data[0]);
             setendDate(data[1]);
+            updateSessionStorage('/propertyServerManage/complaint/','startDate',data[0]);
+            updateSessionStorage('/propertyServerManage/complaint/','endDate',data[1]);
         }
     };
     const sousuo=()=>{
@@ -164,11 +178,11 @@ const Complaint=(props:any)=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('propertyServerManageComplaintName',e.target.value);
+        updateSessionStorage('/propertyServerManage/complaint/','name',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('propertyServerManageComplaintPhone',e.target.value);
+        updateSessionStorage('/propertyServerManage/complaint/','phone',e.target.value);
     };
     return(
         <div>
@@ -201,7 +215,7 @@ const Complaint=(props:any)=>{
                                 >
                                     时间:
                                 </div>
-                                <DatePicker.RangePicker onChange={changeDate}/>
+                                {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                             </Space.Compact>
                             <Button type="primary" onClick={sousuo}>
                                 搜索

@@ -1,7 +1,7 @@
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
-import {processBills} from '@/utils/OpenTool';
+import {checkSessionStorage, processBills, updateSessionStorage} from '@/utils/OpenTool';
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
@@ -12,21 +12,21 @@ const FinancialData=(props:any)=>{
     // 账单列表
     const [billList,setBillList]=useState([]);
     // 摘要
-    const [billAbstract,setBillAbstract]=useState(sessionStorage.getItem('enterFinancialDataBillAbstract')||'');
+    const [billAbstract,setBillAbstract]=useState(checkSessionStorage('/enter/financialData/','billAbstract')||'');
     // 开始时间
-    const [billBgeinTime,setBillBgeinTime]=useState(sessionStorage.getItem('enterFinancialDataBillBgeinTime')||'2000-01-01');
+    const [billBgeinTime,setBillBgeinTime]=useState(checkSessionStorage('/enter/financialData/','startDate')||'2000-01-01');
     // 结束时间
-    const [billEndTime,setBillEndTime]=useState(sessionStorage.getItem('enterFinancialDataBillBillEndTime')||'2099-01-01');
+    const [billEndTime,setBillEndTime]=useState(checkSessionStorage('/enter/financialData/','endDate')||'2099-01-01');
     // 账单状态
-    const [billStatus,setBillStatus]=useState(2);
+    const [billStatus,setBillStatus]=useState(checkSessionStorage('/enter/financialData/','billStatus')||2);
     // 财务类型
-    const [billMoneyType,setBillMoneyType]=useState(2);
+    const [billMoneyType,setBillMoneyType]=useState(checkSessionStorage('/enter/financialData/','billMoneyType')||2);
     // 所属公司
-    const [companyId,setCompanyId]=useState(0);
+    const [companyId,setCompanyId]=useState(checkSessionStorage('/enter/financialData/','companyId')||0);
     // 所属项目
-    const [projectId,setProjectId]=useState(0);
+    const [projectId,setProjectId]=useState(checkSessionStorage('/enter/financialData/','projectId')||0);
     // 所属科目
-    const [subjectId,setSubjectId]=useState(0);
+    const [subjectId,setSubjectId]=useState(checkSessionStorage('/enter/financialData/','subjectId')||0);
     // 下拉公司列表
     const [companyList,setCompanyList]=useState([]);
     // 下拉科目列表
@@ -35,7 +35,7 @@ const FinancialData=(props:any)=>{
     const [projectlist,setProjectlist]=useState([]);
     const [uid,setUid]=useState(0);
     // 账户卡号
-    const [account_card,setaccount_card]=useState(sessionStorage.getItem('enterFinancialDataAccountCard')||'');
+    const [account_card,setaccount_card]=useState(checkSessionStorage('/enter/financialData/','account_card')||'');
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
     // 用户权限
@@ -217,7 +217,7 @@ const FinancialData=(props:any)=>{
     // 监听摘要名称
     const changeName=(e)=>{
         setBillAbstract(e.target.value);
-        sessionStorage.setItem('enterFinancialDataBillAbstract',e.target.value);
+        updateSessionStorage('/enter/financialData/','billAbstract',e.target.value);
     };
     // 获取分页信息
     const getBillFenye=()=>{
@@ -277,22 +277,24 @@ const FinancialData=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setBillBgeinTime('2000-01-01');
             setBillEndTime('2099-01-01');
-            sessionStorage.setItem('enterFinancialDataBillBgeinTime','2000-01-01');
-            sessionStorage.setItem('enterFinancialDataBillBillEndTime','2099-01-01');
+            updateSessionStorage('/enter/financialData/','startDate','2000-01-01');
+            updateSessionStorage('/enter/financialData/','endDate','2099-01-01');
         } else {
             setBillBgeinTime(data[0]);
             setBillEndTime(data[1]);
-            sessionStorage.setItem('enterFinancialDataBillBgeinTime',data[0]);
-            sessionStorage.setItem('enterFinancialDataBillBillEndTime',data[1]);
+            updateSessionStorage('/enter/financialData/','startDate',data[0]);
+            updateSessionStorage('/enter/financialData/','endDate',data[1]);
         }
     };
     // 监听类型
     const changeType=(e:number)=>{
         setBillMoneyType(e);
+        updateSessionStorage('/enter/financialData/','billMoneyType',e);
     };
     // 监听状态
     const changeStutes=(e:number)=>{
         setBillStatus(e);
+        updateSessionStorage('/enter/financialData/','billStatus',e);
     };
     useEffect(() => {
         logFenye();
@@ -340,15 +342,18 @@ const FinancialData=(props:any)=>{
     // 监听公司id
     const changeCompany=(e:number)=>{
         setCompanyId(e);
+        updateSessionStorage('/enter/financialData/','companyId',e);
         ChangeProjectList(e);
     };
     // 监听项目id
     const changeProject=(e:number)=>{
         setProjectId(e);
+        updateSessionStorage('/enter/financialData/','projectId',e);
     };
     // 监听项目id
     const changeSubject=(e:number)=>{
         setSubjectId(e);
+        updateSessionStorage('/enter/financialData/','subjectId',e);
     };
     // 公司拼接
     const conterCompay=(item)=>{
@@ -426,10 +431,12 @@ const FinancialData=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
+        console.log(checkSessionStorage('/enter/financialData/','startDate'))
+        console.log(checkSessionStorage('/enter/financialData/','endDate'))
     }, []);
     const changeAccount_card=(e)=>{
         setaccount_card(e.target.value);
-        sessionStorage.setItem('enterFinancialDataAccountCard',e.target.value);
+        updateSessionStorage('/enter/financialData/','account_card',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

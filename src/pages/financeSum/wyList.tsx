@@ -3,7 +3,7 @@ import * as RechargeRateService from "@/services/rechargeRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import * as ArrearsBillService from "@/services/ArrearsBill";
 import {QuestionCircleOutlined} from "@ant-design/icons";
 import {StaticInfo} from "@/StaticInfo";
@@ -12,9 +12,9 @@ const WyList=()=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('financeSumWyListName')||'');
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('financeSumWyListStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('financeSumWyListEndDate')||'2099-01-01');
+    const [name,setName]=useState(checkSessionStorage('/financeSum/wyList','name')||'');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/financeSum/wyList','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/financeSum/wyList','endDate')||'2099-01-01');
     const [tenandId,settenandId]=useState(0);
     const [count,setcount]=useState(0);
     const [dataSource,setdataSource]=useState([]);
@@ -126,13 +126,13 @@ const WyList=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('financeSumWyListStartDate','2000-01-01');
-            sessionStorage.setItem('financeSumWyListEndDate','2099-01-01');
+            updateSessionStorage('/financeSum/wyList','startDate','2000-01-01');
+            updateSessionStorage('/financeSum/wyList','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('financeSumWyListStartDate',data[0]);
-            sessionStorage.setItem('financeSumWyListEndDate',data[1]);
+            updateSessionStorage('/financeSum/wyList','startDate',data[0]);
+            updateSessionStorage('/financeSum/wyList','endDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -216,7 +216,7 @@ const WyList=()=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('financeSumWyListName',e.target.value);
+        updateSessionStorage('/financeSum/wyList','name',e.target.value);
     };
     const getTotalDefaultAmount = (arr) => {
         if (!Array.isArray(arr)) return 0;

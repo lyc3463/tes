@@ -1,9 +1,9 @@
 import {connect} from 'umi'
-import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
 import dayjs from "dayjs";
 import {history} from "@@/core/history";
 import {useEffect, useState} from "react";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as BillService from "@/services/billSum";
 import {StaticInfo} from "@/StaticInfo";
@@ -11,21 +11,21 @@ const BillSum=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 账单编号
-    const [billAbstract,setBillAbstract]=useState('');
+    const [billAbstract,setBillAbstract]=useState(checkSessionStorage('/financeManage/billSum/','billAbstract')||'');
     // 开始时间
-    const [billBgeinTime,setBillBgeinTime]=useState('2000-01-01');
+    const [billBgeinTime,setBillBgeinTime]=useState(checkSessionStorage('/financeManage/billSum/','startDate')||'2000-01-01');
     // 结束时间
-    const [billEndTime,setBillEndTime]=useState('2099-01-01');
+    const [billEndTime,setBillEndTime]=useState(checkSessionStorage('/financeManage/billSum/','endDate')||'2099-01-01');
     // 账单状态 0 未审核 1已审核 2全查
     const [billStatus,setBillStatus]=useState(1);
     // 账单类型   1支出 0收入 2全部
-    const [billMoneyType,setBillMoneyType]=useState(2);
+    const [billMoneyType,setBillMoneyType]=useState(checkSessionStorage('/financeManage/billSum/','billMoneyType')||2);
     // 公司id
-    const [companyId,setCompanyId]=useState(0);
+    const [companyId,setCompanyId]=useState(checkSessionStorage('/financeManage/billSum/','companyId')||0);
     // 项目id
-    const [projectId,setProjectId]=useState(0);
+    const [projectId,setProjectId]=useState(checkSessionStorage('/financeManage/billSum/','projectId')||0);
     // 科目id
-    const [subjectId,setSubjectId]=useState(0);
+    const [subjectId,setSubjectId]=useState(checkSessionStorage('/financeManage/billSum/','subjectId')||0);
     // 公司列表
     const [companyList,setCompanyList]=useState([]);
     // 科目项目
@@ -33,7 +33,7 @@ const BillSum=(props:any)=>{
     // 项目列表
     const [projectlist,setProjectlist]=useState([]);
     // 账户卡号
-    const [account_card,setaccount_card]=useState('');
+    const [account_card,setaccount_card]=useState(checkSessionStorage('/financeManage/billSum/','account_card')||'');
     const [spinning,setspinning]=useState(false);
     const [uqx,setUqx]=useState([]);
     const columns =[
@@ -56,7 +56,9 @@ const BillSum=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.billAbstract}
+                        <Tooltip title={record.billAbstract}>
+                            {record.billAbstract}
+                        </Tooltip>
                     </div>
                 )
             }
@@ -68,7 +70,9 @@ const BillSum=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.company_name}
+                        <Tooltip title={record.company_name}>
+                            {record.company_name}
+                        </Tooltip>
                     </div>
                 )
             }
@@ -80,7 +84,9 @@ const BillSum=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.project_name}
+                        <Tooltip title={record.project_name}>
+                            {record.project_name}
+                        </Tooltip>
                     </div>
                 )
             }
@@ -92,7 +98,9 @@ const BillSum=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.subject_name}
+                        <Tooltip title={record.subject_name}>
+                            {record.subject_name}
+                        </Tooltip>
                     </div>
                 )
             }
@@ -104,7 +112,9 @@ const BillSum=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.account_name}
+                        <Tooltip title={record.account_name}>
+                            {record.account_name}
+                        </Tooltip>
                     </div>
                 )
             }
@@ -116,7 +126,9 @@ const BillSum=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.account_card}
+                        <Tooltip title={record.account_card}>
+                            {record.account_card}
+                        </Tooltip>
                     </div>
                 )
             }
@@ -234,18 +246,24 @@ const BillSum=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setBillBgeinTime('2000-01-01');
             setBillEndTime('2099-01-01');
+            updateSessionStorage('/financeManage/billSum/','startDate','2000-01-01');
+            updateSessionStorage('/financeManage/billSum/','endDate','2099-01-01');
         } else {
             setBillBgeinTime(data[0]);
             setBillEndTime(data[1]);
+            updateSessionStorage('/financeManage/billSum/','startDate',data[0]);
+            updateSessionStorage('/financeManage/billSum/','endDate',data[1]);
         }
     };
     // 监听类型
     const changeType=(e:number)=>{
         setBillMoneyType(e);
+        updateSessionStorage('/financeManage/billSum/','billMoneyType',e);
     };
     // 监听摘要名称
     const changeName=(e)=>{
         setBillAbstract(e.target.value);
+        updateSessionStorage('/financeManage/billSum/','billAbstract',e.target.value);
     };
     // 分页
     const logFenye=()=>{
@@ -319,14 +337,17 @@ const BillSum=(props:any)=>{
     const changeCompany=(e:number)=>{
         setCompanyId(e);
         ChangeProjectList(e);
+        updateSessionStorage('/financeManage/billSum/','companyId',e);
     };
     // 监听项目id
     const changeProject=(e:number)=>{
         setProjectId(e);
+        updateSessionStorage('/financeManage/billSum/','projectId',e);
     };
     // 监听项目id
     const changeSubject=(e:number)=>{
         setSubjectId(e);
+        updateSessionStorage('/financeManage/billSum/','subjectId',e);
     };
     // 公司拼接
     const conterCompay=(item)=>{
@@ -361,6 +382,10 @@ const BillSum=(props:any)=>{
         });
         setSubjList(oldarr.concat(newarr));
     };
+    const changeAccountCard=(e)=>{
+        setaccount_card(e.target.value);
+        updateSessionStorage('/financeManage/billSum/','account_card',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -370,11 +395,13 @@ const BillSum=(props:any)=>{
                            onChange={changeName}
                            style={{ width: 300 }}
                            addonBefore="摘要:"
+                           value={billAbstract}
                        />
                        <Input
-                           onChange={(e)=>setaccount_card(e.target.value)}
+                           onChange={changeAccountCard}
                            style={{ width: 300 }}
                            addonBefore="账户卡号:"
+                           value={account_card}
                        />
                        <Space.Compact>
                            <div
@@ -391,7 +418,7 @@ const BillSum=(props:any)=>{
                            >
                                时间:
                            </div>
-                           <DatePicker.RangePicker onChange={changeDate}/>
+                           {billBgeinTime=='2000-01-01'&&billEndTime=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(billBgeinTime),dayjs(billEndTime)]}/>}
                        </Space.Compact>
                    </Space>
                 </List.Item>
@@ -414,7 +441,7 @@ const BillSum=(props:any)=>{
                             </div>
                             <Select
                                 onChange={changeCompany}
-                                defaultValue={companyId}
+                                value={companyId}
                                 style={{ width: 240 }}
                                 options={companyList}
                                 showSearch
@@ -444,7 +471,7 @@ const BillSum=(props:any)=>{
                             </div>
                             <Select
                                 onChange={changeProject}
-                                defaultValue={projectId}
+                                value={projectId}
                                 style={{ width: 240 }}
                                 options={projectlist}
                                 showSearch
@@ -474,7 +501,7 @@ const BillSum=(props:any)=>{
                             </div>
                             <Select
                                 onChange={changeSubject}
-                                defaultValue={subjectId}
+                                value={subjectId}
                                 style={{ width: 240 }}
                                 options={subjList}
                                 showSearch
@@ -504,7 +531,7 @@ const BillSum=(props:any)=>{
                             </div>
                             <Select
                                 onChange={changeType}
-                                defaultValue={billMoneyType}
+                                value={billMoneyType}
                                 style={{ width: 120 }}
                                 options={[
                                     { value: 1, label: '支出' },

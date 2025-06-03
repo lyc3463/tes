@@ -3,15 +3,16 @@ import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const Unit=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('houseManageHouseListUnitName')||'');
+    const [name,setName]=useState(checkSessionStorage('/houseManage/houseList/','unitName')||'');
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(999999999);
-    const [status,setstatus]=useState(0);
-    const [house_id,sethouse_id]=useState(Number(sessionStorage.getItem('houseManageHouseListUnitHouseId'))||0);
+    const [status,setstatus]=useState(checkSessionStorage('/houseManage/houseList/','status')||0);
+    const [house_id,sethouse_id]=useState(checkSessionStorage('/houseManage/houseList/','house_id')||0);
     const [uid,setUid]=useState(0);
     const [open,setOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
@@ -159,7 +160,7 @@ const Unit=(props:any)=>{
 
     const changeName=(e:any)=>{
         setName(e.target.value);
-        sessionStorage.setItem('houseManageHouseListUnitName',e.target.value);
+        updateSessionStorage('/houseManage/houseList/','unitName',e.target.value);
     };
     const sousuo=()=>{
         setPage(1);
@@ -207,6 +208,7 @@ const Unit=(props:any)=>{
     };
     const changestatus=(e)=>{
         setstatus(e);
+        updateSessionStorage('/houseManage/houseList/','status',e);
     };
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
@@ -228,7 +230,7 @@ const Unit=(props:any)=>{
     };
     const changeHouse=(e)=>{
         sethouse_id(e);
-        sessionStorage.setItem('houseManageHouseListUnitHouseId',e);
+        updateSessionStorage('/houseManage/houseList/','house_id',e);
     };
     return(
         <Spin spinning={spinning}>
@@ -261,7 +263,7 @@ const Unit=(props:any)=>{
                                 optionFilterProp="children"
                                 filterOption={(input, option) => {
                                     // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = props.HounsList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                    const item = hounsList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
                                     return item?.house_name?.toLowerCase().includes(input.toLowerCase());
                                 }}
                             >

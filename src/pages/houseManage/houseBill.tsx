@@ -3,10 +3,11 @@ import {connect,history} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const HouseBill=(props:any)=>{
-    const [name,setName]=useState(sessionStorage.getItem('houseManageHouseBillName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('houseManageHouseBillPhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/houseManage/houseBill/','name')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/houseManage/houseBill/','phone')||'');
     const [page,setPage]=useState(1);
     const [count,setcount]=useState(1);
     const [pagecount,setpagecount]=useState(50);
@@ -15,7 +16,7 @@ const HouseBill=(props:any)=>{
     }, []);
     useEffect(() => {
         logFenye();
-    }, [page]);
+    }, [page,pagecount]);
     // 分页
     const logFenye=()=>{
         props.dispatch({
@@ -98,11 +99,11 @@ const HouseBill=(props:any)=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('houseManageHouseBillName',e.target.value);
+        updateSessionStorage('/houseManage/houseBill/','name',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('houseManageHouseBillPhone',e.target.value);
+        updateSessionStorage('/houseManage/houseBill/','phone',e.target.value);
     };
     return(
         <div>

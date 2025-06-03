@@ -16,7 +16,7 @@ import {
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
-import {compressBase64} from "@/utils/OpenTool";
+import {checkSessionStorage, compressBase64, updateSessionStorage} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
 const YuangonglData=(props:any)=>{
     // 当前页数
@@ -25,12 +25,12 @@ const YuangonglData=(props:any)=>{
     // 审核状态 0全部  1未审核 2已审核
     const [stutes,setStutes]=useState(1);
     // 姓名
-    const [cname,setCname]=useState(sessionStorage.getItem('enterYuangonglDataName')||'');
+    const [cname,setCname]=useState(checkSessionStorage('/enter/yuangonglData/','cname')||'');
     // 昵称
-    const [nickname,setNickname]=useState(sessionStorage.getItem('enterYuangonglDataNickname')||'');
+    const [nickname,setNickname]=useState(checkSessionStorage('/enter/yuangonglData/','nickname')||'');
     // 手机号
-    const [phone,setPhone]=useState(sessionStorage.getItem('enterYuangonglDataPhone')||'');
-    const [companyName,setcompanyName]=useState(sessionStorage.getItem('enterYuangonglDataCompanyName')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/enter/yuangonglData/','phone')||'');
+    const [companyName,setcompanyName]=useState(checkSessionStorage('/enter/yuangonglData/','companyName')||'');
     // 唯一ID
     const [uid,setUid]=useState(0);
     // 删除的名称
@@ -68,6 +68,11 @@ const YuangonglData=(props:any)=>{
             title: '姓名',
             dataIndex: 'name',
             key: 'name',
+        },
+        {
+            title: '昵称',
+            dataIndex: 'nickname',
+            key: 'nickname',
         },
         {
             title: '头像',
@@ -174,25 +179,26 @@ const YuangonglData=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props)
     }, [page,pageSize]);
     // 监听员工姓名
     const changeName=(e)=>{
         setCname(e.target.value);
-        sessionStorage.setItem('enterYuangonglDataName',e.target.value);
+        updateSessionStorage('/enter/yuangonglData/','cname',e.target.value);
     };
     // 监听员工昵称
     const changeNickname=(e)=>{
         setNickname(e.target.value);
-        sessionStorage.setItem('enterYuangonglDataNickname',e.target.value);
+        updateSessionStorage('/enter/yuangonglData/','nickname',e.target.value);
     };
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('enterYuangonglDataPhone',e.target.value);
+        updateSessionStorage('/enter/yuangonglData/','phone',e.target.value);
     };
     const changeCompanyName=(e)=>{
         setcompanyName(e.target.value);
-        sessionStorage.setItem('enterYuangonglDataCompanyName',e.target.value);
+        updateSessionStorage('/enter/yuangonglData/','companyName',e.target.value);
     };
     // 删除的确定按钮
     const onOk=()=>{

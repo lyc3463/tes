@@ -1,26 +1,28 @@
-import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Table, Tag, Tooltip} from "antd";
 import {connect,history} from 'umi'
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const ContractList=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [identifier,setidentifier]=useState('');
+    const [identifier,setidentifier]=useState(checkSessionStorage('/contract/contractList/','identifier')||'');
     const [contractType,setcontractType]=useState(0);
-    const [startDate,setstartDate]=useState('2000-01-01');
-    const [endDate,setendDate]=useState('2099-01-01');
-    const [name,setname]=useState('');
+    const [startDate,setstartDate]=useState(checkSessionStorage('/contract/contractList/','startDate')||'2000-01-01');
+    const [endDate,setendDate]=useState(checkSessionStorage('/contract/contractList/','endDate')||'2099-01-01');
+    const [name,setname]=useState(checkSessionStorage('/contract/contractList/','name')||'');
+
     const columns =[
         {
             title: '合同编号',
             dataIndex: 'identifier',
             key: 'identifier',
-            align:'center',
-            width:300,
-            render: (text:any, record:any) => {
+            render:(text:any,record:any,)=>{
                 return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
-                        {record.identifier}
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.identifier}>
+                            {record.identifier}
+                        </Tooltip>
                     </div>
                 )
             }
@@ -29,11 +31,12 @@ const ContractList=(props:any)=>{
             title: '租户',
             dataIndex: 'customName',
             key: 'customName',
-            align:'center',
-            render: (text:any, record:any) => {
+            render:(text:any,record:any,)=>{
                 return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
-                        {record.customName}
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.customName}>
+                            {record.customName}
+                        </Tooltip>
                     </div>
                 )
             }
@@ -42,7 +45,6 @@ const ContractList=(props:any)=>{
             title: '起租日',
             dataIndex: 'beginTime',
             key: 'beginTime',
-            align:'center',
             render: (text:any, record:any) => {
                 return(
                     <div>
@@ -55,7 +57,6 @@ const ContractList=(props:any)=>{
             title: '到期日',
             dataIndex: 'endTime',
             key: 'endTime',
-            align:'center',
             render: (text:any, record:any) => {
                 return(
                     <div>
@@ -65,16 +66,29 @@ const ContractList=(props:any)=>{
             }
         },
         {
-            title: '租金',
+            title: '租金(元)',
             dataIndex: 'zuMoney',
             key: 'zuMoney',
-            align:'center',
         },
         {
-            title: '押金',
+            title: '合同押金(元)',
             dataIndex: 'deposit',
             key: 'deposit',
-            align:'center',
+        },
+        {
+            title: '管理费(元)',
+            dataIndex: 'manageFee',
+            key: 'manageFee',
+        },
+        {
+            title: '预付费(元)',
+            dataIndex: 'prepayment',
+            key: 'prepayment',
+        },
+        {
+            title: '管理费押金(元)',
+            dataIndex: 'depositFee',
+            key: 'depositFee',
         },
         {
             title: '合同类型',
@@ -138,10 +152,22 @@ const ContractList=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setstartDate('2000-01-01');
             setendDate('2099-01-01');
+            updateSessionStorage('/contract/contractList/','startDate','2000-01-01');
+            updateSessionStorage('/contract/contractList/','endDate','2099-01-01');
         } else {
             setstartDate(data[0]);
             setendDate(data[1]);
+            updateSessionStorage('/contract/contractList/','startDate',data[0]);
+            updateSessionStorage('/contract/contractList/','endDate',data[1]);
         }
+    };
+    const changeIdentifier=(e)=>{
+        setidentifier(e.target.value);
+        updateSessionStorage('/contract/contractList/','identifier',e.target.value);
+    };
+    const changeName=(e)=>{
+        setname(e.target.value);
+        updateSessionStorage('/contract/contractList/','name',e.target.value);
     };
     return(
         <div>
@@ -150,11 +176,13 @@ const ContractList=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="合同编号:"
-                            onChange={(e)=>setidentifier(e.target.value)}
+                            onChange={changeIdentifier}
+                            value={identifier}
                         />
                         <Input
-                            onChange={(e)=>setname(e.target.value)}
+                            onChange={changeName}
                             addonBefore="租户姓名:"
+                            value={name}
                         />
                         <Space.Compact>
                             <div
@@ -171,7 +199,7 @@ const ContractList=(props:any)=>{
                             >
                                 到期日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
 
                         <Button type="primary" onClick={sousuo}>
@@ -185,10 +213,26 @@ const ContractList=(props:any)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 size='small'
+                scroll={{y:'60vh'}}
                 dataSource={props.CheckHetongList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
+                summary={(columns) => (
+                    <Table.Summary >
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}>{props.count?props.count.zuMoney:'0'}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>{props.count?props.count.deposit:'0'}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>{props.count?props.count.manageFee:'0'}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}>{props.count?props.count.prepayment:'0'}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}>{props.count?props.count.depositFee:'0'}元</Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </div>

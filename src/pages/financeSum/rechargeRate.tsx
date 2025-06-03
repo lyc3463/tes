@@ -1,8 +1,22 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Image,
+    Input,
+    List,
+    message,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import * as RechargeRateService from "@/services/rechargeRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
@@ -11,11 +25,11 @@ const RechargeRate=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [spinning,setspinning]=useState(false);
-    const [name,setName]=useState(sessionStorage.getItem('financeSumRechargeRateName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('financeSumRechargeRatePhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/financeSum/rechargeRate/','name')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/financeSum/rechargeRate/','phone')||'');
     const [type,setType]=useState(1);
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('financeSumRechargeRateStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('financeSumRechargeRateEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/financeSum/rechargeRate/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/financeSum/rechargeRate/','endDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
     const [pageSize,setpageSize]=useState(50);
     const [uqx,setUqx]=useState([]);
@@ -69,6 +83,15 @@ const RechargeRate=(props)=>{
             title: '姓名',
             dataIndex: 'user_name',
             key: 'user_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.user_name}>
+                            {record.user_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.user_name}</span>}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
             title: '手机号',
@@ -135,13 +158,13 @@ const RechargeRate=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('financeSumRechargeRateStartDate','2000-01-01');
-            sessionStorage.setItem('financeSumRechargeRateEndDate','2099-01-01');
+            updateSessionStorage('/financeSum/rechargeRate/','startDate','2000-01-01');
+            updateSessionStorage('/financeSum/rechargeRate/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('financeSumRechargeRateStartDate',data[0]);
-            sessionStorage.setItem('financeSumRechargeRateEndDate',data[1]);
+            updateSessionStorage('/financeSum/rechargeRate/','startDate',data[0]);
+            updateSessionStorage('/financeSum/rechargeRate/','endDate',data[1]);
         }
     };
     const exportToExcel=()=>{
@@ -192,11 +215,11 @@ const RechargeRate=(props)=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('financeSumRechargeRateName',e.target.value);
+        updateSessionStorage('/financeSum/rechargeRate/','name',e.target.value);
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('financeSumRechargeRatePhone',e.target.value);
+        updateSessionStorage('/financeSum/rechargeRate/','name',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

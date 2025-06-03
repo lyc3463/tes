@@ -1,21 +1,22 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Table, Tag, Tooltip} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as ArrearsBillService from '@/services/ArrearsBill';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {alljiaofei, alljiaofeifenye} from "@/services/ArrearsBill";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 
 const AllList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(sessionStorage.getItem('billLogMonthlyBillAllListName')||'');
-    const [phone,setPhone]=useState(sessionStorage.getItem('billLogMonthlyBillAllListPhone')||'');
+    const [name,setName]=useState(checkSessionStorage('/billLog/monthlyBill/','allListName')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/billLog/monthlyBill/','allListPhone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('billLogMonthlyBillAllListStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('billLogMonthlyBillAllListEndDate')||'2099-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/monthlyBill/','allListStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/monthlyBill/','allListEndDate')||'2099-01-01');
     const [stutes,setstutes]=useState(1);
     // 总页码
     const [count,setcount]=useState(0);
@@ -67,9 +68,18 @@ const AllList=(props:any)=>{
             title: '租户姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
+            render: (text:any, record:any) => {
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
+                    </div>
+                )
+            },
         },
         {
-            title: '租户姓名',
+            title: '租户手机号',
             dataIndex: 'tenant_phone',
             key: 'tenant_phone',
         },
@@ -132,13 +142,13 @@ const AllList=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('billLogMonthlyBillAllListStartDate','2000-01-01');
-            sessionStorage.setItem('billLogMonthlyBillAllListEndDate','2099-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','allListStartDate','2000-01-01');
+            updateSessionStorage('/billLog/monthlyBill/','allListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('billLogMonthlyBillAllListStartDate',data[0]);
-            sessionStorage.setItem('billLogMonthlyBillAllListEndDate',data[1]);
+            updateSessionStorage('/billLog/monthlyBill/','allListStartDate',data[0]);
+            updateSessionStorage('/billLog/monthlyBill/','allListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -154,11 +164,11 @@ const AllList=(props:any)=>{
     }, [page,pageSize]);
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('billLogMonthlyBillAllListPhone',e.target.value);
+        updateSessionStorage('/billLog/monthlyBill/','allListPhone',e.target.value);
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('billLogMonthlyBillAllListName',e.target.value);
+        updateSessionStorage('/billLog/monthlyBill/','allListName',e.target.value);
     };
     return(
         <div>
