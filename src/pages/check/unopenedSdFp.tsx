@@ -19,13 +19,14 @@ import {
 } from "antd";
 import TypeCheckFp from "@/ModelTypes/TypeCheckFp";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const UnopenedSdFp=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [type,settype]=useState(0);
-    const [tenantr,settenantr]=useState(0);
-    const [stutes,setstutes]=useState(0);
+    const [tenantr,settenantr]=useState(checkSessionStorage('/check/checkFp/','unopenedSdFpTenantr')||0);
+    const [stutes,setstutes]=useState(checkSessionStorage('/check/checkFp/','unopenedSdFpStutes')||0);
     const [zuhuList,setZuhuList]=useState([]);
     const columns =[
         {
@@ -105,6 +106,7 @@ const UnopenedSdFp=(props)=>{
     }, [page,pageSize]);
     const changeStutes=(e)=>{
         setstutes(e);
+        updateSessionStorage('/check/checkFp/','unopenedSdFpStutes',e);
     };
     useEffect(() => {
         logFenye();
@@ -121,6 +123,7 @@ const UnopenedSdFp=(props)=>{
     };
     const changeHouse=(e)=>{
         settenantr(e);
+        updateSessionStorage('/check/checkFp/','unopenedSdFpTenantr',e);
     };
     const sousuo=()=>{
         getList();
@@ -147,7 +150,7 @@ const UnopenedSdFp=(props)=>{
                             </div>
                             <Select
                                 onChange={changeStutes}
-                                defaultValue={stutes}
+                                value={stutes}
                                 style={{ width: 120 }}
                                 options={[
                                     { value: 0, label: '全部' },
@@ -207,7 +210,7 @@ const UnopenedSdFp=(props)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 size='small'
-                scroll={{y:'70vh'}}
+                scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
                 dataSource={props.CheckFpList}
             />

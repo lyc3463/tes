@@ -4,14 +4,14 @@ import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table
 import dayjs from "dayjs";
 import * as WaterRateService from "@/services/waterRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 
 const WaterRate=(props:any)=>{
-    const [address,setaddress]=useState(sessionStorage.getItem('reportFormsManageWaterRateAddress')||'');
-    const [remark,setremark]=useState(sessionStorage.getItem('reportFormsManageWaterRateRemark')||'');
-    const [name,setName]=useState(sessionStorage.getItem('reportFormsManageWaterRateName')||'');
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('reportFormsManageWaterRateStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('reportFormsManageWaterRateEndDate')||'2099-01-01');
+    const [address,setaddress]=useState(checkSessionStorage('/reportFormsManage/waterRate/','address')||'');
+    const [remark,setremark]=useState(checkSessionStorage('/reportFormsManage/waterRate/','remark')||'');
+    const [name,setName]=useState(checkSessionStorage('/reportFormsManage/waterRate/','name')||'');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/reportFormsManage/waterRate/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/reportFormsManage/waterRate/','endDate')||'2099-01-01');
     const [spinning,setspinning]=useState(false);
     const columns =[
         {
@@ -166,15 +166,15 @@ const WaterRate=(props:any)=>{
     };
     const changName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('reportFormsManageWaterRateName',e.target.value);
+        updateSessionStorage('/reportFormsManage/waterRate/','name',e.target.value);
     };
     const changeAddress=(e)=>{
         setaddress(e.target.value);
-        sessionStorage.setItem('reportFormsManageWaterRateAddress',e.target.value);
+        updateSessionStorage('/reportFormsManage/waterRate/','address',e.target.value);
     };
     const changeRemark=(e)=>{
         setremark(e.target.value);
-        sessionStorage.setItem('reportFormsManageWaterRateRemark',e.target.value);
+        updateSessionStorage('/reportFormsManage/waterRate/','remark',e.target.value);
     };
     const exportToExcel=()=>{
         setspinning(true);

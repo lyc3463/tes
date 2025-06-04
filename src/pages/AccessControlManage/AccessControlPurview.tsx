@@ -20,6 +20,7 @@ import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {connect} from "umi";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const AccessControlPurview=(props:any)=>{
     // 当前页数
@@ -27,12 +28,12 @@ const AccessControlPurview=(props:any)=>{
     const [pageSize,setpageSize]=useState(50);
     const [stutes,setStutes]=useState(2);
     // 姓名
-    const [cname,setCname]=useState(sessionStorage.getItem('accessControlManageAccessControlPurviewName')||'');
+    const [cname,setCname]=useState(checkSessionStorage('/AccessControlManage/AccessControlPurview/','name')||'');
     // 昵称
-    const [nickname,setNickname]=useState(sessionStorage.getItem('accessControlManageAccessControlPurviewNickname')||'');
+    const [nickname,setNickname]=useState(checkSessionStorage('/AccessControlManage/AccessControlPurview/','nickname')||'');
     // 手机号
-    const [phone,setPhone]=useState(sessionStorage.getItem('accessControlManageAccessControlPurviewPhone')||'');
-    const [companyName,setcompanyName]=useState(sessionStorage.getItem('accessControlManageAccessControlPurviewCompanyName')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/AccessControlManage/AccessControlPurview/','phone')||'');
+    const [companyName,setcompanyName]=useState(checkSessionStorage('/AccessControlManage/AccessControlPurview/','companyName')||'');
     // 弹窗状态
     const [isOpen,setOpen]=useState(false);
     // 删除的名字
@@ -138,17 +139,17 @@ const AccessControlPurview=(props:any)=>{
     // 监听员工姓名
     const changeName=(e)=>{
         setCname(e.target.value);
-        sessionStorage.setItem('accessControlManageAccessControlPurviewName',e.target.value);
+        updateSessionStorage('/AccessControlManage/AccessControlPurview/','name',e.target.value);
     };
     // 监听员工昵称
     const changeNickname=(e)=>{
         setNickname(e.target.value);
-        sessionStorage.setItem('accessControlManageAccessControlPurviewNickname',e.target.value);
+        updateSessionStorage('/AccessControlManage/AccessControlPurview/','nickname',e.target.value);
     };
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('accessControlManageAccessControlPurviewPhone',e.target.value);
+        updateSessionStorage('/AccessControlManage/AccessControlPurview/','phone',e.target.value);
     };
     // 删除弹窗
     const isDelete=(e:any)=>{
@@ -181,8 +182,8 @@ const AccessControlPurview=(props:any)=>{
         getFenyeInfo();
     }, []);
     const changeCompanyName=(e)=>{
-      setcompanyName(e.target.value);
-      sessionStorage.setItem('accessControlManageAccessControlPurviewCompanyName',e.target.value);
+        setcompanyName(e.target.value);
+        updateSessionStorage('/AccessControlManage/AccessControlPurview/','companyName',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

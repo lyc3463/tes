@@ -4,14 +4,14 @@ import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table
 import dayjs from "dayjs";
 import * as WaterRateService from "@/services/electricCharge";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {exportDataToExcel} from "@/utils/OpenTool";
+import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 
 const ElectricCharge=(props:any)=>{
-    const [address,setaddress]=useState(sessionStorage.getItem('reportFormsManageElectricChargeAddress')||'');
-    const [remark,setremark]=useState(sessionStorage.getItem('reportFormsManageElectricChargeRemark')||'');
-    const [name,setName]=useState(sessionStorage.getItem('reportFormsManageElectricChargeName')||'');
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('reportFormsManageElectricChargeStartDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('reportFormsManageElectricChargeEndDate')||'2099-01-01');
+    const [address,setaddress]=useState(checkSessionStorage('/reportFormsManage/electricCharge/','address')||'');
+    const [remark,setremark]=useState(checkSessionStorage('/reportFormsManage/electricCharge/','remark')||'');
+    const [name,setName]=useState(checkSessionStorage('/reportFormsManage/electricCharge/','name')||'');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/reportFormsManage/electricCharge/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/reportFormsManage/electricCharge/','endDate')||'2099-01-01');
     const [spinning,setspinning]=useState(false);
     const columns =[
         {
@@ -151,13 +151,13 @@ const ElectricCharge=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('reportFormsManageElectricChargeStartDate','2000-01-01');
-            sessionStorage.setItem('reportFormsManageElectricChargeEndDate','2099-01-01');
+            updateSessionStorage('/reportFormsManage/electricCharge/','startDate','2000-01-01');
+            updateSessionStorage('/reportFormsManage/electricCharge/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('reportFormsManageElectricChargeStartDate',data[0]);
-            sessionStorage.setItem('reportFormsManageElectricChargeEndDate',data[1]);
+            updateSessionStorage('/reportFormsManage/electricCharge/','startDate',data[0]);
+            updateSessionStorage('/reportFormsManage/electricCharge/','endDate',data[1]);
         }
     };
     const shousuo=()=>{
@@ -165,15 +165,15 @@ const ElectricCharge=(props:any)=>{
     };
     const changName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('reportFormsManageElectricChargeName',e.target.value);
+        updateSessionStorage('/reportFormsManage/electricCharge/','name',e.target.value);
     };
     const changeAddress=(e)=>{
         setaddress(e.target.value);
-        sessionStorage.setItem('reportFormsManageElectricChargeAddress',e.target.value);
+        updateSessionStorage('/reportFormsManage/electricCharge/','address',e.target.value);
     };
     const changeRemark=(e)=>{
         setremark(e.target.value);
-        sessionStorage.setItem('reportFormsManageElectricChargeRemark',e.target.value);
+        updateSessionStorage('/reportFormsManage/electricCharge/','remark',e.target.value);
     };
     const exportToExcel=()=>{
         setspinning(true);

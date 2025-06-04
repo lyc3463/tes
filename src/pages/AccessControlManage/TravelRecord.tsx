@@ -2,16 +2,17 @@ import {Button, DatePicker, Image, Input, List, Pagination, Space, Table} from "
 import {useEffect, useState} from "react";
 import {connect} from "umi";
 import dayjs from "dayjs";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const TravelRecord=(props:any)=>{
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('accessControlManageTravelRecordStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/AccessControlManage/TravelRecord/','startDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('accessControlManageTravelRecordEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/AccessControlManage/TravelRecord/','endDate')||'2099-01-01');
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 闸机编号
-    const [deviceSn,setDeviceSn]=useState(sessionStorage.getItem('accessControlManageTravelRecordDeviceSn')||'');
+    const [deviceSn,setDeviceSn]=useState(checkSessionStorage('/AccessControlManage/TravelRecord/','deviceSn')||'');
     const columns = [
         {
             title: '闸机编号',
@@ -49,13 +50,13 @@ const TravelRecord=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('accessControlManageTravelRecordStartDate','2000-01-01');
-            sessionStorage.setItem('accessControlManageTravelRecordEndDate','2099-01-01');
+            updateSessionStorage('/AccessControlManage/TravelRecord/','startDate','2000-01-01');
+            updateSessionStorage('/AccessControlManage/TravelRecord/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('accessControlManageTravelRecordStartDate',data[0]);
-            sessionStorage.setItem('accessControlManageTravelRecordEndDate',data[1]);
+            updateSessionStorage('/AccessControlManage/TravelRecord/','startDate',data[0]);
+            updateSessionStorage('/AccessControlManage/TravelRecord/','endDate',data[1]);
         }
     };
     // 分页
@@ -88,8 +89,8 @@ const TravelRecord=(props:any)=>{
         });
     };
     const changeDeviceSn=(e)=>{
-      setDeviceSn(e.target.value);
-      sessionStorage.setItem('accessControlManageTravelRecordDeviceSn',e.target.value);
+        setDeviceSn(e.target.value);
+        updateSessionStorage('/AccessControlManage/TravelRecord/','deviceSn',e.target.value);
     };
     return(
         <div>

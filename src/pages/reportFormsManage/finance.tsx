@@ -158,7 +158,28 @@ const Finance=(props)=>{
                             <Button type="primary" onClick={exportToExcel}>
                                 导出
                             </Button>:''}
+                        {/*<Space.Compact>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            borderStartEndRadius: 0,*/}
+                        {/*            borderEndEndRadius: 0,*/}
+                        {/*            padding: '0 11px',*/}
+                        {/*            border: '1px solid #d9d9d9',*/}
+                        {/*            display: 'flex',*/}
+                        {/*            alignItems: 'center',*/}
+                        {/*            borderInlineEnd: 0,*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        时间:*/}
+                        {/*    </div>*/}
+                        {/*    {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}*/}
+                        {/*</Space.Compact>*/}
+                        {/*<Button type="primary" onClick={sousuo}>*/}
+                        {/*    搜索*/}
+                        {/*</Button>*/}
                     </Space>
+
                 </List.Item>
             </List>
             <Table

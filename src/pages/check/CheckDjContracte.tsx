@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history} from "umi";
 import {checkDjContract} from "@/services/staff";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const CheckDjContracte=()=>{
     const [isCheckOpen,setIsCheckOpen]=useState(false);
@@ -14,13 +15,13 @@ const CheckDjContracte=()=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 审核状态 0全部  1未审核 2已审核
-    const [contractStatus,setContractStatus]=useState(0);
+    const [contractStatus,setContractStatus]=useState(checkSessionStorage('/check/checkContracte/','checkDjContracteStatus')||0);
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/check/checkContracte/','checkDjContracteStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/check/checkContracte/','checkDjContracteEndDate')||'2099-01-01');
     // 租户姓名
-    const [name,setName]=useState('');
+    const [name,setName]=useState(checkSessionStorage('/check/checkContracte/','checkDjContracteName')||'');
     // 列表
     const [staffList,setStaffList]=useState([]);
     // 转圈
@@ -185,9 +186,13 @@ const CheckDjContracte=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/check/checkContracte/','checkDjContracteStartDate','2000-01-01');
+            updateSessionStorage('/check/checkContracte/','checkDjContracteEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/check/checkContracte/','checkDjContracteStartDate',data[0]);
+            updateSessionStorage('/check/checkContracte/','checkDjContracteEndDate',data[1]);
         }
     };
     const sousuo=()=>{
@@ -253,14 +258,23 @@ const CheckDjContracte=()=>{
             }
         })
     };
+    const changeStutes=(e)=>{
+        setContractStatus(e);
+        updateSessionStorage('/check/checkContracte/','checkDjContracteStatus',e);
+    };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        updateSessionStorage('/check/checkContracte/','checkDjContracteName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="租户姓名:"
+                            value={name}
                         />
                         <Space.Compact>
                             <div
@@ -278,7 +292,34 @@ const CheckDjContracte=()=>{
                             >
                                 签订日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={changeStutes}
+                                value={contractStatus}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '未审核' },
+                                    { value:2, label: '已审核' },
+                                    { value:3, label: '已取消' },
+                                ]}
+                            />
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

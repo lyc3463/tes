@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as dateWaterService from '@/services/dateWater';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 
 const OutWaterKoufeiList=()=>{
@@ -11,13 +12,13 @@ const OutWaterKoufeiList=()=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 租户姓名
-    const [name,setName]=useState('');
+    const [name,setName]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outWaterKoufeiListName')||'');
     // 表地址
-    const [cid,setCid]=useState('');
+    const [cid,setCid]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outWaterKoufeiListCid')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outWaterKoufeiListStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outWaterKoufeiListEndDate')||'2099-01-01');
     // 租户ID
     const [tenantId,settenantId]=useState(0);
     // 水费扣费列表
@@ -174,10 +175,22 @@ const OutWaterKoufeiList=()=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/billLog/outMonthlyBill/','outWaterKoufeiListStartDate','2000-01-01');
+            updateSessionStorage('/billLog/outMonthlyBill/','outWaterKoufeiListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/billLog/outMonthlyBill/','outWaterKoufeiListStartDate',data[0]);
+            updateSessionStorage('/billLog/outMonthlyBill/','outWaterKoufeiListEndDate',data[1]);
         }
+    };
+    const changeCid=(e)=>{
+        setCid(e.target.value);
+        updateSessionStorage('/billLog/outMonthlyBill/','outWaterKoufeiListCid',e.target.value);
+    };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        updateSessionStorage('/billLog/outMonthlyBill/','outWaterKoufeiListName',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -185,12 +198,14 @@ const OutWaterKoufeiList=()=>{
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="租户姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>setCid(e.target.value)}
+                            onChange={changeCid}
                             addonBefore="水表地址:"
+                            value={cid}
                         />
                         <Space.Compact>
                             <div
@@ -207,7 +222,7 @@ const OutWaterKoufeiList=()=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

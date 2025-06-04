@@ -20,6 +20,7 @@ import {history,connect} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 import CompanyList from "@/pages/financeManage/companyList";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const CheckStaff=(props:any)=>{
     const [uid,setUid]=useState<number>(0);
@@ -28,14 +29,14 @@ const CheckStaff=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 审核状态 0全部  1未审核 2已审核
-    const [stutes,setStutes]=useState(0);
+    const [stutes,setStutes]=useState(checkSessionStorage('/check/checkStaff/','stutes')||0);
     // 姓名
-    const [cname,setCname]=useState(sessionStorage.getItem('checkCheckStaffName')||'');
+    const [cname,setCname]=useState(checkSessionStorage('/check/checkStaff/','name')||'');
     // 昵称
-    const [nickname,setNickname]=useState(sessionStorage.getItem('checkCheckStaffNickname')||'');
+    const [nickname,setNickname]=useState(checkSessionStorage('/check/checkStaff/','nickname')||'');
     // 手机号
-    const [phone,setPhone]=useState(sessionStorage.getItem('checkCheckStaffPhone')||'');
-    const [companyName,setcompanyName]=useState(sessionStorage.getItem('checkCheckStaffCompanyName')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/check/checkStaff/','phone')||'');
+    const [companyName,setcompanyName]=useState(checkSessionStorage('/check/checkStaff/','companyName')||'');
     const [spinning,setspinning]=useState(false);
     // 用户权限
     const [uqx,setUqx]=useState([]);
@@ -184,6 +185,7 @@ const CheckStaff=(props:any)=>{
     // 监听状态
     const changeStutes=(e:number)=>{
         setStutes(e);
+        updateSessionStorage('/check/checkStaff/','stutes',e);
     };
     useEffect(() => {
         logFenye();
@@ -191,17 +193,17 @@ const CheckStaff=(props:any)=>{
     // 监听员工姓名
     const changeName=(e)=>{
         setCname(e.target.value);
-        sessionStorage.setItem('checkCheckStaffName',e.target.value);
+        updateSessionStorage('/check/checkStaff/','name',e.target.value);
     };
     // 监听员工昵称
     const changeNickname=(e)=>{
         setNickname(e.target.value);
-        sessionStorage.setItem('checkCheckStaffNickname',e.target.value);
+        updateSessionStorage('/check/checkStaff/','nickname',e.target.value);
     };
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('checkCheckStaffPhone',e.target.value);
+        updateSessionStorage('/check/checkStaff/','phone',e.target.value);
     };
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
@@ -210,7 +212,7 @@ const CheckStaff=(props:any)=>{
     }, []);
     const changeCompanyName=(e)=>{
         setcompanyName(e.target.value);
-        sessionStorage.setItem('checkCheckStaffCompanyName',e.target.value);
+        updateSessionStorage('/check/checkStaff/','companyName',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

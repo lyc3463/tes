@@ -219,7 +219,7 @@ const RechargeRate=(props)=>{
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        updateSessionStorage('/financeSum/rechargeRate/','name',e.target.value);
+        updateSessionStorage('/financeSum/rechargeRate/','phone',e.target.value);
     };
     return(
         <Spin spinning={spinning}>

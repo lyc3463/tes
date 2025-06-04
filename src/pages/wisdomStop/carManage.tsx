@@ -3,12 +3,13 @@ import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const CarManage=(props)=>{
     const [page,setPage]=useState(1);// 页码
     const [pageSize,setPageSize]=useState(50);// 页数
-    const [carNo,setCarNo]=useState(sessionStorage.getItem('wisdomStopCarManageCarNo')||'');//车牌号
+    const [carNo,setCarNo]=useState(checkSessionStorage('/wisdomStop/carManage/','carNo')||'');//车牌号
     const [appId,setAppid]=useState(0);
-    const [stutes,setStutes]=useState(0);
+    const [stutes,setStutes]=useState(checkSessionStorage('/wisdomStop/carManage/','stutes')||0);
     const [uid,setUid]=useState(0);
     const [spinning,setspinning]=useState(false);
     const [isCheckOpen,setIsChengckOpen]=useState(false);
@@ -217,7 +218,11 @@ const CarManage=(props)=>{
     };
     const changeCarNo=(e)=>{
       setCarNo(e.target.value);
-      sessionStorage.setItem('wisdomStopCarManageCarNo',e.target.value);
+      updateSessionStorage('/wisdomStop/carManage/','carNo',e.target.value);
+    };
+    const changeStutes=(e)=>{
+        setStutes(e);
+        updateSessionStorage('/wisdomStop/carManage/','stutes',e);
     };
     return(
         <Spin spinning={spinning}>
@@ -229,6 +234,32 @@ const CarManage=(props)=>{
                             addonBefore="车牌号:"
                             value={carNo}
                         />
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={changeStutes}
+                                value={stutes}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value: 0, label: '全部' },
+                                    { value: 1, label: '未审核' },
+                                    { value: 2, label: '已审核' },
+                                ]}
+                            />
+                        </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>

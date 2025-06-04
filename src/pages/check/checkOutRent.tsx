@@ -2,18 +2,19 @@ import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Spa
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const CheckOutRent=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 手机号
-    const [phone,setPhone]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckOutRentPhone')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/check/checkAfterSales/','CheckOutRentPhone')||'');
     // 状态 0全部，1未审核，2审核通过
-    const [stutes,setStutes]=useState(0);
+    const [stutes,setStutes]=useState(checkSessionStorage('/check/checkAfterSales/','CheckOutRentStutes')||0);
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckOutRentStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/check/checkAfterSales/','CheckOutRentStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckOutRentEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/check/checkAfterSales/','CheckOutRentEndDate')||'2099-01-01');
     // 审核弹窗
     const [isOpen,setOpen]=useState(false);
     // 更名的手机号
@@ -110,23 +111,24 @@ const CheckOutRent=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('checkCheckAfterSalesCheckOutRentStartDate','2000-01-01');
-            sessionStorage.setItem('checkCheckAfterSalesCheckOutRentEndDate','2099-01-01');
+            updateSessionStorage('/check/checkAfterSales/','CheckOutRentStartDate','2000-01-01');
+            updateSessionStorage('/check/checkAfterSales/','CheckOutRentEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('checkCheckAfterSalesCheckOutRentStartDate',data[0]);
-            sessionStorage.setItem('checkCheckAfterSalesCheckOutRentEndDate',data[1]);
+            updateSessionStorage('/check/checkAfterSales/','CheckOutRentStartDate',data[0]);
+            updateSessionStorage('/check/checkAfterSales/','CheckOutRentEndDate',data[1]);
         }
     };
     // 监听姓名
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('checkCheckAfterSalesCheckOutRentPhone',e.target.value);
+        updateSessionStorage('/check/checkAfterSales/','CheckOutRentPhone',e.target.value);
     };
     // 监听状态
     const changeStutes=(e:number)=>{
         setStutes(e);
+        updateSessionStorage('/check/checkAfterSales/','CheckOutRentStutes',e);
     };
     // 分页
     const logFenye=()=>{

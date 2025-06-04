@@ -4,17 +4,18 @@ import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import * as ArrearsBillService from '@/services/ArrearsBill';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 
 const OutServerList=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
-    const [name,setName]=useState('');
+    const [name,setName]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outServerListName')||'');
     const [pageSize,setPageSize]=useState(50);
-    const [phone,setPhone]=useState('');
+    const [phone,setPhone]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outServerListPhone')||'');
     const [tenandId,settenandId]=useState(0);
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outServerListStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/billLog/outMonthlyBill/','outServerListEndDate')||'2099-01-01');
     // 总页码
     const [count,setcount]=useState(0);
     // 列表
@@ -147,9 +148,13 @@ const OutServerList=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/billLog/outMonthlyBill/','outServerListStartDate','2000-01-01');
+            updateSessionStorage('/billLog/outMonthlyBill/','outServerListEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/billLog/outMonthlyBill/','outServerListStartDate',data[0]);
+            updateSessionStorage('/billLog/outMonthlyBill/','outServerListEndDate',data[1]);
         }
     };
     // 监听页数
@@ -163,18 +168,28 @@ const OutServerList=(props:any)=>{
     useEffect(() => {
         getzujinList();
     }, [page]);
+    const changeName=(e)=>{
+        setName(e.target.value);
+        updateSessionStorage('/billLog/outMonthlyBill/','outServerListName',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        updateSessionStorage('/billLog/outMonthlyBill/','outServerListPhone',e.target.value);
+    };
     return(
         <div>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
                             addonBefore="姓名:"
+                            value={name}
                         />
                         <Input
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
                             addonBefore="电表地址:"
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -191,7 +206,7 @@ const OutServerList=(props:any)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

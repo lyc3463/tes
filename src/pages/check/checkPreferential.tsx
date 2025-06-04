@@ -3,19 +3,20 @@ import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Spa
 import {connect,history} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const CheckPreferential=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 手机号
-    const [phone,setPhone]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckPreferentialPhone')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/check/checkAfterSales/','CheckPreferentialPhone')||'');
     // 状态 0全部，1未审核，2审核通过
-    const [stutes,setStutes]=useState(0);
+    const [stutes,setStutes]=useState(checkSessionStorage('/check/checkAfterSales/','CheckPreferentialStutes')||0);
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckPreferentialStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/check/checkAfterSales/','CheckPreferentialStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckPreferentialEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/check/checkAfterSales/','CheckPreferentialEndDate')||'2099-01-01');
     // 审核弹窗
     const [isOpen,setIsOpen]=useState(false);
     const [uid,setUid]=useState(0);
@@ -101,7 +102,6 @@ const CheckPreferential=(props)=>{
     ];
     const toInfo=(e:number)=>{
         history.push(`/check/preFerentialInfo?id=${e}`);
-
     };
     // 监听页数
     const onChange=(e:number,pageSize:number)=>{
@@ -113,23 +113,24 @@ const CheckPreferential=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('checkCheckAfterSalesCheckPreferentialStartDate','2000-01-01');
-            sessionStorage.setItem('checkCheckAfterSalesCheckPreferentialEndDate','2099-01-01');
+            updateSessionStorage('/check/checkAfterSales/','CheckPreferentialStartDate','2000-01-01');
+            updateSessionStorage('/check/checkAfterSales/','CheckPreferentialEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('checkCheckAfterSalesCheckPreferentialStartDate',data[0]);
-            sessionStorage.setItem('checkCheckAfterSalesCheckPreferentialEndDate',data[1]);
+            updateSessionStorage('/check/checkAfterSales/','CheckPreferentialStartDate',data[0]);
+            updateSessionStorage('/check/checkAfterSales/','CheckPreferentialEndDate',data[1]);
         }
     };
     // 监听姓名
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('checkCheckAfterSalesCheckPreferentialPhone',e.target.value);
+        updateSessionStorage('/check/checkAfterSales/','CheckPreferentialPhone',e.target.value);
     };
     // 监听状态
     const changeStutes=(e:number)=>{
         setStutes(e);
+        updateSessionStorage('/check/checkAfterSales/','CheckPreferentialStutes',e);
     };
     // 分页
     const logFenye=()=>{

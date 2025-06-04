@@ -2,13 +2,13 @@ import {connect} from "umi";
 import {Button, DatePicker, Image, Input, List, Pagination, Space, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
-import {findChangedPermissions} from "@/utils/OpenTool";
+import {checkSessionStorage, findChangedPermissions, updateSessionStorage} from "@/utils/OpenTool";
 const PermissionLog=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [name,setName]=useState(checkSessionStorage('/logManage/logQuery/','permissionLogName')||'');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/logManage/logQuery/','permissionLogStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/logManage/logQuery/','permissionLogEndDate')||'2099-01-01');
     const columns =[
         {
             title: '员工昵称',
@@ -73,9 +73,13 @@ const PermissionLog=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/logManage/logQuery/','permissionLogStartDate','2000-01-01');
+            updateSessionStorage('/logManage/logQuery/','permissionLogEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/logManage/logQuery/','permissionLogStartDate',data[0]);
+            updateSessionStorage('/logManage/logQuery/','permissionLogEndDate',data[1]);
         }
     };
     const getFenyeInfo=()=>{
@@ -92,6 +96,10 @@ const PermissionLog=(props)=>{
     useEffect(() => {
         getFenyeInfo();
     }, []);
+    const changeName=(e)=>{
+        setName(e.target.value);
+        updateSessionStorage('/logManage/logQuery/','permissionLogName',e.target.value);
+    };
     return(
         <div>
             <List style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
@@ -99,7 +107,8 @@ const PermissionLog=(props)=>{
                     <Space>
                         <Input
                             addonBefore="姓名:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Space.Compact>
                             <div
@@ -116,7 +125,7 @@ const PermissionLog=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

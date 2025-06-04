@@ -3,6 +3,7 @@ import {history,connect} from "umi";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const CheckByStages=(props)=>{
     // 当前页数
@@ -10,13 +11,13 @@ const CheckByStages=(props)=>{
     const [pageSize,setPageSize]=useState(50);
 
     // 手机号
-    const [phone,setPhone]=useState('');
+    const [phone,setPhone]=useState(checkSessionStorage('/check/checkAfterSales/','CheckByStagesPhone')||'');
     // 状态 0全部，1未审核，2审核通过
-    const [stutes,setStutes]=useState(0);
+    const [stutes,setStutes]=useState(checkSessionStorage('/check/checkAfterSales/','CheckByStagesStutes')||0);
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/check/checkAfterSales/','CheckByStagesStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/check/checkAfterSales/','CheckByStagesEndDate')||'2099-01-01');
     // 审核弹窗open
     const [open,setOpen]=useState(false);
     // 审核的id
@@ -149,23 +150,24 @@ const CheckByStages=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('checkCheckAfterSalesCheckByStagesStartDate','2000-01-01');
-            sessionStorage.setItem('checkCheckAfterSalesCheckByStagesEndDate','2099-01-01');
+            updateSessionStorage('/check/checkAfterSales/','CheckByStagesStartDate','2000-01-01');
+            updateSessionStorage('/check/checkAfterSales/','CheckByStagesEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('checkCheckAfterSalesCheckByStagesStartDate',data[0]);
-            sessionStorage.setItem('checkCheckAfterSalesCheckByStagesEndDate',data[1]);
+            updateSessionStorage('/check/checkAfterSales/','CheckByStagesStartDate',data[0]);
+            updateSessionStorage('/check/checkAfterSales/','CheckByStagesEndDate',data[1]);
         }
     };
     // 监听姓名
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('checkCheckAfterSalesCheckByStagesPhone',e.target.value);
+        updateSessionStorage('/check/checkAfterSales/','CheckByStagesPhone',e.target.value);
     };
     // 监听状态
     const changeStutes=(e:number)=>{
         setStutes(e);
+        updateSessionStorage('/check/checkAfterSales/','CheckByStagesStutes',e);
     };
     // 分页
     const logFenye=()=>{
@@ -200,6 +202,7 @@ const CheckByStages=(props)=>{
                         <Input
                             addonBefore="手机号:"
                             onChange={changePhone}
+                            value={phone}
                         />
                         <Space.Compact>
                             <div

@@ -2,12 +2,13 @@ import {connect} from "umi";
 import {useState,useEffect} from "react";
 import {Button, DatePicker, Form, Input, InputNumber, List, Modal, Pagination, Select, Space, Table, Tag} from "antd";
 import dayjs from "dayjs";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const PayReportForms=(props)=>{
-    const [phone,setPhone]=useState('');
-    const [name,setName]=useState('');
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [phone,setPhone]=useState(checkSessionStorage('/reportFormsManage/payReportForms/','address')||'');
+    const [name,setName]=useState(checkSessionStorage('/reportFormsManage/payReportForms/','address')||'');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/reportFormsManage/payReportForms/','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/reportFormsManage/payReportForms/','endDate')||'2099-01-01');
     const columns =[
         {
             title: '房屋',
@@ -123,10 +124,22 @@ const PayReportForms=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/reportFormsManage/payReportForms/','startDate','2000-01-01');
+            updateSessionStorage('/reportFormsManage/payReportForms/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/reportFormsManage/payReportForms/','startDate',data[0]);
+            updateSessionStorage('/reportFormsManage/payReportForms/','endDate',data[1]);
         }
+    };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        updateSessionStorage('/reportFormsManage/payReportForms/','name',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        updateSessionStorage('/reportFormsManage/payReportForms/','phone',e.target.value);
     };
     return(
         <div>
@@ -135,11 +148,13 @@ const PayReportForms=(props)=>{
                     <Space>
                         <Input
                             addonBefore="租户姓名:"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={changeName}
+                            value={name}
                         />
                         <Input
                             addonBefore="联系方式:"
-                            onChange={(e)=>setPhone(e.target.value)}
+                            onChange={changePhone}
+                            value={phone}
                         />
                         <Space.Compact>
                             <div
@@ -157,7 +172,7 @@ const PayReportForms=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

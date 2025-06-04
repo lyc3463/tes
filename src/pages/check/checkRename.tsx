@@ -3,19 +3,20 @@ import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Spa
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const CheckRename=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 手机号
-    const [phone,setPhone]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckRenamePhone')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/check/checkAfterSales/','CheckRenamePhone')||'');
     // 状态 0全部，1未审核，2审核通过
-    const [stutes,setStutes]=useState(0);
+    const [stutes,setStutes]=useState(checkSessionStorage('/check/checkAfterSales/','CheckRenameStutes')||0);
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckRenameStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/check/checkAfterSales/','CheckRenameStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('checkCheckAfterSalesCheckRenameEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/check/checkAfterSales/','CheckRenameEndDate')||'2099-01-01');
     // 审核弹窗
     const [isOpen,setOpen]=useState(false);
     // 更名的手机号
@@ -101,23 +102,24 @@ const CheckRename=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('checkCheckAfterSalesCheckRenameStartDate','2000-01-01');
-            sessionStorage.setItem('checkCheckAfterSalesCheckRenameEndDate','2099-01-01');
+            updateSessionStorage('/check/checkAfterSales/','CheckRenameStartDate','2000-01-01');
+            updateSessionStorage('/check/checkAfterSales/','CheckRenameEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('checkCheckAfterSalesCheckRenameStartDate',data[0]);
-            sessionStorage.setItem('checkCheckAfterSalesCheckRenameEndDate',data[1]);
+            updateSessionStorage('/check/checkAfterSales/','CheckRenameStartDate',data[0]);
+            updateSessionStorage('/check/checkAfterSales/','CheckRenameEndDate',data[1]);
         }
     };
     // 监听姓名
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('checkCheckAfterSalesCheckRenamePhone',e.target.value);
+        updateSessionStorage('/check/checkAfterSales/','CheckRenamePhone',e.target.value);
     };
     // 监听状态
     const changeStutes=(e:number)=>{
         setStutes(e);
+        updateSessionStorage('/check/checkAfterSales/','CheckRenameStutes',e);
     };
     // 分页
     const logFenye=()=>{

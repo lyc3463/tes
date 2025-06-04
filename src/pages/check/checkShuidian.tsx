@@ -21,19 +21,20 @@ import TypeCheckFp from "@/ModelTypes/TypeCheckFp";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import ImageUploader from "@/components/ImageUploader";
 import * as AppUserService from '@/services/appUser';
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const CheckShuidian=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [openId,setOpenId]=useState(0);
-    const [stutes,setStutes]=useState(Number(sessionStorage.getItem('checkFpCheckShuidianStutes'))||0);
+    const [stutes,setStutes]=useState(checkSessionStorage('/check/checkFp/','checkShuidianStutes')||0);
     const [uid,setUid]=useState(0);
     const [checkOpen,setCheckOpen]=useState(false);
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('checkFpCheckShuidianStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/check/checkFp/','checkShuidianStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('checkFpCheckShuidianEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/check/checkFp/','checkShuidianEndDate')||'2099-01-01');
     // 发送消息给小程序用户
     const [appId,setFSAppUser]=useState(0);
     // 发送的弹窗
@@ -253,19 +254,19 @@ const CheckShuidian=(props)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('checkFpCheckShuidianStartDate','2000-01-01');
-            sessionStorage.setItem('checkFpCheckShuidianEndDate','2099-01-01');
+            updateSessionStorage('/check/checkFp/','checkShuidianStartDate','2000-01-01');
+            updateSessionStorage('/check/checkFp/','checkShuidianEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('checkFpCheckShuidianStartDate',data[0]);
-            sessionStorage.setItem('checkFpCheckShuidianEndDate',data[1]);
+            updateSessionStorage('/check/checkFp/','checkShuidianStartDate',data[0]);
+            updateSessionStorage('/check/checkFp/','checkShuidianEndDate',data[1]);
         }
     };
     // 状态
     const changeStutes=(e)=>{
         setStutes(e);
-        sessionStorage.setItem('checkFpCheckShuidianStutes',e);
+        updateSessionStorage('/check/checkFp/','checkShuidianStutes',e);
     };
     const sousuo=()=>{
         setPage(1);
@@ -368,7 +369,7 @@ const CheckShuidian=(props)=>{
                             </div>
                             <Select
                                 onChange={changeStutes}
-                                defaultValue={stutes}
+                                value={stutes}
                                 style={{ width: 120 }}
                                 options={[
                                     { value: 0, label: '全部' },
@@ -377,46 +378,6 @@ const CheckShuidian=(props)=>{
                                 ]}
                             />
                         </Space.Compact>
-                        {/*<Space.Compact>*/}
-                        {/*    <div*/}
-                        {/*        style={{*/}
-                        {/*            borderRadius: '6px',*/}
-                        {/*            borderStartEndRadius: 0,*/}
-                        {/*            borderEndEndRadius: 0,*/}
-                        {/*            padding: '0 11px',*/}
-                        {/*            border: '1px solid #d9d9d9',*/}
-                        {/*            display: 'flex',*/}
-                        {/*            alignItems: 'center',*/}
-                        {/*            borderInlineEnd: 0,*/}
-                        {/*        }}*/}
-                        {/*    >*/}
-                        {/*        租户:*/}
-                        {/*    </div>*/}
-                        {/*    <Select*/}
-                        {/*        onChange={changZuHu}*/}
-                        {/*        defaultValue={openId}*/}
-                        {/*        style={{ width: 120 }}*/}
-                        {/*        notFoundContent={false}*/}
-                        {/*        showSearch*/}
-                        {/*        optionFilterProp="children"*/}
-                        {/*        filterOption={(input, option) => {*/}
-                        {/*            // 假设每个 option 都有一个与数据项对应的 value 属性*/}
-                        {/*            const item = zuhuList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程*/}
-                        {/*            return item?.tenant_name?.toLowerCase().includes(input.toLowerCase());*/}
-                        {/*        }}*/}
-                        {/*    >*/}
-                        {/*        <Select.Option value={0} key={0}>*/}
-                        {/*            全部*/}
-                        {/*        </Select.Option>*/}
-                        {/*        {zuhuList.map((item:any,index:any)=>{*/}
-                        {/*            return(*/}
-                        {/*                <Select.Option value={item.id} key={item.id}>*/}
-                        {/*                    {item.tenant_name}*/}
-                        {/*                </Select.Option>*/}
-                        {/*            )*/}
-                        {/*        })}*/}
-                        {/*    </Select>*/}
-                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>

@@ -3,13 +3,14 @@ import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const InvoiceLookUp=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 状态 0全部，1未审核，2审核通过
-    const [stutes,setStutes]=useState(0);
+    const [stutes,setStutes]=useState(checkSessionStorage('/enter/invoiceLookUp/','stutes')||0);
     const [openID,setOpenID]=useState(0);
-    const [name,setName]=useState(sessionStorage.getItem('enterInvoiceLookUpName')||'');
+    const [name,setName]=useState(checkSessionStorage('/enter/invoiceLookUp/','name')||'');
     const [checkOpen,setCheckOpen]=useState(false);
     // 审核id
     const [uid,setUid]=useState(0);
@@ -98,6 +99,7 @@ const InvoiceLookUp=(props:any)=>{
     // 监听状态
     const changeStutes=(e:number)=>{
         setStutes(e);
+        updateSessionStorage('/enter/invoiceLookUp/','stutes',e);
     };
     // 分页
     const logFenye=()=>{
@@ -175,8 +177,8 @@ const InvoiceLookUp=(props:any)=>{
         getFenyeInfo();
     }, []);
     const changeName=(e)=>{
-      setName(e.target.value);
-      sessionStorage.setItem('enterInvoiceLookUpName',e.target.value);
+        setName(e.target.value);
+        updateSessionStorage('/enter/invoiceLookUp/','name',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -205,7 +207,7 @@ const InvoiceLookUp=(props:any)=>{
                             </div>
                             <Select
                                 onChange={changeStutes}
-                                defaultValue={stutes}
+                                value={stutes}
                                 style={{ width: 120 }}
                                 options={[
                                     { value:0, label: '全部' },

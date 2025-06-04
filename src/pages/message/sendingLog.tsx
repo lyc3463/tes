@@ -2,13 +2,14 @@ import {Button, Form, Input, Table, DatePicker, Space, List, Pagination} from "a
 import {connect} from "umi";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const SendingLog=(props:any)=>{
     const [current, setCurrent] = useState(1);
     const [pageSize, setpageSize] = useState(50);
-    const [phone,setPhone]=useState(sessionStorage.getItem('messageSendingLogPhone')||'');
-    const [starTime,setStarTime]=useState('2000-01-01');
-    const [endTime,setEndTime]=useState('2099-01-01');
+    const [phone,setPhone]=useState(checkSessionStorage('/message/sendingLog/','phone')||'');
+    const [starTime,setStarTime]=useState(checkSessionStorage('/message/sendingLog/','starTime')||'2000-01-01');
+    const [endTime,setEndTime]=useState(checkSessionStorage('/message/sendingLog/','endTime')||'2099-01-01');
     const columns =[
         {
             title: '接受者手机号',
@@ -48,14 +49,18 @@ const SendingLog=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStarTime('2000-01-01');
             setEndTime('2099-01-01');
+            updateSessionStorage('/message/sendingLog/','starTime','2000-01-01');
+            updateSessionStorage('/message/sendingLog/','endTime','2099-01-01');
         } else {
             setStarTime(data[0]);
             setEndTime(data[1]);
+            updateSessionStorage('/message/sendingLog/','starTime',data[0]);
+            updateSessionStorage('/message/sendingLog/','endTime',data[1]);
         }
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
-        sessionStorage.setItem('messageSendingLogPhone',e.target.value);
+        updateSessionStorage('/message/sendingLog/','phone',e.target.value);
     };
     const sousuo=()=>{
         setCurrent(1);

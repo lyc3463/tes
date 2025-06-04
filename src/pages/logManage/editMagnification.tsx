@@ -3,12 +3,13 @@ import {useEffect, useState} from "react";
 import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table} from "antd";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const EditMagnification=()=>{
     const [pageSize,setPageSize]=useState(50);
     const [page,setPage]=useState(1);
-    const [remark,setremark]=useState('');
-    const [address,setAddress]=useState('');
+    const [remark,setremark]=useState(checkSessionStorage('/logManage/logQuery/','editMagnificationRemark')||'');
+    const [address,setAddress]=useState(checkSessionStorage('/logManage/logQuery/','editMagnificationAddress')||'');
     const [count,setcount]=useState(0);
     const [dataSource,setdataSource]=useState([]);
     const [spinning,setspinning]=useState(false);
@@ -66,7 +67,6 @@ const EditMagnification=()=>{
         setspinning(true);
         EditMagnificationService.fetch({page,pageSize,remark,address}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('列表记录',res);
                 setdataSource(res.Data);
                 setspinning(false);
             }else {
@@ -93,6 +93,14 @@ const EditMagnification=()=>{
     useEffect(() => {
         getList();
     }, [page,pageSize]);
+    const changeAddress=(e)=>{
+        setAddress(e.target.value);
+        updateSessionStorage('/logManage/logQuery/','editMagnificationAddress',e.target.value);
+    };
+    const changeRemark=(e)=>{
+        setremark(e.target.value);
+        updateSessionStorage('/logManage/logQuery/','editMagnificationRemark',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -100,11 +108,13 @@ const EditMagnification=()=>{
                     <Space>
                         <Input
                             addonBefore="电表地址:"
-                            onChange={(e)=>setAddress(e.target.value)}
+                            onChange={changeAddress}
+                            value={address}
                         />
                         <Input
                             addonBefore="电表描述:"
-                            onChange={(e)=>setremark(e.target.value)}
+                            onChange={changeRemark}
+                            value={remark}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索

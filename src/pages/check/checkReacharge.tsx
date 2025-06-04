@@ -17,6 +17,7 @@ import {
     Table,
     Tag
 } from "antd";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const CheckReacharge=(props:any)=>{
     // 当前页数
@@ -25,11 +26,11 @@ const CheckReacharge=(props:any)=>{
     // 手机号
     const [phone,setPhone]=useState('');
     // 状态 0全部，1未审核，2审核通过
-    const [stutes,setStutes]=useState(0);
+    const [stutes,setStutes]=useState(checkSessionStorage('/check/checkReacharge/','stutes')||0);
     // 开始时间
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/check/checkReacharge/','startDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/check/checkReacharge/','endDate')||'2099-01-01');
     // 审核弹窗
     const [isOpen,setOpen]=useState(false);
     // 审核的id
@@ -143,9 +144,13 @@ const CheckReacharge=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/check/checkReacharge/','startDate','2000-01-01');
+            updateSessionStorage('/check/checkReacharge/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/check/checkReacharge/','startDate',data[0]);
+            updateSessionStorage('/check/checkReacharge/','endDate',data[1]);
         }
     };
     // 搜索按钮
@@ -199,6 +204,7 @@ const CheckReacharge=(props:any)=>{
     // 监听状态
     const changeStutes=(e:number)=>{
         setStutes(e);
+        updateSessionStorage('/check/checkReacharge/','stutes',e);
     };
 
     // 删除弹窗
@@ -246,7 +252,7 @@ const CheckReacharge=(props:any)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Space.Compact>
                             <div
@@ -265,7 +271,7 @@ const CheckReacharge=(props:any)=>{
                             </div>
                             <Select
                                 onChange={changeStutes}
-                                defaultValue={stutes}
+                                value={stutes}
                                 style={{ width: 120 }}
                                 options={[
                                     { value:0, label: '全部' },

@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import * as StaffServer from "@/services/staff";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const CheckZsContracte=(props:any)=>{
     const [uid,setUid]=useState(0);
@@ -13,17 +14,17 @@ const CheckZsContracte=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 审核状态 0全部  1未审核 2已审核
-    const [contractStatus,setContractStatus]=useState(0);
+    const [contractStatus,setContractStatus]=useState(checkSessionStorage('/check/checkContracte/','checkZsContracteStatus')||0);
     // 合同编号
-    const [identifier,setIdentifier]=useState(sessionStorage.getItem('checkCheckZsContracteIdentifier')||'');
+    const [identifier,setIdentifier]=useState(checkSessionStorage('/check/checkContracte/','checkZsContracteIdentifier')||'');
     // 合同类型ID
     const [contractType,setContractType]=useState(0);
     // 租户姓名
-    const [name,setName]=useState(sessionStorage.getItem('checkCheckZsContracteName')||'');
+    const [name,setName]=useState(checkSessionStorage('/check/checkContracte/','checkZsContracteName')||'');
     // 开始时间
-    const [startDate,setStartDate]=useState(sessionStorage.getItem('checkCheckZsContracteStartDate')||'2000-01-01');
+    const [startDate,setStartDate]=useState(checkSessionStorage('/check/checkContracte/','checkZsContracteStartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setEndDate]=useState(sessionStorage.getItem('checkCheckZsContracteEndDate')||'2099-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/check/checkContracte/','checkZsContracteEndDate')||'2099-01-01');
     // 发送弹窗
     const [fsOpen,setFsOpen]=useState(false);
     const [templateType,settemplateType]=useState(0);
@@ -256,6 +257,7 @@ const CheckZsContracte=(props:any)=>{
     // 监听状态
     const changeStutes=(e:number)=>{
         setContractStatus(e);
+        updateSessionStorage('/check/checkContracte/','checkZsContracteStatus',e);
     };
     useEffect(() => {
         logFenye();
@@ -263,11 +265,11 @@ const CheckZsContracte=(props:any)=>{
     // 监听合同编号
     const changeIdentifier=(e)=>{
         setIdentifier(e.target.value);
-        sessionStorage.setItem('checkCheckZsContracteIdentifier',e.target.value);
+        updateSessionStorage('/check/checkContracte/','checkZsContracteIdentifier',e.target.value);
     };
     const changeName=(e)=>{
         setName(e.target.value);
-        sessionStorage.setItem('checkCheckZsContracteName',e.target.value);
+        updateSessionStorage('/check/checkContracte/','checkZsContracteName',e.target.value);
     };
     // 合同类型
     const changeType=(e:number)=>{
@@ -278,13 +280,13 @@ const CheckZsContracte=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('checkCheckZsContracteStartDate','2000-01-01');
-            sessionStorage.setItem('checkCheckZsContracteEndDate','2099-01-01');
+            updateSessionStorage('/check/checkContracte/','checkZsContracteStartDate','2000-01-01');
+            updateSessionStorage('/check/checkContracte/','checkZsContracteEndDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('checkCheckZsContracteStartDate',data[0]);
-            sessionStorage.setItem('checkCheckZsContracteEndDate',data[1]);
+            updateSessionStorage('/check/checkContracte/','checkZsContracteStartDate',data[0]);
+            updateSessionStorage('/check/checkContracte/','checkZsContracteEndDate',data[1]);
         }
     };
     const onFsOk=()=>{
@@ -411,7 +413,7 @@ const CheckZsContracte=(props:any)=>{
                             </div>
                             <Select
                                 onChange={changeStutes}
-                                defaultValue={contractStatus}
+                                value={contractStatus}
                                 style={{ width: 120 }}
                                 options={[
                                     { value:0, label: '全部' },

@@ -21,13 +21,14 @@ import TypeCheckFp from "@/ModelTypes/TypeCheckFp";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import ImageUploader from "@/components/ImageUploader";
 import id from "ajv/lib/vocabularies/core/id";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const UnopenedAllFp=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [type,settype]=useState(0);
-    const [tenantr,settenantr]=useState(0);
-    const [stutes,setstutes]=useState(0);
+    const [tenantr,settenantr]=useState(checkSessionStorage('/check/checkFp/','unopenedAllFpTenantr')||0);
+    const [stutes,setstutes]=useState(checkSessionStorage('/check/checkFp/','unopenedAllFpStutes')||0);
     const [zuhuList,setZuhuList]=useState([]);
     const [setzuhuId,setsetzuhuId]=useState(0);
     const columns =[
@@ -135,6 +136,7 @@ const UnopenedAllFp=(props)=>{
     }, [page,pageSize]);
     const changeStutes=(e)=>{
         setstutes(e);
+        updateSessionStorage('/check/checkFp/','unopenedAllFpStutes',e);
     };
     useEffect(() => {
         logFenye();
@@ -158,7 +160,7 @@ const UnopenedAllFp=(props)=>{
         setsetzuhuId(e);
         let a=findItemById(zuhuList,e);
         settenantr(a.userId);
-
+        updateSessionStorage('/check/checkFp/','unopenedAllFpTenantr',a.userId);
     };
     const sousuo=()=>{
         setPage(1);
@@ -191,7 +193,7 @@ const UnopenedAllFp=(props)=>{
                             </div>
                             <Select
                                 onChange={changeStutes}
-                                defaultValue={stutes}
+                                value={stutes}
                                 style={{ width: 120 }}
                                 options={[
                                     { value: 0, label: '全部' },

@@ -2,14 +2,15 @@ import {useState,useEffect} from "react";
 import {connect} from "umi";
 import {Button, DatePicker, Input, List, Pagination, Select, Space, Table, Tag} from "antd";
 import dayjs from "dayjs";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const ChongzhiLog=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 审核状态
-    const [stutes,setStutes]=useState(0);
-    const [startDate,setStartDate]=useState('2000-01-01');
-    const [endDate,setEndDate]=useState('2099-01-01');
+    const [stutes,setStutes]=useState(checkSessionStorage('/message/chongzhiLog','stutes')||0);
+    const [startDate,setStartDate]=useState(checkSessionStorage('/message/chongzhiLog','startDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/message/chongzhiLog','endDate')||'2099-01-01');
     const columns =[
         {
             title: '日期',
@@ -58,16 +59,21 @@ const ChongzhiLog=(props)=>{
         fenye();
     }, [page,pageSize]);
     const changeType=(e)=>{
-      setStutes(e)
+        setStutes(e);
+        updateSessionStorage('/message/chongzhiLog','stutes',e);
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
+            updateSessionStorage('/message/chongzhiLog','startDate','2000-01-01');
+            updateSessionStorage('/message/chongzhiLog','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
+            updateSessionStorage('/message/chongzhiLog','startDate',data[0]);
+            updateSessionStorage('/message/chongzhiLog','endDate',data[1]);
         }
     };
     const sousuo=()=>{
@@ -107,7 +113,7 @@ const ChongzhiLog=(props)=>{
                                 </div>
                                 <Select
                                     onChange={changeType}
-                                    defaultValue={stutes}
+                                    value={stutes}
                                     style={{ width: 120 }}
                                     options={[
                                         { value:0, label: '全部' },
@@ -131,7 +137,7 @@ const ChongzhiLog=(props)=>{
                                 >
                                     日期:
                                 </div>
-                               <DatePicker.RangePicker onChange={changeDate}/>
+                                {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                             </Space.Compact>
                             <Button type="primary" onClick={sousuo}>
                                 搜索

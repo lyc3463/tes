@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {processBills} from "@/utils/OpenTool";
+import {checkSessionStorage, processBills, updateSessionStorage} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
 
 const CheckFinance=(props:any)=>{
@@ -17,21 +17,21 @@ const CheckFinance=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 摘要
-    const [billAbstract,setBillAbstract]=useState(sessionStorage.getItem('checkCheckFinanceBillAbstract')||'');
+    const [billAbstract,setBillAbstract]=useState(checkSessionStorage('/check/checkFinance/','billAbstract')||'');
     // 开始时间
-    const [billBgeinTime,setBillBgeinTime]=useState('2000-01-01');
+    const [billBgeinTime,setBillBgeinTime]=useState(checkSessionStorage('/check/checkFinance/','startDate')||'2000-01-01');
     // 结束时间
-    const [billEndTime,setBillEndTime]=useState('2099-01-01');
+    const [billEndTime,setBillEndTime]=useState(checkSessionStorage('/check/checkFinance/','endDate')||'2099-01-01');
     // 状态  0 未审核  1已审核  2全部
-    const [billStatus,setBillStatus]=useState(2);
+    const [billStatus,setBillStatus]=useState(checkSessionStorage('/check/checkFinance/','status')||2);
     // 类型   1 支出  2全部  0收入
-    const [billMoneyType,setBillMoneyType]=useState(2);
+    const [billMoneyType,setBillMoneyType]=useState(checkSessionStorage('/check/checkFinance/','billMoneyType')||2);
     // 公司ID
-    const [companyId,setCompanyId]=useState(0);
+    const [companyId,setCompanyId]=useState(checkSessionStorage('/check/checkFinance/','companyId')||0);
     // 项目ID
-    const [projectId,setProjectId]=useState(0);
+    const [projectId,setProjectId]=useState(checkSessionStorage('/check/checkFinance/','projectId')||0);
     // 科目ID
-    const [subjectId,setSubjectId]=useState(0);
+    const [subjectId,setSubjectId]=useState(checkSessionStorage('/check/checkFinance/','subject')||0);
     // 公司列表
     const [companyList,setCompanyList]=useState([]);
     // 科目列表
@@ -41,7 +41,7 @@ const CheckFinance=(props:any)=>{
     // 加载转圈
     const [spinning,setspinning]=useState(false);
     // 账户卡号
-    const [account_card,setaccount_card]=useState(sessionStorage.getItem('checkCheckFinanceAccountCard')||'');
+    const [account_card,setaccount_card]=useState(checkSessionStorage('/check/checkFinance/','account_card')||'');
     // 财务账单列表
     const [billList,setBillList]=useState([]);
     // 一键审核弹窗
@@ -215,6 +215,7 @@ const CheckFinance=(props:any)=>{
     // 监听状态
     const changeStutes=(e:number)=>{
         setBillStatus(e);
+        updateSessionStorage('/check/checkFinance/','status',e);
     };
     // 详情页面
     const toInfo=(id:number)=>{
@@ -251,7 +252,7 @@ const CheckFinance=(props:any)=>{
     // 监听摘要名称
     const changeName=(e)=>{
         setBillAbstract(e.target.value);
-        sessionStorage.setItem('checkCheckFinanceBillAbstract',e.target.value);
+        updateSessionStorage('/check/checkFinance/','billAbstract',e.target.value);
     };
     // 搜索
     const sousuo=()=>{
@@ -289,14 +290,19 @@ const CheckFinance=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setBillBgeinTime('2000-01-01');
             setBillEndTime('2099-01-01');
+            updateSessionStorage('/check/checkFinance/','startDate','2000-01-01');
+            updateSessionStorage('/check/checkFinance/','endDate','2099-01-01');
         } else {
             setBillBgeinTime(data[0]);
             setBillEndTime(data[1]);
+            updateSessionStorage('/check/checkFinance/','startDate',data[0]);
+            updateSessionStorage('/check/checkFinance/','endDate',data[1]);
         }
     };
     // 监听类型
     const changeType=(e:number)=>{
         setBillMoneyType(e);
+        updateSessionStorage('/check/checkFinance/','billMoneyType',e);
     };
     // 获取公司列表
     const getCompanList=()=>{
@@ -345,14 +351,19 @@ const CheckFinance=(props:any)=>{
     // 监听公司id
     const changeCompany=(e:number)=>{
         setCompanyId(e);
+        updateSessionStorage('/check/checkFinance/','companyId',e);
+
     };
     // 监听项目id
     const changeProject=(e:number)=>{
         setProjectId(e);
+        updateSessionStorage('/check/checkFinance/','projectId',e);
+
     };
     // 监听项目id
     const changeSubject=(e:number)=>{
         setSubjectId(e);
+        updateSessionStorage('/check/checkFinance/','subject',e);
     };
     // 公司拼接
     const conterCompay=(item)=>{
@@ -437,7 +448,7 @@ const CheckFinance=(props:any)=>{
     }, []);
     const changeAccountCard=(e)=>{
         setaccount_card(e.target.value);
-        sessionStorage.setItem('checkCheckFinanceAccountCard',e.target.value);
+        updateSessionStorage('/check/checkFinance/','account_card',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
@@ -475,7 +486,7 @@ const CheckFinance=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            <DatePicker.RangePicker onChange={changeDate}/>
+                            {billBgeinTime=='2000-01-01'&&billEndTime=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(billBgeinTime),dayjs(billEndTime)]}/>}
                         </Space.Compact>
                         <Space.Compact>
                             <div
@@ -494,7 +505,7 @@ const CheckFinance=(props:any)=>{
                             </div>
                             <Select
                                 onChange={changeStutes}
-                                defaultValue={billStatus}
+                                value={billStatus}
                                 style={{ width: 120 }}
                                 options={[
                                     { value: 0, label: '未审核' },
