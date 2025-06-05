@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {connect} from "umi";
-import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table, Tag, Tooltip} from "antd";
 import dayjs from "dayjs";
 import * as WaterRateService from "@/services/waterRate";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -26,7 +26,7 @@ const WaterRate=(props:any)=>{
             render: (text:any, record:any) => {
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
                         {limitedUnitList.map((item, index) => (
                             <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
                         ))}
@@ -42,8 +42,10 @@ const WaterRate=(props:any)=>{
             key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
-                    <div>
-                        {record.tenant_name?record.tenant_name:'未绑定'}
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name}
+                        </Tooltip>
                     </div>
                 )
             },
@@ -155,13 +157,13 @@ const WaterRate=(props:any)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            sessionStorage.setItem('reportFormsManageWaterRateStartDate','2000-01-01');
-            sessionStorage.setItem('reportFormsManageWaterRateEndDate','2099-01-01');
+            updateSessionStorage('/reportFormsManage/waterRate/','startDate','2000-01-01');
+            updateSessionStorage('/reportFormsManage/waterRate/','endDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('reportFormsManageWaterRateStartDate',data[0]);
-            sessionStorage.setItem('reportFormsManageWaterRateEndDate',data[1]);
+            updateSessionStorage('/reportFormsManage/waterRate/','startDate',data[0]);
+            updateSessionStorage('/reportFormsManage/waterRate/','endDate',data[1]);
         }
     };
     const changName=(e)=>{

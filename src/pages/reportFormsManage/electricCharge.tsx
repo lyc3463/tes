@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {connect} from "umi";
-import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table, Tooltip} from "antd";
 import dayjs from "dayjs";
 import * as WaterRateService from "@/services/electricCharge";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -26,7 +26,7 @@ const ElectricCharge=(props:any)=>{
             render: (text:any, record:any) => {
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
                         {limitedUnitList.map((item, index) => (
                             <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
                         ))}
@@ -41,8 +41,10 @@ const ElectricCharge=(props:any)=>{
             key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
-                    <div>
-                        {record.tenant_name?record.tenant_name:'未绑定'}
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
+                        </Tooltip>
                     </div>
                 )
             },
@@ -200,7 +202,7 @@ const ElectricCharge=(props:any)=>{
                         item.energyNew,
                         (dayjs(item.endTime).format('YYYY-MM-DD')),
                         item.energyNew2,
-                        item.waterMoneySum,
+                        item.eleMoneySum,
                     ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
                 ];
                 exportDataToExcel(ws_data);
@@ -250,6 +252,9 @@ const ElectricCharge=(props:any)=>{
                         </Space.Compact>
                         <Button type="primary" onClick={shousuo}>
                             搜索
+                        </Button>
+                        <Button type="primary" onClick={exportToExcel}>
+                            导出
                         </Button>
                     </Space>
                 </List.Item>
