@@ -21,6 +21,8 @@ import * as WaterRateService from "@/services/payReportForms";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const PayReportForms=(props)=>{
+    const[page,setPage]=useState(1);
+    const[pageSize,setPageSize]=useState(50);
     const [spinning,setspinning]=useState(false);
     const [phone,setPhone]=useState(checkSessionStorage('/reportFormsManage/payReportForms/','phone')||'');
     const [name,setName]=useState(checkSessionStorage('/reportFormsManage/payReportForms/','name')||'');
@@ -46,15 +48,19 @@ const PayReportForms=(props)=>{
             dataIndex: 'house_name',
             key: 'house_name',
             render: (text:any, record:any) => {
-                const limitedUnitList = record.unitList.slice(0, 2);
-                return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
-                        {limitedUnitList.map((item, index) => (
-                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
-                        ))}
-                        {record.unitList.length > 2 && <span>...</span>}
-                    </div>
-                )
+                if (!record.unitList) {
+                    return '';
+                }else {
+                    const limitedUnitList = record.unitList.slice(0, 2);
+                    return(
+                        <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
+                            {limitedUnitList.map((item, index) => (
+                                <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                            ))}
+                            {record.unitList.length > 2 && <span>...</span>}
+                        </div>
+                    )
+                }
             }
         },
         {
@@ -77,7 +83,7 @@ const PayReportForms=(props)=>{
             key: 'tenant_phone',
         },
         {
-            title: '充值',
+            title: '充值(元)',
             dataIndex: 'consumptionMoney',
             key: 'consumptionMoney',
             render:(text:any,record:any)=>{
@@ -91,37 +97,37 @@ const PayReportForms=(props)=>{
             }
         },
         {
-            title: '租金/管理费',
+            title: '租金/管理费(元)',
             dataIndex: 'consumptionMoney2',
             key: 'consumptionMoney2',
         },
         {
-            title: '电费',
+            title: '电费(元)',
             dataIndex: 'consumptionMoney3',
             key: 'consumptionMoney3',
         },
         {
-            title: '水费',
+            title: '水费(元)',
             dataIndex: 'consumptionMoney4',
             key: 'consumptionMoney4',
         },
         {
-            title: '服务费',
+            title: '服务费(元)',
             dataIndex: 'consumptionMoney7',
             key: 'consumptionMoney7',
         },
         {
-            title: '公共缴费',
+            title: '公共缴费(元)',
             dataIndex: 'consumptionMoney5',
             key: 'consumptionMoney5',
         },
         {
-            title: '违约金',
+            title: '违约金(元)',
             dataIndex: 'consumptionMoney8',
             key: 'consumptionMoney8',
         },
         {
-            title: '月保',
+            title: '月保(元)',
             dataIndex: 'consumptionMoney9',
             key: 'consumptionMoney9',
         },
@@ -186,11 +192,9 @@ const PayReportForms=(props)=>{
     ];
     // 分页
     const logFenye=()=>{
-        const originalDate = dayjs(endDate);
-        const newDate = originalDate.add(1, 'day');
         props.dispatch({
             type:"PayReportForms/fetch",
-            payload:{name,phone,startDate,endDate:newDate.format('YYYY-MM-DD')}
+            payload:{name,phone,startDate,endDate,page,pageSize},
         })
     };
     const sousuo=()=>{
@@ -198,8 +202,7 @@ const PayReportForms=(props)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props)
-    }, []);
+    }, [page,pageSize]);
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -224,9 +227,7 @@ const PayReportForms=(props)=>{
     };
     const exportToExcel=()=>{
         setspinning(true);
-        const originalDate = dayjs(endDate);
-        const newDate = originalDate.add(1, 'day');
-        WaterRateService.fetch({name,phone,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD')}).then((res:TypeErrorCode)=>{
+        WaterRateService.fetch({name,phone,startDate,endDate,page:1,pageSize:100000}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 let headers=['房屋','单元','租户','手机号','手动充值(元)','微信充值(元)','租金/管理费(元)','电费(元)','水费(元)','服务费(元)','公共缴费(元)','违约金(元)','月保(元)','开始时间','开始时间余额(元)','结束时间','结束时间余额(元)'];
                 const ws_data = [
@@ -311,7 +312,7 @@ const PayReportForms=(props)=>{
                 rowKey={(columns) => columns.tenantId}
                 pagination={false}
                 size='small'
-                scroll={{y:'60vh'}}
+                scroll={{y:'60vh',x:1800}}
                 dataSource={props.PayReportFormsList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'

@@ -24,16 +24,19 @@ const WaterRate=(props:any)=>{
             dataIndex: 'house_name',
             key: 'house_name',
             render: (text:any, record:any) => {
-                const limitedUnitList = record.unitList.slice(0, 2);
-                return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
-                        {limitedUnitList.map((item, index) => (
-                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
-                        ))}
-                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
-                        {record.unitList.length > 2 && <span>...</span>}
-                    </div>
-                )
+                if (!record.unitList) {
+                    return '';
+                }else {
+                    const limitedUnitList = record.unitList.slice(0, 2);
+                    return(
+                        <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
+                            {limitedUnitList.map((item, index) => (
+                                <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                            ))}
+                            {record.unitList.length > 2 && <span>...</span>}
+                        </div>
+                    )
+                }
             }
         },
         {

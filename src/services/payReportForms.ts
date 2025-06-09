@@ -5,7 +5,7 @@ export function fetch(vals:any) {
 }
 
 export function fenye(vals:any) {
-    return getData(1562, [vals.name,vals.phone,vals.type,vals.startDate,vals.endDate,vals.userID,vals.pageSize]);
+    return getData(1579, [vals.name,vals.phone,vals.startDate,vals.endDate,vals.pageSize]);
 }
 
 
