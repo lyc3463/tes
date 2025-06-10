@@ -192,17 +192,27 @@ const PayReportForms=(props)=>{
     ];
     // 分页
     const logFenye=()=>{
+        setspinning(true);
+        const originalDate = dayjs(endDate);
+        const newDate = originalDate.add(1, 'day');
         props.dispatch({
             type:"PayReportForms/fetch",
-            payload:{name,phone,startDate,endDate,page,pageSize},
+            payload:{name,phone,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),page,pageSize},
+            callback:(data,res)=>{
+                if (data==0){
+                    setspinning(false);
+                }else {
+                    setspinning(false);
+                }
+            }
         })
     };
     const sousuo=()=>{
         logFenye();
     };
-    useEffect(() => {
-        logFenye();
-    }, [page,pageSize]);
+    // useEffect(() => {
+    //     logFenye();
+    // }, [page,pageSize]);
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -227,7 +237,9 @@ const PayReportForms=(props)=>{
     };
     const exportToExcel=()=>{
         setspinning(true);
-        WaterRateService.fetch({name,phone,startDate,endDate,page:1,pageSize:100000}).then((res:TypeErrorCode)=>{
+        const originalDate = dayjs(endDate);
+        const newDate = originalDate.add(1, 'day');
+        WaterRateService.fetch({name,phone,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),page:1,pageSize:100000}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 let headers=['房屋','单元','租户','手机号','手动充值(元)','微信充值(元)','租金/管理费(元)','电费(元)','水费(元)','服务费(元)','公共缴费(元)','违约金(元)','月保(元)','开始时间','开始时间余额(元)','结束时间','结束时间余额(元)'];
                 const ws_data = [

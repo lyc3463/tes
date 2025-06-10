@@ -140,16 +140,24 @@ const ElectricCharge=(props:any)=>{
             },
         },
     ];
-    useEffect(() => {
-        logFenye();
-    }, []);
+    // useEffect(() => {
+    //     logFenye();
+    // }, []);
     // 分页
     const logFenye=()=>{
+        setspinning(true);
         const originalDate = dayjs(endDate);
         const newDate = originalDate.add(1, 'day');
         props.dispatch({
             type:"ElectricCharge/fetch",
-            payload:{address,remark,name,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD')}
+            payload:{address,remark,name,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD')},
+            callback:(data,err)=>{
+                if (data==0){
+                    setspinning(false);
+                }else {
+                    setspinning(false);
+                }
+            }
         })
     };
     // 监听日期

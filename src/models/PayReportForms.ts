@@ -42,15 +42,17 @@ const PayReportFormsModel: PayReportFormsInterface = {
     namespace: 'PayReportForms',
     state: {},
     effects: {
-        *fetch({ type, payload }, { put, call, select }): any {
+        *fetch({ type, payload ,callback }, { put, call, select }): any {
             const res = yield call(payReportFormsService.fetch, payload?payload:pl);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
                     payload: { list: res.Data },
                 });
+                if (callback) callback(0);
             } else {
                 message.error(res.ErrorCode + res.Data);
+                if (callback) callback(-1);
             }
         },
         // *fenye({ type, payload }, { put, call, select }): any {

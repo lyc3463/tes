@@ -51,7 +51,9 @@ const CableRate=(props)=>{
     };
     // 分页信息
     const getLogFenyeInfo=()=>{
-        DayCableRateService.fenye({name,cid,startDate,endDate,tenantId,remark,pageSize}).then((res:TypeErrorCode)=>{
+        const originalDate = dayjs(endDate);
+        const newDate = originalDate.add(1, 'day');
+        DayCableRateService.fenye({name,cid,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),tenantId,remark,pageSize}).then((res:TypeErrorCode)=>{
             setspinning(true);
             if (res.ErrorCode==0){
                 setspinning(false);
@@ -65,8 +67,12 @@ const CableRate=(props)=>{
     };
     // 列表
     const logFenye=()=>{
-        DayCableRateService.fetch({page,name,cid,startDate,endDate,tenantId,remark,pageSize}).then((res:TypeErrorCode)=>{
+        const originalDate = dayjs(endDate);
+        const newDate = originalDate.add(1, 'day');
+        DayCableRateService.fetch({page,name,cid,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),tenantId,remark,pageSize}).then((res:TypeErrorCode)=>{
             setspinning(true);
+            console.log('res',res);
+
             if (res.ErrorCode==0){
                 setdataSource(res.Data);
                 setspinning(false);
@@ -139,13 +145,25 @@ const CableRate=(props)=>{
             }
         },
         {
-            title: '新度数',
+            title: '度数',
             dataIndex: 'energyNew',
             key: 'energyNew',
             render:(text:any,record:any)=>{
                 return(
                     <div>
                         <Tag  color='warning'>{record.energyNew}kwh</Tag>
+                    </div>
+                )
+            }
+        },
+        {
+            title: '消耗度数',
+            dataIndex: 'xc',
+            key: 'xc',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        <Tag  color='warning'>{(record.energyNew-record.energyOld).toFixed(3)}kwh</Tag>
                     </div>
                 )
             }
@@ -178,10 +196,12 @@ const CableRate=(props)=>{
         }
     };
     const exportToExcel=()=>{
+        const originalDate = dayjs(endDate);
+        const newDate = originalDate.add(1, 'day');
         setspinning(true);
-        DayCableRateService.fetch({page:1,name,cid,startDate,endDate,tenantId,remark,pageSize:1000000}).then((res:TypeErrorCode)=>{
+        DayCableRateService.fetch({page:1,name,cid,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),tenantId,remark,pageSize:1000000}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let headers=['日期','租户名称','电表地址','电表描述','类型','度数kwh','扣费金额(元)'];
+                let headers=['日期','租户名称','电表地址','电表描述','类型','度数kwh','消耗度数kwh','扣费金额(元)'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [
@@ -191,6 +211,7 @@ const CableRate=(props)=>{
                         item.remark,
                         item.consumptionType='电费',
                         item.energyNew,
+                        (item.energyNew-item.energyOld).toFixed(3),
                         item.eleMoney,
                     ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
                 ];
@@ -287,8 +308,9 @@ const CableRate=(props)=>{
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
-
                             <Table.Summary.Cell index={5}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>
                             </Table.Summary.Cell>
 
                             <Table.Summary.Cell
