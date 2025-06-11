@@ -236,12 +236,12 @@ const ElectricCharge=(props:any)=>{
                             value={name}
                         />
                         <Input
-                            addonBefore="水表地址:"
+                            addonBefore="电表地址:"
                             onChange={changeAddress}
                             value={address}
                         />
                         <Input
-                            addonBefore="水表描述:"
+                            addonBefore="电表描述:"
                             onChange={changeRemark}
                             value={remark}
                         />
