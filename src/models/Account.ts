@@ -42,9 +42,8 @@ const AccountModels: AccountInterface = {
     namespace: 'Account',
     state: {},
     effects: {
-        *fetch({ type, payload }, { put, call, select }): any {
+        *fetch({ type, payload,callback }, { put, call, select }): any {
             const res = yield call(AccountService.fetch, payload?payload:pl);
-
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',

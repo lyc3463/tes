@@ -175,7 +175,7 @@ const CableRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag color='blue'>{record.eleMoney}元</Tag>
+                        <Tag color='blue'>{(record.eleMoney).toFixed(2)}元</Tag>
                     </div>
                 )
             }

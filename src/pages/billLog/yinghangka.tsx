@@ -76,7 +76,7 @@ const Yinghangka=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        <span style={{color:'red'}}>{record.accountBalance-record.reconBalance}</span><span>元</span>
+                        <span style={{color:'red'}}>{(record.accountBalance-record.reconBalance).toFixed(3)}</span><span>元</span>
                     </div>
                 )
             }
@@ -100,10 +100,21 @@ const Yinghangka=(props:any)=>{
                 message.error(res.Data)
             }
         });
-
     };
+    const getAccountList=()=>{
+        props.dispatch({
+            type:'Account/fetch',
+        }).then((res)=>{
+            if (res.ErrorCode==0){
+                console.log('获取的参数',res)
+                setAccountList(res.Data);
+            }else {
+                message.error(res.Data)
+            }
+        })
+    }
     useEffect(() => {
-        filterAndUpdateList(props.AccountList, 'account_name', 'id', setAccountList);
+        getAccountList();
     }, []);
 
     // 监听页数
@@ -213,11 +224,19 @@ const Yinghangka=(props:any)=>{
                     onFinish={onFinisn}
                 >
                     <Form.Item label='选择账户' name='accountId'>
-                        <Select>
+                        <Select
+                            showSearch
+                            optionFilterProp="children"
+                            filterOption={(input, option) => {
+                                // 假设每个 option 都有一个与数据项对应的 value 属性
+                                const item = accountList.find(unit => unit.id == option.value);
+                                return item?.account_name?.toLowerCase().includes(input.toLowerCase());
+                            }}
+                        >
                             {accountList.map((item:any,index:any)=>{
                                 return(
-                                    <Select.Option value={item.value} key={index}>
-                                        {item.label}
+                                    <Select.Option value={item.id} key={index}>
+                                        {item.account_name}
                                     </Select.Option>
                                 )
                             })}
