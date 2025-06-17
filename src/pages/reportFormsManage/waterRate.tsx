@@ -13,6 +13,7 @@ const WaterRate=(props:any)=>{
     const [startDate,setStartDate]=useState(checkSessionStorage('/reportFormsManage/waterRate/','startDate')||'2000-01-01');
     const [endDate,setEndDate]=useState(checkSessionStorage('/reportFormsManage/waterRate/','endDate')||'2099-01-01');
     const [spinning,setspinning]=useState(false);
+    const [tenantId,settenantId]=useState(0);
     const columns =[
         {
             title: '房屋',
@@ -90,7 +91,7 @@ const WaterRate=(props:any)=>{
                     render: (text:any, record:any) => {
                         return(
                             <div>
-                                {record.energyNew}t
+                                {record.energyNew.toFixed(2)}t
                             </div>
                         )
                     },
@@ -119,7 +120,7 @@ const WaterRate=(props:any)=>{
                     render: (text:any, record:any) => {
                         return(
                             <div>
-                                {record.energyNew2}t
+                                {record.energyNew2.toFixed(2)}t
                             </div>
                         )
                     },
@@ -133,7 +134,7 @@ const WaterRate=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {record.waterMoneySum}元
+                        {record.waterMoneySum.toFixed(2)}元
                     </div>
                 )
             },
@@ -148,7 +149,7 @@ const WaterRate=(props:any)=>{
         const newDate = originalDate.add(1, 'day');
         props.dispatch({
             type:"WaterRate/fetch",
-            payload:{name,address,remark,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD')}
+            payload:{name,address,remark,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),tenantId}
         })
     };
     // 搜索按钮
@@ -185,7 +186,7 @@ const WaterRate=(props:any)=>{
         setspinning(true);
         const originalDate = dayjs(endDate);
         const newDate = originalDate.add(1, 'day');
-        WaterRateService.fetch({name,address,remark,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD')}).then((res:TypeErrorCode)=>{
+        WaterRateService.fetch({name,address,remark,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),tenantId}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 let headers=['房屋','单元','租户','采集器编号','通讯地址','描述','水表数据开始时间','开始度数(t)','水表数据结束时间','结束度数(t)','金额(元)'];
                 const ws_data = [
@@ -203,10 +204,10 @@ const WaterRate=(props:any)=>{
                         item.address,
                         item.remark,
                         (dayjs(item.beginTime).format('YYYY-MM-DD')),
-                        item.energyNew,
+                        item.energyNew.toFixed(2),
                         (dayjs(item.endTime).format('YYYY-MM-DD')), 
-                        item.energyNew2,
-                        item.waterMoneySum,
+                        item.energyNew2.toFixed(2),
+                        item.waterMoneySum.toFixed(2),
                     ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
                 ];
                 exportDataToExcel(ws_data);

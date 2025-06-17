@@ -265,7 +265,7 @@ const PaymentLog=()=>{
                             </div>
                             <Select
                                 onChange={changeStute}
-                                defaultValue={stutes}
+                                value={stutes}
                                 style={{ width: 120 }}
                                 options={[
                                     { value:-1, label: '全部' },

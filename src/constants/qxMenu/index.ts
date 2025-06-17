@@ -398,4 +398,7 @@ export const qxTree: TypeMenu[] = [
     { id: 392, name: '电表扣费记录天', parentId: 59, authId: 392},
     { id: 393, name: '损耗扣费导出', parentId: 347, authId: 393},
     { id: 394, name: '充值记录导出', parentId: 63, authId: 394},
+    { id: 395, name: '录入银行卡', parentId: 39, authId: 395},
+    { id: 396, name: '银行卡审批', parentId: 71, authId: 396},
+
 ]

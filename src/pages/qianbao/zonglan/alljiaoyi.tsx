@@ -100,7 +100,7 @@ const Alljiaoyi=(props)=>{
             render: (text:any, record:any) => {
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
                         {limitedUnitList.map((item, index) => (
                             <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
                         ))}
@@ -163,6 +163,13 @@ const Alljiaoyi=(props)=>{
             title: '金额(元)',
             dataIndex: 'consumptionMoney',
             key: 'consumptionMoney',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {record.consumptionMoney.toFixed(2)}
+                    </div>
+                )
+            }
         },
     ];
     // 监听日期
@@ -214,8 +221,8 @@ const Alljiaoyi=(props)=>{
                                     return '未知类型'; // 处理未知类型的情况
                             }
                         })(),
-                        item.consumptionMoney,
-                        item.house_name,
+                        item.consumptionMoney.toFixed(2),
+                        item.house_name?item.house_name:'无',
                         (() => {
                             // 提取单元名称，如果unitList为空则返回空字符串
                             return item.unitList && item.unitList.length > 0
@@ -329,7 +336,7 @@ const Alljiaoyi=(props)=>{
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {moneySum}元
+                                {(moneySum).toFixed(2)}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

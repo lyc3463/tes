@@ -32,6 +32,11 @@ const AccountList=(props:any)=>{
             title: '余额(元)',
             dataIndex: 'balance',
             key: 'balance',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>{record.balance.toFixed(2)}</div>
+                )
+            }
         },
         {
             title: '账户类型',

@@ -100,36 +100,85 @@ const PayReportForms=(props)=>{
             title: '租金/管理费(元)',
             dataIndex: 'consumptionMoney2',
             key: 'consumptionMoney2',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.consumptionMoney2.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '电费(元)',
             dataIndex: 'consumptionMoney3',
             key: 'consumptionMoney3',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.consumptionMoney3.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '水费(元)',
             dataIndex: 'consumptionMoney4',
             key: 'consumptionMoney4',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.consumptionMoney4.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '服务费(元)',
             dataIndex: 'consumptionMoney7',
             key: 'consumptionMoney7',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.consumptionMoney7.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '公共缴费(元)',
             dataIndex: 'consumptionMoney5',
             key: 'consumptionMoney5',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.consumptionMoney5.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '违约金(元)',
             dataIndex: 'consumptionMoney8',
             key: 'consumptionMoney8',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.consumptionMoney8.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '月保(元)',
             dataIndex: 'consumptionMoney9',
             key: 'consumptionMoney9',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.consumptionMoney9.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '开始数据',
@@ -153,7 +202,7 @@ const PayReportForms=(props)=>{
                     render: (text:any, record:any) => {
                         return(
                             <div>
-                                {record.beginMoney}
+                                {record.beginMoney.toFixed(2)}
                             </div>
                         )
                     },
@@ -182,7 +231,7 @@ const PayReportForms=(props)=>{
                     render: (text:any, record:any) => {
                         return(
                             <div>
-                                {record.endMoney}
+                                {record.endMoney.toFixed(2)}
                             </div>
                         )
                     },
@@ -245,7 +294,7 @@ const PayReportForms=(props)=>{
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [
-                        item.house_name,
+                        item.house_name?item.house_name:'',
                         (() => {
                             // 提取单元名称，如果unitList为空则返回空字符串
                             return item.unitList && item.unitList.length > 0
@@ -254,15 +303,15 @@ const PayReportForms=(props)=>{
                         })(),
                         item.tenant_name,
                         item.tenant_phone,
-                        item.consumptionMoney6,
-                        item.consumptionMoney,
-                        item.consumptionMoney2,
-                        item.consumptionMoney3,
-                        item.consumptionMoney4,
-                        item.consumptionMoney7,
-                        item.consumptionMoney5,
-                        item.consumptionMoney8,
-                        item.consumptionMoney9,
+                        item.consumptionMoney6.toFixed(2),
+                        item.consumptionMoney.toFixed(2),
+                        item.consumptionMoney2.toFixed(2),
+                        item.consumptionMoney3.toFixed(2),
+                        item.consumptionMoney4.toFixed(2),
+                        item.consumptionMoney7.toFixed(2),
+                        item.consumptionMoney5.toFixed(2),
+                        item.consumptionMoney8.toFixed(2),
+                        item.consumptionMoney9.toFixed(2),
                         (dayjs(item.beginDate).format('YYYY-MM-DD')),
                         item.beginMoney,
                         (dayjs(item.endDate).format('YYYY-MM-DD')),

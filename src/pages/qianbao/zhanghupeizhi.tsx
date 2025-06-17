@@ -2,7 +2,6 @@ import {useEffect, useState} from "react";
 import {Button, Form, Modal, Radio, Select, Slider, Input, InputNumber, message, DatePicker, Tabs, Spin} from "antd";
 import {connect} from "umi";
 import {StaticInfo} from "@/StaticInfo";
-import Bymoney from "@/pages/kehu/bymoney";
 
 const Zhanghupeizhi=(props)=>{
     const [disabled, setDisabled] = useState(false);

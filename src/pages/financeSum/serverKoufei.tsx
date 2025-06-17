@@ -56,6 +56,13 @@ const ServerKoufei=()=>{
             title: '扣费金额(元)',
             dataIndex: 'payAmount',
             key: 'payAmount',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.payAmount.toFixed(2)}
+                    </div>
+                )
+            }
         },
         {
             title: '状态',
@@ -229,7 +236,7 @@ const ServerKoufei=()=>{
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {moneySum}元
+                                {moneySum.toFixed(2)}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

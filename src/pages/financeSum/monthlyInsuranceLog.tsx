@@ -92,7 +92,7 @@ const MonthlyInsuranceLog=(props:any)=>{
             render:(_:any,record:any)=>{
                 return(
                     <div>
-                        {record.consumptionType==1||record.consumptionType==6?<span style={{color:'#58bc58'}}>+{record.consumptionMoney}</span>:<span style={{color:'red'}}>-{record.consumptionMoney}</span>}
+                        {record.consumptionType==1||record.consumptionType==6?<span style={{color:'#58bc58'}}>+{record.consumptionMoney.toFixed(2)}</span>:<span style={{color:'red'}}>-{record.consumptionMoney.toFixed(2)}</span>}
                     </div>
                 )
             }

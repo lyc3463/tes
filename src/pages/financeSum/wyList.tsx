@@ -102,7 +102,7 @@ const WyList=()=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        {record.defaultAmount}元
+                        {record.defaultAmount.toFixed(2)}元
                         <Button onClick={()=>toList(record.rentId)}><QuestionCircleOutlined/></Button>
                     </Space>
                 )
@@ -189,12 +189,18 @@ const WyList=()=>{
             title: '天数(天)',
             dataIndex: 'defaultNum',
             key: 'defaultNum',
-
         },
         {
             title: '金额(元)',
             dataIndex: 'defaultAmount',
             key: 'defaultAmount',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.defaultAmount.toFixed(2)}
+                    </div>
+                )
+            }
         },
     ];
     const toList=(e)=>{
@@ -286,7 +292,7 @@ const WyList=()=>{
                             <Table.Summary.Cell
                                 index={6}
                             >
-                                {moneySum}元
+                                {moneySum.toFixed(2)}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

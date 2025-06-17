@@ -13,6 +13,7 @@ const ElectricCharge=(props:any)=>{
     const [startDate,setStartDate]=useState(checkSessionStorage('/reportFormsManage/electricCharge/','startDate')||'2000-01-01');
     const [endDate,setEndDate]=useState(checkSessionStorage('/reportFormsManage/electricCharge/','endDate')||'2099-01-01');
     const [spinning,setspinning]=useState(false);
+    const [tenantId,settenantId]=useState(0);
     const columns =[
         {
             title: '房屋',
@@ -91,7 +92,7 @@ const ElectricCharge=(props:any)=>{
                     render: (text:any, record:any) => {
                         return(
                             <div>
-                                {record.energyNew}kWh
+                                {record.energyNew.toFixed(2)}kWh
                             </div>
                         )
                     },
@@ -120,7 +121,7 @@ const ElectricCharge=(props:any)=>{
                     render: (text:any, record:any) => {
                         return(
                             <div>
-                                {record.energyNew2}kWh
+                                {record.energyNew2.toFixed(2)}kWh
                             </div>
                         )
                     },
@@ -134,7 +135,7 @@ const ElectricCharge=(props:any)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {record.eleMoneySum}元
+                        {record.eleMoneySum.toFixed(2)}元
                     </div>
                 )
             },
@@ -150,7 +151,7 @@ const ElectricCharge=(props:any)=>{
         const newDate = originalDate.add(1, 'day');
         props.dispatch({
             type:"ElectricCharge/fetch",
-            payload:{address,remark,name,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD')},
+            payload:{address,remark,name,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),tenantId},
             callback:(data,err)=>{
                 if (data==0){
                     setspinning(false);
@@ -193,7 +194,7 @@ const ElectricCharge=(props:any)=>{
         setspinning(true);
         const originalDate = dayjs(endDate);
         const newDate = originalDate.add(1, 'day');
-        WaterRateService.fetch({address,remark,name,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD')}).then((res:TypeErrorCode)=>{
+        WaterRateService.fetch({address,remark,name,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),tenantId}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 let headers=['房屋','单元','租户','采集器编号','通讯地址','描述','水表数据开始时间','开始度数(t)','水表数据结束时间','结束度数(t)','金额(元)'];
                 const ws_data = [
@@ -211,10 +212,10 @@ const ElectricCharge=(props:any)=>{
                         item.address,
                         item.remark,
                         (dayjs(item.beginTime).format('YYYY-MM-DD')),
-                        item.energyNew,
+                        item.energyNew.toFixed(2),
                         (dayjs(item.endTime).format('YYYY-MM-DD')),
-                        item.energyNew2,
-                        item.eleMoneySum,
+                        item.energyNew2.toFixed(2),
+                        item.eleMoneySum.toFixed(2),
                     ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
                 ];
                 exportDataToExcel(ws_data);

@@ -50,6 +50,11 @@ const Yiruzhang=(props)=>{
             title: '提现金额(元)',
             dataIndex: 'withdAmount',
             key: 'withdAmount',
+            render:(text,record)=>{
+                return(
+                    <div>{record.withdAmount.toFixed(2)}</div>
+                )
+            }
         },
         {
             title: '手续费比例',
@@ -126,10 +131,10 @@ const Yiruzhang=(props)=>{
                     ...res.Data.map(item => [
                         (dayjs(item.created).format("YYYY-MM-DD HH:mm:ss")),
                         item.cardId,
-                        item.accountName,
-                        item.bankName,
-                        item.userName,
-                        item.withdAmount,
+                        item.accountName?item.accountName:'',
+                        item.bankName?item.bankName:'',
+                        item.userName?item.userName:'',
+                        item.withdAmount.toFixed(2),
                         item.commission/1000,
                         (item.withdAmount-(item.withdAmount*item.commission/1000)).toFixed(2)
                     ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型

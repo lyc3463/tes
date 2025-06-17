@@ -47,6 +47,11 @@ const Tixian=(props:any)=>{
             title: '提现金额(元)',
             dataIndex: 'withdAmount',
             key: 'withdAmount',
+            render:(text,record)=>{
+                return(
+                    <div>{record.withdAmount.toFixed(2)}</div>
+                )
+            }
         },
         {
             title: '手续费比例',

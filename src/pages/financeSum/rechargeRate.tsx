@@ -141,16 +141,37 @@ const RechargeRate=(props)=>{
             title: '金额(元)',
             dataIndex: 'consumptionMoney',
             key: 'consumptionMoney',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.consumptionMoney.toFixed(2)}
+                    </div>
+                )
+            }
         },
         {
             title: '原余额(元)',
             dataIndex: 'oldMoney',
             key: 'oldMoney',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.oldMoney.toFixed(2)}
+                    </div>
+                )
+            }
         },
         {
             title: '余额(元)',
             dataIndex: 'newMoney',
             key: 'newMoney',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.newMoney.toFixed(2)}
+                    </div>
+                )
+            }
         },
     ];
     // 监听日期
@@ -288,7 +309,7 @@ const RechargeRate=(props)=>{
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {props.count?props.count.moneySum:''}元
+                                {props.count?props.count.moneySum.toFixed(2):''}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

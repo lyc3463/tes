@@ -151,7 +151,7 @@ const CableRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag  color='warning'>{record.energyNew}kwh</Tag>
+                        <Tag  color='warning'>{record.energyNew.toFixed(2)}kwh</Tag>
                     </div>
                 )
             }
@@ -163,7 +163,7 @@ const CableRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag  color='warning'>{(record.energyNew-record.energyOld).toFixed(3)}kwh</Tag>
+                        <Tag  color='warning'>{(record.energyNew-record.energyOld).toFixed(2)}kwh</Tag>
                     </div>
                 )
             }
@@ -316,7 +316,7 @@ const CableRate=(props)=>{
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {moneySum}元
+                                {moneySum.toFixed(2)}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

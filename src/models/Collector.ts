@@ -120,12 +120,12 @@ const AccountModels: CollectorInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/waterCableManage/collector/') {
-                        dispatch({
-                            type: 'fetch',
-                            payload: location.state,
-                        });
-                    }
+                // if (StaticInfo.userId > 0 && pathname === '/waterCableManage/collector/') {
+                //         dispatch({
+                //             type: 'fetch',
+                //             payload: location.state,
+                //         });
+                //     }
                 // if (StaticInfo.userId > 0 && pathname === '/waterCableManage/addCable/') {
                 //         dispatch({
                 //             type: 'fetch',
@@ -150,12 +150,12 @@ const AccountModels: CollectorInterface = {
                 //         payload: location.state,
                 //     });
                 // }
-                if (StaticInfo.userId > 0 && pathname === '/waterCableManage/collector/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/waterCableManage/collector/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
 
             });
         },

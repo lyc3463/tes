@@ -77,21 +77,49 @@ const Zuhulist=(props:any)=>{
             title: '积分(分)',
             dataIndex: 'integral',
             key: 'integral',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.integral.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '余额(元)',
             dataIndex: 'balance',
             key: 'balance',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.balance.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '全部账单(元)',
             dataIndex: 'billMoney',
             key: 'billMoney',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.billMoney.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '公共押金(元)',
             dataIndex: 'deposit',
             key: 'deposit',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.deposit.toFixed(2)}元
+                    </div>
+                )
+            }
         },
     ];
     useEffect(() => {

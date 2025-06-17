@@ -146,7 +146,7 @@ const RentRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag color='green'>{record.payAmount}元</Tag>
+                        <Tag color='green'>{record.payAmount.toFixed(2)}元</Tag>
                     </div>
                 )
             }
@@ -158,7 +158,7 @@ const RentRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag color='green'>{record.preRen}元</Tag>
+                        <Tag color='green'>{record.preRen.toFixed(2)}元</Tag>
                     </div>
                 )
             }
@@ -170,7 +170,7 @@ const RentRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.preRen+record.payAmount}元
+                        {(record.preRen+record.payAmount).toFixed(2)}元
                     </div>
                 )
             }
@@ -182,7 +182,7 @@ const RentRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag color='red'>{record.defaultAmount}元</Tag>
+                        <Tag color='red'>{(record.defaultAmount).toFixed(2)}元</Tag>
                     </div>
                 )
             }
@@ -301,7 +301,7 @@ const RentRate=(props)=>{
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {moneySum}元
+                                {moneySum.toFixed(2)}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

@@ -32,22 +32,50 @@ const Finance=(props)=>{
             title: '租户总余额(元)',
             dataIndex: 'balance',
             key: 'balance',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.balance.toFixed(2)}
+                    </div>
+                )
+            }
         },
         {
             title: '充值总金额(元)',
             dataIndex: 'rechargeAmount',
             key: 'rechargeAmount',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.rechargeAmount.toFixed(2)}
+                    </div>
+                )
+            }
         },
         {
             title: '扣费总金额(元)',
             dataIndex: 'amount',
             key: 'amount',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.amount.toFixed(2)}
+                    </div>
+                )
+            }
 
         },
         {
             title: '差异(元)',
             dataIndex: 'difference1',
             key: 'difference1',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.difference1.toFixed(2)}
+                    </div>
+                )
+            }
 
         },
     ];
@@ -107,16 +135,27 @@ const Finance=(props)=>{
         setspinning(true);
         FinanceService.fetch({page:1,startDate,endDate,pageSize:100000}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let headers=['日期','租户总余额(元)','充值总金额(元)','扣费总金额(元)'];
+                let arr=addDifferenceField(res.Data);
+                let headers=['日期','租户总余额(元)','充值总金额(元)','扣费总金额(元)','差异(元)'];
+                // const ws_data = [
+                //     headers.map(header => ({ v: header, t: 's' })), // 表头
+                //     ...res.Data.map(item => [
+                //         (dayjs(item.countDate).format("YYYY-MM-DD")), // 提取日期部分
+                //         item.balance,
+                //         item.rechargeAmount,
+                //         item.amount
+                //     ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                // ];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
-                    ...res.Data.map(item => [
+                    ...arr.map(item => [
                         (dayjs(item.countDate).format("YYYY-MM-DD")), // 提取日期部分
-                        item.balance,
-                        item.rechargeAmount,
-                        item.amount
-                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
-                ];
+                        item.balance.toFixed(2),
+                        item.rechargeAmount.toFixed(2),
+                        item.amount.toFixed(2),
+                        item.difference1
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
+                ]
                 exportDataToExcel(ws_data);
                 setspinning(false);
             }else {
@@ -142,10 +181,9 @@ const Finance=(props)=>{
                 const currentCalc = item.balance - item.rechargeAmount + item.amount;
                 difference = currentCalc - prevItem.balance;
             }
-
             return {
                 ...item,
-                difference1: parseFloat(difference.toFixed(4)) // 保留4位小数
+                difference1: parseFloat(difference.toFixed(2)) // 保留4位小数
             };
         });
     }

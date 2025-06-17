@@ -145,7 +145,7 @@ const FinancialData=(props:any)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        <span style={{fontSize:'14px',color:'red'}}>{record.billMoney}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
+                        <span style={{fontSize:'14px',color:'red'}}>{record.billMoney.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
                     </div>
                 )
             }
@@ -661,7 +661,7 @@ const FinancialData=(props:any)=>{
                           <Table.Summary.Cell
                             index={8}
                           >
-                              {props.count?props.count.moneySum:''}元
+                              {props.count?props.count.moneySum.toFixed(2):''}元
                           </Table.Summary.Cell>
                         </Table.Summary.Row>
                       </Table.Summary>

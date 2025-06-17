@@ -85,7 +85,7 @@ const OutZuList=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.payAmount}元
+                        {record.payAmount.toFixed(2)}元
                     </div>
                 )
             }

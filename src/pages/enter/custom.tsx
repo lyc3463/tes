@@ -442,7 +442,6 @@ const Custom=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props)
     }, [page,pageSize]);
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
@@ -479,32 +478,6 @@ const Custom=(props:any)=>{
                             </div>
                             {customBeginTime=='2000-01-01'&&customEndTime=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(customBeginTime),dayjs(customEndTime)]}/>}
                         </Space.Compact>
-                        {/*<Space.Compact>*/}
-                        {/*    <div*/}
-                        {/*        style={{*/}
-                        {/*            borderRadius: '6px',*/}
-                        {/*            borderStartEndRadius: 0,*/}
-                        {/*            borderEndEndRadius: 0,*/}
-                        {/*            padding: '0 11px',*/}
-                        {/*            border: '1px solid #d9d9d9',*/}
-                        {/*            display: 'flex',*/}
-                        {/*            alignItems: 'center',*/}
-                        {/*            borderInlineEnd: 0,*/}
-                        {/*        }}*/}
-                        {/*    >*/}
-                        {/*        状态:*/}
-                        {/*    </div>*/}
-                        {/*    <Select*/}
-                        {/*        onChange={changeStutes}*/}
-                        {/*        defaultValue={customStatus}*/}
-                        {/*        style={{ width: 120 }}*/}
-                        {/*        options={[*/}
-                        {/*            { value:2, label: '全部' },*/}
-                        {/*            { value:0, label: '未审核' },*/}
-                        {/*            { value:1, label: '已审核' },*/}
-                        {/*        ]}*/}
-                        {/*    />*/}
-                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={suosou}>
                             搜索
                         </Button>
@@ -514,7 +487,7 @@ const Custom=(props:any)=>{
             <Table
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
-                scroll={{x:2000}} pagination={false}
+                scroll={{x:2000,y:'60vh'}} pagination={false}
                 rowKey={(columns) => columns.id}
                 dataSource={props.CustomList}
                 size='small'

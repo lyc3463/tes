@@ -37,7 +37,7 @@ const Hire=(props:any)=>{
             key: 'floor_area',
             render: (_:any, record:any) => {
                 return(
-                    <span>{record.floor_area}㎡</span>
+                    <span>{record.floor_area.toFixed(2)}㎡</span>
                 )
             }
         },
@@ -47,7 +47,7 @@ const Hire=(props:any)=>{
             key: 'rentable_area',
             render: (_:any, record:any) => {
                 return(
-                    <span>{record.rentable_area}㎡</span>
+                    <span>{record.rentable_area.toFixed(2)}㎡</span>
                 )
             }
         },
@@ -57,7 +57,7 @@ const Hire=(props:any)=>{
             key: 'residue_add_area',
             render: (_:any, record:any) => {
                 return(
-                    <span>{record.residue_add_area}㎡</span>
+                    <span>{record.residue_add_area.toFixed(2)}㎡</span>
                 )
             }
         },
@@ -71,6 +71,11 @@ const Hire=(props:any)=>{
             title: '已租面积㎡',
             dataIndex: 'rentable_areaSum',
             key: 'rentable_areaSum',
+            render: (_:any, record:any) => {
+                return(
+                    <span>{record.rentable_areaSum.toFixed(2)}㎡</span>
+                )
+            }
 
         },
         {
@@ -79,7 +84,7 @@ const Hire=(props:any)=>{
             key: 'priceSum',
             render: (_:any, record:any) => {
                 return(
-                    <span>{record.priceSum}元</span>
+                    <span>{record.priceSum.toFixed(2)}元</span>
                 )
             }
         },
@@ -124,7 +129,6 @@ const Hire=(props:any)=>{
                 )
             }
         },
-
     ];
     useEffect(() => {
         logFenye();
@@ -168,13 +172,13 @@ const Hire=(props:any)=>{
                     ...res.Data.map(item => [
                         item.house_name,
                         item.floors,
-                        item.floor_area,
-                        item.rentable_area,
-                        item.residue_add_area,
+                        item.floor_area.toFixed(2),
+                        item.rentable_area.toFixed(2),
+                        item.residue_add_area.toFixed(2),
                         item.unitCount,
-                        item.rentable_areaSum,
-                        item.priceSum,
-                        item.tenantCount,
+                        item.rentable_areaSum.toFixed(2),
+                        item.priceSum.toFixed(2),
+                        item.tenantCount.toFixed(2),
                         ((item.rentable_areaSum !== 0) ? (item.priceSum / item.rentable_areaSum).toFixed(2) : 0),
                         ((item.rentable_areaSum/item.rentable_area)*100).toFixed(2),
                         ((item.rentable_area/item.floor_area)*100).toFixed(2)

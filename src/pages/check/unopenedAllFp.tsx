@@ -95,6 +95,13 @@ const UnopenedAllFp=(props)=>{
             title: '金额(元)',
             dataIndex: 'consumptionMoney',
             key: 'consumptionMoney',
+            render:(_:any,item:any)=>{
+                return(
+                    <div>
+                        {item.consumptionMoney.toFixed(2)}
+                    </div>
+                )
+            }
         },
         {
             title: '状态',

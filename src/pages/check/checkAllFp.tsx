@@ -156,7 +156,7 @@ const CheckAllFp=(props)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        <span style={{fontSize:'14px',color:'red'}}>{record.consumptionMoney}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
+                        <span style={{fontSize:'14px',color:'red'}}>{record.consumptionMoney.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
                     </div>
                 )
             }

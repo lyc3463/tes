@@ -74,6 +74,7 @@ const CableRate=(props)=>{
         setUqx(uq);
     }, []);
     const columns =[
+
         {
             title: '日期',
             dataIndex: 'recordTime',

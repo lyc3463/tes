@@ -403,11 +403,11 @@ const ZsContract=(props:any)=>{
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={4}>{zuMoney}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}>{deposit}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}>{manageFee}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={7}>{prepayment}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={8}>{depositFee}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}>{zuMoney.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>{deposit.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>{manageFee.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}>{prepayment.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}>{depositFee.toFixed(2)}元</Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}

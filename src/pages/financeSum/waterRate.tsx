@@ -150,7 +150,7 @@ const WaterRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag  color='warning'>{record.energyNew}m³</Tag>
+                        <Tag  color='warning'>{record.energyNew.toFixed(2)}m³</Tag>
                     </div>
                 )
             }
@@ -174,7 +174,7 @@ const WaterRate=(props)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        <Tag  color='blue'>{record.energyUsage}元</Tag>
+                        <Tag  color='blue'>{record.energyUsage.toFixed(2)}元</Tag>
                     </div>
                 )
             }
@@ -309,14 +309,13 @@ const WaterRate=(props)=>{
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
-
                             <Table.Summary.Cell index={5}>
-                                {energyUsage}m³
+                                {energyUsage.toFixed(2)}m³
                             </Table.Summary.Cell>
                             <Table.Summary.Cell
                                 index={6}
                             >
-                                {moneySum}元
+                                {moneySum.toFixed(2)}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

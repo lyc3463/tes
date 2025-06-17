@@ -71,6 +71,13 @@ const UnopenedSdFp=(props)=>{
             title: '金额(元)',
             dataIndex: 'eleMoney',
             key: 'eleMoney',
+            render:(_:any,item:any)=>{
+                return(
+                    <div>
+                        {item.eleMoney.toFixed(2)}
+                    </div>
+                )
+            }
         },
         {
             title: '状态',

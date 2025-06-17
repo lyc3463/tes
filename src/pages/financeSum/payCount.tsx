@@ -68,6 +68,7 @@ const PayCount=(props)=>{
         setUqx(uq);
     }, []);
     const columns =[
+
         {
             title: '日期',
             dataIndex: 'consumptionDate',
@@ -148,7 +149,7 @@ const PayCount=(props)=>{
             render:(_:any,record:any)=>{
                 return(
                     <div>
-                        {record.consumptionType==1||record.consumptionType==6?<span style={{color:'#58bc58'}}>+{record.consumptionMoney}</span>:<span style={{color:'red'}}>-{record.consumptionMoney}</span>}
+                        {record.consumptionType==1||record.consumptionType==6?<span style={{color:'#58bc58'}}>+{record.consumptionMoney.toFixed(2)}</span>:<span style={{color:'red'}}>-{record.consumptionMoney.toFixed(2)}</span>}
                     </div>
                 )
             }
@@ -157,11 +158,25 @@ const PayCount=(props)=>{
             title: '原余额(元)',
             dataIndex: 'oldMoney',
             key: 'oldMoney',
+            render:(_:any,record:any)=>{
+                return(
+                    <div>
+                        {record.oldMoney.toFixed(2)}
+                    </div>
+                )
+            }
         },
         {
             title: '余额(元)',
             dataIndex: 'newMoney',
             key: 'newMoney',
+            render:(_:any,record:any)=>{
+                return(
+                    <div>
+                        {record.newMoney.toFixed(2)}
+                    </div>
+                )
+            }
         },
     ];
     // 监听日期

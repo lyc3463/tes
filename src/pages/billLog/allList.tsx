@@ -107,7 +107,7 @@ const AllList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.payAmount}元
+                        {record.payAmount.toFixed(2)}元
                     </div>
                 )
             }
@@ -119,7 +119,7 @@ const AllList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.stopAmount}元
+                        {record.stopAmount.toFixed(2)}元
                     </div>
                 )
             }

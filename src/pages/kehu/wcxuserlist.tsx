@@ -39,7 +39,7 @@ const Wcxuserlist=(props:any)=>{
     const [uqx,setUqx]=useState([]);
     // 弹窗
     const [isOpen,setIsOpen]=useState(false);
-    const [selected, setSelected] = useState<string[]>(Array(395).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(397).fill('0'));
     const [appid,setAppid]=useState(0);
     const columns =[
         {
@@ -68,16 +68,37 @@ const Wcxuserlist=(props:any)=>{
             title: '余额(元)',
             dataIndex: 'balance',
             key: 'balance',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.balance.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '账单(元)',
             dataIndex: 'billMoney',
             key: 'billMoney',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.billMoney.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '积分',
             dataIndex: 'integral',
             key: 'integral',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.integral.toFixed(2)}元
+                    </div>
+                )
+            }
         },
         {
             title: '权限',
@@ -215,9 +236,9 @@ const Wcxuserlist=(props:any)=>{
                     ...res.Data.map(item => [
                         item.appUser_name,
                         item.appUser_phone,
-                        item.balance,
-                        item.billMoney,
-                        item.integral,
+                        item.balance.toFixed(2),
+                        item.billMoney.toFixed(2),
+                        item.integral.toFixed(2),
                     ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
                 ];
                 exportDataToExcel(ws_data);
@@ -280,13 +301,13 @@ const Wcxuserlist=(props:any)=>{
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>
-                                {props.count?props.count.balanceSum:''}元
+                                {props.count?props.count.balanceSum.toFixed(2):''}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={7}>
-                                {props.count?props.count.billMoneySum:''}元
+                                {props.count?props.count.billMoneySum.toFixed(2):''}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={6}>
-                                {props.count?props.count.integralSum:''}分
+                                {props.count?props.count.integralSum.toFixed(2):''}分
                             </Table.Summary.Cell>
 
                         </Table.Summary.Row>
@@ -297,8 +318,8 @@ const Wcxuserlist=(props:any)=>{
             {/*编辑权限弹窗*/}
             <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk} loading={isSpinning}>
                 <Space>
-                    <Button type='primary' onClick={()=>setSelected(Array(395).fill('1'))}>全选</Button>
-                    <Button type='primary' onClick={()=>setSelected(Array(395).fill('0'))}>反选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(397).fill('1'))}>全选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(397).fill('0'))}>反选</Button>
                 </Space>
                 <TreeMenu tree={treeData} selected={selected} setSelected={setSelected} />
             </Modal>

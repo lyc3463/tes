@@ -19,7 +19,7 @@ const EditUser=(props:any)=>{
     const location=useLocation();
     const [roleList,setRoleList]=useState([]);
     const formRef =useRef();
-    const [selected, setSelected] = useState<string[]>(Array(395).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(397).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{

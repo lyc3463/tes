@@ -582,7 +582,7 @@ const BillSum=(props:any)=>{
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {props.count?props.count.moneySum:''}元
+                                {props.count?props.count.moneySum.toFixed(2):''}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

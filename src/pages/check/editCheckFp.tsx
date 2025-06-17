@@ -50,7 +50,7 @@ const EditCheckFp=(props:any)=>{
             setemail(data[1].email);
             setOpenid(data[0].openId);
             setConsumptionType(data[0].consumptionType);
-            setConsumptionMoney(data[0].consumptionMoney);
+            setConsumptionMoney(data[0].consumptionMoney.toFixed(2));
             setrise_name(data[1].rise_name);
             settenant_name(data[0].tenant_name);
             setinvoiceType(data[0].invoiceType);

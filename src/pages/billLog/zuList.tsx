@@ -116,7 +116,7 @@ const ZuList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div style={{color:'red'}}>
-                        {record.payAmount}元
+                        {record.payAmount.toFixed(2)}元
                     </div>
                 )
             }
@@ -128,7 +128,7 @@ const ZuList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div style={{color:'red'}}>
-                        {record.stopAmount}元
+                        {record.stopAmount.toFixed(2)}元
                     </div>
                 )
             }
@@ -152,7 +152,7 @@ const ZuList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.defaultAmount}元
+                        {record.defaultAmount.toFixed(2)}元
                     </div>
                 )
             }
@@ -164,7 +164,7 @@ const ZuList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.preRen}元
+                        {record.preRen.toFixed(2)}元
                     </div>
                 )
             }
@@ -176,7 +176,7 @@ const ZuList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {(record.preRen+record.payAmount).toFixed(3)}元
+                        {(record.preRen+record.payAmount).toFixed(2)}元
                     </div>
                 )
             }
@@ -282,7 +282,7 @@ const ZuList=(props:any)=>{
                             <Table.Summary.Cell index={6}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}><span style={{color:"red"}}>{moneySum}元</span></Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}><span style={{color:"red"}}>{moneySum.toFixed(2)}元</span></Table.Summary.Cell>
 
                         </Table.Summary.Row>
                     </Table.Summary>

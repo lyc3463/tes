@@ -18,7 +18,7 @@ const AddUser=(props:any)=>{
     const navigate=useNavigate();
     const treeData = buildTree(qxTree);
     const [roleList,setRoleList]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(395).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(397).fill('0'));
     const onFinish= (values)=>{
         let mm =CryptoUtils.md5(values.passWord);
         values.passWord=mm;
@@ -61,7 +61,6 @@ const AddUser=(props:any)=>{
             type:'Role/fetch'
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('角色列表',res)
                 setRoleList(res.Data);
             }else {
                 message.error(res.Data);

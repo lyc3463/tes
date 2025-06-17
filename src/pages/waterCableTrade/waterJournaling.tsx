@@ -82,7 +82,7 @@ const WaterJournaling=(props)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {record.lossTotal}元
+                        {(record.lossTotal).toFixed(2)}元
                     </div>
                 )
             },
@@ -94,7 +94,7 @@ const WaterJournaling=(props)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {record.lossSum}元
+                        {(record.lossSum).toFixed(2)}元
                     </div>
                 )
             },
@@ -106,7 +106,7 @@ const WaterJournaling=(props)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {record.loss}元每度
+                        {(record.loss)}元每度
                     </div>
                 )
             },
@@ -118,7 +118,7 @@ const WaterJournaling=(props)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {record.lossCycleOut}kwh
+                        {(record.lossCycleOut).toFixed(2)}kwh
                     </div>
                 )
             },
@@ -130,7 +130,7 @@ const WaterJournaling=(props)=>{
             render: (text:any, record:any) => {
                 return(
                     <div>
-                        {(record.lossCycleOut*record.loss).toFixed(3)}元
+                        {(record.lossCycleOut*record.loss).toFixed(2)}元
                     </div>
                 )
             },
@@ -237,23 +237,23 @@ const WaterJournaling=(props)=>{
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={2}>
-                                {eleNumSum}kwh
+                                {eleNumSum.toFixed(2)}kwh
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={3}>
-                                {c0Sum}kwh
+                                {c0Sum.toFixed(2)}kwh
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={4}>
-                                {lossTotal}元
+                                {lossTotal.toFixed(2)}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>
-                                {lossSum}元
+                                {lossSum.toFixed(2)}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={6}>
-                                {lossCycleOut}元
+                                {lossCycleOut.toFixed(2)}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

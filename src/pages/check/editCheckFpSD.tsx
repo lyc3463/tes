@@ -50,7 +50,7 @@ const EditCheckFpSD=(props:any)=>{
             setWork_address(data[1].work_address);
             setOpenid(data[0].openId);
             setConsumptionType(data[0].consumptionType);
-            setConsumptionMoney(data[0].consumptionMoney);
+            setConsumptionMoney(data[0].consumptionMoney.toFixed(2));
             setinvoiceType(data[0].invoiceType);
             setrise_name(data[0].rise_name);
             settenant_name(data[0].tenant_name);

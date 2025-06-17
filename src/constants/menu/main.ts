@@ -139,4 +139,7 @@ export const menuData: TypeMenu[] = [
     { id: 360 ,route: '/systemManage/allpz', name: '配置设置',parentId: 113, authId: 360},
     { id: 362, route: '/financeSum/monthlyInsuranceLog/', name: '月保缴费记录', parentId: 57, authId: 362},
     { id: 372, route: '/billLog/outMonthlyBill/', name: '退租账单', parentId: 65, authId: 372},
+    // { id: 395, route: '/enter/enterBankCard/', name: '银行卡录入', parentId: 39, authId: 395},
+    // { id: 396, route: '/check/checkBankCard/', name: '银行卡审批', parentId: 71, authId: 396},
+
 ]
