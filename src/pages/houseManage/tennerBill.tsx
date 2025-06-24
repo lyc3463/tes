@@ -1,10 +1,12 @@
-import {history,connect} from "umi";
+import {history,connect,useNavigate} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {Button, Input, List, message, Space, Table, Tag} from "antd";
 
 const TennerBill=(props:any)=>{
+    const navigate=useNavigate();
+
     // 账单列表
     const [billList,setbillList]=useState([]);
     // 合同编号
@@ -188,6 +190,7 @@ const TennerBill=(props:any)=>{
                         <span style={{fontWeight:'600'}}>初始租金:{`${rent}元`}</span>
                         <span style={{fontWeight:'600'}}>初始管理费:{`${manageFee}元`}</span>
                         <span style={{fontWeight:'600'}}>管理费递增:{`${manageFeeRent}%`}</span>
+                        <Button type="primary" onClick={()=>navigate(-1)}>返回</Button>
                     </Space>
                 </List.Item>
             </List>

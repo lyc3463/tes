@@ -58,7 +58,6 @@ const RechargeRateModel: QuestionnaireInterface = {
         },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(RechargeRateService.fenye,payload?payload:pl);
-            console.log('缴费统计记录',res);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'count',
@@ -93,18 +92,18 @@ const RechargeRateModel: QuestionnaireInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/financeSum/rechargeRate/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/financeSum/rechargeRate/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/financeSum/rechargeRate/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/financeSum/rechargeRate/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
             });
         },
     },

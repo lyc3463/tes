@@ -26,10 +26,11 @@ const UnopenedAllFp=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [type,settype]=useState(0);
+    const [type,settype]=useState(checkSessionStorage('/check/checkFp/','unopenedAllFptype')||0);
     const [tenantr,settenantr]=useState(checkSessionStorage('/check/checkFp/','unopenedAllFpTenantr')||0);
     const [stutes,setstutes]=useState(checkSessionStorage('/check/checkFp/','unopenedAllFpStutes')||0);
     const [zuhuList,setZuhuList]=useState([]);
+    const [name,setName]=useState(checkSessionStorage('/check/checkFp/','unopenedAllFpName')||'');
     const [setzuhuId,setsetzuhuId]=useState(0);
     const columns =[
         {
@@ -129,13 +130,13 @@ const UnopenedAllFp=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'UnopenedAllFp/fetch',
-            payload:{page,pageSize,tenantr,type,stutes}
+            payload:{page,pageSize,tenantr,type,stutes,name}
         })
     };
     const getfyInfo=()=>{
         props.dispatch({
             type:'UnopenedAllFp/fenye',
-            payload:{pageSize,tenantr,type,stutes}
+            payload:{pageSize,tenantr,type,stutes,name}
         })
     };
     useEffect(() => {
@@ -146,7 +147,7 @@ const UnopenedAllFp=(props)=>{
         updateSessionStorage('/check/checkFp/','unopenedAllFpStutes',e);
     };
     useEffect(() => {
-        logFenye();
+        // logFenye();
         getfyInfo();
     }, []);
     const logFenye=()=>{
@@ -155,7 +156,6 @@ const UnopenedAllFp=(props)=>{
             payload:{page:1,name:'',phone:'',pagecount:100000}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('租户列表',res);
                 setZuhuList(res.Data);
             }
         })
@@ -178,11 +178,25 @@ const UnopenedAllFp=(props)=>{
         setPage(e);
         setPageSize(pageSizez);
     };
+    const changeType=(e)=>{
+        settype(e);
+        updateSessionStorage('/check/checkFp/','unopenedAllFptype',e);
+    };
+    const changeName=(e)=>{
+        setName(e.target.value);
+        updateSessionStorage('/check/checkFp/','unopenedAllFpName',e.target.value);
+    };
     return(
         <Spin spinning={isLoading}>
             <List>
                 <List.Item>
                     <Space>
+                        <Input
+                            style={{ width: 300 }}
+                            addonBefore="名称:"
+                            value={name}
+                            onChange={changeName}
+                        />
                         <Space.Compact>
                             <div
                                 style={{
@@ -223,32 +237,61 @@ const UnopenedAllFp=(props)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                租户:
+                                类型:
                             </div>
                             <Select
-                                value={setzuhuId}
-                                onChange={changeHouse}
-                                showSearch
-                                style={{ width: 500 }}
-                                optionFilterProp="children"
-                                filterOption={(input, option) => {
-                                    // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = zuhuList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
-                                    return item?.tenant_name?.toLowerCase().includes(input.toLowerCase());
-                                }}
-                            >
-                                <Select.Option value={0} key={0}>
-                                    全部
-                                </Select.Option>
-                                {zuhuList.map((item:any,index:any)=>{
-                                    return(
-                                        <Select.Option value={item.id} key={item.id}>
-                                            {item.tenant_name}-{item.tenant_phone}
-                                        </Select.Option>
-                                    )
-                                })}
-                            </Select>
+                                onChange={changeType}
+                                value={type}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:2, label: '租金' },
+                                    { value:5, label: '公共缴费' },
+                                    { value:7, label: '服务费' },
+                                    { value:8, label: '违约金' },
+                                    { value:9, label: '月保' },
+                                ]}
+                            />
                         </Space.Compact>
+                        {/*<Space.Compact>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            borderStartEndRadius: 0,*/}
+                        {/*            borderEndEndRadius: 0,*/}
+                        {/*            padding: '0 11px',*/}
+                        {/*            border: '1px solid #d9d9d9',*/}
+                        {/*            display: 'flex',*/}
+                        {/*            alignItems: 'center',*/}
+                        {/*            borderInlineEnd: 0,*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        租户:*/}
+                        {/*    </div>*/}
+                        {/*    <Select*/}
+                        {/*        value={setzuhuId}*/}
+                        {/*        onChange={changeHouse}*/}
+                        {/*        showSearch*/}
+                        {/*        style={{ width: 300 }}*/}
+                        {/*        optionFilterProp="children"*/}
+                        {/*        filterOption={(input, option) => {*/}
+                        {/*            // 假设每个 option 都有一个与数据项对应的 value 属性*/}
+                        {/*            const item = zuhuList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程*/}
+                        {/*            return item?.tenant_name?.toLowerCase().includes(input.toLowerCase());*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        <Select.Option value={0} key={0}>*/}
+                        {/*            全部*/}
+                        {/*        </Select.Option>*/}
+                        {/*        {zuhuList.map((item:any,index:any)=>{*/}
+                        {/*            return(*/}
+                        {/*                <Select.Option value={item.id} key={item.id}>*/}
+                        {/*                    {item.tenant_name}-{item.tenant_phone}*/}
+                        {/*                </Select.Option>*/}
+                        {/*            )*/}
+                        {/*        })}*/}
+                        {/*    </Select>*/}
+                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -260,9 +303,29 @@ const UnopenedAllFp=(props)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 size='small'
-                scroll={{y:'70vh'}}
+                scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
                 dataSource={props.CheckFpList}
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {props.count?props.count.moneySum.toFixed(2):''}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </Spin>

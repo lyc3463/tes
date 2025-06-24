@@ -17,7 +17,8 @@ let pl = {
     type:0,
     tenantr:0,
     stutes:0,
-    pageSize:50
+    pageSize:50,
+    name:''
 };
 
 export interface NuitCountState {

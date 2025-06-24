@@ -113,7 +113,9 @@ export default function Login() {
       })
       .then(resjson => {
         const curversion = resjson.version;
+        console.log('最新版本',curversion);
         const jeguo = localStorage.getItem('curversion') == curversion;
+        console.log('结果',jeguo);
         if (!jeguo) {
           localStorage.setItem('curversion', curversion);
         }
@@ -447,7 +449,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.4.5</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.5.1</p>
                 </div>
               </Form.Item>
             </Form>

@@ -18,7 +18,13 @@ import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as AppUserService from '@/services/appUser';
 import styles from "@/pages/contract/endContran.less";
-import {numberToRMB} from "@/utils/OpenTool";
+import {
+    checkSessionStorage,
+    checkSessionStoragevalue,
+    deleteSessionStorageRoutevalue,
+    numberToRMB,
+    updateSessionStorageValue
+} from "@/utils/OpenTool";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -27,10 +33,11 @@ const AddChongzhi=(props:any)=>{
     // 充值类型
     const [handType,setHandType]=useState(1);
     const [spinning,setspinning]=useState(false);
+    const [isxianshi,setisxianshi]=useState(false);
     // 输入查询的手机号
-    const [userPhone,setUserPhone]=useState('');
+    const [userPhone,setUserPhone]=useState(checkSessionStoragevalue('/billLog/addChongzhi','phone')||'');
     // 输入充值的金额
-    const [addbalance,setaddbalance]=useState(0);
+    const [addbalance,setaddbalance]=useState(checkSessionStoragevalue('/billLog/addChongzhi','balance')||0);
     // 弹窗输入充值的金额
     const [openBalance,setopenBalance]=useState(0);
     // 用户头像
@@ -63,6 +70,7 @@ const AddChongzhi=(props:any)=>{
                     message.success('添加成功');
                     setspinning(false);
                     setOpen(false);
+                    deleteSessionStorageRoutevalue('/billLog/addChongzhi');
                     history.push('/billLog/manualRecharge');
                 }else {
                     message.error(res.Data);
@@ -71,36 +79,43 @@ const AddChongzhi=(props:any)=>{
                 }
             })
         }
-
     };
     const changeHandAmount=(e)=>{
         // console.log();
         setHandType(e.target.value);
     };
-
     // 搜索输入的手机号
     const sousuo=()=>{
         setspinning(true);
-        AppUserService.userInfo(userPhone).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                if (res.Data.userId==0){
-                    message.warning('未能查询到该用户');
-                    setspinning(false);
+        if (userPhone==''){
+            setspinning(false);
+            setisxianshi(false);
+            return ;
+        }else {
+            AppUserService.userInfo(userPhone).then((res:TypeErrorCode)=>{
+                if (res.ErrorCode==0){
+                    if (res.Data.userId==0){
+                        message.warning('未能查询到该用户');
+                        setspinning(false);
+                        setisxianshi(false);
+                    }else {
+                        setappUser_image(res.Data.appUser_image);
+                        setappUser_name(res.Data.appUser_name);
+                        setbalance(res.Data.balance);
+                        settenant_phone(res.Data.tenant_phone);
+                        setUserId(res.Data.userId);
+                        settenantCompany(res.Data.tenant_name);
+                        setspinning(false);
+                        setisxianshi(true);
+                    }
                 }else {
-                    setappUser_image(res.Data.appUser_image);
-                    setappUser_name(res.Data.appUser_name);
-                    setbalance(res.Data.balance);
-                    settenant_phone(res.Data.tenant_phone);
-                    setUserId(res.Data.userId);
-                    settenantCompany(res.Data.tenant_name);
+                    message.error(res.Data);
                     setspinning(false);
+                    setisxianshi(false);
                 }
+            })
+        }
 
-            }else {
-                message.error(res.Data);
-                setspinning(false);
-            }
-        })
     };
     const chongzhiOpen=()=>{
         if (addbalance==0){
@@ -109,6 +124,17 @@ const AddChongzhi=(props:any)=>{
             setOpen(true);
         }
     };
+    const changePhone=(e)=>{
+        setUserPhone(e.target.value);
+        updateSessionStorageValue('/billLog/addChongzhi','phone',e.target.value);
+    };
+    const changeBalance=(e)=>{
+        setaddbalance(e);
+        updateSessionStorageValue('/billLog/addChongzhi','balance',e);
+    };
+    useEffect(() => {
+        sousuo();
+    }, []);
     return(
         <Spin spinning={spinning}>
             <List>
@@ -116,7 +142,8 @@ const AddChongzhi=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="手机号码:"
-                            onChange={(e)=>setUserPhone(e.target.value)}
+                            onChange={changePhone}
+                            value={userPhone}
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -143,7 +170,7 @@ const AddChongzhi=(props:any)=>{
                         </Space.Compact>
                         <InputNumber min={0}
                             addonBefore="充值量(元):"
-                            onChange={(e)=>setaddbalance(e)}
+                            onChange={changeBalance}
                             value={addbalance}
                         />
                         <Button type='primary' onClick={()=>navigate(-1)}>返回</Button>
@@ -151,7 +178,7 @@ const AddChongzhi=(props:any)=>{
                 </List.Item>
             </List>
             {
-                userId==0?'':<>
+                !isxianshi?'':<>
                     <form className={styles.gridForm1} >
                         <div className={styles.gridItem}>用户头像</div>
                         <div className={styles.gridItem}>微信昵称</div>

@@ -1,16 +1,17 @@
-import {Button, Input, InputNumber, List, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
+import {Button, Input, InputNumber, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import {connect,history} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
-import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import {checkSessionStorage, filterItemsWithUnitList, updateSessionStorage} from "@/utils/OpenTool";
 
 const HouseBill=(props:any)=>{
     const [name,setName]=useState(checkSessionStorage('/houseManage/houseBill/','name')||'');
     const [phone,setPhone]=useState(checkSessionStorage('/houseManage/houseBill/','phone')||'');
     const [page,setPage]=useState(1);
     const [count,setcount]=useState(1);
-    const [pagecount,setpagecount]=useState(50);
+    const [pagecount,setpagecount]=useState(10000);
+    const [zuhuList,setZuhuList]=useState([]);
     useEffect(() => {
         getFenye();
     }, []);
@@ -19,10 +20,30 @@ const HouseBill=(props:any)=>{
     }, [page,pagecount]);
     // 分页
     const logFenye=()=>{
-        props.dispatch({
-            type:"Zuhu/fetch",
-            payload:{page,name,phone,pagecount}
-        })
+        if (name==''&&phone==''){
+            props.dispatch({
+                type:"BYZhuhu/fetch",
+                payload:{page,name,phone,pagecount}
+            }).then((res:TypeErrorCode)=>{
+                if (res.ErrorCode==0){
+                   let newArr= filterItemsWithUnitList(res.Data);
+                    setZuhuList(newArr);
+                }else {
+                    message.error(res.Data);
+                }
+            })
+        }else {
+            props.dispatch({
+                type:"BYZhuhu/fetch",
+                payload:{page,name,phone,pagecount}
+            }).then((res:TypeErrorCode)=>{
+                if (res.ErrorCode==0){
+                    setZuhuList(res.Data);
+                }else {
+                    message.error(res.Data);
+                }
+            })
+        }
     };
     // 搜索按钮
     const shousuo=()=>{
@@ -30,16 +51,17 @@ const HouseBill=(props:any)=>{
         getFenye();
         logFenye();
     };
-    const onChange=(val:number)=>{
+    const onChange=(val:number,pageSize:number)=>{
         setPage(val);
+        setpagecount(pageSize);
     };
     const getFenye=()=>{
         props.dispatch({
-            type:'Zuhu/fenye',
+            type:'BYZhuhu/fenye',
             payload:{name,phone,pagecount}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setcount(res.Data.count)
+                setcount(res.Data.count);
             }
         });
     };
@@ -131,17 +153,17 @@ const HouseBill=(props:any)=>{
                 columns={columns}
                 size='small'
                 rowKey={(columns) => columns.id}
-                dataSource={props.ZuhuList}
+                dataSource={zuhuList}
                 scroll={{y:'60vh'}}
                 pagination={false}
             />
-           <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
+           <Pagination total={count} pageSize={pagecount} current={page}  onChange={onChange}  showSizeChanger  />
         </div>
     )
 };
 const mapStateToProps = (state: any) => {
     return {
-        ZuhuList: state.Zuhu.list,
+        ZuhuList: state.BYZhuhu.list,
     }
 };
 export default connect(mapStateToProps) (HouseBill)

@@ -24,10 +24,11 @@ const UnopenedSdFp=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [type,settype]=useState(0);
+    const [type,settype]=useState(checkSessionStorage('/check/checkFp/','unopenedSdFptype')||0);
     const [tenantr,settenantr]=useState(checkSessionStorage('/check/checkFp/','unopenedSdFpTenantr')||0);
     const [stutes,setstutes]=useState(checkSessionStorage('/check/checkFp/','unopenedSdFpStutes')||0);
     const [zuhuList,setZuhuList]=useState([]);
+    const [sumMoney,setSumMoney]=useState(0);
     const columns =[
         {
             title: '周期',
@@ -103,10 +104,18 @@ const UnopenedSdFp=(props)=>{
     ];
 
     const getList=()=>{
-      props.dispatch({
-          type:'UnopenedSdFp/fetch',
-          payload:{page,pageSize,tenantr,type,stutes}
-      })
+        props.dispatch({
+            type:'UnopenedSdFp/fetch',
+            payload:{tenantr,type,stutes}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                // 计算eleMoney总和
+                const total = res.Data.reduce((sum, item) => sum + (item.eleMoney || 0), 0);
+                setSumMoney(total);
+            }else {
+                message.error(res.ErrorCode+res.Data);
+            }
+        })
     };
     useEffect(() => {
         getList();
@@ -135,11 +144,41 @@ const UnopenedSdFp=(props)=>{
     const sousuo=()=>{
         getList();
     };
+    const changeType=(e)=>{
+        settype(e);
+        updateSessionStorage('/check/checkFp/','unopenedSdFptype',e);
+    };
     return(
         <Spin spinning={isLoading}>
             <List>
                 <List.Item>
                     <Space>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                类型:
+                            </div>
+                            <Select
+                                onChange={changeType}
+                                value={type}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value: 0, label: '全部' },
+                                    { value: 1, label: '电费' },
+                                    { value: 2, label: '水费' },
+                                ]}
+                            />
+                        </Space.Compact>
                         <Space.Compact>
                             <div
                                 style={{
@@ -186,7 +225,7 @@ const UnopenedSdFp=(props)=>{
                                 value={tenantr}
                                 onChange={changeHouse}
                                 showSearch
-                                style={{ width: 500 }}
+                                style={{ width: 300 }}
                                 optionFilterProp="children"
                                 filterOption={(input, option) => {
                                     // 假设每个 option 都有一个与数据项对应的 value 属性
@@ -220,6 +259,26 @@ const UnopenedSdFp=(props)=>{
                 scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
                 dataSource={props.CheckFpList}
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {sumMoney.toFixed(2)}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
         </Spin>
     )

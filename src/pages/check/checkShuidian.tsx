@@ -45,6 +45,11 @@ const CheckShuidian=(props)=>{
     const [imgB64,setImgB64]=useState('');
     // 发送给小程序内容
     const [conten,setconten]=useState('');
+    //抬头名称
+    const [riseName,setriseName]=useState(checkSessionStorage('/check/checkFp/','checkShuidianriseName')||'');
+    // 租户名称
+    const [tenantName,settenantName]=useState(checkSessionStorage('/check/checkFp/','checkShuidiantenantName')||'');
+    const [type,setType]=useState(checkSessionStorage('/check/checkFp/','checkShuidianType')||0);
     const [zuhuList,setZuhuList]=useState([]);
     const columns =[
         {
@@ -208,14 +213,14 @@ const CheckShuidian=(props)=>{
     const getfenyeInfo=()=>{
         props.dispatch({
             type:'CheckFpSD/fenye',
-            payload:{startDate,endDate,openId,stutes,pageSize}
+            payload:{startDate,endDate,openId,stutes,pageSize,riseName,tenantName,type}
         });
     };
     // 列表
     const logFenye=()=>{
         props.dispatch({
             type:"CheckFpSD/fetch",
-            payload:{page,startDate,endDate,openId,stutes,pageSize}
+            payload:{page,startDate,endDate,openId,stutes,pageSize,riseName,tenantName,type}
         })
     };
     useEffect(() => {
@@ -328,13 +333,40 @@ const CheckShuidian=(props)=>{
     };
     const changZuHu=(e)=>{
         setOpenId(e);
-
+    };
+    const changeriseName=(e)=>{
+        setriseName(e.target.value);
+        updateSessionStorage('/check/checkFp/','checkShuidianriseName',e.target.value);
+    };
+    const changetenantName=(e)=>{
+        settenantName(e.target.value);
+        updateSessionStorage('/check/checkFp/','checkShuidiantenantName',e.target.value);
+    };
+    const changeType=(e)=>{
+        setType(e);
+        updateSessionStorage('/check/checkFp/','checkShuidianType',e);
     };
     return(
         <Spin spinning={isLoading} style={{zIndex:'1000'}}>
             <List>
                 <List.Item>
                     <Space>
+                        <Input
+                            style={{ width: 300 }}
+                            addonBefore="抬头名称:"
+                            value={riseName}
+                            onChange={changeriseName}
+                        />
+                        <Input
+                            style={{ width: 300 }}
+                            addonBefore="租户名称:"
+                            value={tenantName}
+                            onChange={changetenantName}
+                        />
+                        {/*<Input*/}
+                        {/*    style={{ width: 300 }}*/}
+                        {/*    addonBefore="单元名称:"*/}
+                        {/*/>*/}
                         <Space.Compact>
                             <div
                                 style={{
@@ -365,6 +397,32 @@ const CheckShuidian=(props)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
+                                类型:
+                            </div>
+                            <Select
+                                onChange={changeType}
+                                value={type}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value: 0, label: '全部' },
+                                    { value: 1, label: '电费' },
+                                    { value: 2, label: '水费' },
+                                ]}
+                            />
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
                                 状态:
                             </div>
                             <Select
@@ -378,6 +436,7 @@ const CheckShuidian=(props)=>{
                                 ]}
                             />
                         </Space.Compact>
+
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -392,6 +451,34 @@ const CheckShuidian=(props)=>{
                 scroll={{y:'70vh'}}
                 rowKey={(columns) => columns.id}
                 dataSource={props.CheckFpList}
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {props.count?props.count.moneySum.toFixed(2):''}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*审核的弹窗*/}

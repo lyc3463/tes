@@ -239,20 +239,20 @@ const Zuhulist=(props:any)=>{
                             <Table.Summary.Cell index={2}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={4}>
-                                {integralSum}分
+                                {integralSum.toFixed(2)}分
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={3}>
-                                {balanceSum}元
+                                {balanceSum.toFixed(2)}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell
                                 index={5}
                             >
-                                {billMoneySum}元
+                                {billMoneySum.toFixed(2)}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell
                                 index={6}
                             >
-                                {depositSum}元
+                                {depositSum.toFixed(2)}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

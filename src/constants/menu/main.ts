@@ -64,7 +64,7 @@ export const menuData: TypeMenu[] = [
     { id: 57, route: '/financeSum/', name: '财务统计', authId: 57},
     { id: 58, route: '/financeSum/waterRate/', name: '水扣费记录', parentId: 57, authId: 58},
     { id: 59, route: '/financeSum/CableRate/', name: '电扣费记录', parentId: 57, authId: 59},
-    { id: 347, route: '/financeSum/serverKoufei/', name: '损耗扣费记录', parentId: 57, authId: 347},
+    { id: 347, route: '/financeSum/serverKoufei/', name: '服务费扣费记录', parentId: 57, authId: 347},
     // { id: 348, route: '/financeSum/serverKoufei/', name: '押金扣费记录', parentId: 57, authId: 348},
     { id: 60, route: '/financeSum/allRate/', name: '公共扣费记录', parentId: 57, authId: 60},
     { id: 61, route: '/financeSum/rentRate/', name: '租金扣费记录', parentId: 57, authId: 61},
@@ -139,7 +139,7 @@ export const menuData: TypeMenu[] = [
     { id: 360 ,route: '/systemManage/allpz', name: '配置设置',parentId: 113, authId: 360},
     { id: 362, route: '/financeSum/monthlyInsuranceLog/', name: '月保缴费记录', parentId: 57, authId: 362},
     { id: 372, route: '/billLog/outMonthlyBill/', name: '退租账单', parentId: 65, authId: 372},
-    // { id: 395, route: '/enter/enterBankCard/', name: '银行卡录入', parentId: 39, authId: 395},
-    // { id: 396, route: '/check/checkBankCard/', name: '银行卡审批', parentId: 71, authId: 396},
+    { id: 395, route: '/enter/enterBankCard/', name: '银行卡录入', parentId: 39, authId: 395},
+    { id: 396, route: '/check/checkBankCard/', name: '银行卡审批', parentId: 71, authId: 396},
 
 ]

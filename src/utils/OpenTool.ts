@@ -1044,4 +1044,77 @@ export const deleteSessionStorageRoute=(routeParam)=> {
         // 将更新后的 sessMumeList 保存回 sessionStorage
         sessionStorage.setItem('sessMumeList', JSON.stringify(sessMumeList));
     }
+};
+
+// 缓存添加的value
+export const updateSessionStorageValue=(routeParam, key, value)=>{
+    let sessMumeList = JSON.parse(sessionStorage.getItem('sessroutere'));
+
+    // 如果 sessMumeList 不存在，初始化一个空对象
+    if (!sessMumeList) {
+        sessMumeList = {};
+    }
+
+    // 如果 sessMumeList 中不存在 routeParam，初始化一个空对象
+    if (!sessMumeList.hasOwnProperty(routeParam)) {
+        sessMumeList[routeParam] = {};
+    }
+
+    // 更新或添加键值对
+    sessMumeList[routeParam][key] = value;
+
+    // 将更新后的 sessMumeList 保存回 sessionStorage
+    sessionStorage.setItem('sessroutere', JSON.stringify(sessMumeList));
+};
+// 读取缓存添加的value
+export  const checkSessionStoragevalue=(routeName:string, valueName:string)=>{
+    // 从 sessionStorage 获取 sessMumeList
+    const sessMumeList = JSON.parse(sessionStorage.getItem('sessroutere'));
+    // 如果 sessMumeList 不存在，返回 false
+    if (!sessMumeList) {
+        return false;
+    }
+    // 检查 sessMumeList 中是否存在 routeName
+    if (sessMumeList.hasOwnProperty(routeName)) {
+        const tenantList = sessMumeList[routeName];
+
+        // 检查 tenantList 中是否存在 valueName
+        if (tenantList.hasOwnProperty(valueName)) {
+            // 如果存在，返回 ziti 的值
+            return tenantList[valueName];
+        } else {
+            // 如果 tenantList 存在但 ziti 不存在，返回 false
+            return false;
+        }
+    } else {
+        // 如果 sessMumeList 存在但 routeName 不存在，返回 false
+        return false;
+    }
+}
+
+// 删除添加的路由参数
+export const deleteSessionStorageRoutevalue=(routeParam)=> {
+    // 从 sessionStorage 获取 sessMumeList
+    let sessMumeList = JSON.parse(sessionStorage.getItem('sessroutere'));
+
+    // 如果 sessMumeList 存在且包含 routeParam，则删除该路由名称对应的条目
+    if (sessMumeList && sessMumeList.hasOwnProperty(routeParam)) {
+        delete sessMumeList[routeParam];
+        // 将更新后的 sessMumeList 保存回 sessionStorage
+        sessionStorage.setItem('sessroutere', JSON.stringify(sessMumeList));
+    }
+};
+
+
+// 过滤调不是没有unitList的数组
+export  function filterItemsWithUnitList(array) {
+    // 如果传入的不是数组或者是一个空数组，直接返回原参数
+    if (!Array.isArray(array) || array.length === 0) {
+        return array;
+    }
+
+    // 过滤出 unitList 是非空数组的元素
+    return array.filter(item =>
+        Array.isArray(item.unitList) && item.unitList.length > 0
+    );
 }

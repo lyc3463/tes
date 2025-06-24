@@ -8,6 +8,7 @@ import { useSelectedRoutes } from '@/.umi/exports';
 export default function Layout() {
   const umilocation = useLocation();
   const pathname = fixPathname(umilocation.pathname);
+  console.log('路由名称',pathname);
   const mrs = useSelectedRoutes();
   let is404 = mrs.some((o: any) => o.route.id == '404')
   if (is404 && pathname!='/404.html') {

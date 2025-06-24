@@ -279,20 +279,20 @@ const Zuhuguanlian=(props:any)=>{
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={6}>
-                                {integralSum}分
+                                {integralSum.toFixed(2)}分
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>
-                                {balanceSum}元
+                                {balanceSum.toFixed(2)}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {billMoneySum}元
+                                {billMoneySum.toFixed(2)}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell
                                 index={8}
                             >
-                                {depositSum}元
+                                {depositSum.toFixed(2)}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

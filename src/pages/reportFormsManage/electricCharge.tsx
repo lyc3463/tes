@@ -196,7 +196,7 @@ const ElectricCharge=(props:any)=>{
         const newDate = originalDate.add(1, 'day');
         WaterRateService.fetch({address,remark,name,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),tenantId}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let headers=['房屋','单元','租户','采集器编号','通讯地址','描述','水表数据开始时间','开始度数(t)','水表数据结束时间','结束度数(t)','金额(元)'];
+                let headers=['房屋','单元','租户','采集器编号','通讯地址','描述','电表数据开始时间','开始度数(kwh)','电表数据结束时间','结束度数(kwh)','金额(元)'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [

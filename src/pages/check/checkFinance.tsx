@@ -172,7 +172,6 @@ const CheckFinance=(props:any)=>{
                                 <span style={{fontWeight:700}}>{(record.balance).toFixed(2)}</span><span>(元)</span>
                             </>
                         }
-
                     </Space>
                 )
             }

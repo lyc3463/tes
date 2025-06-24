@@ -43,6 +43,14 @@ const CheckAllFp=(props)=>{
     const [imgB64,setImgB64]=useState('');
     // 发送给小程序内容
     const [conten,setconten]=useState('');
+    // 抬头名称
+    const [titleName,setTitleName]=useState(checkSessionStorage('/check/checkFp/','checkAllFpTitleName')||'');
+    // 租户名称
+    const [tenannName,setTenannName]=useState(checkSessionStorage('/check/checkFp/','checkAllFpTenannName')||'');
+    // 账单类型
+    const [type,setType]=useState(checkSessionStorage('/check/checkFp/','checkAllFpType')||0);
+    // 单元名称
+    const [unitName,setUnitName]=useState('');
     const columns =[
         {
             title: '申请日期',
@@ -133,7 +141,7 @@ const CheckAllFp=(props)=>{
                         consumptionTypeText = <Tag style={{ color: '#E91E63' }}>手动充值</Tag>;
                         break;
                     case 7:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>损耗</Tag>;
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>服务费</Tag>;
                         break;
                     case 8:
                         consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
@@ -226,14 +234,14 @@ const CheckAllFp=(props)=>{
     const getfenyeInfo=()=>{
         props.dispatch({
             type:'CheckFp/fenye',
-            payload:{startDate,endDate,openId,stutes,pageSize}
+            payload:{startDate,endDate,openId,stutes,pageSize,titleName,tenannName,type}
         });
     };
     // 列表
     const logFenye=()=>{
         props.dispatch({
             type:"CheckFp/fetch",
-            payload:{page,startDate,endDate,openId,stutes,pageSize}
+            payload:{page,startDate,endDate,openId,stutes,pageSize,titleName,tenannName,type}
         })
     };
     useEffect(() => {
@@ -320,11 +328,36 @@ const CheckAllFp=(props)=>{
     useEffect(() => {
         getfenyeInfo();
     }, []);
+    // 抬头名称
+    const changTitleName=(e)=>{
+        setTitleName(e.target.value);
+        updateSessionStorage('/check/checkFp/','checkAllFpTitleName',e.target.value);
+    };
+    const changeTenannName=(e)=>{
+        setTenannName(e.target.value);
+        updateSessionStorage('/check/checkFp/','checkAllFpTenannName',e.target.value);
+    };
+    const changeType=(e)=>{
+        setType(e);
+        updateSessionStorage('/check/checkFp/','checkAllFpType',e);
+    };
     return(
         <Spin spinning={isLoading} style={{zIndex:'1000'}}>
             <List>
                 <List.Item>
                     <Space>
+                        <Input
+                            style={{ width: 300 }}
+                            addonBefore="抬头名称:"
+                            onChange={changTitleName}
+                            value={titleName}
+                        />
+                        <Input
+                            style={{ width: 300 }}
+                            addonBefore="租户名称:"
+                            onChange={changeTenannName}
+                            value={tenannName}
+                        />
                         <Space.Compact>
                             <div
                                 style={{
@@ -341,6 +374,35 @@ const CheckAllFp=(props)=>{
                                 时间:
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                类型:
+                            </div>
+                            <Select
+                                onChange={changeType}
+                                value={type}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:2, label: '租金' },
+                                    { value:5, label: '公共缴费' },
+                                    { value:7, label: '服务费' },
+                                    { value:8, label: '违约金' },
+                                    { value:9, label: '月保' },
+                                ]}
+                            />
                         </Space.Compact>
                         <Space.Compact>
                             <div
@@ -382,6 +444,34 @@ const CheckAllFp=(props)=>{
                 scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
                 dataSource={props.CheckFpList}
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                                index={7}
+                            >
+                                {props.count?props.count.moneySum.toFixed(2):''}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*审核的弹窗*/}
