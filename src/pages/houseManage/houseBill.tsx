@@ -3,7 +3,7 @@ import {connect,history} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
-import {checkSessionStorage, filterItemsWithUnitList, updateSessionStorage} from "@/utils/OpenTool";
+import {checkSessionStorage, filterItemsWithUnitList, fuzzySearch, updateSessionStorage} from "@/utils/OpenTool";
 
 const HouseBill=(props:any)=>{
     const [name,setName]=useState(checkSessionStorage('/houseManage/houseBill/','name')||'');
@@ -12,6 +12,8 @@ const HouseBill=(props:any)=>{
     const [count,setcount]=useState(1);
     const [pagecount,setpagecount]=useState(10000);
     const [zuhuList,setZuhuList]=useState([]);
+    const [unitName,setunitName]=useState('');
+    const [oldList,setOldList]=useState([]);
     useEffect(() => {
         getFenye();
     }, []);
@@ -28,6 +30,7 @@ const HouseBill=(props:any)=>{
                 if (res.ErrorCode==0){
                    let newArr= filterItemsWithUnitList(res.Data);
                     setZuhuList(newArr);
+                    setOldList(newArr);
                 }else {
                     message.error(res.Data);
                 }
@@ -39,6 +42,7 @@ const HouseBill=(props:any)=>{
             }).then((res:TypeErrorCode)=>{
                 if (res.ErrorCode==0){
                     setZuhuList(res.Data);
+                    setOldList(res.Data);
                 }else {
                     message.error(res.Data);
                 }
@@ -127,6 +131,10 @@ const HouseBill=(props:any)=>{
         setPhone(e.target.value);
         updateSessionStorage('/houseManage/houseBill/','phone',e.target.value);
     };
+    const chaxundanyuan=()=>{
+        let a=fuzzySearch(oldList,unitName);
+        setZuhuList(a);
+    };
     return(
         <div>
             <List>
@@ -147,7 +155,19 @@ const HouseBill=(props:any)=>{
                         </Button>
                     </Space>
                 </List.Item>
+                <List.Item>
+                    <Space>
+                        <Input
+                            addonBefore="单元名称:"
+                            onChange={(e)=>setunitName(e.target.value)}
+                        />
+                        <Button type="primary" onClick={chaxundanyuan}>
+                            查询单元
+                        </Button>
+                    </Space>
+                </List.Item>
             </List>
+
             <Table
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 columns={columns}

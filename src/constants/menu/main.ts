@@ -141,5 +141,7 @@ export const menuData: TypeMenu[] = [
     { id: 372, route: '/billLog/outMonthlyBill/', name: '退租账单', parentId: 65, authId: 372},
     { id: 395, route: '/enter/enterBankCard/', name: '银行卡录入', parentId: 39, authId: 395},
     { id: 396, route: '/check/checkBankCard/', name: '银行卡审批', parentId: 71, authId: 396},
+    { id: 397, route: '/systemManage/messageReceive/', name: '消息接收配置', parentId: 113, authId: 397},
+    { id: 398, route: '/kehu/userPending', name: '挂起用户',parentId: 10, authId: 398 },
 
 ]

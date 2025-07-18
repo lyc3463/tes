@@ -9,4 +9,9 @@ export function fenye(vals:any) {
 }
 
 
+export function fetch1598(vals:any) {
+    return getData(1598, [vals.name,vals.phone,vals.startDate,vals.endDate]);
+}
+
+
 

@@ -55,7 +55,7 @@ const ElectricChargeModel: HireInterface = {
                 message.error(res.ErrorCode + res.Data);
                 if (callback) callback(-1);
             }
-
+            return res;
         },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(ElectricChargeService.fenye,payload?payload: pl);

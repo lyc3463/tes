@@ -1118,3 +1118,34 @@ export  function filterItemsWithUnitList(array) {
         Array.isArray(item.unitList) && item.unitList.length > 0
     );
 }
+
+// 过滤当前用户的是否有权限读取消息的数据
+export function filtermessageData(array) {
+    // 如果传入的不是数组或者是一个空数组，直接返回原参数
+    if (!Array.isArray(array) || array.length === 0) {
+        return array;
+    }
+    let uqx = StaticInfo.uqx.split('');
+    // 定义 tmType 与 uqx 索引的映射关系
+    const tmTypeToIndexMap = {
+        1: 321,
+        2: 339,
+        3: 366,
+        4: 219,
+        5: 221,
+        6: 222,
+        7: 223,
+        8: 224,
+        9: 185,
+        10: 271,
+    };
+    // 过滤数组元素
+    const newArr = array.filter(item => {
+        const index = tmTypeToIndexMap[item.tmType];
+        if (index !== undefined && uqx[index] === "1") {
+            return true; // 不过滤
+        }
+        return false; // 过滤掉
+    });
+    return newArr;
+}

@@ -12,7 +12,7 @@ import {
     }, []);
     const didmount = () => {
 
-    }
+    };
     return (
         <div>
             仪表盘

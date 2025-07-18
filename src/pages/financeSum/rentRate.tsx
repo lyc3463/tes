@@ -298,6 +298,8 @@ const RentRate=(props)=>{
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
                             <Table.Summary.Cell
                                 index={7}
                             >

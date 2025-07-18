@@ -14,6 +14,9 @@ const WaterRate=(props:any)=>{
     const [endDate,setEndDate]=useState(checkSessionStorage('/reportFormsManage/waterRate/','endDate')||'2099-01-01');
     const [spinning,setspinning]=useState(false);
     const [tenantId,settenantId]=useState(0);
+    const [energyNew,setenergyNew]=useState(0);// 开始数据总和
+    const [energyNew2,setenergyNew2]=useState(0);// 结束数据总和
+    const [waterMoneySum,setwaterMoneySum]=useState(0);// 金额总和
     const columns =[
         {
             title: '房屋',
@@ -140,8 +143,28 @@ const WaterRate=(props:any)=>{
             },
         },
     ];
+    // 累加
+    const calculateSums=(sumDate)=>{
+        // 初始化四个求和变量
+        let energyNew = 0;
+        let energyNew2 = 0;
+        let waterMoneySum = 0;
+        // 遍历数组，累加每个属性的值
+        sumDate.map(transaction => {
+            energyNew += transaction.energyNew || 0; // 使用||0确保未定义或null值不会破坏计算
+            energyNew2 += transaction.energyNew2 || 0;
+            waterMoneySum += transaction.waterMoneySum || 0;
+        });
+        // 返回一个对象，包含四个求和结果
+        return {
+            energyNew: energyNew.toFixed(2)*1,
+            energyNew2: energyNew2.toFixed(2)*1,
+            waterMoneySum: waterMoneySum.toFixed(2)*1,
+        };
+    }
     useEffect(() => {
         logFenye();
+
     }, []);
     // 分页
     const logFenye=()=>{
@@ -150,6 +173,13 @@ const WaterRate=(props:any)=>{
         props.dispatch({
             type:"WaterRate/fetch",
             payload:{name,address,remark,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),tenantId}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let sum=calculateSums(res.Data);
+                setenergyNew(sum.energyNew);
+                setenergyNew2(sum.energyNew2);
+                setwaterMoneySum(sum.waterMoneySum);
+            }
         })
     };
     // 搜索按钮
@@ -272,6 +302,40 @@ const WaterRate=(props:any)=>{
                 dataSource={props.WaterRateList}
                 scroll={{x:1500}}
                 pagination={false}
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={1}>
+                                {energyNew}㎡
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}>
+                                {energyNew2}㎡
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}>
+                                {waterMoneySum}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             >
 
             </Table>

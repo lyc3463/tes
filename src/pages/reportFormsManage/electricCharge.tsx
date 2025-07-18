@@ -14,6 +14,9 @@ const ElectricCharge=(props:any)=>{
     const [endDate,setEndDate]=useState(checkSessionStorage('/reportFormsManage/electricCharge/','endDate')||'2099-01-01');
     const [spinning,setspinning]=useState(false);
     const [tenantId,settenantId]=useState(0);
+    const [energyNew,setenergyNew]=useState(0);// 开始数据总和
+    const [energyNew2,setenergyNew2]=useState(0);// 结束数据总和
+    const [eleMoneySum,seteleMoneySum]=useState(0);// 金额总和
     const columns =[
         {
             title: '房屋',
@@ -141,9 +144,25 @@ const ElectricCharge=(props:any)=>{
             },
         },
     ];
-    // useEffect(() => {
-    //     logFenye();
-    // }, []);
+    // 累加
+    const calculateSums=(sumDate)=>{
+        // 初始化四个求和变量
+        let energyNew = 0;
+        let energyNew2 = 0;
+        let eleMoneySum = 0;
+        // 遍历数组，累加每个属性的值
+        sumDate.map(transaction => {
+            energyNew += transaction.energyNew || 0; // 使用||0确保未定义或null值不会破坏计算
+            energyNew2 += transaction.energyNew2 || 0;
+            eleMoneySum += transaction.eleMoneySum || 0;
+        });
+        // 返回一个对象，包含四个求和结果
+        return {
+            energyNew: energyNew.toFixed(2)*1,
+            energyNew2: energyNew2.toFixed(2)*1,
+            eleMoneySum: eleMoneySum.toFixed(2)*1,
+        };
+    };
     // 分页
     const logFenye=()=>{
         setspinning(true);
@@ -158,6 +177,13 @@ const ElectricCharge=(props:any)=>{
                 }else {
                     setspinning(false);
                 }
+            }
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                const sum=calculateSums(res.Data);
+                setenergyNew(sum.energyNew);
+                setenergyNew2(sum.energyNew2);
+                seteleMoneySum(sum.eleMoneySum);
             }
         })
     };
@@ -280,6 +306,40 @@ const ElectricCharge=(props:any)=>{
                 dataSource={props.ElectricChargeList}
                 scroll={{x:1500}}
                 pagination={false}
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={1}>
+                                {energyNew}kwh
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}>
+                                {energyNew2}kwh
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}>
+                                {eleMoneySum}元
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
         </Spin>
     )

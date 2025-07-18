@@ -13,6 +13,8 @@ const CarManage=(props)=>{
     const [uid,setUid]=useState(0);
     const [spinning,setspinning]=useState(false);
     const [isCheckOpen,setIsChengckOpen]=useState(false);
+    const [deeleId,setDeleId]=useState(0);
+    const [isDeleOpen,setIsDeleOpen]=useState(false);
     // 获取列表
     const getCarList=()=>{
         props.dispatch({
@@ -170,7 +172,7 @@ const CarManage=(props)=>{
                 return(
                     <Space>
                         {record.carStatus==2?'':<Button type='primary' onClick={()=>isCheck(record.id)}>审核</Button>}
-                        {/*<Button type='primary' danger>删除</Button>*/}
+                        <Button type='primary' danger onClick={()=>isDele(record.id)}>删除</Button>
                         <Button type='primary' onClick={()=>toInfo(record.id)}>详情</Button>
                     </Space>
                 )
@@ -223,6 +225,27 @@ const CarManage=(props)=>{
     const changeStutes=(e)=>{
         setStutes(e);
         updateSessionStorage('/wisdomStop/carManage/','stutes',e);
+    };
+    const isDele=(e)=>{
+        setDeleId(e);
+        setIsDeleOpen(true);
+    };
+    const onDeleOk=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:'CarManage/remove',
+            payload:deeleId
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setIsDeleOpen(false);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setIsDeleOpen(false);
+                setspinning(false);
+            }
+        })
     };
     return(
         <Spin spinning={spinning}>
@@ -278,6 +301,9 @@ const CarManage=(props)=>{
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal open={isCheckOpen} onCancel={()=>setIsChengckOpen(false)} onOk={onOk} loading={spinning}>
                 <div>是否要审核车辆</div>
+            </Modal>
+            <Modal open={isDeleOpen} onCancel={()=>setIsDeleOpen(false)} onOk={onDeleOk} loading={spinning}>
+                <div>是否删除?</div>
             </Modal>
         </Spin>
     )

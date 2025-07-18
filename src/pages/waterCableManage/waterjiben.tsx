@@ -3,7 +3,6 @@ import {useLocation} from "@@/exports";
 import {useEffect, useRef, useState} from "react";
 import {Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin, Tag} from "antd";
 import * as WatertService from '@/services/watert';
-import {addkh} from "@/services/watert";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };

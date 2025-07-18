@@ -14,6 +14,48 @@ const Hire=(props:any)=>{
     const [beginRents,setBeginRents]=useState(0);
     const [endRents,setEndRents]=useState(9999999999);
     const [uqx,setUqx]=useState([]);
+    const [floor_area,setfloor_area]=useState(0);// 建筑面积总和
+    const [rentable_area,setrentable_area]=useState(0);// 可租面积总和
+    const [residue_add_area,setresidue_add_area]=useState(0);// 可增加面积总和
+    const [unitCount,setunitCount]=useState(0);// 单元数量总和
+    const [rentable_areaSum,setrentable_areaSum]=useState(0);// 已租面积总和
+    const [priceSum,setpriceSum]=useState(0);// 已租总和
+    const [manageFee,setmanageFee]=useState(0);// 已租管理费总和
+    const [tenantCount,settenantCount]=useState(0);// 租户数量总和
+
+    const calculateSums=(sumDate)=>{
+        // 初始化四个求和变量
+        let floor_area = 0;
+        let rentable_area = 0;
+        let residue_add_area = 0;
+        let unitCount = 0;
+        let rentable_areaSum = 0;
+        let priceSum = 0;
+        let manageFee = 0;
+        let tenantCount = 0;
+        // 遍历数组，累加每个属性的值
+        sumDate.map(transaction => {
+            floor_area += transaction.floor_area || 0; // 使用||0确保未定义或null值不会破坏计算
+            rentable_area += transaction.rentable_area || 0;
+            residue_add_area += transaction.residue_add_area || 0;
+            unitCount += transaction.unitCount || 0;
+            rentable_areaSum += transaction.rentable_areaSum || 0;
+            priceSum += transaction.priceSum || 0;
+            manageFee += transaction.manageFee || 0;
+            tenantCount += transaction.tenantCount || 0;
+        });
+        // 返回一个对象，包含四个求和结果
+        return {
+            floor_area: floor_area.toFixed(2)*1,
+            rentable_area: rentable_area.toFixed(2)*1,
+            residue_add_area: residue_add_area.toFixed(2)*1,
+            unitCount: unitCount.toFixed(2)*1,
+            rentable_areaSum: rentable_areaSum.toFixed(2)*1,
+            priceSum: priceSum.toFixed(2)*1,
+            manageFee: manageFee.toFixed(2)*1,
+            tenantCount: tenantCount.toFixed(2)*1
+        };
+    }
 
     const columns =[
         {
@@ -65,7 +107,6 @@ const Hire=(props:any)=>{
             title: '单元数量(间)',
             dataIndex: 'unitCount',
             key: 'unitCount',
-
         },
         {
             title: '已租面积㎡',
@@ -76,7 +117,6 @@ const Hire=(props:any)=>{
                     <span>{record.rentable_areaSum.toFixed(2)}㎡</span>
                 )
             }
-
         },
         {
             title: '已租租金',
@@ -85,6 +125,16 @@ const Hire=(props:any)=>{
             render: (_:any, record:any) => {
                 return(
                     <span>{record.priceSum.toFixed(2)}元</span>
+                )
+            }
+        },
+        {
+            title: '已租管理费',
+            dataIndex: 'manageFee',
+            key: 'manageFee',
+            render: (_:any, record:any) => {
+                return(
+                    <span>{record.manageFee.toFixed(2)}元</span>
                 )
             }
         },
@@ -140,6 +190,19 @@ const Hire=(props:any)=>{
         props.dispatch({
             type:"Hire/fetch",
             payload:{name,beginRents,endRents}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let sum=calculateSums(res.Data);
+                console.log('累加',sum);
+                setfloor_area(sum.floor_area);
+                setrentable_area(sum.rentable_area);
+                setresidue_add_area(sum.residue_add_area);
+                setunitCount(sum.unitCount);
+                setrentable_areaSum(sum.rentable_areaSum);
+                setpriceSum(sum.priceSum);
+                setmanageFee(sum.manageFee);
+                settenantCount(sum.tenantCount);
+            }
         })
     };
     // 搜索按钮
@@ -212,6 +275,43 @@ const Hire=(props:any)=>{
                 dataSource={props.HireList}
                 scroll={{x:1500}}
                 pagination={false}
+                summary={(columns) => (
+                    <Table.Summary fixed>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell
+                                index={1}
+                            >
+                                统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={1}>
+                                {floor_area}㎡
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}>
+                                {rentable_area}㎡
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}>
+                                {residue_add_area}㎡
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}>
+                                {unitCount}间
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>
+                                {rentable_areaSum}㎡
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>
+                                {priceSum}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}>
+                                {manageFee}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}>
+                                {tenantCount}个
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
         </Spin>
     )

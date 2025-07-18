@@ -28,6 +28,7 @@ import CryptoUtils from '@/utils/Crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { sleep } from '@/utils/common';
 import {phonePattern, pwdPattern, replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 type Fnc = () => void;
 const noop = () => { };
@@ -189,22 +190,6 @@ export default function Login() {
     setErrorstr('');
   }
   const login = (values: any) => {
-    // StaticInfo.userId = 1;
-    // StaticInfo.userState = true;
-    // history.push('/');
-    // return;
-    // if (!yzvsi && values.username != localStorage.getItem('username')) {
-    //   setYzvsi(true);
-    //   captchaRef.current?.refresh();
-    //   return;
-    // }
-    // if (yzm != yzmval) {
-    //   EventMgr.event(info_event.Error, '验证码输入错误');
-    //   captchaRef.current?.refresh();
-    //   return;
-    // }
-    //console.log(values);
-    // console.log(str[i],replaceEnglishCommasWithChinese(str[i]));
     if (values.username === '') {
       EventMgr.event(info_event.Error, '请填写账号');
       return;
@@ -218,20 +203,16 @@ export default function Login() {
       return;
     }
     EventMgr.event(info_event.showWait);
-    // let yjzmm = false;
-    // if (!jzpwdcg && localStorage.getItem('pwd')) {
-    //   yjzmm = true;
-    // }
-    let mm =/* yjzmm ? values.password : */CryptoUtils.md5(values.password);
+    let mm =CryptoUtils.md5(values.password);
     LoginService.login(
         values.username,
         mm,
         'shebie',
         1,
-        yzm
-    ).then((res: any) => {
-      if (res?.ErrorCode == 0) {
-        console.log("登录信息",res);
+        yzm,
+        1
+    ).then((res: TypeErrorCode) => {
+      if (res.ErrorCode == 0) {
         let data = res.Data;
         StaticInfo.userId = data.id;
         StaticInfo.userState = true;
@@ -253,15 +234,6 @@ export default function Login() {
         sessionStorage.setItem('loginbeginTime',data.beginTime);
         sessionStorage.setItem('loginendTime',data.endTime);
         sessionStorage.setItem('loginmeal_id',data.meal_id);
-        // if (values.jizhu) {
-        //   let md5pwd = values.password;
-        //   if (!yjzmm) {
-        //     md5pwd = CryptoUtils.md5(values.password);
-        //   }
-        //   localStorage.setItem('pwd', md5pwd);
-        // } else {
-        //   localStorage.removeItem('pwd');
-        // }
         history.push('/');
       } else {
         message.error(res.ErrorCode + res.Data)
@@ -449,7 +421,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.5.1</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.5.4</p>
                 </div>
               </Form.Item>
             </Form>

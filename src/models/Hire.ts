@@ -51,6 +51,7 @@ const HireModel: HireInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res;
         },
         // *fenye({ type, payload }, { put, call, select }): any {
         //     const res = yield call(HireService.fenye,payload?payload: pl);

@@ -72,7 +72,6 @@ const ReportLog=(props:any)=>{
                 },
                 multiple: 1,
             },
-            width:200,
             render: (text:any, record:any) => {
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
@@ -104,6 +103,21 @@ const ReportLog=(props:any)=>{
             dataIndex: 'tenant_phone',
         },
         {
+            title: '报修内容',
+            dataIndex: 'repair_content',
+            render: (_: any, record: any) => (
+                <Input.TextArea value={_}/>
+            ),
+        },
+        {
+            title: '物品名称',
+            dataIndex: 'repairGood',
+        },
+        {
+            title: '报修金额(元)',
+            dataIndex: 'repairMoney',
+        },
+        {
             title: '跟进人',
             dataIndex: 'userName',
             render:(_:any,record:any)=>(
@@ -111,13 +125,6 @@ const ReportLog=(props:any)=>{
                     {record.userName?<Tag color='green'>{record.userName}</Tag>:<Tag color='red'>未分配跟进人</Tag>}
                 </div>
             )
-        },
-        {
-            title: '报修内容',
-            dataIndex: 'repair_content',
-            render: (_: any, record: any) => (
-                <Input.TextArea value={_}/>
-            ),
         },
         {
             title: '状态',
@@ -217,6 +224,11 @@ const ReportLog=(props:any)=>{
             }
         })
     };
+    const getUserList=()=>{
+        props.dispatch({
+            type:"Users/fetch",
+        })
+    };
     useEffect(() => {
         getList();
     }, [page,pageSize]);
@@ -248,6 +260,8 @@ const ReportLog=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
         getListfenye();
+        getUserList();
+        console.log('props',props)
     }, []);
     const changeName=(e)=>{
         setname(e.target.value);

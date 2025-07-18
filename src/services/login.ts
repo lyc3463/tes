@@ -1,7 +1,7 @@
 import { getData } from '@/network/http';
 
-export function login(yhm: string, mm: string,yzm:string,biaoshi:number,device:string) {
-    return getData(1002, [yhm, mm,yzm,biaoshi,device]);
+export function login(yhm: string, mm: string,yzm:string,biaoshi:number,device:string,checkSms:number) {
+    return getData(1002, [yhm, mm,yzm,biaoshi,device,checkSms]);
 }
 
 export function get1037(sjh: string, yzm: string) {

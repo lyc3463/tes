@@ -14,7 +14,7 @@ import {
     Table,
     Tag
 } from "antd";
-import {connect} from 'umi';
+import {connect,history} from 'umi';
 import * as AppUserService from '@/services/appUser';
 import {useEffect, useState} from "react";
 import {qxTree} from '@/constants/qxMenu/wxMenu'
@@ -105,7 +105,11 @@ const Wcxuserlist=(props:any)=>{
             key: 'qx',
             render:(text:any,record:any,)=>{
                 return(
-                    <Button type='link' onClick={()=>editInfo(record)}>详情</Button>
+                    <Space>
+                        <Button type='primary' onClick={()=>editInfo(record)}>详情</Button>
+                        <Button type='primary' onClick={()=>toChangePark(record)}>更改园区</Button>
+                    </Space>
+
                 )
             }
         },
@@ -120,6 +124,9 @@ const Wcxuserlist=(props:any)=>{
     const changeName=(e)=>{
         setName(e.target.value);
         updateSessionStorage('/kehu/wcxuserlist/','name',e.target.value);
+    };
+    const toChangePark=(e)=>{
+      history.push(`/kehu/changePark?id=${e.id}`);
     };
     // 搜索按钮
     const shousuo=()=>{
@@ -190,7 +197,6 @@ const Wcxuserlist=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
         logFenye();
-
     }, []);
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: qxTree[]; selected: string[]; setSelected: (newSelected: string[]) => void })=> {
         return (

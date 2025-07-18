@@ -54,6 +54,7 @@ const PayReportFormsModel: PayReportFormsInterface = {
                 message.error(res.ErrorCode + res.Data);
                 if (callback) callback(-1);
             }
+            return res;
         },
         // *fenye({ type, payload }, { put, call, select }): any {
         //     const res = yield call(payReportFormsService.fenye,payload?payload:pl);

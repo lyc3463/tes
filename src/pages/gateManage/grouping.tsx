@@ -1,5 +1,5 @@
 import {connect,history} from "umi";
-import {Button, Input, List, Space, Table} from "antd";
+import {Button, Input, List, message, Modal, Space, Table} from "antd";
 import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
 
@@ -7,6 +7,9 @@ const Grouping=(props)=>{
     const [name,setName]=useState(sessionStorage.getItem('gateManageGroupingName')||'');
     // 用户权限
     const [uqx,setUqx]=useState([]);
+    const [uid,setUid]=useState(0);
+    const [open,setOpen]=useState(false);
+    const [loading,setloading]=useState(false);
     const columns = [
         {
             title: '分组名称',
@@ -18,16 +21,20 @@ const Grouping=(props)=>{
             render: (text: any, record: any) => (
                 <Space>
                     {uqx[305]=='1'?<Button type="primary" onClick={()=>toEdit(record.id)}>编辑</Button> :''}
-                    {uqx[306]=='1'?<Button type="primary" danger>删除</Button> :''}
+                    {uqx[306]=='1'?<Button type="primary" danger onClick={()=>isdelete(record.id)}>删除</Button> :''}
                 </Space>
             ),
         },
     ];
     const toadd=()=>{
-        history.push('/gateManage/addGrouping')
+        history.push('/gateManage/addGrouping');
+    };
+    const isdelete=(e)=>{
+        setUid(e);
+        setOpen(true);
     };
     const toEdit=(e:any)=>{
-        history.push(`/gateManage/editGrouping?id=${e}`)
+        history.push(`/gateManage/editGrouping?id=${e}`);
     };
     const sousuo=()=>{
         props.dispatch({
@@ -45,6 +52,19 @@ const Grouping=(props)=>{
     const changeName=(e)=>{
       setName(e.target.value);
       sessionStorage.setItem('gateManageGroupingName',e.target.value);
+    };
+    const onOk=()=>{
+      props.dispatch({
+          type:'Grouping/remove',
+          payload:uid
+      }).then((res:any)=>{
+          if (res.ErrorCode==0){
+              message.success('删除成功');
+              setOpen(false);
+          }else {
+              message.error(res.Data);
+          }
+      })
     };
     return(
         <div>
@@ -74,6 +94,9 @@ const Grouping=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
+            <Modal open={open} onOk={onOk} onCancel={()=>setOpen(false)} title='是否要删除' loading={loading}>
+                <div>确定要删除?</div>
+            </Modal>
         </div>
     )
 }

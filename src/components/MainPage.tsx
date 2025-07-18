@@ -16,6 +16,7 @@ import {
 } from 'antd';
 import { Link, history as UmiHistory } from 'umi';
 import BreadcrumbMap from '@/constants/BreadcrumbMap';
+import NotificationList from '@/components/NotificationList';
 import ComponentErrorBoundary from '@/components/ErrorBoundary';
 import zhCN from 'antd/lib/locale/zh_CN';
 import { EventMgr } from '@/Event/EventMgr';
@@ -393,7 +394,8 @@ class MainPage extends Component<any> {
                   <span>
                     园区:{StaticInfo.park_name}
                   </span>
-                  <Button type="link" onClick={this.tuichu}>
+                    <NotificationList/>
+                    <Button type="link" onClick={this.tuichu}>
                     退出
                   </Button>
                 </Space>

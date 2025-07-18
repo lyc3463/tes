@@ -16,22 +16,25 @@ export async function getData(ActionId: number, canshus: any[]) {
             if (res.ErrorCode != 0) {
                 if (res.ErrorCode == -6666) {
                     StaticInfo.userState = false;
-                    sessionStorage.removeItem('userState')
+                    sessionStorage.removeItem('userState');
                     EventMgr.event(info_event.ExitHttpLogin, res.Data);
                 } else if (res.ErrorCode == -9999) {
                     StaticInfo.userState = false;
-                    sessionStorage.removeItem('userState')
+                    sessionStorage.removeItem('userState');
                     EventMgr.event(info_event.cuowu9999, res.Data);
                     setTimeout(()=>{
                         location.pathname = '/login';
-                    },500)
+                    },500);
                 }else if (res.ErrorCode==-1300){
-                    message.error('账号已在其他地方登录，为了账户安全请修改密码')
+                    message.error('账号已在其他地方登录，为了账户安全请修改密码');
+                    setTimeout(()=>{
+                        location.pathname = '/login';
+                    },0);
                 }else if (res.ErrorCode==-1201){
                     message.error('登录信息验证错误，请重新登录');
                     setTimeout(()=>{
                         location.pathname = '/login';
-                    },500)
+                    },500);
                 } else {
                     if (res.Data != null) {
                         EventMgr.event(info_event.Error, res.Data);

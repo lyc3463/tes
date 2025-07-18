@@ -18,3 +18,11 @@ export function remove(vals:any) {
 export function one(vals:any) {
     return getData(1246, [vals]);
 }
+
+
+export function permissionList() {
+    return getData(1594, []);
+}
+export function addPermissionUser(vals:any) {
+    return getData(1595, [vals]);
+}
