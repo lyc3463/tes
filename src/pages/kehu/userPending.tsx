@@ -2,10 +2,11 @@ import {connect} from "umi";
 import {useEffect, useState} from "react";
 import {Button, Input, List, Space, Table} from "antd";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const UserPending=(props)=>{
-    const [phone,setPhone]=useState('');
-    const [name,setName]=useState('');
+    const [phone,setPhone]=useState(checkSessionStorage('/kehu/userPending','phone')||'');
+    const [name,setName]=useState(checkSessionStorage('/kehu/userPending','name')||'');
     const [balance,setbalance]=useState(0);  // 余额总数
     const [billMoney,setbillMoney]=useState(0);  // 账单总数
     const calculateSums=(sumDate)=>{
@@ -40,9 +41,13 @@ const UserPending=(props)=>{
     };
     const changeName=(e)=>{
         setName(e.target.value);
+        updateSessionStorage('/kehu/userPending','name',e.target.value);
+
     };
     const changePhone=(e)=>{
         setPhone(e.target.value);
+        updateSessionStorage('/kehu/userPending','phone',e.target.value);
+
     };
     useEffect(() => {
         getList();

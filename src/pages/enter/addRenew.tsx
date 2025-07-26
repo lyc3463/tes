@@ -42,8 +42,8 @@ const AddRenew=(props)=>{
         props.dispatch({
             type:'Renew/add',
             payload:{...vals,tenantId,startDate,endDate}
-        }).then((res)=>{
-            if (res.ErrorCode==0){
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 message.success('提交成功');
                 history.push("/enter/afterSales");
                 setspinning(false);

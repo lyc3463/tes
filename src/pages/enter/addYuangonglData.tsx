@@ -31,8 +31,8 @@ const AddYuangonglData=(props:any)=>{
         props.dispatch({
             type:'Emp/add',
             payload:{...values,estarttime,eendtime,oldImgName,jsonObtain}
-        }).then((res)=>{
-            if (res.ErrorCode==0){
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 message.success('添加成功');
                 setspinning(false);
                 history.push('/enter/yuangonglData');

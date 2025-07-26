@@ -260,16 +260,25 @@ export function getDaysInCurrentMonth() {
     return lastDayOfCurrentMonth.getDate();
 }
 
+// 数字转大写金额
+// ... 已有代码 ...
+
+// 数字转大写金额
+// ... 已有代码 ...
+
+// 数字转大写金额
+// ... 已有代码 ...
+
+// 数字转大写金额
 export function numberToRMB(n) {
+    if (n==0) return  '零圆整';
     const fraction = ['角', '分'];  // 角分
     const digit = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];  // 数字
-    const unit = ['', '拾', '佰', '仟', '万', '拾万','佰万','仟万','亿', '兆'];  // 单位
+    const unit = ['', '拾', '佰', '仟', '万', '拾万', '百万', '千万', '亿', '兆'];  // 单位
     const isNegative = n < 0;  // 判断是否为负数
     n = Math.abs(n);  // 获取绝对值
-
     let result = '';
     let parts = [];
-
     // 处理小数部分（角分），确保小数部分为两位
     let fractionPart = (n % 1).toFixed(2).slice(2); // 获取小数部分并确保两位
     if (fractionPart !== '00') {  // 如果小数部分有非零值，处理角分
@@ -279,40 +288,53 @@ export function numberToRMB(n) {
             }
         }
     }
-
     // 处理整数部分
-    let unitIndex = 0;
     let integerPart = Math.floor(n);
+    let unitIndex = 0;
+    let consecutiveZeros = 0; // 记录连续零的个数
     while (integerPart > 0) {
-        let section = integerPart % 10;
-        if (section !== 0) {
-            result = digit[section] + unit[unitIndex] + result;
-        } else {
-            // 连续的零只保留一个零
-            if (result.charAt(0) !== '零') {
+        const digitValue = integerPart % 10;
+        if (digitValue !== 0) {
+            // 处理连续零，只添加一个零
+            if (consecutiveZeros > 0) {
                 result = '零' + result;
             }
+            result = digit[digitValue] + unit[unitIndex] + result;
+            consecutiveZeros = 0;
+        } else {
+            consecutiveZeros++;
         }
         integerPart = Math.floor(integerPart / 10);
         unitIndex++;
     }
-
+    // 处理万、亿等单位间的零
+    result = result.replace(/零万/g, '万');
+    result = result.replace(/零亿/g, '亿');
+    result = result.replace(/亿万/g, '亿零');
+    result = result.replace(/零+/g, '零');
     // 处理负数情况
     if (isNegative) {
         result = '负' + result;
     }
-
     // 拼接完整的人民币大写（圆替代元）
-    result += '元';  // 确保整数部分后面有“圆”而不是“元”
-    result += parts.join(''); // 加上小数部分的“角分”
-
-    // 如果小数部分为空，去掉“零”
-    if (result.indexOf('零') > 0) {
-        result = result.replace(/零/g, ''); // 可以根据需求保留或者删除零
+    if (result) {
+        result += '圆';
     }
-
+    result += parts.join('');
+    if (!result) {
+        result = '零圆整';
+    } else if (parts.length === 0) {
+        result += '整';
+    }
+    // 去除多余的零
+    result = result.replace(/零圆/g, '圆');
+    result = result.replace(/圆零角/g, '圆');
+    result = result.replace(/零分/g, '');
+    result = result.replace(/圆整/g, '圆整');
     return result;
 }
+
+// ... 已有代码 ...
 
 // export  const addNewData = (data, endData) => {
 //     const updatedData = [...data];

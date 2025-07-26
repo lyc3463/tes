@@ -2,7 +2,6 @@ import {Button, Form, message, Radio, Spin} from "antd";
 import {useEffect, useState} from "react";
 import * as AppPzService from '@/services/appPz';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {addpz, fetchpz} from "@/services/appPz";
 
 const RechargeSetUp=()=>{
     const [isExamine,setAcValue]=useState(0);

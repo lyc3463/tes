@@ -369,7 +369,7 @@ const NocheckZScontractez=(props)=>{
                     <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第四条：租赁费用</p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>1.</span>
-                        租赁保证金：本租赁合同的租赁保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
+                        租赁保证金：本租赁合同的租赁保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
                         如乙方违反本合同之规定，甲方有权将租赁保证金没收或做相应扣除，乙方在接到甲方扣除通知后的十五日内将甲方扣除的租赁保证金补足给甲方。
                     </p>
 
@@ -388,7 +388,7 @@ const NocheckZScontractez=(props)=>{
                     </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>(1)</span>
-                        物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
+                        物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
                     </p>
                     <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 400 }}>(2)</span>
@@ -1341,7 +1341,7 @@ const NocheckZScontractez=(props)=>{
                             <p className={styles.linheP} style={{    fontWeight: 500, fontSize: '24px' }}>第四条：租赁费用</p>
                             <p className={styles.linheP}  >
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'20px'}}>1.</span>
-                                租赁保证金：本租赁合同的租赁保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
+                                租赁保证金：本租赁合同的租赁保证金为人民币{deposit}元（大写：{numberToRMB(deposit)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将租赁保证金无息退还乙方。
                                 如乙方违反本合同之规定，甲方有权将租赁保证金没收或做相应扣除，乙方在接到甲方扣除通知后的十五日内将甲方扣除的租赁保证金补足给甲方。
                             </p>
                             <p className={styles.linheP}>
@@ -1381,7 +1381,7 @@ const NocheckZScontractez=(props)=>{
                             </p>
                             <p className={styles.linheP}>
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(1)</span>
-                                物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}整），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
+                                物业费保证金为人民币{depositFee}元（大写：{numberToRMB(depositFee)}），乙方在本合同签订当日向甲方支付。租赁期满，在乙方办理退租手续、交还租赁物、结清全部应付各项费用，注销以租赁物为注册地址之登记手续，以及甲方在收到乙方提交的相关材料后将物业费保证金无息退还乙方。
                             </p>
                             <p className={styles.linheP}>
                                 <span style={{ fontSize: "1rem", fontWeight: 400 ,marginLeft:'40px'}}>(2)</span>

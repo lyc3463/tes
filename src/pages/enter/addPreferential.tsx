@@ -30,8 +30,8 @@ const AddPreferential=(props)=>{
         props.dispatch({
             type:'Preferential/add',
             payload:{...vals,tenantId,startDate,endDate,youhuiType,discountMoney}
-        }).then((res)=>{
-            if (res.ErrorCode==0){
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 setspinning(false);
                 message.success('提交成功');
                 history.push("/enter/afterSales")

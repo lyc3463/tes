@@ -44,8 +44,8 @@ const AddByStages=(props)=>{
         props.dispatch({
             type:'ByStages/add',
             payload:{...vals,tenantId,futureRent,fqStartDate,fqEndDate,hkEndDate,hkStartDate}
-        }).then((res)=>{
-            if (res.ErrorCode==0){
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 message.success('提交成功');
                 history.push("/enter/afterSales");
                 setspinning(false);

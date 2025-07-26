@@ -28,8 +28,8 @@ const AddOutRent=(props)=>{
         props.dispatch({
             type:'OutRent/add',
             payload:{...vals,tenantId,startDate,type}
-        }).then((res)=>{
-            if (res.ErrorCode==0){
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 setspinning(false);
                 message.success('提交成功');
                 history.push("/enter/afterSales");
