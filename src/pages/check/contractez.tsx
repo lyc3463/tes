@@ -273,7 +273,6 @@ const Contractez = () => {
         const arr = str.split(',');
         const numbers = arr.map(Number);
         sum = numbers.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-        console.log("总计",sum);
         return sum
     };
     return (
@@ -307,7 +306,6 @@ const Contractez = () => {
                               <span style={{ fontSize: "1rem", fontWeight: 600 }}>3.</span>
                               租赁物的交付标准见附件《房屋内交付标准》，乙方据此条件接收租赁物。交付的设备设施的具体数量、大小及位置以实际交付时的状态为准，由甲方（或甲方指定方）和乙方在交付时共同签署《交接确认书》予以确认。
                           </p>
-
                       <p className={styles.linheP}  >
                         <span style={{ fontSize: "1rem", fontWeight: 600 }}>4.</span>
                         本合同租赁物用途为{unit_type.split('')[0] == '1' ? '商业' : '办公'}。乙方在租赁物从事经营的主体名称是{businessEntity}，其经营范围或业务范围为{businessScope}。

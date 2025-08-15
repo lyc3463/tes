@@ -32,6 +32,7 @@ export interface RechargeInterface {
         add: Effect;
         fenye: Effect;
         addchongzhi: Effect;
+        addaliPayQr: Effect;
     };
     reducers: {
         list: Reducer<RechargeType[]>;
@@ -79,6 +80,12 @@ const RechargeModel: RechargeInterface = {
             // yield take('fetch/@@end');
             return result
         },
+        *addaliPayQr({ payload, callback }, { call, put, take }): any {
+            const result = yield call(RechargeService.addaliPayQr, payload);
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
+            return result
+        },
     },
     reducers: {
         list(state, action) {
@@ -104,18 +111,18 @@ const RechargeModel: RechargeInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/message/chongzhiLog/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/message/chongzhiLog/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/message/chongzhiLog/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/message/chongzhiLog/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
             });
         },
     },

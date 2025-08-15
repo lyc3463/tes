@@ -93,8 +93,6 @@ const EditYuangong=(props:any)=>{
             if (res.ErrorCode==0){
                 let newArr :any[]=mapArrList(res.Data[1]);
                 setobtain(newArr);
-            }else {
-                message.error(res.Data);
             }
         })
     };
@@ -114,7 +112,6 @@ const EditYuangong=(props:any)=>{
             type:'Gate/fetch',
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log("res",res)
                 setGateList(res.Data);
             }else {
                 message.error(res.Data);

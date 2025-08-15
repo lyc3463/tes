@@ -179,7 +179,6 @@ const YuangonglData=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props)
     }, [page,pageSize]);
     // 监听员工姓名
     const changeName=(e)=>{

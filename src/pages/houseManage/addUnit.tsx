@@ -89,6 +89,7 @@ const AddUnit=(props:any)=>{
                 layout="horizontal"
                 size={'large'}
                 onFinish={onFinish}
+                initialValues={{unit_type:1}}
                 style={{ marginTop: '1rem' }}
             >
                 <Form.Item label='房屋名称' name='house_id' rules={[{ required: true, message: '请选择房屋' }]}>

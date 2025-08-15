@@ -1,4 +1,4 @@
-import {Button, Form, Input, List, message, Modal, Select, Space, Spin, Table} from "antd";
+import {Button, Form, Input, List, message, Modal, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from 'umi'
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -10,6 +10,9 @@ const UserManage=(props:any)=>{
     const [page,setPage]=useState(1);
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
+    const [tid,setTid]=useState(0);
+    const [isEnable,setisEnable]=useState(1);
+    const [isEnableOpen,setisEnableOpen]=useState(false);
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const columns =[
@@ -24,6 +27,16 @@ const UserManage=(props:any)=>{
             key: 'phone',
         },
         {
+            title: '状态',
+            dataIndex: 'isEnable',
+            key: 'isEnable',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>{record.isEnable==1?<Tag color='blue'>启用</Tag>:<Tag color='red'>停用</Tag>}</div>
+                )
+            }
+        },
+        {
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',
@@ -32,11 +45,21 @@ const UserManage=(props:any)=>{
                     <Space>
                         {uqx[217]=='1'?<Button type='primary' danger onClick={()=>isDelete(record.id)} >删除</Button>:''}
                         {uqx[216]=='1'?<Button type='primary' onClick={()=>toEdit(record.id)}>编辑</Button>:''}
+                        <Button type='primary' danger onClick={()=>isTingyong(record)}>{record.isEnable==1?'停用':'启用'}</Button>
                     </Space>
                 )
             }
         }
     ];
+    const isTingyong=(e)=>{
+        setTid(e.id);
+        if (e.isEnable==1){
+            setisEnable(0);
+        }else {
+            setisEnable(1);
+        }
+        setisEnableOpen(true);
+    };
     const toadd=()=>{
         history.push('/systemManage/addUser/')
     };
@@ -81,9 +104,30 @@ const UserManage=(props:any)=>{
           payload:{phone}
       })
     };
+    // 停用启用账号
+    const deactivateOrEnable=()=>{
+        setisspinning(true);
+        props.dispatch({
+            type:"Users/deactivate",
+            payload:{tid,isEnable}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('修改成功');
+                setisspinning(false);
+                setisEnableOpen(false);
+            }else {
+                message.error(res.Data);
+                setisspinning(false);
+                setisEnableOpen(false);
+            }
+        })
+    };
     useEffect(() => {
         getUserList();
     }, []);
+    const onEnableOk=()=>{
+        deactivateOrEnable();
+    };
     return(
         <Spin spinning={isspinning}>
             <List>
@@ -111,8 +155,11 @@ const UserManage=(props:any)=>{
                 pagination={false}
                 dataSource={props.UsersList}
             />
-            <Modal open={isopen} onOk={onOk} onCancel={()=>setisopen(false)}>
+            <Modal open={isopen} onOk={onOk} onCancel={()=>setisopen(false)} loading={isspinning}>
                 <div>是否要删除?</div>
+            </Modal>
+            <Modal open={isEnableOpen} onOk={onEnableOk} onCancel={()=>setisEnableOpen(false)} loading={isspinning}>
+                <div>是否要停用该账号?</div>
             </Modal>
         </Spin>
     )

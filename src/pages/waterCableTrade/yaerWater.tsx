@@ -26,13 +26,21 @@ const YaerWater=(props:any)=>{
             ),
         },
         {
-            title: '用水',
+            title: '消耗度数',
             dataIndex: 'energyUsages',
             render: (_: any, record: any) => (
                 <div>
                     {record.energyUsages}t
                 </div>
-
+            ),
+        },
+        {
+            title: '积累度数',
+            dataIndex: 'energyNews',
+            render: (_: any, record: any) => (
+                <div>
+                    {record.energyNews}t
+                </div>
             ),
         },
         {
@@ -106,7 +114,7 @@ const YaerWater=(props:any)=>{
                 scroll={{x:1500}}
                 pagination={false}
                 size='small'
-                rowKey={(columns) => columns.id}
+                rowKey={(columns) => columns.recordTimes}
                 dataSource={props.StatisticsList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'

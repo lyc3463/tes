@@ -12,8 +12,13 @@ export function fenye(vals:any) {
 export function one() {
     return getData(1286, []);
 }
+// 微信二维码
 export function addchongzhi(vals:any) {
     return getData(8001, [vals.newMoney,vals.remarks,vals.numberItems,vals.rechargetype,vals.startDate]);
+}
+// 支付宝二维码
+export function addaliPayQr(vals:any) {
+    return getData(1499, [vals.newMoney,vals.payType,vals.numberItems,vals.remarks,vals.startDate,vals.rechargetype]);
 }
 //充值的时候调用一下轮询查看订单号是否支付成功
 export function lunxun(dingdan:string) {

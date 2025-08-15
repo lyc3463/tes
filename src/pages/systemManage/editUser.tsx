@@ -18,6 +18,7 @@ const EditUser=(props:any)=>{
     const treeData = buildTree(qxTree);
     const location=useLocation();
     const [roleList,setRoleList]=useState([]);
+    const [isTask,setisTask]=useState([0]);
     const formRef =useRef();
     const [selected, setSelected] = useState<string[]>(Array(397).fill('0'));
     // 路由参数
@@ -29,9 +30,10 @@ const EditUser=(props:any)=>{
         getOneUserInfo(id);
     },[]);
     let getOneUserInfo=(id:string)=>{
-        UsersService.one(id).then((res:any)=>{
-            if (res?.ErrorCode==0){
-                formRef.current?.setFieldsValue(res.Data);
+        UsersService.one(id).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                formRef.current.setFieldsValue(res.Data);
+                setisTask(res.Data.isTask.split("|").map(Number))
                 const authorityString = res.Data.authority;
                 const splitArray = authorityString.split('');
                 const adjustedArray = ensureArrayLength(splitArray, selected.length, '0');
@@ -793,6 +795,11 @@ const EditUser=(props:any)=>{
             newSelected[297] = isChecked ? '1' : '0' ;
             newSelected[319] = isChecked ? '1' : '0' ;
             newSelected[320] = isChecked ? '1' : '0' ;
+            newSelected[64] ='1';
+        }
+        if (id === 319){
+            newSelected[320] = isChecked ? '1' : '0' ;
+            newSelected[64] ='1';
         }
         if (id === 104){
             newSelected[105] = isChecked ? '1' : '0' ;
@@ -862,11 +869,13 @@ const EditUser=(props:any)=>{
         // 设置新的选中状态
         setSelected(newSelected);
     };
+
     const onFinish=(value:any)=>{
         let joinqx=selected.join('');
+        let joinOsTask=isTask.join('|');
         props.dispatch({
             type:'Users/edit',
-            payload:{...value,uid,joinqx}
+            payload:{...value,uid,joinqx,joinOsTask}
         }).then((res)=>{
             if (res.ErrorCode==0){
                 message.success('修改成功');
@@ -904,6 +913,9 @@ const EditUser=(props:any)=>{
             }
         })
     };
+    const changeIsTask=(e)=>{
+        setisTask(e);
+    };
     return(
         <div>
             <Form
@@ -917,6 +929,25 @@ const EditUser=(props:any)=>{
             >
                 <Form.Item label="管理员名称" name="user_name" rules={[{required: true, message: '请输入管理员名称'}]}>
                     <Input placeholder="例:名称"/>
+                </Form.Item>
+                <Form.Item label="管理员手机号" name="phone" rules={[{required: true, message: '请输入管理员手机号'},{pattern: phonePattern, message: '请输入有效的手机号'}]}>
+                    <Input/>
+                </Form.Item>
+                <Form.Item label='接收消息'>
+                    <Select onChange={changeIsTask} value={isTask}  mode="multiple">
+                        <Select.Option value={1}>抬头消息</Select.Option>
+                        <Select.Option value={2}>发票消息</Select.Option>
+                        <Select.Option value={3}>车辆消息</Select.Option>
+                        <Select.Option value={4}>更名消息</Select.Option>
+                        <Select.Option value={5}>续租消息</Select.Option>
+                        <Select.Option value={6}>退租消息</Select.Option>
+                        <Select.Option value={7}>优惠消息</Select.Option>
+                        <Select.Option value={8}>分期消息</Select.Option>
+                        <Select.Option value={9}>登记消息</Select.Option>
+                        <Select.Option value={10}>报修消息</Select.Option>
+                        <Select.Option value={11}>银行卡消息</Select.Option>
+                        <Select.Option value={0}>不接收消息</Select.Option>
+                    </Select>
                 </Form.Item>
                 <Form.Item label='选择角色' name='role_id'>
                     <Select onChange={change}>

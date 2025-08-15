@@ -88,8 +88,6 @@ const AddYuangonglData=(props:any)=>{
             if (res.ErrorCode==0){
                 let newArr :any[]=mapArrList(res.Data[1]);
                 setobtain(newArr);
-            }else {
-                message.error(res.Data);
             }
         })
     };

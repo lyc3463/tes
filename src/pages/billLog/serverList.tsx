@@ -111,6 +111,18 @@ const ServerList=(props:any)=>{
             }
         },
         {
+            title: '未交金额(元)',
+            dataIndex: 'qq',
+            key: 'qq',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {(record.payAmount-record.stopAmount).toFixed(2)}元
+                    </div>
+                )
+            }
+        },
+        {
             title: '已交金额(元)',
             dataIndex: 'stopAmount',
             key: 'stopAmount',
@@ -222,7 +234,7 @@ const ServerList=(props:any)=>{
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>{moneySum}元</Table.Summary.Cell>
-                            {/*<Table.Summary.Cell index={6}>{NotBillSum}元</Table.Summary.Cell>*/}
+                            <Table.Summary.Cell index={6}>{NotBillSum}元</Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}

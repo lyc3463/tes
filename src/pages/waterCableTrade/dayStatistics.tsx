@@ -73,7 +73,7 @@ const DayStatistics=(props:any)=>{
     };
     useEffect(() => {
         getList();
-        console.log("props",props)
+        console.log("props",props);
     }, []);
     const toInfo=(e:string)=>{
         let date=dayjs(isoDateString(e)).format("YYYY-MM-DD")

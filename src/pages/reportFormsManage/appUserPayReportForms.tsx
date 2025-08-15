@@ -37,6 +37,7 @@ const AppUserPayReportForms=(props)=>{
     const [consumptionMoney7,setconsumptionMoney7]=useState(0);
     const [consumptionMoney8,setconsumptionMoney8]=useState(0);
     const [consumptionMoney9,setconsumptionMoney9]=useState(0);
+    const [consumptionMoney10,setconsumptionMoney10]=useState(0);
     const [beginMoney,setbeginMoney]=useState(0);
     const [endMoney,setendMoney]=useState(0);
     const columns =[
@@ -187,6 +188,18 @@ const AppUserPayReportForms=(props)=>{
                 return(
                     <div>
                         {record.consumptionMoney9.toFixed(2)}元
+                    </div>
+                )
+            }
+        },
+        {
+            title: '大额转账(元)',
+            dataIndex: 'consumptionMoney10',
+            key: 'consumptionMoney10',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.consumptionMoney10.toFixed(2)}元
                     </div>
                 )
             }

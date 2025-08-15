@@ -24,6 +24,8 @@ const AllList=(props:any)=>{
     const [dataSource,setdataSource]=useState([]);
     // 公共缴费管理费统计
     const [moneySum,setmoneySum]=useState(0);
+    // 未交金额
+    const [NotBillSum,setNotBillSum]=useState(0);
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -44,8 +46,10 @@ const AllList=(props:any)=>{
     const logFenye=()=>{
         ArrearsBillService.alljiaofeifenye({name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('res.Data',res.Data)
                 setcount(res.Data.count);
                 setmoneySum(res.Data.moneySum);
+                setNotBillSum(res.Data.NotBillSum);
             }else {
                 message.error(res.Data);
             }
@@ -108,6 +112,18 @@ const AllList=(props:any)=>{
                 return(
                     <div>
                         {record.payAmount.toFixed(2)}元
+                    </div>
+                )
+            }
+        },
+        {
+            title: '未交金额(元)',
+            dataIndex: 'qq',
+            key: 'qq',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {(record.payAmount-record.stopAmount).toFixed(2)}元
                     </div>
                 )
             }
@@ -224,7 +240,8 @@ const AllList=(props:any)=>{
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={6}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}>{moneySum}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>{moneySum.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}>{NotBillSum.toFixed(2)}元</Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}

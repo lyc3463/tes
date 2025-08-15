@@ -24,7 +24,6 @@ const Bymoney=(props)=>{
         let res:any=await  ZuhuServer.one(id);
         if (res.ErrorCode==0){
             let data=res.Data;
-            console.log('res',res);
             formRef.current.setFieldsValue(data[0]);
             settenantAmount(data[0].tenantAmount);
             setminimum_recharge(data[0].minimum_recharge);
@@ -40,10 +39,16 @@ const Bymoney=(props)=>{
         getOneCustom(props.id);
     }, [props.id]);
     const onFinish=(vals)=>{
+        let neuNub;
+        if (reserved_amount!=0&&reserved_amount!=oldreserved_amount){
+            neuNub=reserved_amount+1
+        }else {
+            neuNub=reserved_amount;
+        }
         setspinning(true);
         props.dispatch({
             type:'Zuhu/newbyzhuhu',
-            payload:{...vals,uid,tenantAmount,warn_amount,reserved_amount,oldreserved_amount}
+            payload:{...vals,uid,tenantAmount,warn_amount,reserved_amount:neuNub,oldreserved_amount}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 message.success('绑定成功');
@@ -56,6 +61,9 @@ const Bymoney=(props)=>{
                 getOneCustom(uid);
             }
         })
+    };
+    const changeReservedAmount=(e)=>{
+        setreserved_amount(e);
     };
     return(
         <Spin spinning={spinning}>
@@ -70,12 +78,12 @@ const Bymoney=(props)=>{
                 style={{ marginTop: '1rem' }}
             >
                 <Form.Item label='预留金额(元)'  rules={[{required: true, message: '请填写'}]}>
-                    <InputNumber min={0} value={reserved_amount} onChange={(e:number)=>setreserved_amount(e)}/><span style={{color:'#999',fontSize:'12px',marginLeft:'10px'}}>注意:用户余额低于预留金额会发消息到小程序提醒用户</span>
+                    <InputNumber min={0} precision={0} value={reserved_amount} onChange={changeReservedAmount}/><span style={{color:'#999',fontSize:'12px',marginLeft:'10px'}}>注意:用户余额低于预留金额会发消息到小程序提醒用户(修改预留金额会在当前金额上+1元)</span>
                 </Form.Item>
                 <Form.Item label='警告金额(元)' rules={[{required: true, message: '请填写'}]}>
                     <InputNumber min={0} value={warn_amount} onChange={(e:number)=>setwarn_amount(e)}/><span style={{color:'#999',fontSize:'12px',marginLeft:'10px'}}>注意:用户余额低于警告金额会发短信到用户手机提醒用户</span>
                 </Form.Item>
-                <Form.Item label='最低充值(元)' name='minimum_recharge' rules={[{required: true, message: '请填写'},{min:1,transform: (value) => Number(value), message: '最低充值不能低于100'}]}>
+                <Form.Item label='最低充值(元)'  name='minimum_recharge' rules={[{required: true, message: '请填写'},{min:1,transform: (value) => Number(value), message: '最低充值不能低于100'}]}>
                     <Space>
                         <InputNumber min={1} value={minimum_recharge} onChange={(e)=>setminimum_recharge(e)}/>
                         {/*<Button type='primary' onClick={byRearge}>确定修改</Button>*/}

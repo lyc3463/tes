@@ -20,13 +20,13 @@ const EditByStages=(props)=>{
     // 租户手机号
     const [tenant_phone,settenant_phone]=useState('');
     // 分期开始月份
-    const [startDate,setStartDate]=useState('2000-01-01');
+    const [fqStartDate,setStartDate]=useState('2000-01-01');
     // 分期结束月份
-    const [endDate,setEndDate]=useState('2000-02-01');
+    const [fqEndDate,setEndDate]=useState('2000-02-01');
     // 还款开始月份
-    const [startDate1,setStartDate1]=useState('2000-01-01');
+    const [hkStartDate,setStartDate1]=useState('2000-01-01');
     // 还款结束月份
-    const [endDate1,setEndDate1]=useState('2000-02-01');
+    const [hkEndDate,setEndDate1]=useState('2000-02-01');
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
@@ -58,7 +58,7 @@ const EditByStages=(props)=>{
         setspinning(true);
         props.dispatch({
             type:'ByStages/edit',
-            payload:{uid,staRent,startDate,endDate,startDate1,endDate1}
+            payload:{uid,staRent,fqStartDate,fqEndDate,hkEndDate,hkStartDate}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('修改成功');
@@ -72,8 +72,8 @@ const EditByStages=(props)=>{
     };
     const  changeDate=(_,data)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
-            setStartDate(dayjs(startDate).format('YYYY-MM-DD'));
-            setEndDate(dayjs(endDate).format('YYYY-MM-DD'));
+            setStartDate(dayjs(fqStartDate).format('YYYY-MM-DD'));
+            setEndDate(dayjs(fqEndDate).format('YYYY-MM-DD'));
         } else {
             setStartDate(dayjs(data[0]).format('YYYY-MM-DD'));
             setEndDate(dayjs(data[1]).format('YYYY-MM-DD'));
@@ -81,8 +81,8 @@ const EditByStages=(props)=>{
     };
     const  changeDate1=(_,data)=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
-            setStartDate1(dayjs(startDate1).format('YYYY-MM-DD'));
-            setEndDate1(dayjs(endDate1).format('YYYY-MM-DD'));
+            setStartDate1(dayjs(hkStartDate).format('YYYY-MM-DD'));
+            setEndDate1(dayjs(hkEndDate).format('YYYY-MM-DD'));
         } else {
             setStartDate1(dayjs(data[0]).format('YYYY-MM-DD'));
             setEndDate1(dayjs(data[1]).format('YYYY-MM-DD'));
@@ -107,10 +107,10 @@ const EditByStages=(props)=>{
                     <Input value={tenant_phone}/>
                 </Form.Item>
                 <Form.Item label='分期开始-结束月份'>
-                    <DatePicker.RangePicker picker="month" value={[dayjs(startDate),dayjs(endDate)]} onChange={changeDate}/>
+                    <DatePicker.RangePicker picker="month" value={[dayjs(fqStartDate),dayjs(fqEndDate)]} onChange={changeDate}/>
                 </Form.Item>
                 <Form.Item label='还款开始-结束月份'>
-                    <DatePicker.RangePicker picker="month" value={[dayjs(startDate1),dayjs(endDate1)]} onChange={changeDate1}/>
+                    <DatePicker.RangePicker picker="month" value={[dayjs(hkStartDate),dayjs(hkEndDate)]} onChange={changeDate1}/>
                 </Form.Item>
                 {/*<Form.Item label='优惠结束月份'>*/}
                 {/*    <DatePicker picker="month" value={dayjs(endDate)}/>*/}

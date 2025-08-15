@@ -313,7 +313,7 @@ const WyList=()=>{
                                 <Table.Summary.Cell index={0}> 统计 </Table.Summary.Cell>
                                 <Table.Summary.Cell index={1}></Table.Summary.Cell>
                                 <Table.Summary.Cell index={2}></Table.Summary.Cell>
-                                <Table.Summary.Cell index={3}>{sumweiyue}元</Table.Summary.Cell>
+                                <Table.Summary.Cell index={3}>{sumweiyue.toFixed(2)}元</Table.Summary.Cell>
                             </Table.Summary.Row>
                         </Table.Summary>
                     )}

@@ -972,6 +972,8 @@ export  const calculateSums=(sumDate)=>{
     };
 }
 
+
+// 压缩图片
 export async function compressBase642(base64: any) {
     const options = {
         quality: 0.8, // 压缩质量

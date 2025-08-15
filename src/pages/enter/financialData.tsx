@@ -431,8 +431,6 @@ const FinancialData=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
-        console.log(checkSessionStorage('/enter/financialData/','startDate'))
-        console.log(checkSessionStorage('/enter/financialData/','endDate'))
     }, []);
     const changeAccount_card=(e)=>{
         setaccount_card(e.target.value);

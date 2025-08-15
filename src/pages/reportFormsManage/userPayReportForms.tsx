@@ -37,6 +37,7 @@ const userPayReportForms=(props)=>{
     const [consumptionMoney7,setconsumptionMoney7]=useState(0);
     const [consumptionMoney8,setconsumptionMoney8]=useState(0);
     const [consumptionMoney9,setconsumptionMoney9]=useState(0);
+    const [consumptionMoney10,setconsumptionMoney10]=useState(0);
     const [beginMoney,setbeginMoney]=useState(0);
     const [endMoney,setendMoney]=useState(0);
     const columns =[
@@ -192,6 +193,18 @@ const userPayReportForms=(props)=>{
             }
         },
         {
+            title: '大额转账',
+            dataIndex: 'consumptionMoney10',
+            key: 'consumptionMoney10',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.consumptionMoney10.toFixed(2)}元
+                    </div>
+                )
+            }
+        },
+        {
             title: '开始数据',
             children: [
                 {
@@ -289,6 +302,7 @@ const userPayReportForms=(props)=>{
             consumptionMoney7: consumptionMoney7.toFixed(2)*1,
             consumptionMoney8: consumptionMoney8.toFixed(2)*1,
             consumptionMoney9: consumptionMoney9.toFixed(2)*1,
+            consumptionMoney10: consumptionMoney10.toFixed(2)*1,
             beginMoney: beginMoney.toFixed(2)*1,
             endMoney: endMoney.toFixed(2)*1,
         };
@@ -320,6 +334,7 @@ const userPayReportForms=(props)=>{
                 setconsumptionMoney7(sum.consumptionMoney7);
                 setconsumptionMoney8(sum.consumptionMoney8);
                 setconsumptionMoney9(sum.consumptionMoney9);
+                setconsumptionMoney10(sum.consumptionMoney10);
                 setbeginMoney(sum.beginMoney);
                 setendMoney(sum.endMoney);
             }else {
@@ -361,7 +376,7 @@ const userPayReportForms=(props)=>{
         const newDate = originalDate.add(1, 'day');
         WaterRateService.fetch({name,phone,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),page:1,pageSize:100000}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let headers=['房屋','单元','租户','手机号','手动充值(元)','微信充值(元)','租金/管理费(元)','电费(元)','水费(元)','服务费(元)','公共缴费(元)','违约金(元)','月保(元)','开始时间','开始时间余额(元)','结束时间','结束时间余额(元)'];
+                let headers=['房屋','单元','租户','手机号','手动充值(元)','微信充值(元)','租金/管理费(元)','电费(元)','水费(元)','服务费(元)','公共缴费(元)','违约金(元)','月保(元)','大额转账(元)','开始时间','开始时间余额(元)','结束时间','结束时间余额(元)'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [
@@ -383,6 +398,7 @@ const userPayReportForms=(props)=>{
                         item.consumptionMoney5.toFixed(2),
                         item.consumptionMoney8.toFixed(2),
                         item.consumptionMoney9.toFixed(2),
+                        item.consumptionMoney10.toFixed(2),
                         (dayjs(item.beginDate).format('YYYY-MM-DD')),
                         item.beginMoney,
                         (dayjs(item.endDate).format('YYYY-MM-DD')),
@@ -489,6 +505,9 @@ const userPayReportForms=(props)=>{
                             <Table.Summary.Cell index={8}>
                                 {consumptionMoney9}元
                             </Table.Summary.Cell>
+                            <Table.Summary.Cell index={13}>
+                                {consumptionMoney10}元
+                            </Table.Summary.Cell>
                             <Table.Summary.Cell index={9}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={10}>
@@ -499,6 +518,7 @@ const userPayReportForms=(props)=>{
                             <Table.Summary.Cell index={12}>
                                 {endMoney}元
                             </Table.Summary.Cell>
+
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}

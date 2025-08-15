@@ -30,7 +30,7 @@ export interface SubjectInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
-        // fenye: Effect;
+        deactivate: Effect;
     };
     reducers: {
         list: Reducer<UsersType[]>;
@@ -72,6 +72,13 @@ const UsersModel: SubjectInterface = {
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(UsersService.edit, payload);
+            yield put({ type: 'fetch', payload: pl });  // 重新加载数据
+            yield take('fetch/@@end');
+            return result
+
+        },
+        *deactivate({ payload, callback }, { call, put, take }): any {
+            const result = yield call(UsersService.deactivate, payload);
             yield put({ type: 'fetch', payload: pl });  // 重新加载数据
             yield take('fetch/@@end');
             return result

@@ -53,11 +53,11 @@ const RenewPark=(props)=>{
             const originalDate = dayjs(endDate);
             const startDate = originalDate.add(1, 'year');
             props.dispatch({
-                type:'Recharge/addchongzhi',
-                payload:{newMoney,remarks,numberItems:0,rechargetype:4,startDate:dayjs(startDate).format('YYYY-MM-DD')}
+                type:'Recharge/addaliPayQr',
+                payload:{newMoney,remarks,numberItems:0,payType:"alipay_qr",rechargetype:6,startDate:dayjs(startDate).format('YYYY-MM-DD')}
             }).then((res:ErrorCodeType)=>{
                 if (res.ErrorCode==0){
-                    setCode(res.Data);
+                    setCode(res.Data.payInfo);
                     setIsTihuan(true);
                 }else {
                     message.error(res.Data);
@@ -72,7 +72,7 @@ const RenewPark=(props)=>{
         <Spin spinning={spinning}>
             {
                 isTihuan?<div style={{  paddingLeft:'100px'}}>
-                    <div><span style={{fontSize:'16px',color:'red'}}>请使用微信扫码支付↓</span></div>
+                    <div><span style={{fontSize:'16px',color:'red'}}>请使用支付宝扫码支付↓</span></div>
                     <div className={styles.qrBox}>
                         <Myqrcode value={code}></Myqrcode>
                     </div>

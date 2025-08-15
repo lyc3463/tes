@@ -19,13 +19,16 @@ const AddUser=(props:any)=>{
     const treeData = buildTree(qxTree);
     const [roleList,setRoleList]=useState([]);
     const [selected, setSelected] = useState<string[]>(Array(397).fill('0'));
+    const [isTask,setisTask]=useState([0]);
+
     const onFinish= (values)=>{
         let mm =CryptoUtils.md5(values.passWord);
         values.passWord=mm;
         let joinqx=selected.join('');
-         props.dispatch({
+        let joinOsTask=isTask.join('|');
+        props.dispatch({
             type:'Users/add',
-            payload:{...values,joinqx}
+            payload:{...values,joinqx,joinOsTask}
         }).then((res)=>{
             if (res.ErrorCode==0){
                 message.success('添加成功');
@@ -334,6 +337,7 @@ const AddUser=(props:any)=>{
             newSelected[261] = isChecked ? '1' : '0';
             newSelected[262] = isChecked ? '1' : '0';
             newSelected[258] = '1';
+            newSelected[256] = '1';
             newSelected[49] = '1';
         }
         if (id === 52){
@@ -537,6 +541,9 @@ const AddUser=(props:any)=>{
             newSelected[324] = '1' ;
             newSelected[347] = '1' ;
         }
+        if (id === 330) {
+            newSelected[256] ='1';
+        }
         if (id === 71){
             newSelected[72] = isChecked ? '1' : '0';
             newSelected[187] = isChecked ? '1' : '0';
@@ -561,6 +568,7 @@ const AddUser=(props:any)=>{
             newSelected[291] =  isChecked ? '1' : '0' ;
             newSelected[219] =  '1' ;
             newSelected[220] =  '1' ;
+            newSelected[256] =  '1' ;
             newSelected[221] =  '1' ;
             newSelected[222] =  '1' ;
             newSelected[223] =  '1' ;
@@ -710,6 +718,7 @@ const AddUser=(props:any)=>{
             newSelected[274] = isChecked ? '1' : '0';
             newSelected[275] = isChecked ? '1' : '0';
             newSelected[53] = isChecked ? '1' : '0';
+            newSelected[256] = '1';
         }
         if (id === 84){
             newSelected[85] = isChecked ? '1' : '0' ;
@@ -727,7 +736,12 @@ const AddUser=(props:any)=>{
             newSelected[308] = isChecked ? '1' : '0' ;
             newSelected[313] = isChecked ? '1' : '0' ;
             newSelected[94] = isChecked ? '1' : '0' ;
-            newSelected[265] = isChecked ? '1' : '0' ;
+            newSelected[264] = isChecked ? '1' : '0' ;
+            newSelected[185] = isChecked ? '1' : '0' ;
+        }
+        if (id === 94){
+            newSelected[185] = isChecked ? '1' : '0' ;
+            newSelected[264] = isChecked ? '1' : '0' ;
         }
         if (id === 96){
             newSelected[97] = isChecked ? '1' : '0' ;
@@ -791,6 +805,11 @@ const AddUser=(props:any)=>{
             newSelected[297] = isChecked ? '1' : '0' ;
             newSelected[319] = isChecked ? '1' : '0' ;
             newSelected[320] = isChecked ? '1' : '0' ;
+            newSelected[64] ='1';
+        }
+        if (id === 319){
+            newSelected[320] = isChecked ? '1' : '0' ;
+            newSelected[64] ='1';
         }
         if (id === 104){
             newSelected[105] = isChecked ? '1' : '0' ;
@@ -861,6 +880,7 @@ const AddUser=(props:any)=>{
         setSelected(newSelected);
     };
 
+
     // 下拉选择角色获取角色权限
     const change=(e)=>{
         RoleService.one(e).then((res:any)=>{
@@ -872,6 +892,9 @@ const AddUser=(props:any)=>{
                 message.error(res.Data);
             }
         })
+    };
+    const changeIsTask=(e)=>{
+        setisTask(e);
     };
     return(
         <div>
@@ -903,6 +926,22 @@ const AddUser=(props:any)=>{
                 </Form.Item>
                 <Form.Item label="管理员密码" name="passWord" rules={[{required: true, message: '请输入密码'},{pattern: pwdPattern, message: '密码必须包含大小写加特殊符号'}]}>
                     <Input.Password/>
+                </Form.Item>
+                <Form.Item label='接收消息'>
+                    <Select onChange={changeIsTask} value={isTask}  mode="multiple">
+                        <Select.Option value={1}>抬头消息</Select.Option>
+                        <Select.Option value={2}>发票消息</Select.Option>
+                        <Select.Option value={3}>车辆消息</Select.Option>
+                        <Select.Option value={4}>更名消息</Select.Option>
+                        <Select.Option value={5}>续租消息</Select.Option>
+                        <Select.Option value={6}>退租消息</Select.Option>
+                        <Select.Option value={7}>优惠消息</Select.Option>
+                        <Select.Option value={8}>分期消息</Select.Option>
+                        <Select.Option value={9}>登记消息</Select.Option>
+                        <Select.Option value={10}>报修消息</Select.Option>
+                        <Select.Option value={11}>银行卡消息</Select.Option>
+                        <Select.Option value={0}>不接收消息</Select.Option>
+                    </Select>
                 </Form.Item>
                 <Form.Item label="员工权限">
                     <TreeMenu tree={treeData} selected={selected} disabled={authArr} setSelected={setSelected} />

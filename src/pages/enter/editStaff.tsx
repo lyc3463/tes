@@ -26,6 +26,7 @@ const EditStaff=(props:any)=>{
     const [formItems, setFormItems] = useState([]);
     const [spinning, setspinning] = useState(false);
     const [disb,setdisb]=useState(true);
+    const [selectedPhone,setSelectedPhone]=useState('');
     const [deposit,setdeposit]=useState(0);
     // 计算出来的免租期天数
     const [summzqDay,setsummzqDay]=useState(0);
@@ -82,7 +83,6 @@ const EditStaff=(props:any)=>{
     const [mianji,setmianji]=useState(0);
     // 租金
     const [zuMoney,setzuMoney]=useState(0);
-    const [unitName,setUnitName]=useState('');
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
@@ -452,6 +452,8 @@ const EditStaff=(props:any)=>{
     };
     const changeKehu=(e)=>{
         getcokuInfo(e);
+        const selectedCustomer = kehuList.find(item => item.id === e);
+        setSelectedPhone(selectedCustomer.custom_phone);
     };
     useEffect(() => {
         filterzuArea(unitarrList);
@@ -477,6 +479,7 @@ const EditStaff=(props:any)=>{
             }
         })
     };
+    // 查询该客户是否签有定金合同
     const getcokuInfo1=(e:number)=>{
         CheckCompanyService.companyorDj(e).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
@@ -538,6 +541,11 @@ const EditStaff=(props:any)=>{
                                 })}
                             </Select>
                         </Form.Item>
+                        {
+                            contractType==2?<Form.Item label='租户身份证' name='customCard' style={{width:'20rem'}} rules={[{required: true, message: ''}]}>
+                                <Input/>
+                            </Form.Item>:''
+                        }
                     </Space>
                 </Form.Item>
                 <Form.Item style={{display:'flex'}}>
@@ -557,17 +565,15 @@ const EditStaff=(props:any)=>{
                                 {kehuList.map((item:any,index:any)=>{
                                     return(
                                         <Select.Option value={item.id} key={index}>
-                                            {item.custom_name}
+                                            {item.custom_name}-{item.custom_phone}
                                         </Select.Option>
                                     )
                                 })}
                             </Select>
                         </Form.Item>
-                        {
-                            contractType==2?<Form.Item label='租户身份证' name='customCard' style={{width:'20rem'}}>
-                                <Input/>
-                            </Form.Item>:''
-                        }
+                        <Form.Item label='客户手机号' style={{width:'15rem'}}>
+                            <Input value={selectedPhone} disabled/>
+                        </Form.Item>
                         <Form.Item label='单元'  style={{width:'30rem'}}>
                             <Select placeholder='请选择单元,注:选择第一个单元决定合同用途'
                                     mode="multiple"

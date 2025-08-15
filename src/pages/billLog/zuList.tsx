@@ -122,6 +122,18 @@ const ZuList=(props:any)=>{
             }
         },
         {
+            title: '未交金额(元)',
+            dataIndex: 'aa',
+            key: 'aa',
+            render:(text:any,record:any)=>{
+                return(
+                    <div style={{color:'red'}}>
+                        {(record.payAmount-record.stopAmount).toFixed(2)}元
+                    </div>
+                )
+            }
+        },
+        {
             title: '已交金额(元)',
             dataIndex: 'stopAmount',
             key: 'stopAmount',
@@ -283,6 +295,7 @@ const ZuList=(props:any)=>{
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}><span style={{color:"red"}}>{moneySum.toFixed(2)}元</span></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}><span style={{color:"red"}}>{NotBillSum.toFixed(2)}元</span></Table.Summary.Cell>
 
                         </Table.Summary.Row>
                     </Table.Summary>

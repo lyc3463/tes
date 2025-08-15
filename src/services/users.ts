@@ -5,11 +5,11 @@ export function fetch(vals:any) {
 }
 
 export function add(vals:any) {
-    return getData(1242, [vals.name,vals.phone,vals.passWord,vals.joinqx,vals.is_zb=1,vals.role_id,vals.deviceId='1']);
+    return getData(1242, [vals.name,vals.phone,vals.passWord,vals.joinqx,vals.is_zb=1,vals.role_id,vals.deviceId='1',vals.joinOsTask]);
 }
 
 export function edit(vals:any) {
-    return getData(1243, [vals.uid,vals.user_name,vals.joinqx,vals.role_id]);
+    return getData(1243, [vals.uid,vals.user_name,vals.joinqx,vals.role_id,vals.phone,vals.joinOsTask]);
 }
 
 export function remove(vals:any) {
@@ -25,4 +25,7 @@ export function permissionList() {
 }
 export function addPermissionUser(vals:any) {
     return getData(1595, [vals]);
+}
+export function deactivate(vals:any) {
+    return getData(1607, [vals.tid,vals.isEnable]);
 }

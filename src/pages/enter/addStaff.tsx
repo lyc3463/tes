@@ -45,6 +45,7 @@ const AddStaff=(props:any)=>{
     const [disb,setdisb]=useState(true);
     const [deposit,setdeposit]=useState(0);
     const [unitstutes,setunitstutes]=useState(1);
+    const [selectedPhone,setSelectedPhone]=useState('');
     // 合同编号房屋名称
     const [houseName,sethouseName]=useState('');
     // 合同编号数字
@@ -431,6 +432,8 @@ const AddStaff=(props:any)=>{
     };
     const changeKehu=(e)=>{
         getcokuInfo(e);
+        const selectedCustomer = kehuList.find(item => item.id === e);
+        setSelectedPhone(selectedCustomer.custom_phone);
     };
     const getcokuInfo=(e:number)=>{
         CheckCompanyService.companyorDj(e).then((res:TypeErrorCode)=>{
@@ -516,6 +519,11 @@ const AddStaff=(props:any)=>{
                                 })}
                             </Select>
                         </Form.Item>
+                        {
+                            contractType==2?<Form.Item label='租户身份证' name='customCard' style={{width:'20rem'}} rules={[{required: true, message: ''}]}>
+                                <Input/>
+                            </Form.Item>:''
+                        }
                     </Space>
                 </Form.Item>
                 <Form.Item style={{display:'flex'}}>
@@ -541,11 +549,9 @@ const AddStaff=(props:any)=>{
                                 })}
                             </Select>
                         </Form.Item>
-                        {
-                            contractType==2?<Form.Item label='租户身份证' name='customCard' style={{width:'20rem'}} rules={[{required: true, message: ''}]}>
-                                    <Input/>
-                                </Form.Item>:''
-                        }
+                        <Form.Item label='客户手机号' style={{width:'15rem'}}>
+                            <Input value={selectedPhone} disabled/>
+                        </Form.Item>
                         <Form.Item label='单元'  style={{width:'30rem'}}>
                             <Select placeholder='请选择单元,注:选择第一个单元决定合同用途'
                                     mode="multiple"

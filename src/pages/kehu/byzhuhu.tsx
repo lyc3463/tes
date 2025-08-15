@@ -81,7 +81,6 @@ const Byzhuhu=(props:any)=>{
         let res:any=await  ZuhuServer.one(id);
         if (res.ErrorCode==0){
             let data=res.Data;
-            console.log("data",res);
             formRef.current.setFieldsValue(data[0]);
             settenantAmount(data[0].tenantAmount);
             setminimum_recharge(data[0].minimum_recharge);

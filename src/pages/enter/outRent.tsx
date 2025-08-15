@@ -214,7 +214,6 @@ const OutRent=(props:any)=>{
             }
         })
     };
-
     return(
         <Spin spinning={spinning}>
             <List>

@@ -134,6 +134,9 @@ const PayCount=(props)=>{
                     case 9:
                         consumptionTypeText = <Tag style={{ color: '#795588' }}>月保</Tag>;
                         break;
+                    case 10:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>大额转账</Tag>;
+                        break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
@@ -149,7 +152,7 @@ const PayCount=(props)=>{
             render:(_:any,record:any)=>{
                 return(
                     <div>
-                        {record.consumptionType==1||record.consumptionType==6?<span style={{color:'#58bc58'}}>+{record.consumptionMoney.toFixed(2)}</span>:<span style={{color:'red'}}>-{record.consumptionMoney.toFixed(2)}</span>}
+                        {record.consumptionType==1||record.consumptionType==6||record.consumptionType==10?<span style={{color:'#58bc58'}}>+{record.consumptionMoney.toFixed(2)}</span>:<span style={{color:'red'}}>-{record.consumptionMoney.toFixed(2)}</span>}
                     </div>
                 )
             }
@@ -237,6 +240,8 @@ const PayCount=(props)=>{
                                     return '违约金';
                                 case 9:
                                     return '月保';
+                                case 10:
+                                    return '大额转账';
                                 default:
                                     return '未知类型'; // 处理未知类型的情况
                             }
@@ -300,6 +305,7 @@ const PayCount=(props)=>{
                                     { value:7, label: '服务费' },
                                     { value:8, label: '违约金' },
                                     { value:9, label: '月保' },
+                                    { value:10, label: '大额转账' },
                                 ]}
                             />
                         </Space.Compact>

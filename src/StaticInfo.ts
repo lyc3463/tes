@@ -21,6 +21,7 @@ class StaticInfoClass {
   public beginTime: string =sessionStorage.getItem('loginbeginTime')||'2025-01-01';
   public endTime: string =sessionStorage.getItem('loginendTime')||'2025-12-01';
   public meal_id: number =Number(sessionStorage.getItem('loginmeal_id'))||0;
+  public isTask: string =sessionStorage.getItem('isTask')||'';
   //根据情况添加
   //用户数据结束
 

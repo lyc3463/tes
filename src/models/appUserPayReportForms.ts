@@ -45,6 +45,7 @@ const AppUserPayReportFormsModel: PayReportFormsInterface = {
     effects: {
         *fetch({ type, payload ,callback }, { put, call, select }): any {
             const res = yield call(payReportFormsService.fetch1598, payload?payload:pl);
+            console.log('列表',res);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',

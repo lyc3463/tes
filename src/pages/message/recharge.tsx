@@ -2,7 +2,7 @@ import  styles from './recharge.less'
 import {Button, Input, InputNumber, message, Modal, Radio, Space} from "antd";
 import {useEffect, useState} from "react";
 import * as RechargeService from '@/services/recharge';
-import {connect} from "umi";
+import {connect,history} from "umi";
 import ErrorCodeType from "@/ModelTypes/TypeErrorCode";
 import Myqrcode from "@/components/Myqrcode";
 import {RedoOutlined} from "@ant-design/icons";
@@ -54,7 +54,8 @@ const Recharge=(props)=>{
     useEffect(() => {
         getOneNuber();
     }, []);
-    const add=()=>{
+    // 微信二维码支付
+    const wxQrPay=()=>{
         if (money<=0){
             message.warning('请输入金额');
         }else {
@@ -73,6 +74,49 @@ const Recharge=(props)=>{
                 }
             });
         }
+    };
+    // 支付宝二维码支付
+    const aliQrPay=()=>{
+        if (money<=0){
+            message.warning('请输入金额');
+        }else {
+            let newMoney=money*100;
+            let remarks=`支付宝充值短信${numberItems}条`;
+            props.dispatch({
+                type:'Recharge/addaliPayQr',
+                payload:{newMoney,remarks,payType:"alipay_qr",numberItems,rechargetype:5,startDate:dayjs().format('YYYY-MM-DD')}
+            }).then((res:ErrorCodeType)=>{
+                if (res.ErrorCode==0){
+                    console.log('res.Data',res)
+                    setCode(res.Data.payInfo);
+                    getOneNuber();
+                    setIsTihuan(true);
+                }else {
+                    message.error(res.Data);
+                }
+            });
+        }
+    };
+    const add=()=>{
+        aliQrPay();
+        // if (money<=0){
+        //     message.warning('请输入金额');
+        // }else {
+        //     let newMoney=money*100;
+        //     let remarks=`短信充值;充值金额${newMoney}分;充值条数${numberItems}条`;
+        //     props.dispatch({
+        //         type:'Recharge/addchongzhi',
+        //         payload:{newMoney,remarks,numberItems,rechargetype:1,startDate:dayjs().format('YYYY-MM-DD')}
+        //     }).then((res:ErrorCodeType)=>{
+        //         if (res.ErrorCode==0){
+        //             setCode(res.Data);
+        //             getOneNuber();
+        //             setIsTihuan(true);
+        //         }else {
+        //             message.error(res.Data);
+        //         }
+        //     });
+        // }
     };
     const cancelOk=()=>{
         getOneNuber();
@@ -96,7 +140,7 @@ const Recharge=(props)=>{
             </div>
             {
                 isTihuan?<div style={{  paddingLeft:'100px'}}>
-                    <div><span style={{fontSize:'16px',color:'red'}}>请使用微信扫码支付↓</span></div>
+                    <div><span style={{fontSize:'16px',color:'red'}}>请使用支付宝扫码支付↓</span></div>
                     <div className={styles.qrBox}>
                         <Myqrcode value={code}></Myqrcode>
                     </div>
@@ -143,7 +187,7 @@ const Recharge=(props)=>{
                             <div className={styles.controlGroup}>
                                 <label className={styles.controlLabel}>支付方式</label>
                                 <Radio.Group style={{marginLeft:'20px'}} defaultValue={1}>
-                                    <Radio value={1}>微信支付</Radio>
+                                    <Radio value={1}>支付宝支付</Radio>
                                 </Radio.Group>
                             </div>
                             <div className={styles.fromActions}>

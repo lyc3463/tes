@@ -224,6 +224,7 @@ export default function Login() {
         StaticInfo.beginTime= data.beginTime;
         StaticInfo.endTime= data.endTime;
         StaticInfo.meal_id= data.meal_id;
+        StaticInfo.isTask= data.isTask;
         sessionStorage.setItem('userId',data.id);
         sessionStorage.setItem('userState','true');
         sessionStorage.setItem('token',data.token);
@@ -234,6 +235,7 @@ export default function Login() {
         sessionStorage.setItem('loginbeginTime',data.beginTime);
         sessionStorage.setItem('loginendTime',data.endTime);
         sessionStorage.setItem('loginmeal_id',data.meal_id);
+        sessionStorage.setItem('isTask',data.isTask);
         history.push('/');
       } else {
         message.error(res.ErrorCode + res.Data)
@@ -421,7 +423,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.5.8</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.6.6</p>
                 </div>
               </Form.Item>
             </Form>

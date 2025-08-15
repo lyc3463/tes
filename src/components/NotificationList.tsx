@@ -4,6 +4,7 @@ import {Button, message, Modal, Space, Table, Tag} from "antd";
 import {MenuFoldOutlined} from "@ant-design/icons";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {filtermessageData} from "@/utils/OpenTool";
+import {StaticInfo} from "@/StaticInfo";
 
 const NotificationList = (props) => {
     const [list,setList]=useState([]);
@@ -14,7 +15,9 @@ const NotificationList = (props) => {
             type: 'NotificationList/fetch',
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let newarr=filtermessageData(res.Data);
+                let isTask=StaticInfo.isTask.split("|").map(Number);
+                let filteredData=filterDataByType(res.Data,isTask);
+                let newarr=filtermessageData(filteredData);
                 if (Array.isArray(newarr) && newarr.length> 0){
                     setOpen(true);
                 }
@@ -28,6 +31,15 @@ const NotificationList = (props) => {
                 message.error(res.ErrorCode + res.Data);
             }
           })
+    };
+    const filterDataByType=(dataArray, filterArray)=>{
+        if (!Array.isArray(dataArray) || !Array.isArray(filterArray) ||
+            dataArray.length === 0 || filterArray.length === 0) {
+            return [];
+        }
+
+        // 过滤数据
+        return dataArray.filter(item => filterArray.includes(item.tmType));
     };
     const columns = [
         {

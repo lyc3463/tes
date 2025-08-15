@@ -12,7 +12,6 @@ import {
 import * as RechargeRateService from '@/services/alljiaoyi';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
-import Bymoney from "@/pages/kehu/bymoney";
 
 const Alljiaoyi=(props)=>{
     // 当前页数
@@ -20,7 +19,7 @@ const Alljiaoyi=(props)=>{
     const [pageSize,setPageSize]=useState(50);
     const [name,setName]=useState(checkSessionStorage('/qianbao/zonglan/alljiaoyi/','name')||'');
     const [phone,setPhone]=useState(checkSessionStorage('/qianbao/zonglan/alljiaoyi/','phone')||'');
-    const [type,setType]=useState(1);
+    const [type,setType]=useState(checkSessionStorage('/qianbao/zonglan/alljiaoyi/','type')||0);
     const [startDate,setStartDate]=useState(checkSessionStorage('/qianbao/zonglan/alljiaoyi/','startDate')||'2000-01-01');
     const [endDate,setEndDate]=useState(checkSessionStorage('/qianbao/zonglan/alljiaoyi/','endDate')||'2099-01-01');
     const [userID,setuserID]=useState(0);
@@ -151,6 +150,12 @@ const Alljiaoyi=(props)=>{
                     case 8:
                         consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
                         break;
+                    case 9:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>月卡</Tag>;
+                        break;
+                    case 10:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>大额转账</Tag>;
+                        break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
@@ -186,6 +191,7 @@ const Alljiaoyi=(props)=>{
             updateSessionStorage('/qianbao/zonglan/alljiaoyi/','endDate',data[1]);
         }
     };
+    // 导出
     const exportToExcel=()=>{
         setspinning(true);
         RechargeRateService.fetch({page:1,name,phone,type,startDate,endDate,userID,pageSize:100000}).then((res:TypeErrorCode)=>{
@@ -216,7 +222,9 @@ const Alljiaoyi=(props)=>{
                                 case 8:
                                     return '违约金';
                                 case 9:
-                                    return '月保';
+                                    return '月卡';
+                                case 10:
+                                    return '大额转账';
                                 default:
                                     return '未知类型'; // 处理未知类型的情况
                             }
@@ -255,6 +263,11 @@ const Alljiaoyi=(props)=>{
         setPhone(e.target.value);
         updateSessionStorage('/qianbao/zonglan/alljiaoyi/','phone',e.target.value);
     };
+    // 监听类型
+    const changeType=(e)=>{
+        setType(e);
+        updateSessionStorage('/qianbao/zonglan/alljiaoyi/','type',e);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -272,6 +285,40 @@ const Alljiaoyi=(props)=>{
                             addonBefore="手机号:"
                             value={phone}
                         />
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                类型:
+                            </div>
+                            <Select
+                                onChange={changeType}
+                                defaultValue={type}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '微信充值' },
+                                    // { value:2, label: '租金' },
+                                    // { value:3, label: '电费' },
+                                    // { value:4, label: '水费' },
+                                    // { value:5, label: '公共缴费' },
+                                    // { value:6, label: '手动充值' },
+                                    // { value:7, label: '服务费' },
+                                    // { value:8, label: '违约金' },
+                                    // { value:9, label: '月保' },
+                                    { value:10, label: '大额转账' },
+                                ]}
+                            />
+                        </Space.Compact>
                         <Space.Compact>
                             <div
                                 style={{

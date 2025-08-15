@@ -127,7 +127,7 @@ const WaterRate=(props)=>{
             key: 'address',
         },
         {
-            title: '电表描述',
+            title: '水表描述',
             dataIndex: 'remark',
             key: 'remark',
         },
