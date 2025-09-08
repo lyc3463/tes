@@ -61,11 +61,19 @@ const Notice=(props:any)=>{
             ),
         },
         {
+            title: '标题',
+            dataIndex: 'noticeTitle',
+            key: 'noticeTitle',
+            render: (_: any, record: any) => (
+               <Input value={record.noticeTitle}/>
+            ),
+        },
+        {
             title: '消息内容',
             dataIndex: 'notice_content',
             key: 'notice_content',
             render: (_: any, record: any) => (
-               <Input.TextArea defaultValue={record.notice_content}/>
+               <Input.TextArea value={record.notice_content}/>
             ),
         },
         {
@@ -141,11 +149,11 @@ const Notice=(props:any)=>{
                             </div>
                             {beginTimeNotice=='2000-01-01'&&endTimeNotice=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(beginTimeNotice),dayjs(endTimeNotice)]}/>}
                         </Space.Compact>
-                        <Input
-                            onChange={changeName}
-                            addonBefore="园区内容:"
-                            value={allNoticeName}
-                        />
+                        {/*<Input*/}
+                        {/*    onChange={changeName}*/}
+                        {/*    addonBefore="园区内容:"*/}
+                        {/*    value={allNoticeName}*/}
+                        {/*/>*/}
 
                         <Button type="primary" onClick={sousuo}>
                             搜索

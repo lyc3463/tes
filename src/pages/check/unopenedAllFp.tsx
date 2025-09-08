@@ -20,7 +20,6 @@ import {
 import TypeCheckFp from "@/ModelTypes/TypeCheckFp";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import ImageUploader from "@/components/ImageUploader";
-import id from "ajv/lib/vocabularies/core/id";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const UnopenedAllFp=(props)=>{
     const [isLoading,setIsLoading]=useState(false);

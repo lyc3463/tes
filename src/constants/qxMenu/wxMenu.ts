@@ -9,6 +9,7 @@ export const qxTree: TypeMenu[] = [
     { id: 50, name: '园区公告',authId: 50},
     { id: 275, name: '投诉建议',authId: 275},
     { id: 271, name: '故障报修',authId: 271},
+    { id: 269, name: '报修记录确定',authId: 269},
     { id: 392, name: '生活助手',authId: 392},
     { id: 369, name: '月保',authId: 369},
     { id: 186, name: '员工登记',authId: 186},
@@ -26,4 +27,6 @@ export const qxTree: TypeMenu[] = [
     { id: 117, name: '友情连接',authId: 117},
     { id: 109, name: '轮播图',authId: 109},
     { id: 110, name: '招商信息',authId: 110},
+    { id: 399, name: '放行条',authId: 399},
+    { id: 426, name: '装修申请',authId: 426},
 ]

@@ -137,6 +137,12 @@ const PayCount=(props)=>{
                     case 10:
                         consumptionTypeText = <Tag style={{ color: '#795548' }}>大额转账</Tag>;
                         break;
+                    case 11:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>报修</Tag>;
+                        break;
+                    case 12:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>装修押金</Tag>;
+                        break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
@@ -242,6 +248,10 @@ const PayCount=(props)=>{
                                     return '月保';
                                 case 10:
                                     return '大额转账';
+                                case 11:
+                                    return '报修';
+                                case 12:
+                                    return '装修押金';
                                 default:
                                     return '未知类型'; // 处理未知类型的情况
                             }
@@ -306,6 +316,8 @@ const PayCount=(props)=>{
                                     { value:8, label: '违约金' },
                                     { value:9, label: '月保' },
                                     { value:10, label: '大额转账' },
+                                    { value:11, label: '报修' },
+                                    { value:12, label: '装修押金' },
                                 ]}
                             />
                         </Space.Compact>

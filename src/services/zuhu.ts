@@ -29,14 +29,14 @@ export function byfenye(vals:any) {
 export function jiebang(vals:any) {
     return getData(1423, [vals.page,vals.name,vals.phone]);
 }
-export function depoList(itemName:string,uid:string) {
-    return getData(1454, [itemName,uid]);
+export function depoList(name:string,phone:string,startDate:string,endDate:string,uid:string,type:number) {
+    return getData(1454, [name,phone,startDate,endDate,uid,type]);
 }
 export function editAbloue(vals:any) {
     return getData(1456, [vals.uid,vals.minimum_recharge]);
 }
-export function depoListFenye(itemName:string,uid:string) {
-    return getData(1455, [itemName,uid]);
+export function depoListFenye(name:string,phone:string,startDate:string,endDate:string,uid:string,type:number) {
+    return getData(1455, [name,phone,startDate,endDate,uid,type]);
 }
 export function newbyzhuhu(vals:any) {
     return getData(1496, [vals.uid,vals.reserved_amount,vals.warn_amount,vals.minimum_recharge,vals.remark,vals.tenantAmount,vals.oldreserved_amount]);

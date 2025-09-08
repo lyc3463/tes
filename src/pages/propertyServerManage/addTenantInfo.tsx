@@ -89,6 +89,9 @@ const AddTenantInfo=(props)=>{
                         }
                     </Select>
                 </Form.Item>
+                <Form.Item label='标题' name='title'>
+                    <Input/>
+                </Form.Item>
                 <Form.Item label='消息内容' name='conten'>
                     <Input.TextArea/>
                 </Form.Item>

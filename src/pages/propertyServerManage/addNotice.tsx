@@ -44,15 +44,12 @@ const AddNotice=(props:any)=>{
              <Form.Item label="时间">
                  <DatePicker defaultValue={dayjs(noticeDate)} onChange={changeDate}/>
              </Form.Item>
-             <Form.Item label="通知内容" name="notice_content">
+             <Form.Item label="标题" name="title" rules={[{ required: true, message: '请输入标题' }]}>
+                 <Input/>
+             </Form.Item>
+             <Form.Item label="通知内容" name="notice_content" rules={[{ required: true, message: '请输入通知内容' }]}>
                  <Input.TextArea/>
              </Form.Item>
-             {/*<Form.Item label="状态" name="park_status">*/}
-             {/*    <Radio.Group>*/}
-             {/*        <Radio value={1}>发布到小程序</Radio>*/}
-             {/*        <Radio value={0}>不发布</Radio>*/}
-             {/*    </Radio.Group>*/}
-             {/*</Form.Item>*/}
              <Form.Item {...tailLayout}>
                  <Space>
                      <Button type="primary" htmlType="submit">

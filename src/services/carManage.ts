@@ -12,7 +12,6 @@ export function add(vals:any) {
 export function edit(vals:any) {
     return getData(1518, [vals.uid,vals.appId, vals.carNo, vals.carNoColor, vals.carType]);
 }
-
 export function remove(vals:any) {
     return getData(1519, [vals]);
 }
@@ -20,7 +19,7 @@ export function one(vals:any) {
     return getData(1520, [vals]);
 }
 export function check(vals:any) {
-    return getData(1532, [vals]);
+    return getData(1532, [vals.uid,vals.status]);
 }
 export function reactCarNo(vals:any) {
     return getData(1537, [vals]);

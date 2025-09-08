@@ -3,12 +3,19 @@ import {connect,history} from "umi";
 import {useEffect, useState} from "react";
 import * as ZuhuService from '@/services/zuhu';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import dayjs from "dayjs";
 
 const Yajinlist=()=>{
-    // 收费项目名称
+    // 租户姓名
     const [itemName,setitemName]=useState('');
+    // 租户手机号
+    const [phone,setPhone]=useState('');
+    // 开始时间
+    const [startDate,setStartDate]=useState('2000-01-01');
+    // 结束时间
+    const [endDate,setEndDate]=useState('2099-12-31');
     // 押金收费ID
-    const [itemType,setitemType]=useState(3);
+    const [type,setType]=useState(0);
     // 页码
     const [page,setpage]=useState(1);
     // 租户id
@@ -21,19 +28,11 @@ const Yajinlist=()=>{
     const [count,setcount]=useState(0);
     // 押金总合
     const [moneySum,setmoneySum]=useState(0);
+    // 未交总合
+    const [NotBillSum,setNotBillSum]=useState(0);
     // 获取押金列表
     const getYJJlist=(e)=>{
-        ZuhuService.depoList(itemName,e).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setdataSource(res.Data);
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
-    // 获取押金列表
-    const getYJJlistid=()=>{
-        ZuhuService.depoList(itemName,uid).then((res:TypeErrorCode)=>{
+        ZuhuService.depoList(itemName,phone,startDate,endDate,e,type).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setdataSource(res.Data);
             }else {
@@ -43,19 +42,10 @@ const Yajinlist=()=>{
     };
     // 分页信息
     const yajinfenyeid=(e)=>{
-        ZuhuService.depoListFenye(itemName,e).then((res:TypeErrorCode)=>{
+        ZuhuService.depoListFenye(itemName,phone,startDate,endDate,e,type).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setmoneySum(res.Data.moneySum);
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
-    // 分页信息
-    const yajinfenye=()=>{
-        ZuhuService.depoListFenye(itemName,uid).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setmoneySum(res.Data.moneySum);
+                setNotBillSum(res.Data.NotBillSum);
             }else {
                 message.error(res.Data);
             }
@@ -64,18 +54,27 @@ const Yajinlist=()=>{
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
+        setuid(id);
         getYJJlist(id);
         yajinfenyeid(id);
     }, []);
     const sousuo=()=>{
         setpage(1);
-        yajinfenye();
-        getYJJlistid();
+        yajinfenyeid(uid);
+        getYJJlist(uid);
     };
     const onChange=(e)=>{
       setpage(e);
     };
     const columns =[
+        {
+            title: '日期',
+            dataIndex: 'created',
+            key: 'created',
+            render:(text)=>{
+                return dayjs(text).format('YYYY-MM-DD');
+            }
+        },
         {
             title: '租户姓名',
             dataIndex: 'tenant_name',
@@ -95,6 +94,11 @@ const Yajinlist=()=>{
             title: '收费金额(元)',
             dataIndex: 'price',
             key: 'price',
+        },
+        {
+            title: '已交金额(元)',
+            dataIndex: 'stopAmount',
+            key: 'stopAmount',
         },
         {
             title: '状态',
@@ -150,7 +154,9 @@ const Yajinlist=()=>{
                             <Table.Summary.Cell index={0}>统计</Table.Summary.Cell>
                             <Table.Summary.Cell index={1}></Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={4}>{moneySum}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>{moneySum}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>未交押金:{NotBillSum}元</Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}

@@ -1,6 +1,7 @@
-import {Button, DatePicker, Input, List, Space, Spin, Table, Tag, Tooltip} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Space, Spin, Table, Tag, Tooltip} from "antd";
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const GoodsList=(props)=>{
     const [spinning,setspinning]=useState(false);
@@ -10,26 +11,8 @@ const GoodsList=(props)=>{
     const [goodsName,setgoodsName]=useState('');
     const [userId,setuserId]=useState(0);
     const [uid,setUid]=useState(0);
+    const [dOpen,setDoepn]=useState(false);
     const columns =[
-        {
-            title: '租户名称',
-            dataIndex: 'tenant_name',
-            key: 'tenant_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.tenant_name}>
-                            {record.tenant_name}
-                        </Tooltip>
-                    </div>
-                )
-            }
-        },
-        {
-            title: '手机号',
-            dataIndex: 'phone',
-            key: 'phone'
-        },
         {
             title: '物品名称',
             dataIndex: 'goodName',
@@ -67,7 +50,7 @@ const GoodsList=(props)=>{
                 return(
                     <Space>
                         <Button onClick={()=>toedit(record.id)} type='primary'>编辑</Button>
-                        <Button onClick={()=>isdelete(record.id)} type='primary'>删除</Button>
+                        <Button onClick={()=>isdelete(record.id)} type='primary' danger>删除</Button>
                     </Space>
                 )
             }
@@ -81,6 +64,7 @@ const GoodsList=(props)=>{
     };
     const isdelete=(e)=>{
         setUid(e);
+        setDoepn(true);
     };
     const getGoodsList=()=>{
       props.dispatch({
@@ -94,6 +78,22 @@ const GoodsList=(props)=>{
             payload:{userId,pageSize,tenantName,goodsName}
         })
     };
+    const onOK=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:'Goods/remove',
+            payload:uid,
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setspinning(false);
+                setDoepn(false);
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
+    }
     useEffect(() => {
         getGoodsList();
     }, [page,pageSize]);
@@ -126,7 +126,11 @@ const GoodsList=(props)=>{
                 scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
             />
-
+            <Modal open={dOpen} loading={spinning} onCancel={()=>setDoepn(false)} onOk={onOK}>
+                <div>
+                    确定删除吗？
+                </div>
+            </Modal>
         </Spin>
     )
 }

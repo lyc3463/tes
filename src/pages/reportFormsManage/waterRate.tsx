@@ -131,6 +131,18 @@ const WaterRate=(props:any)=>{
             ]
         },
         {
+            title: '消耗度数',
+            dataIndex: 'x',
+            key: 'x',
+            render: (text:any, record:any) => {
+                return(
+                    <div>
+                        {(record.energyNew2-record.energyNew).toFixed(2)}t
+                    </div>
+                )
+            },
+        },
+        {
             title: '金额',
             dataIndex: 'waterMoneySum',
             key: 'waterMoneySum',
@@ -218,7 +230,7 @@ const WaterRate=(props:any)=>{
         const newDate = originalDate.add(1, 'day');
         WaterRateService.fetch({name,address,remark,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),tenantId}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let headers=['房屋','单元','租户','采集器编号','通讯地址','描述','水表数据开始时间','开始度数(t)','水表数据结束时间','结束度数(t)','金额(元)'];
+                let headers=['房屋','单元','租户','采集器编号','通讯地址','描述','水表数据开始时间','开始度数(t)','水表数据结束时间','结束度数(t)','消耗度数(t)','金额(元)'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [
@@ -237,8 +249,23 @@ const WaterRate=(props:any)=>{
                         item.energyNew.toFixed(2),
                         (dayjs(item.endTime).format('YYYY-MM-DD')), 
                         item.energyNew2.toFixed(2),
+                        (item.energyNew2-item.energyNew).toFixed(2),
                         item.waterMoneySum.toFixed(2),
-                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))),
+                    [
+                        { v: '总计', t: 's' },
+                        { v: '', t: 's' },
+                        { v: '', t: 's' },
+                        { v: '', t: 's' },
+                        { v: '', t: 's' },
+                        { v: '', t: 's' },
+                        { v: '', t: 's' },
+                        { v: energyNew.toFixed(2), t: 'n' },
+                        { v: '', t: 's' },
+                        { v: energyNew2.toFixed(2), t: 'n' },
+                        { v: (energyNew2-energyNew).toFixed(2), t: 'n' },
+                        { v: waterMoneySum.toFixed(2), t: 'n' },
+                    ]
                 ];
                 exportDataToExcel(ws_data);
                 setspinning(false);
@@ -323,12 +350,15 @@ const WaterRate=(props:any)=>{
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={1}>
-                                {energyNew}㎡
+                                {energyNew}t
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={3}>
-                                {energyNew2}㎡
+                                {energyNew2}t
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                                {(energyNew2-energyNew).toFixed(2)}t
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={3}>
                                 {waterMoneySum}元

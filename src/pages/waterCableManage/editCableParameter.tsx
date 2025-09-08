@@ -80,8 +80,11 @@ const EditCableParameter=(props)=>{
     const [additional_price5,setAdditional_price5]=useState(0)
     // 谷单价=谷单价基础价+谷单价附加单价
     const [guDanPrice,setGuDanPrice]=useState(0)
-
     const [minute_price,setMinute_price]=useState(0)
+    // 收费类型
+    const [lossType,setLossType]=useState(1)
+    //  每月多少号收费
+    const [fixed_fee,setFixed_fee]=useState(1)
     const [form] = Form.useForm();
     // 监听电价基础价
     const listenbasicPrice=(e)=>{
@@ -260,6 +263,8 @@ const EditCableParameter=(props)=>{
             setStep_value2(Data.step_value2);
             setStep_value3(Data.step_value3);
             setStep_value4(Data.step_value4);
+            setLossType(Data.lossType);
+            setFixed_fee(Data.fixed_fee);
         }
     };
     useEffect(() => {
@@ -298,7 +303,9 @@ const EditCableParameter=(props)=>{
                 additional_price8,
                 step_value4,
                 base_price9,
-                additional_price9
+                additional_price9,
+                fixed_fee,
+                lossType
             }
         }).then((res:any)=>{
             if (res.ErrorCode==0){
@@ -310,9 +317,13 @@ const EditCableParameter=(props)=>{
                 setIsSpinning(false);
             }
         })
-
-
     };
+    const changelossType=(e)=>{
+        setLossType(e.target.value)
+    };
+    const changefixed_fee=(e)=>{
+        setFixed_fee(e)
+    }
     return(
         <Spin spinning={isSpinning}>
             <Form
@@ -351,8 +362,22 @@ const EditCableParameter=(props)=>{
                     <Form.Item label='损耗'>
                         <InputNumber value={loss} style={{width:'80px'}} onChange={changeLoss}/>
                         (元/kWh)<span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                        每<InputNumber value={every_price} style={{width:'80px'}} step={1} precision={0} min={1} onChange={changPrice}/>天收费一次
-                        {/*<span style={{fontSize:'12px',color:'#555'}}>(每1天收费一次)</span>*/}
+                        <Radio.Group value={lossType} onChange={changelossType} style={{width:"100px"}}>
+                            <Radio value={2}>固定日期</Radio>
+                            <Radio value={1}>固定天数</Radio>
+                        </Radio.Group>
+                        {
+                            lossType==1?<span>
+                                每<InputNumber value={every_price} style={{width:'80px'}} step={1} precision={0} min={1} onChange={changPrice}/>天收费一次
+                            </span>:''
+                        }
+                        {
+                            lossType==2?<span>
+                                每月<InputNumber value={fixed_fee} min={1} max={28} onChange={changefixed_fee}/>号收费一次
+                            </span>:''
+                        }
+                        <span style={{marginLeft:'10px',color:'red'}}>注:切换新类型需执行完已生效类型</span>
+
                     </Form.Item>:''
                 }
 

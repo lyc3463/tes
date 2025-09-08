@@ -1,8 +1,7 @@
 import {Tabs} from "antd";
-import ZuList from "@/pages/billLog/zuList";
 import {useState} from "react";
 import WorkOrderList from "@/pages/workOrderManage/workOrderList";
-import GoodsList from "@/pages/workOrderManage/GoodsList";
+import ImportantNotice from "@/pages/workOrderManage/importantNotice";
 
 const WorlOrder=()=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('orderActive') || '1');
@@ -16,8 +15,8 @@ const WorlOrder=()=>{
                 <Tabs.TabPane tab='工单列表' key='1'>
                     <WorkOrderList/>
                 </Tabs.TabPane>
-                <Tabs.TabPane tab='物品列表' key='2'>
-                    <GoodsList/>
+                <Tabs.TabPane tab='重要通知' key='2'>
+                    <ImportantNotice/>
                 </Tabs.TabPane>
             </Tabs>
         </div>

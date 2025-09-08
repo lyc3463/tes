@@ -49,7 +49,7 @@ const AddStaff=(props:any)=>{
     // 合同编号房屋名称
     const [houseName,sethouseName]=useState('');
     // 合同编号数字
-    const [numNo,setNumNo]=useState(0);
+    const [numNo,setNumNo]=useState('');
     //合同编号单元名称
     const [unitNamess,setunitNamess]=useState('');
     // 递增
@@ -131,7 +131,7 @@ const AddStaff=(props:any)=>{
         setwupinList(prevItems => prevItems.filter(item => item.key !== key));
     };
     const onFinish= (values)=>{
-        let identifier=`${houseName}-${unitNamess}-${numNo}`;
+        let identifier=`${houseName}-${numNo}-${unitNamess}`;
         setspinning(true);
         let unit_id=unitarrList.join("|");
         if (contractType==2){
@@ -493,7 +493,7 @@ const AddStaff=(props:any)=>{
                             </Select>
                         </Form.Item>
                         <Form.Item label='合同编号' style={{width:'15rem'}}>
-                            <InputNumber value={numNo} onChange={(e)=>setNumNo(e)}/>
+                            <Input value={numNo} onChange={(e)=>setNumNo(e.target.value)}/>
                             {/*<div>合同编号:{houseName+unitNamess}</div>*/}
                         </Form.Item>
                         {

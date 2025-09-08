@@ -5,6 +5,9 @@ import CheckShuidian from "@/pages/check/checkShuidian";
 import CheckAllFp from "@/pages/check/checkAllFp";
 import UnopenedSdFp from "@/pages/check/unopenedSdFp";
 import UnopenedAllFp from "@/pages/check/unopenedAllFp";
+import RentalInvoiceNotIssued from "@/pages/check/rentalInvoiceNotIssued";
+import ServiceFeeInvoiceNotIssued from "@/pages/check/serviceFeeInvoiceNotIssued";
+import OtherInvoiceNotIssued from "@/pages/check/otherInvoiceNotIssued";
 const CheckFp=(props:any)=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('activeTabfp') || '1');
     const onChange = (key) => {
@@ -17,14 +20,23 @@ const CheckFp=(props:any)=>{
                 <Tabs.TabPane tab='审核水电发票' key='1'>
                     <CheckShuidian/>
                 </Tabs.TabPane>
-                <Tabs.TabPane tab='审核发票' key='2'>
+                <Tabs.TabPane tab='审核其余发票' key='2'>
                     <CheckAllFp/>
                 </Tabs.TabPane>
                 <Tabs.TabPane tab='未开水电发票' key='3'>
                     <UnopenedSdFp/>
                 </Tabs.TabPane>
-                <Tabs.TabPane tab='未开发票列表' key='4'>
-                    <UnopenedAllFp/>
+                {/*<Tabs.TabPane tab='未开发票列表' key='4'>*/}
+                {/*    <UnopenedAllFp/>*/}
+                {/*</Tabs.TabPane>*/}
+                <Tabs.TabPane tab='未开租金发票' key='4'>
+                    <RentalInvoiceNotIssued/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='未开服务费发票' key='5'>
+                    <ServiceFeeInvoiceNotIssued/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='未开其他发票' key='6'>
+                    <OtherInvoiceNotIssued/>
                 </Tabs.TabPane>
             </Tabs>
         </div>

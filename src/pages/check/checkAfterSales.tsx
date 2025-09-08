@@ -11,16 +11,10 @@ import {StaticInfo} from "@/StaticInfo";
 
 const CheckAfterSales=()=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('activeTabKey2') || '1');
-    // 用户权限
-    const [uqx,setUqx]=useState([]);
     const onChange = (key) => {
         setActiveKey(key);
         sessionStorage.setItem('activeTabKey2', key);
     };
-    useEffect(() => {
-        let uq=StaticInfo.uqx.split('');
-        setUqx(uq);
-    }, []);
     return(
         <div>
             <Tabs activeKey={activeKey} onChange={onChange}>

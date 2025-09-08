@@ -10,6 +10,10 @@ const AddCableParameter=(props:any)=>{
     const [changeValue,setChangeValue]=useState(3)
     //价格总数=基础价+附加单价
     const [totalPrice,setTotalPrice]=useState(0)
+    // 收费类型
+    const [lossType,setLossType]=useState(1)
+    //  每月多少号收费
+    const [fixed_fee,setFixed_fee]=useState(1)
     // 基础价格
     const [base_price1,setBase_price1]=useState(0)
     // 附加单价
@@ -219,6 +223,8 @@ const AddCableParameter=(props:any)=>{
     ])
 
     const onFinish = async (values: any) => {
+        if (lossType==2&&fixed_fee<1) return message.warning('请输入正确的号数')
+        if (lossType==2&&fixed_fee>28) return message.warning('请输入正确的号数')
         setspinning(true);
         let res=await props.dispatch({
             type:'CableParameter/add',
@@ -248,7 +254,9 @@ const AddCableParameter=(props:any)=>{
                 step_value4,
                 base_price9,
                 additional_price9,
-                minute_price
+                minute_price,
+                fixed_fee,
+                lossType
             }
         })
         if (res.ErrorCode==0){
@@ -260,6 +268,12 @@ const AddCableParameter=(props:any)=>{
             setspinning(false);
         }
     };
+    const changelossType=(e)=>{
+        setLossType(e.target.value)
+    };
+    const changefixed_fee=(e)=>{
+        setFixed_fee(e)
+    }
     return(
         <Spin spinning={spinning}>
             <Form
@@ -275,7 +289,7 @@ const AddCableParameter=(props:any)=>{
                     <Input placeholder='请输入名称' />
                 </Form.Item>
                 <Form.Item label='类型' name='price_type'>
-                    <Radio.Group onChange={(e)=>{setChangeValue(e.target.value)}}>
+                    <Radio.Group onChange={(e)=>{setChangeValue(e.target.value)}} value={changeValue}>
                         <Radio value={3}>单费率电价</Radio>
                         <Radio value={4}>多费率电价</Radio>
                         <Radio value={5}>阶梯电价</Radio>
@@ -298,8 +312,21 @@ const AddCableParameter=(props:any)=>{
                     <Form.Item label='损耗'>
                         <InputNumber value={loss} style={{width:'80px'}} onChange={changeLoss}/>
                         (元/kWh)<span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                        每<InputNumber value={every_price} style={{width:'80px'}} step={1} precision={0} min={1} onChange={changPrice}/>天收费一次
-                        {/*<span style={{fontSize:'12px',color:'#555'}}>(每1天收费一次)</span>*/}
+                        <Radio.Group value={lossType} onChange={changelossType} style={{width:"100px"}}>
+                            <Radio value={2}>固定日期</Radio>
+                            <Radio value={1}>固定天数</Radio>
+                        </Radio.Group>
+                        {
+                            lossType==1?<span>
+                                每<InputNumber value={every_price} style={{width:'80px'}} step={1} precision={0} min={1} onChange={changPrice}/>天收费一次
+                            </span>:''
+                        }
+                        {
+                            lossType==2?<span>
+                                每月<InputNumber value={fixed_fee} min={1} max={28} onChange={changefixed_fee}/>号收费一次
+                            </span>:''
+                        }
+                        <span style={{marginLeft:'10px',color:'red'}}>注:切换新类型需执行完已生效类型</span>
                     </Form.Item>:''
                 }
                 {

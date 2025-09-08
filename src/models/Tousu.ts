@@ -37,6 +37,7 @@ export interface TousuInterface {
         edit: Effect;
         remove: Effect;
         fenye: Effect;
+        check: Effect;
     };
     reducers: {
         list: Reducer<TousuType[]>;
@@ -77,6 +78,13 @@ const TousuModel: TousuInterface = {
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(TousuService.edit, payload);
+            yield put({ type: 'fetch', payload: pl });  // 重新加载数据
+            // yield take('fetch/@@end');
+            return result
+
+        },
+        *check({ payload, callback }, { call, put, take }): any {
+            const result = yield call(TousuService.check, payload);
             yield put({ type: 'fetch', payload: pl });  // 重新加载数据
             // yield take('fetch/@@end');
             return result

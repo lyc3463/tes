@@ -64,6 +64,16 @@ const TenantInfo=(props:any)=>{
             }
         },
         {
+            title: '标题',
+            dataIndex: 'messageTitle',
+            key: 'messageTitle',
+            render:(text:any,record:any)=>(
+                <Input value={text}>
+
+                </Input>
+            )
+        },
+        {
             title: '消息内容',
             dataIndex: 'message_content',
             key: 'message_content',
@@ -120,6 +130,7 @@ const TenantInfo=(props:any)=>{
         setPage(1);
         getFenye();
         logFenye();
+
     };
     const getFenye=()=>{
         props.dispatch({

@@ -202,7 +202,18 @@ const CableRate=(props)=>{
                         item.energyUsage,
                         item.rate,
                         item.eleMoney,
-                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))),
+                    [
+                        { v: '总计', t: 's' },
+                        { v: '', t: 's' },
+                        { v: '', t: 's' },
+                        { v: '', t: 's' },
+                        { v: '', t: 's' },
+                        { v: '', t: 's' },
+                        { v: props.count?props.count.energyUsage.toFixed(2):0, t: 'n' }, // 总消耗度数
+                        { v: '', t: 's' },
+                        { v:props.count?props.count. moneySum.toFixed(2):0, t: 'n' }, // 总扣费金额
+                    ]
                 ];
                 exportDataToExcel(ws_data);
                 setspinning(false);

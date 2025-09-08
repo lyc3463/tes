@@ -198,22 +198,32 @@ const WaterRate=(props)=>{
     const exportToExcel=()=>{
         setspinning(true);
         dateWaterService.fetch(page,cid,name,startDate,endDate,tenantId,recordStatus,remark,1000000).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
+            if (res.ErrorCode == 0) {
                 setspinning(false);
-                let headers=['日期','租户名称','水表地址','水表描述','类型','度数m³','消耗度数m³','扣费金额(元)'];
+                let headers = ['日期', '租户名称', '水表地址', '水表描述', '类型', '度数m³', '消耗度数m³', '扣费金额(元)'];
+                // 【新增】计算统计数据（总计行）
+                // 【修改】构建包含统计行的 ws_data
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [
-                        item.recordTime.split('T')[0], // 提取日期部分
+                        item.recordTime.split('T')[0],
                         item.tenant_name,
                         item.address,
                         item.remark,
-                        item.consumptionType='水费',
+                        '水费',
                         item.energyNew,
-                        ((item.energyNew-item.energyOld).toFixed(2)),
+                        (item.energyNew - item.energyOld).toFixed(2),
                         item.energyUsage,
-                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))),
+                    // 【新增】统计行（总计）
+                    [
+                        { v: '总计', t: 's' }, // 第一列显示"总计"
+                        { v: '', t: 's' }, { v: '', t: 's' }, { v: '', t: 's' }, { v: '', t: 's' }, // 空出前5列
+                        { v: energyUsage.toFixed(2), t: 'n' }, // 总消耗度数
+                        { v: moneySum.toFixed(2), t: 'n' }, // 总扣费金额
+                    ]
                 ];
+
                 exportDataToExcel(ws_data);
             }else {
                 setspinning(false);

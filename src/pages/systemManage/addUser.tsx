@@ -8,6 +8,7 @@ import { StaticInfo } from '@/StaticInfo';
 import TypeMenu from "@/ModelTypes/TypeMenu";
 import * as RoleService from '@/services/role';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import * as AppPzService from '@/services/appPz';
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -18,9 +19,10 @@ const AddUser=(props:any)=>{
     const navigate=useNavigate();
     const treeData = buildTree(qxTree);
     const [roleList,setRoleList]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(397).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(433).fill('0'));
     const [isTask,setisTask]=useState([0]);
-
+    const [qyList,setqyList]=useState([]);
+    const [qyId,setqyId]=useState(0);
     const onFinish= (values)=>{
         let mm =CryptoUtils.md5(values.passWord);
         values.passWord=mm;
@@ -28,7 +30,7 @@ const AddUser=(props:any)=>{
         let joinOsTask=isTask.join('|');
         props.dispatch({
             type:'Users/add',
-            payload:{...values,joinqx,joinOsTask}
+            payload:{...values,joinqx,joinOsTask,qyId}
         }).then((res)=>{
             if (res.ErrorCode==0){
                 message.success('添加成功');
@@ -70,8 +72,23 @@ const AddUser=(props:any)=>{
             }
         })
     };
+    const getQyList=()=>{
+        AppPzService.getWxInfoList('').then((res:TypeErrorCode)=>{
+            try {
+                if(res.ErrorCode===0){
+                    console.log(res);
+                    setqyList(res.Data);
+                }else {
+                    message.error(res.Data);
+                }
+            }catch (e) {
+                message.error(e);
+            }
+        })
+    };
     useEffect(() => {
         getRoleList();
+        getQyList();
     }, []);
     const  handleCheckboxChange=(id: number, isChecked: boolean)=> {
         // 创建一个新的数组来存储新的选中状态
@@ -330,7 +347,6 @@ const AddUser=(props:any)=>{
             newSelected[165] = isChecked ? '1' : '0';
             newSelected[166] = isChecked ? '1' : '0';
             newSelected[167] = isChecked ? '1' : '0';
-            newSelected[49] = '1';
         }
         if (id === 51){
             newSelected[260] = isChecked ? '1' : '0';
@@ -338,7 +354,6 @@ const AddUser=(props:any)=>{
             newSelected[262] = isChecked ? '1' : '0';
             newSelected[258] = '1';
             newSelected[256] = '1';
-            newSelected[49] = '1';
         }
         if (id === 52){
             newSelected[268] = isChecked ? '1' : '0';
@@ -346,13 +361,19 @@ const AddUser=(props:any)=>{
             newSelected[270] = isChecked ? '1' : '0';
             newSelected[271] = isChecked ? '1' : '0';
             newSelected[298] = isChecked ? '1' : '0';
+            newSelected[404] = isChecked ? '1' : '0';
+            newSelected[403] = isChecked ? '1' : '0';
+            newSelected[402] = isChecked ? '1' : '0';
+            newSelected[401] = isChecked ? '1' : '0';
             newSelected[214] = '1';
+            newSelected[256] = '1';
         }
         if (id === 53){
             newSelected[272] = isChecked ? '1' : '0';
             newSelected[273] = isChecked ? '1' : '0';
             newSelected[274] = isChecked ? '1' : '0';
             newSelected[275] = isChecked ? '1' : '0';
+            newSelected[431] = isChecked ? '1' : '0';
         }
         if (id === 72){
             newSelected[71] = '1';
@@ -383,9 +404,11 @@ const AddUser=(props:any)=>{
             newSelected[149] = '1';
             newSelected[157] = '1';
             newSelected[161] = '1';
+            newSelected[400] = '1';
         }
         if (id === 54){
             newSelected[276] = isChecked ? '1' : '0';
+            newSelected[400] = isChecked ? '1' : '0';
             newSelected[55] = isChecked ? '1' : '0';
             newSelected[145] = isChecked ? '1' : '0';
             newSelected[146] = isChecked ? '1' : '0';
@@ -484,6 +507,7 @@ const AddUser=(props:any)=>{
             newSelected[386] = isChecked ? '1' : '0';
             newSelected[393] = isChecked ? '1' : '0';
             newSelected[394] = isChecked ? '1' : '0';
+            newSelected[400] = isChecked ? '1' : '0';
         }
         if (id === 65){
             newSelected[66] = isChecked ? '1' : '0';
@@ -500,9 +524,11 @@ const AddUser=(props:any)=>{
             newSelected[358] = isChecked ? '1' : '0' ;
             newSelected[359] = isChecked ? '1' : '0' ;
             newSelected[372] = isChecked ? '1' : '0' ;
+            newSelected[405] = isChecked ? '1' : '0' ;
             newSelected[157] = '1' ;
             newSelected[357] = '1' ;
             newSelected[58] = '1' ;
+            newSelected[400] = '1' ;
             newSelected[59] = '1' ;
             newSelected[60] = '1' ;
             newSelected[61] = '1' ;
@@ -534,6 +560,7 @@ const AddUser=(props:any)=>{
             newSelected[157] = '1' ;
             newSelected[357] = '1' ;
             newSelected[58] = '1' ;
+            newSelected[400] = '1' ;
             newSelected[59] = '1' ;
             newSelected[60] = '1' ;
             newSelected[61] = '1' ;
@@ -592,6 +619,7 @@ const AddUser=(props:any)=>{
             newSelected[339] =  isChecked ? '1' : '0' ;
             newSelected[340] =  isChecked ? '1' : '0' ;
             newSelected[341] =  isChecked ? '1' : '0' ;
+            newSelected[413] =  isChecked ? '1' : '0' ;
         }
         if (id === 77){
             newSelected[80] = isChecked ? '1' : '0';
@@ -718,7 +746,62 @@ const AddUser=(props:any)=>{
             newSelected[274] = isChecked ? '1' : '0';
             newSelected[275] = isChecked ? '1' : '0';
             newSelected[53] = isChecked ? '1' : '0';
+            newSelected[404] = isChecked ? '1' : '0';
+            newSelected[401] = isChecked ? '1' : '0';
+            newSelected[402] = isChecked ? '1' : '0';
+            newSelected[403] = isChecked ? '1' : '0';
+            newSelected[83] = isChecked ? '1' : '0';
+            newSelected[414] = isChecked ? '1' : '0';
+            newSelected[415] = isChecked ? '1' : '0';
+            newSelected[416] = isChecked ? '1' : '0';
+            newSelected[417] = isChecked ? '1' : '0';
+            newSelected[420] = isChecked ? '1' : '0';
+            newSelected[418] = isChecked ? '1' : '0';
+            newSelected[419] = isChecked ? '1' : '0';
+            newSelected[421] = isChecked ? '1' : '0';
+            newSelected[422] = isChecked ? '1' : '0';
+            newSelected[423] = isChecked ? '1' : '0';
+            newSelected[424] = isChecked ? '1' : '0';
+            newSelected[425] = isChecked ? '1' : '0';
+            newSelected[399] = isChecked ? '1' : '0';
+            newSelected[426] = isChecked ? '1' : '0';
+            newSelected[427] = isChecked ? '1' : '0';
+            newSelected[428] = isChecked ? '1' : '0';
+            newSelected[429] = isChecked ? '1' : '0';
+            newSelected[430] = isChecked ? '1' : '0';
+            newSelected[431] = isChecked ? '1' : '0';
             newSelected[256] = '1';
+        }
+        if (id === 426){
+            newSelected[256] = '1';
+            newSelected[427] = isChecked ? '1' : '0' ;
+            newSelected[428] = isChecked ? '1' : '0' ;
+            newSelected[429] = isChecked ? '1' : '0' ;
+            newSelected[430] = isChecked ? '1' : '0' ;
+        }
+        if (id === 83){
+            newSelected[256] = '1';
+            newSelected[414] = isChecked ? '1' : '0' ;
+            newSelected[415] = isChecked ? '1' : '0' ;
+            newSelected[416] = isChecked ? '1' : '0' ;
+            newSelected[417] = isChecked ? '1' : '0' ;
+            newSelected[418] = isChecked ? '1' : '0' ;
+            newSelected[419] = isChecked ? '1' : '0' ;
+            newSelected[420] = isChecked ? '1' : '0' ;
+        }
+        if (id === 399){
+            newSelected[421] = isChecked ? '1' : '0' ;
+            newSelected[422] = isChecked ? '1' : '0' ;
+            newSelected[423] = isChecked ? '1' : '0' ;
+            newSelected[424] = isChecked ? '1' : '0' ;
+            newSelected[425] = isChecked ? '1' : '0' ;
+            newSelected[256] = '1';
+
+        }
+        if (id === 404){
+            newSelected[402] = isChecked ? '1' : '0' ;
+            newSelected[401] = isChecked ? '1' : '0' ;
+            newSelected[403] = isChecked ? '1' : '0' ;
         }
         if (id === 84){
             newSelected[85] = isChecked ? '1' : '0' ;
@@ -730,6 +813,7 @@ const AddUser=(props:any)=>{
             newSelected[311] = isChecked ? '1' : '0' ;
             newSelected[384] = isChecked ? '1' : '0' ;
             newSelected[385] = isChecked ? '1' : '0' ;
+            newSelected[406] = isChecked ? '1' : '0' ;
         }
         if (id === 92){
             newSelected[93] = isChecked ? '1' : '0' ;
@@ -805,6 +889,7 @@ const AddUser=(props:any)=>{
             newSelected[297] = isChecked ? '1' : '0' ;
             newSelected[319] = isChecked ? '1' : '0' ;
             newSelected[320] = isChecked ? '1' : '0' ;
+            newSelected[412] = isChecked ? '1' : '0' ;
             newSelected[64] ='1';
         }
         if (id === 319){
@@ -817,6 +902,12 @@ const AddUser=(props:any)=>{
             newSelected[107] = isChecked ? '1' : '0' ;
             newSelected[314] = isChecked ? '1' : '0' ;
             newSelected[391] = isChecked ? '1' : '0' ;
+            newSelected[432] = isChecked ? '1' : '0' ;
+        }
+        if (id === 107){
+            newSelected[314] = isChecked ? '1' : '0' ;
+            newSelected[391] = isChecked ? '1' : '0' ;
+            newSelected[432] = isChecked ? '1' : '0' ;
         }
         if (id === 108){
             newSelected[109] = isChecked ? '1' : '0' ;
@@ -875,12 +966,15 @@ const AddUser=(props:any)=>{
             newSelected[294] = isChecked ? '1' : '0' ;
             newSelected[360] = isChecked ? '1' : '0' ;
             newSelected[361] = isChecked ? '1' : '0' ;
+            newSelected[407] = isChecked ? '1' : '0' ;
+            newSelected[411] = isChecked ? '1' : '0' ;
+            newSelected[408] = isChecked ? '1' : '0' ;
+            newSelected[409] = isChecked ? '1' : '0' ;
+            newSelected[410] = isChecked ? '1' : '0' ;
         }
         // 设置新的选中状态
         setSelected(newSelected);
     };
-
-
     // 下拉选择角色获取角色权限
     const change=(e)=>{
         RoleService.one(e).then((res:any)=>{
@@ -895,6 +989,9 @@ const AddUser=(props:any)=>{
     };
     const changeIsTask=(e)=>{
         setisTask(e);
+    };
+    const changeQyId=(e)=>{
+        setqyId(e);
     };
     return(
         <div>
@@ -940,7 +1037,23 @@ const AddUser=(props:any)=>{
                         <Select.Option value={9}>登记消息</Select.Option>
                         <Select.Option value={10}>报修消息</Select.Option>
                         <Select.Option value={11}>银行卡消息</Select.Option>
+                        <Select.Option value={12}>工单消息</Select.Option>
+                        <Select.Option value={13}>重要通知</Select.Option>
+                        <Select.Option value={14}>放行条消息</Select.Option>
+                        <Select.Option value={15}>装修消息</Select.Option>
                         <Select.Option value={0}>不接收消息</Select.Option>
+                    </Select>
+                </Form.Item>
+                <Form.Item label='选择公司'>
+                    <Select onChange={changeQyId} value={qyId}>
+                        <Select.Option value={0}>暂不选择</Select.Option>
+                        {qyList.map((item:any,index:any)=>{
+                            return(
+                                <Select.Option value={item.id} key={item.id}>
+                                    {item.qyName}
+                                </Select.Option>
+                            )
+                        })}
                     </Select>
                 </Form.Item>
                 <Form.Item label="员工权限">

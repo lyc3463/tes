@@ -149,6 +149,9 @@ const CheckAllFp=(props)=>{
                     case 9:
                         consumptionTypeText = <Tag style={{ color: '#795558' }}>月保</Tag>;
                         break;
+                    case 11:
+                        consumptionTypeText = <Tag style={{ color: '#795558' }}>报修</Tag>;
+                        break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
@@ -401,6 +404,7 @@ const CheckAllFp=(props)=>{
                                     { value:7, label: '服务费' },
                                     { value:8, label: '违约金' },
                                     { value:9, label: '月保' },
+                                    { value:11, label: '报修' },
                                 ]}
                             />
                         </Space.Compact>

@@ -5,7 +5,7 @@ export function fetch(vals:any) {
 }
 
 export function add(vals:any) {
-    return getData(1164, [vals.conten,vals.tenantId,vals.upimg,vals.mouny=0]);
+    return getData(1164, [vals.conten,vals.tenantId,vals.upimg,vals.mouny=0,vals.title]);
 }
 
 export function edit(vals:any) {

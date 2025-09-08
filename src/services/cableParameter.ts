@@ -34,6 +34,8 @@ export function add(vals:any) {
         vals.additional_price9,
         vals.add_price_remark,
         vals.is_appPrice,
+        vals.lossType,
+        vals.fixed_fee,
     ]);
 }
 
@@ -70,6 +72,8 @@ export function edit(vals:any) {
         vals.additional_price9,
         vals.add_price_remark,
         vals.is_appPrice,
+        vals.lossType,
+        vals.fixed_fee,
     ]);
 }
 

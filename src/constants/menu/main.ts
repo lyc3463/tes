@@ -2,6 +2,7 @@
 
 import TypeMenu from "@/ModelTypes/TypeMenu";
 import WorlOrder from "@/pages/workOrderManage/worlOrder";
+import RepairInvoice from "@/pages/billLog/repairInvoice";
 
 export const menuData: TypeMenu[] = [
     { id: 0, name: '仪表盘', route: '/dashboard/', authId: 0 },
@@ -56,7 +57,8 @@ export const menuData: TypeMenu[] = [
     { id: 49, route: '/propertyServerManage/', name: '物业服务管理', authId: 49},
     { id: 50, route: '/propertyServerManage/notice/', name: '园区公告', parentId: 49, authId: 50},
     { id: 51, route: '/propertyServerManage/tenantInfo/', name: '租户信息', parentId: 49, authId: 51},
-    { id: 52, route: '/propertyServerManage/reportLog/', name: '报修记录', parentId: 49, authId: 52},
+    { id: 52, route: '/propertyServerManage/reportAndRenovation/', name: '报修列表', parentId: 49, authId: 52},
+    { id: 426, route: '/propertyServerManage/renovationList/', name: '装修列表', parentId: 49, authId: 426},
     { id: 53, route: '/propertyServerManage/complaint/', name: '投诉建议', parentId: 49, authId: 53},
     { id: 54, route: '/financeManage/', name: '财务管理', authId: 54},
     { id: 55, route: '/financeManage/list/', name: '公司列表', parentId: 54, authId: 55},
@@ -139,6 +141,8 @@ export const menuData: TypeMenu[] = [
     { id: 360 ,route: '/systemManage/allpz', name: '配置设置',parentId: 113, authId: 360},
     { id: 362, route: '/financeSum/monthlyInsuranceLog/', name: '月保缴费记录', parentId: 57, authId: 362},
     { id: 372, route: '/billLog/outMonthlyBill/', name: '退租账单', parentId: 65, authId: 372},
+    { id: 399, route: '/propertyServerManage/releaseSlip', name: '放行条', parentId: 49, authId: 399},
+    { id: 400, route: '/financeSum/repairInvoice/', name: '报修账单', parentId: 57, authId: 400},
     // { id: 395, route: '/enter/enterBankCard/', name: '银行卡录入', parentId: 39, authId: 395},
     // { id: 396, route: '/check/checkBankCard/', name: '银行卡审批', parentId: 71, authId: 396},
     // { id: 397, route: '/systemManage/messageReceive/', name: '消息接收配置', parentId: 113, authId: 397},

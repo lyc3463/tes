@@ -1,7 +1,7 @@
 import {
     Button,
     DatePicker,
-    Input,
+    Input, InputNumber,
     List,
     message,
     Modal,
@@ -19,46 +19,118 @@ import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
-
 const ReportLog=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [name,setname]=useState(checkSessionStorage('/propertyServerManage/reportLog/','name')||'');
     const [state,setstate]=useState(checkSessionStorage('/propertyServerManage/reportLog/','state')||0);
     const [phone,setPhone]=useState(checkSessionStorage('/propertyServerManage/reportLog/','phone')||'');
-    const [openID,setopenID]=useState(0);
+    const [openID,setopenID]=useState(0); // 租户id
     const [startDate,setstartDate]=useState(checkSessionStorage('/propertyServerManage/reportLog/','startDate')||'2000-01-01');
     const [endDate,setendDate]=useState(checkSessionStorage('/propertyServerManage/reportLog/','endDate')||'2099-01-01');
     const [loading, setLoading] = useState(false);
-    const [isOpen,setIsOpen]=useState(false);
-    const [uid,setUid]=useState(0);
-    // 跟进人ID
-    const [userID,setUserID]=useState(0);
-    // 修理成功的id
-    const [OnId,setOnId]=useState(0);
-    // 修理成功的弹窗
-    const [onOpen,setOnOpen]=useState(false);
-    const [count,setcount]=useState(0);
+    const [isOpen,setIsOpen]=useState(false); // 分配弹窗
+    const [acceptOrdersOpen,setAcceptOrdersOpen]=useState(false); // 自行接单弹窗
+    const [uid,setUid]=useState(0); // 列表id
+    const [step,setStep]=useState(0); // 步骤列表
+    const [userID,setUserID]=useState(0); // 跟进人ID
+    const [OnId,setOnId]=useState(0);// 修理成功的id
+    const [onOpen,setOnOpen]=useState(false);// 修理成功的弹窗
+    const [amount,setamount]=useState(0);// 修改金额
+    const [repairType,setrepairType]=useState(0);// 账单类型
+    const [dOpen,setDopen]=useState(false); // 删除报修
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const columns=[
         {
-            title: '日期',
+            title: '开始日期',
             dataIndex: 'created',
+            align:'center',
+            width:100,
             render: (_: any, record: any) => (
                 <div>
-                    {dayjs(_).format('YYYY-MM-DD HH:mm:ss')}
+                    {dayjs(_).format('YYYY-MM-DD')}
                 </div>
             ),
         },
         {
+            title: '完成日期',
+            dataIndex: 'endTime',
+            align:'endTime',
+            width:100,
+            render: (_: any, record: any) => (
+                <div>
+                    {record.repair_status==5?dayjs(_).format('YYYY-MM-DD'):<Tag color='warning'>待完成中</Tag>}
+                </div>
+            ),
+        },
+        {
+            title: '用时',
+            dataIndex: 'created',
+            align:'center',
+            width:200,
+            render: (_: any, record: any) => {
+                // 仅当状态为5（完成）且存在endTime时计算用时
+                if (record.repair_status === 5 && record.endTime) {
+                    const createdDate = dayjs(record.created);
+                    const endDate = dayjs(record.endTime);
+                    const diffMs = endDate.diff(createdDate); // 毫秒差
+                    // 少于一小时（3600000毫秒）的情况
+                    if (diffMs < 3600000) {
+                        return <div>少于一小时</div>;
+                    }
+
+                    // 转换为天、时、分（仅用于超过一小时的情况）
+                    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+                    // 使用剩余毫秒数计算小时数（排除已计算天数部分）
+                    const remainingMsAfterDays = diffMs % (1000 * 60 * 60 * 24);
+                    const hours = Math.floor(remainingMsAfterDays / (1000 * 60 * 60));
+
+                    // 使用剩余毫秒数计算分钟数 (排除已计算天/小时部分)
+                    const remainingMsAfterHours = remainingMsAfterDays % (1000 * 60 * 60);
+                    const minutes = Math.floor(remainingMsAfterHours / (1000 * 60));
+
+                    // 格式化显示文本
+                    let timeStr = '';
+
+                    // 根据实际值拼接时间单位（避免显示0天/0小时）
+                    if (days > 0) timeStr += `${days}天`;
+
+                    // 如果有天数或者小时数大于0，才显示小时
+                    if (days > 0 || hours > 0) timeStr += `${hours}小时`;
+
+                    // 始终显示分钟（即使0分钟也需体现，如"1小时0分钟"表示整小时）
+                    timeStr += `${minutes}分钟`;
+
+                    return <div>{timeStr}</div>;
+
+                } else { //未完成状态显示提示
+                    return <Tag color='warning'>待完成中</Tag>;
+                }
+            },
+        },
+        {
             title: '房屋',
             dataIndex: 'house_name',
+            width:100,
+            align:'center',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:100,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.house_name}>
+                            {record.house_name}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '单元名称',
             dataIndex: 'unitList',
             key: 'unitList',
+            align:'center',
+            width:100,
             sorter: {
                 compare: (a, b) => {
                     // 获取 a 和 b 的 unitList 中第一个 unit_name
@@ -88,9 +160,11 @@ const ReportLog=(props:any)=>{
         {
             title: '报修用户',
             dataIndex: 'tenant_name',
+            width:100,
+            align:'center',
             render:(text:any,record:any,)=>{
                 return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                    <div style={{width:100,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
                         <Tooltip title={record.tenant_name}>
                             {record.tenant_name}
                         </Tooltip>
@@ -101,25 +175,88 @@ const ReportLog=(props:any)=>{
         {
             title: '用户联系方式',
             dataIndex: 'tenant_phone',
+            width:100,
+            align:'center',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:100,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.tenant_phone}>
+                            {record.tenant_phone}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '报修内容',
             dataIndex: 'repair_content',
-            render: (_: any, record: any) => (
-                <Input.TextArea value={_}/>
-            ),
+            width:100,
+            align:'center',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:100,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.repair_content}>
+                            {record.repair_content}
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '物品名称',
             dataIndex: 'repairGood',
+            width:200,
+            align:'center',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:200,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.repairGood}>
+                            <Input.TextArea value={record.repairGood}/>
+                        </Tooltip>
+                    </div>
+                )
+            }
         },
         {
             title: '报修金额(元)',
             dataIndex: 'repairMoney',
+            align:'center',
+            width:150,
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.repairMoney}>
+                            {record.repairMoney}
+                        </Tooltip>
+                    </div>
+                )
+            }
+        },
+        {
+            title: '分数',
+            align:'center',
+            dataIndex: 'rating',
+            render: (_: any, record: any) => (
+                <span>
+                    {record.rating==0?'未评分':record.rating}
+                </span>
+            )
+        },
+        {
+            title: '打分内容',
+            width:200,
+            dataIndex: 'ratingCount',
+            render: (_: any, record: any) => (
+                <span>
+                   <Input.TextArea value={record.ratingCount}/>
+                </span>
+            )
         },
         {
             title: '跟进人',
             dataIndex: 'userName',
+            fixed:'right',
+            width:100,
             render:(_:any,record:any)=>(
                 <div>
                     {record.userName?<Tag color='green'>{record.userName}</Tag>:<Tag color='red'>未分配跟进人</Tag>}
@@ -128,45 +265,75 @@ const ReportLog=(props:any)=>{
         },
         {
             title: '状态',
+            align:'center',
+            fixed:'right',
             dataIndex: 'repair_status',
-            render: (_: any, record: any) => (
-                <div>
-                    {record.repair_status==2?<Tag color='green'>已完成</Tag>:<Tag color='red'>未处理</Tag>}
-                </div>
-            ),
+            width:100,
+            render: (_: any, record: any) => {
+                const statusConfig = {
+                    1: {text: '未接单', color: 'red'},
+                    2: {text: '上门查看', color: 'blue'},
+                    3: {text: '待确定', color: 'orange'},
+                    4: {text: '物品采购', color: 'purple'},
+                    5: {text: '完成', color: 'green'}
+                };
+                const config = statusConfig[record.repair_status] || {text: '未知状态', color: 'gray'};
+                return (
+                    <div>
+                        <Tag color={config.color}>{config.text}</Tag>
+                    </div>
+                )
+            }
         },
         {
             title: '操作',
+            align:'center',
             dataIndex: 'operation',
+            fixed:'right',
             render: (_: any, record: any) => (
-                <div>
-                    {
-                        record.repair_status==1?(
-                            <Space>
-                                {uqx[298]=='1'?<Button type='primary' onClick={()=>genjin(record)}>分配跟进人</Button>:''}
-                                <Button type='primary' onClick={()=>onokOpen(record)}>修理完成</Button>
-                            </Space>
-                        ):''
-                    }
-
-                </div>
+                <Space>
+                    {record.repair_status !== 5&&record.repair_status!==1 && (
+                        <Button type='primary' onClick={()=>onokOpen(record)}>步骤</Button>
+                    )}
+                    {/* 分配和接单按钮：仅状态等于1时显示 */}
+                    {record.repair_status === 1 && (
+                        <>
+                            {uqx[298] === '1' && <Button type='primary' onClick={()=>genjin(record)}>分配</Button>}
+                            <Button type='primary' onClick={()=>jiedan(record)}>接单</Button>
+                        </>
+                    )}
+                    {record.repair_status==5?'':<Button danger type='primary' onClick={()=>del(record)}>删除</Button>}
+                </Space>
             ),
         },
     ];
+    const del=(e)=>{
+        setUid(e.id);
+        setDopen(true);
+    };
     // 确定分配跟进人按钮
     const onOk=()=>{
+        if (!userID){
+            message.error('请选择跟进人');
+            return;
+        }
         setLoading(true);
         props.dispatch({
             type:'Report/fenpei',
-            payload:{uid,userID}
+            payload:{OnId,userID}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
+                props.dispatch({
+                    type:'Report/edit',
+                    payload:{OnId,step:2,amount}
+                })
                 setLoading(false);
                 message.success('分配成功');
                 setIsOpen(false);
             }else {
                 message.error(res.Data);
                 setLoading(false);
+                setIsOpen(false);
             }
         })
     };
@@ -182,16 +349,19 @@ const ReportLog=(props:any)=>{
         props.dispatch({
             type:'Report/fenye',
             payload:{name,phone,state,openID,startDate,endDate,pageSize}
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setcount(res.Data.count);
-            }
         })
     };
     // 分配跟进人弹窗
     const genjin=(e)=>{
-      setIsOpen(true);
-      setUid(e.id);
+        setIsOpen(true);
+        setOnId(e.id);
+        setamount(e.repairMoney);
+    };
+    // 自行接单按钮
+    const jiedan=(e)=>{
+        setAcceptOrdersOpen(true);
+        setOnId(e.id);
+        setamount(e.repairMoney);
     };
     const onChange=(e:number,pageSize:number)=>{
         setPage(e);
@@ -204,14 +374,18 @@ const ReportLog=(props:any)=>{
     // 修理完成弹窗
     const onokOpen=(e:any)=>{
         setOnId(e.id);
+        setUserID(e.userId);
         setOnOpen(true);
+        setStep(e.repair_status);
+        setamount(e.repairMoney);
+        setrepairType(e.repairType);
     };
     // 处理完成确定
     const onhandleOk=()=>{
         setLoading(true);
         props.dispatch({
             type:'Report/edit',
-            payload:{OnId}
+            payload:{OnId,step:5,amount}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setLoading(false);
@@ -261,7 +435,6 @@ const ReportLog=(props:any)=>{
         setUqx(uq);
         getListfenye();
         getUserList();
-        console.log('props',props)
     }, []);
     const changeName=(e)=>{
         setname(e.target.value);
@@ -271,6 +444,131 @@ const ReportLog=(props:any)=>{
         setPhone(e.target.value);
         updateSessionStorage('/propertyServerManage/reportLog/','phone',e.target.value);
     };
+    const handlePrevious = () => {
+        // 上一步逻辑：step减1
+        setStep(prev => prev - 1);
+
+    };
+    const handleNext=()=>{
+        props.dispatch({
+            type:'Report/edit',
+            payload:{OnId,step:step+1,amount}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setStep(prev => prev+1);
+                // message.success('修改金额完成');
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
+    // 自行接单确认按钮
+    const ordersOpenOnOk=()=>{
+        setLoading(true);
+        props.dispatch({
+            type:'Report/fenpei',
+            payload:{OnId,userID:StaticInfo.userId}
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                setLoading(false);
+                message.success('自行接单成功');
+                setAcceptOrdersOpen(false);
+                props.dispatch({
+                    type:'Report/edit',
+                    payload:{OnId,step:2,amount}
+                })
+            }else {
+                message.error(res.Data);
+                setAcceptOrdersOpen(false);
+                setLoading(false);
+            }
+        })
+    };
+    // 重新分配跟进人
+    const onhandleEditUser=()=>{
+        props.dispatch({
+            type:'Report/fenpei',
+            payload:{OnId,userID}
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('更换成功');
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
+    const modifyAmount=()=>{
+        return(
+            <div style={{ padding: '16px' }}>
+                {step==1?<>
+                    <h2>分配跟进人</h2>
+                    <Select
+                        style={{width:'100%'}}
+                        onChange={changeSelect}
+                        showSearch
+                        value={userID}
+                        optionFilterProp="children"
+                        filterOption={(input, option) => {
+                            // 假设每个 option 都有一个与数据项对应的 value 属性
+                            const item =props.UsersList.find(hetongID => hetongID.id == option?.value); // 您可能需要优化这个查找过程
+                            return item?.user_name?.toLowerCase().includes(input.toLowerCase());
+                        }}
+                    >
+                        {props.UsersList&&props.UsersList.length>0?props.UsersList.map((item:any,index:any)=>{
+                            return(
+                                <Select.Option value={item.id} key={index}>
+                                    {item.user_name}
+                                </Select.Option>
+                            )
+                        }):''}
+                    </Select>
+                    <Button onClick={onhandleEditUser} style={{width:'100%',marginTop:'16px'}} type='primary'>确定修改</Button>
+                </>:null}
+                {step==2? <>
+                    <h2 style={{textAlign:'center'}}>修改金额</h2>
+                    <InputNumber
+                        disabled={repairType==1}
+                        placeholder="请输入金额"
+                        value={amount}
+                        onChange={(e) => setamount(e)}
+                        style={{ marginBottom: '16px',width:'100%'}}
+                        prefix="¥"
+                        type="number"
+                        step="0.01"
+                        precision={2}
+                        min={0}
+                    />
+                    {/*<Button style={{width:'100%'}} type='primary' onClick={onhandleEditAmount}>确定</Button>*/}
+                </>:null}
+                {step==3? <>
+                    <h2 style={{textAlign:'center'}}>物品采购</h2>
+                </>:null}
+                {step==4? <>
+                    <h2 style={{textAlign:'center'}}>修理完成</h2>
+                </>:null}
+            </div>
+        )
+    };
+    const delOk=()=>{
+        setLoading(true);
+        props.dispatch({
+            type:'Report/remove',
+            payload:uid
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setDopen(false);
+                setLoading(false);
+
+            }else {
+                message.error(res.Data);
+                setDopen(false);
+                setLoading(false);
+            }
+        })
+    };
+    useEffect(() => {
+    }, [step]);
     return(
         <Spin spinning={loading}>
             <List>
@@ -323,14 +621,22 @@ const ReportLog=(props:any)=>{
                                     全部
                                 </Select.Option>
                                 <Select.Option value={1}>
-                                    未处理
+                                    待接单
                                 </Select.Option>
                                 <Select.Option value={2}>
-                                    已完成
+                                    上门查看
+                                </Select.Option>
+                                <Select.Option value={3}>
+                                    待确定
+                                </Select.Option>
+                                <Select.Option value={4}>
+                                    物品采购
+                                </Select.Option>
+                                <Select.Option value={5}>
+                                    修理完成
                                 </Select.Option>
                             </Select>
                         </Space.Compact>
-
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -342,6 +648,7 @@ const ReportLog=(props:any)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 size='small'
+                scroll={{y:'60vh',x:'1800px'}}
                 dataSource={props.ReportList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
@@ -354,6 +661,7 @@ const ReportLog=(props:any)=>{
                     style={{width:'100%'}}
                     onChange={changeSelect}
                     showSearch
+                    value={userID}
                     optionFilterProp="children"
                     filterOption={(input, option) => {
                         // 假设每个 option 都有一个与数据项对应的 value 属性
@@ -370,9 +678,75 @@ const ReportLog=(props:any)=>{
                     }):''}
                 </Select>
             </Modal>
-        {/*    修理成功的按钮*/}
-            <Modal open={onOpen} loading={loading} onOk={onhandleOk} onCancel={()=>setOnOpen(false)}>
-                <div>确定处理完成</div>
+            {/* 自行接单弹窗*/}
+            <Modal title='自行接单' open={acceptOrdersOpen} onCancel={()=>setAcceptOrdersOpen(false)} onOk={ordersOpenOnOk} loading={loading}>
+               <div>是否要自行接单?</div>
+            </Modal>
+            {/* 步骤弹窗*/}
+            <Modal open={onOpen} loading={loading} onCancel={()=>setOnOpen(false)} footer={null}>
+                {modifyAmount()}
+                <div style={{
+                    display: 'flex',
+                    gap: '12px',
+                    marginTop: '24px',
+                    justifyContent: 'flex-start'
+                }}>
+                    {/* 上一步按钮：仅当step > 1时显示 */}
+                    {step > 1 && (
+                        <Button
+                            onClick={handlePrevious}
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#f5f5f5',
+                                color: '#333',
+                                border: '1px solid #d9d9d9',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            上一步
+                        </Button>
+                    )}
+
+                    {/* 下一步按钮：仅当step < 5时显示 */}
+                    {step < 4 && (
+                        <Button
+                            onClick={handleNext}
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#1890ff',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            下一步
+                        </Button>
+                    )}
+                    {step == 4 && (
+                        <Button
+                            onClick={onhandleOk}
+                            type='primary'
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#1890ff',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            确定完成
+                        </Button>
+                    )}
+                </div>
+            </Modal>
+            <Modal title='删除' open={dOpen} onCancel={()=>setDopen(false)} onOk={delOk} loading={loading}>
+                <div>确定要删除吗?</div>
             </Modal>
         </Spin>
     )

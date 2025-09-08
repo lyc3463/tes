@@ -41,7 +41,15 @@ export function weiyueList(vals:any) {
 export function weiyueListFenye(vals:any) {
     return getData(1481, [vals.name,vals.startDate,vals.endDate,vals.stutes,vals.tenandId,vals.pageSize]);
 }
-//违约金分页
+//违约金列表
 export function weiyuejinInfoList(vals:number) {
     return getData(1554, [vals]);
+}
+// 报修账单列表
+export function repairInvoiceList(vals:any) {
+    return getData(1622, [vals.page,vals.name,vals.startDate,vals.endDate,vals.stutes,vals.tenandId,vals.pageSize]);
+}
+//报修账单分页
+export function repairInvoiceFenye(vals:any) {
+    return getData(1623, [vals.name,vals.startDate,vals.endDate,vals.stutes,vals.tenandId,vals.pageSize]);
 }

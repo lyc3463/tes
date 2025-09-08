@@ -6,6 +6,7 @@ import DjContract from "@/pages/enter/DjContract";
 import PermissionLog from "@/pages/logManage/permissionLog";
 import EditMagnification from "@/pages/logManage/editMagnification";
 import {StaticInfo} from "@/StaticInfo";
+import CheckLog from "@/pages/logManage/checkLog";
 const LogQuery=(props)=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('log1') || '1');
     const [uqx,setUqx]=useState([]);
@@ -27,6 +28,10 @@ const LogQuery=(props)=>{
                 <Tabs.TabPane tab='修改电表倍率'  key='2'>
                     <EditMagnification/>
                 </Tabs.TabPane>:""}
+                {uqx[432]=='1'?
+                    <Tabs.TabPane tab='审核日志'  key='3'>
+                        <CheckLog/>
+                    </Tabs.TabPane>:""}
             </Tabs>
         </>
     )

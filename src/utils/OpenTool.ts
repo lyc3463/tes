@@ -1162,6 +1162,10 @@ export function filtermessageData(array) {
         8: 224,
         9: 185,
         10: 271,
+        12: 83,
+        13: 420,
+        14: 399,
+        15: 426,
     };
     // 过滤数组元素
     const newArr = array.filter(item => {
@@ -1172,4 +1176,76 @@ export function filtermessageData(array) {
         return false; // 过滤掉
     });
     return newArr;
+}
+// 根据日期与月份生成新的日期
+export function addMonthsToDate(dateString:string, monthsToAdd:any) {
+    // 解析输入日期
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        throw new Error('无效的日期格式，请使用YYYY-MM-DD格式');
+    }
+    // 获取当前月份和年份
+    const currentMonth = date.getMonth();
+    const currentYear = date.getFullYear();
+
+    // 计算新月份和年份
+    const newMonth = currentMonth + monthsToAdd;
+    const newYear = currentYear + Math.floor(newMonth / 12);
+    const adjustedMonth = newMonth % 12;
+
+    // 创建新日期对象
+    const newDate = new Date(date);
+    newDate.setFullYear(newYear, adjustedMonth, date.getDate());
+
+    // 处理边缘情况（如1月31日加1个月应该是2月28/29日）
+    if (newDate.getDate() !== date.getDate()) {
+        newDate.setDate(0); // 设置为上个月的最后一天
+    }
+
+    // 格式化返回的日期为YYYY-MM-DD
+    const year = newDate.getFullYear();
+    const month = String(newDate.getMonth() + 1).padStart(2, '0');
+    const day = String(newDate.getDate()-1).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+}
+export function getTimeRangeByMonths(months:number) {
+    // 确保传入的月份数在1到12之间
+    if (months < 1 || months > 12) {
+        throw new Error('Months must be between 1 and 12');
+    }
+
+    // 获取当前时间
+    const now = dayjs();
+
+    // 计算开始时间（当前时间的 00:00:00）
+    const startTime = now.startOf('day');
+
+    // 计算结束时间（当前时间的开始时间加上指定月份数后的最后一天的 23:59:59）
+    const endTime = startTime.add(months, 'month').subtract(1, 'day').endOf('day');
+
+    return {
+        startTime: startTime.format('YYYY-MM-DD'),
+        endTime: endTime.format('YYYY-MM-DD')
+    };
+}
+export function getTimeRangeByMonthsz(dateString:string, months:number) {
+    // 确保传入的月份数在1到12之间
+    if (months < 1 || months > 12) {
+        throw new Error('Months must be between 1 and 12');
+    }
+
+    // 解析传入的日期字符串
+    const date = dayjs(dateString);
+
+    // 计算开始时间（传入日期的下一天的 00:00:00）
+    const startTime = date.add(1, 'day').startOf('day');
+
+    // 计算结束时间（开始时间加上指定月份数后的最后一天的 23:59:59）
+    const endTime = startTime.add(months, 'month').subtract(1, 'day').startOf('day');
+
+    return {
+        startTime: startTime.format('YYYY-MM-DD HH:mm:ss'),
+        endTime: endTime.format('YYYY-MM-DD HH:mm:ss')
+    };
 }

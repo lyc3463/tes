@@ -38,7 +38,7 @@ const Wcxuserlist=(props:any)=>{
     const [uqx,setUqx]=useState([]);
     // 弹窗
     const [isOpen,setIsOpen]=useState(false);
-    const [selected, setSelected] = useState<string[]>(Array(397).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(433).fill('0'));
     const [appid,setAppid]=useState(0);
     const columns =[
         {
@@ -176,6 +176,7 @@ const Wcxuserlist=(props:any)=>{
     // 确定编辑权限
     const onOk=()=>{
         let joinqx=selected.join('');
+        // console.log('joinqx',joinqx)
         setIsSpinning(true);
         props.dispatch({
             type:'AppUser/edit',
@@ -230,6 +231,8 @@ const Wcxuserlist=(props:any)=>{
         }
         if (id === 271 ) {
             newSelected[268] = '1';
+            newSelected[404] = '1';
+            newSelected[269] = '1';
         }
         if (id === 392 ) {
             newSelected[176] ='1';
@@ -267,9 +270,23 @@ const Wcxuserlist=(props:any)=>{
             newSelected[355] ='1';
             newSelected[347] ='1';
             newSelected[336] ='1';
+            newSelected[413] ='1';
+            newSelected[400] ='1';
+        }
+        if (id === 399 ) {
+            newSelected[421] ='1';
+            newSelected[422] ='1';
+            newSelected[423] ='1';
+            newSelected[424] ='1';
+            newSelected[404] ='1';
         }
         if (id === 110 ) {
             newSelected[111] ='1';
+        }
+        if (id === 426 ) {
+            newSelected[427] ='1';
+            newSelected[428] ='1';
+            newSelected[429] ='1';
         }
         // 设置新的选中状态
         setSelected(newSelected);
@@ -371,8 +388,8 @@ const Wcxuserlist=(props:any)=>{
             {/*编辑权限弹窗*/}
             <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk} loading={isSpinning}>
                 <Space>
-                    <Button type='primary' onClick={()=>setSelected(Array(397).fill('1'))}>全选</Button>
-                    <Button type='primary' onClick={()=>setSelected(Array(397).fill('0'))}>反选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(433).fill('1'))}>全选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(433).fill('0'))}>反选</Button>
                 </Space>
                 <TreeMenu tree={treeData} selected={selected} setSelected={setSelected} />
             </Modal>

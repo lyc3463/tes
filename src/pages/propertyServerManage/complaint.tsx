@@ -32,9 +32,16 @@ const Complaint=(props:any)=>{
     const [openID,setopenID]=useState(0);
     const [open,setOpen]=useState(false);
     const [tenantId,settenantId]=useState(0);
+    const [type,setType]=useState(0);
     const [conten,setconten]=useState('');
+    const [title,setTitle]=useState('投诉建议回复');
     const [upimg,setUpImg]=useState('');
     const [imgB64,setImgB64]=useState('');
+    const [complaintTitle,setComplaintTitle]=useState('');
+    const [complaintContent,setComplaintContent]=useState('');
+    const [enitOpen,setEnitOpen]=useState(false);
+    const [okOpen,setOkOpen]=useState(false);
+    const [uid,setUid]=useState(0);
     const columns=[
         {
             title: '日期',
@@ -88,6 +95,39 @@ const Complaint=(props:any)=>{
             key: 'tenant_phone',
         },
         {
+            title: '投诉类型',
+            dataIndex: 'complaintType',
+            key: 'complaintType',
+            render:(text:any,record:any,)=>{
+                const statusConfig = {
+                    1: {text: '服务类', color: 'red'},
+                    2: {text: '收费类', color: 'blue'},
+                    3: {text: '工程类', color: 'orange'},
+                    4: {text: '卫生类', color: 'purple'},
+                };
+                const config = statusConfig[record.complaintType] || {text: '未知状态', color: 'gray'};
+                return (
+                    <div>
+                        <Tag color={config.color}>{config.text}</Tag>
+                    </div>
+                )
+            }
+        },
+        {
+            title: '投诉标题',
+            dataIndex: 'complaintTitle',
+            key: 'complaintTitle',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                        <Tooltip title={record.complaintTitle}>
+                            {record.complaintTitle}
+                        </Tooltip>
+                    </div>
+                )
+            }
+        },
+        {
             title: '投诉内容',
             dataIndex: 'complaint_content',
             key: 'complaint_content',
@@ -98,14 +138,38 @@ const Complaint=(props:any)=>{
             ),
         },
         {
+            title: '状态',
+            dataIndex: 'complaintStatus',
+            key: 'complaintStatus',
+            render: (_: any, record: any) => (
+                <div>
+                    {record.complaintStatus==1?'待处理':'已处理'}
+                </div>
+            ),
+        },
+        {
             title: '操作',
             dataIndex: 'xx',
             key: 'xx',
             render: (_: any, record: any) => (
-               <Button type='primary' onClick={()=>tohuifu(record)}>回复</Button>
+               <Space>
+                   {record.complaintStatus==1?
+                   <>
+                   <Button type='primary' onClick={()=>changeType(record)}>变更类型</Button>
+                   <Button type='primary' onClick={()=>isOk(record)}>处理完成</Button>
+                   </>
+                   :''
+                   }
+                   <Button type='primary' onClick={()=>tohuifu(record)}>回复</Button>
+               </Space>
             ),
         },
     ];
+    // 处理完成
+    const isOk=(e)=>{
+      setUid(e.id);
+      setOkOpen(true);
+    };
     // 获取投诉建议列表
     const getList=()=>{
         props.dispatch({
@@ -163,7 +227,7 @@ const Complaint=(props:any)=>{
         setLoading(true);
         props.dispatch({
             type:'TenantInfo/add',
-            payload:{tenantId,conten,upimg}
+            payload:{tenantId,conten,upimg,title}
         }).then((res:any)=>{
             if (res.ErrorCode==0){
                 setLoading(false);
@@ -183,6 +247,51 @@ const Complaint=(props:any)=>{
     const changePhone=(e)=>{
         setPhone(e.target.value);
         updateSessionStorage('/propertyServerManage/complaint/','phone',e.target.value);
+    };
+    const changeType=(e)=>{
+        setEnitOpen(true);
+        setType(e.complaintType);
+        setUid(e.id);
+        setComplaintTitle(e.complaintTitle);
+        setComplaintContent(e.complaint_content);
+    };
+    // 类型变更
+    const onTypeOk=()=>{
+        setLoading(true);
+        props.dispatch({
+            type:'Tousu/edit',
+            payload:{uid,type,complaintTitle,complaintContent}
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('变更成功');
+                setEnitOpen(false);
+                setLoading(false);
+            }else {
+                message.error(res.Data);
+                setEnitOpen(false);
+                setLoading(false);
+            }
+        })
+    };
+    const onStutesOk=()=>{
+        setLoading(true);
+        props.dispatch({
+            type:'Tousu/check',
+            payload:uid
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('已完成');
+                setOkOpen(false);
+                setLoading(false);
+            }else {
+                message.error(res.Data);
+                setOkOpen(false);
+                setLoading(false);
+            }
+        })
+    };
+    const changeEditType=(e)=>{
+      setType(e);
     };
     return(
         <div>
@@ -235,8 +344,12 @@ const Complaint=(props:any)=>{
                 />
                 {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             </Spin>
+            {/*回复消息弹窗*/}
             <Modal open={open} onCancel={()=>setOpen(false)} title='回复消息' onOk={onOk} loading={loading}>
                 <Form>
+                    <Form.Item label='标题'>
+                        <Input value={title} onChange={(e)=>setTitle(e.target.value)}/>
+                    </Form.Item>
                     <Form.Item label='消息内容'>
                         <Input.TextArea value={conten} onChange={(e)=>setconten(e.target.value)}/>
                     </Form.Item>
@@ -245,6 +358,23 @@ const Complaint=(props:any)=>{
                         {imgB64?<Image src={imgB64} style={{width:'100px',height:'100px'}}/>:''}
                     </Form.Item>
                 </Form>
+            </Modal>
+            {/*变更类型弹窗*/}
+            <Modal open={enitOpen} onCancel={()=>setEnitOpen(false)} title='变更类型' onOk={onTypeOk} loading={loading}>
+                <Form>
+                    <Form.Item label='类型'>
+                        <Select value={type} onChange={changeEditType}>
+                            <Select.Option value={1}>服务类</Select.Option>
+                            <Select.Option value={2}>收费类</Select.Option>
+                            <Select.Option value={3}>工程类</Select.Option>
+                            <Select.Option value={4}>卫生类</Select.Option>
+                        </Select>
+                    </Form.Item>
+                </Form>
+            </Modal>
+            {/*完成弹窗*/}
+            <Modal open={okOpen} onCancel={()=>setOkOpen(false)} title='完成' onOk={onStutesOk} loading={loading}>
+                <div>是否完成?</div>
             </Modal>
         </div>
     )

@@ -157,7 +157,12 @@ const WyList=()=>{
                                     return '未知类型';
                             }
                         })()
-                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))),
+                    [
+                        { v: '总计', t: 's' },
+                        { v: '', t: 's' },
+                        { v: (moneySum).toFixed(2), t: 'n' }, // 总扣费金额
+                    ]
                 ];
                 exportDataToExcel(ws_data);
                 setspinning(false);

@@ -9,11 +9,11 @@ export function add(vals:any) {
 }
 
 export function edit(vals:any) {
-    return getData(1203, [vals.OnId,vals.stutes=2]);
+    return getData(1203, [vals.OnId,vals.step,vals.amount]);
 }
 
 export function remove(vals:any) {
-    // return getData(1013, []);
+    return getData(1204, [vals]);
 }
 export function one(vals:any) {
     // return getData(1090, [vals]);
@@ -22,6 +22,6 @@ export function fenye(vals:any) {
     return getData(1207, [vals.name,vals.phone,vals.state,vals.openID,vals.startDate,vals.endDate,vals.pageSize]);
 }
 export function fenpei(vals:any) {
-    return getData(1288, [vals.uid,vals.userID]);
+    return getData(1288, [vals.OnId,vals.userID]);
 }
 

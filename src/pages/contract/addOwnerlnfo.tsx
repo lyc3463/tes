@@ -27,11 +27,12 @@ const AddOwnerlnfo=(props)=>{
             }
         })
     };
+    // 选择时间
     const changeData=(_,item)=>{
         setStartDate(item[0]);
         setEndDate(item[1]);
     };
-        // 更新起租日
+    // 更新起租日
     const updateqizuDate = (key, updates) => {
         setFormItems(prevItems => prevItems.map(item => item.key === key ? { ...item, ...updates } : item));
     };
@@ -62,9 +63,6 @@ const AddOwnerlnfo=(props)=>{
                 onFinish={onFinish}
                 style={{ marginTop:'1rem'}}
             >
-                <Form.Item label='合同编号' name='identifier'>
-                    <Input/>
-                </Form.Item>
                  <Form.Item label='甲方银行账号' name='ownerCard'>
                     <Input/>
                 </Form.Item>

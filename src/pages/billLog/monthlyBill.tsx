@@ -9,6 +9,7 @@ import CableKoufeiList from "@/pages/billLog/cableKoufeiList";
 import WaterKoufeiList from "@/pages/billLog/waterKoufeiList";
 import LiquidatedDamagesList from "@/pages/billLog/liquidatedDamagesList";
 import OutZu from "@/pages/billLog/outZu";
+import RepairInvoice from "@/pages/billLog/repairInvoice";
 const MonthlyBill=(props:any)=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('zdActive') || '1');
     const onChange = (key) => {
@@ -38,6 +39,9 @@ const MonthlyBill=(props:any)=>{
                 </Tabs.TabPane>
                 <Tabs.TabPane tab='退租账单' key='7'>
                     <OutZu/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='报修账单' key='8'>
+                    <RepairInvoice/>
                 </Tabs.TabPane>
             </Tabs>
         </div>

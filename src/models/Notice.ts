@@ -14,7 +14,7 @@ import { fixPathname } from '@/utils/common';
 let pl = {
     allNoticeName:'',
     beginTimeNotice:'2000-01-01',
-    endTimeNotice:'2030-01-01'
+    endTimeNotice:'2099-01-01'
 };
 export interface NoticeCountState {
     count: number;

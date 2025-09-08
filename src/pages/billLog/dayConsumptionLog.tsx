@@ -131,6 +131,9 @@ const DayConsumptionLog=(props)=>{
                     case 9:
                         consumptionTypeText = <Tag style={{ color: '#795588' }}>月保</Tag>;
                         break;
+                    case 11:
+                        consumptionTypeText = <Tag style={{ color: '#795588' }}>报修</Tag>;
+                        break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
@@ -273,6 +276,12 @@ const DayConsumptionLog=(props)=>{
                     case 9:
                         consumptionTypeText = <Tag style={{ color: '#795588' }}>月保</Tag>;
                         break;
+                    case 11:
+                        consumptionTypeText = <Tag style={{ color: '#795588' }}>报修</Tag>;
+                        break;
+                    case 12:
+                        consumptionTypeText = <Tag style={{ color: '#795588' }}>装修押金</Tag>;
+                        break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
@@ -363,6 +372,8 @@ const DayConsumptionLog=(props)=>{
                                     { value:7, label: '损耗' },
                                     { value:8, label: '违约金' },
                                     { value:9, label: '月保' },
+                                    { value:11, label: '报修' },
+                                    { value:12, label: '装修押金' },
                                 ]}
                             />
                         </Space.Compact>

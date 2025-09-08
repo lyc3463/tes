@@ -47,6 +47,10 @@ const EditWaterParameter=(props)=>{
     const [step_value3,setStep_value3]=useState(0);
     const [minute_price,setMinute_price]=useState(0);
     const [spinning,setspinning]=useState(false);
+    // 收费类型
+    const [lossType,setLossType]=useState(1)
+    //  每月多少号收费
+    const [fixed_fee,setFixed_fee]=useState(1)
     const [form] = Form.useForm();
     // 监听水价基础价
     const listenbasicPrice=(e)=>{
@@ -173,7 +177,9 @@ const EditWaterParameter=(props)=>{
                 step_value4:0,
                 base_price9:0,
                 additional_price9:0,
-                minute_price
+                minute_price,
+                lossType,
+                fixed_fee
             }
         })
         if (res.ErrorCode==0){

@@ -77,6 +77,14 @@ const NotificationList = (props) => {
             history.push('/check/checkAfterSales/');
         }else if (e==9) {
             history.push('/check/checkStaff/');
+        }else if (e==10) {
+            history.push('/propertyServerManage/reportAndRenovation/');
+        }else if (e==12) {
+            history.push('/workOrderManage/worlOrder/');
+        }else if (e==14) {
+            history.push('/propertyServerManage/releaseSlip');
+        }else if (e==15) {
+            history.push('/propertyServerManage/renovationList/');
         }
         setOpen(false);
     };

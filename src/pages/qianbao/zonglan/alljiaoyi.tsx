@@ -237,7 +237,15 @@ const Alljiaoyi=(props)=>{
                                 ? item.unitList.map(val => val.unit_name).join(', ')
                                 : '';
                         })()
-                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' })))
+                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))),
+                    [
+                        { v: '总计', t: 's' },
+                        { v: '', t: 's' },
+                        { v: '', t: 's' },
+                        { v: '', t: 's' },
+                        { v: moneySum.toFixed(2), t: 'n' },
+                        { v: '', t: 's' },
+                    ]
                 ];
                 exportDataToExcel(ws_data);
                 setspinning(false);

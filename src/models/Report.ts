@@ -53,7 +53,6 @@ const ReportModels: ReportInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(ReportService.fetch,payload?payload:pl);
-
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -84,15 +83,11 @@ const ReportModels: ReportInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *remove({ payload }, { call, put }): any {
+        *remove({ payload }, { call, put ,take}): any {
             const result = yield call(ReportService.remove, payload);
-            if (result.status !== 'ok') {
-                alert('cuowu');
-            }
-            yield put({ type: 'fetch', payload: { page: 1 } });
-            UmiHistorty.replace({
-                pathname: '../user/list',
-            });
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
         },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(ReportService.fenye, payload?payload:pl);
