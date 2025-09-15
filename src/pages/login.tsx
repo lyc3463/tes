@@ -423,7 +423,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.7.0</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.7.3</p>
                 </div>
               </Form.Item>
             </Form>
@@ -431,7 +431,7 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <div style={{textAlign:'center',}}>
+      <div style={{textAlign:'center'}}>
         <a href='#' style={{textDecoration:'none',color:'#555',marginRight:"30px"}}>本系统由欢逗八提供技术支持</a><a target='_blank' style={{textDecoration:'none',color:'#555'}} href='https://beian.miit.gov.cn/#/Integrated/index'>粤ICP备2024319327号-3</a>
       </div>
       {/*忘记密码输入手机验证弹窗*/}

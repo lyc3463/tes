@@ -85,6 +85,10 @@ const NotificationList = (props) => {
             history.push('/propertyServerManage/releaseSlip');
         }else if (e==15) {
             history.push('/propertyServerManage/renovationList/');
+        }else if (e==16) {
+            history.push('/check/checkFp/');
+        }else if (e==17) {
+            history.push('/contract/ownerInfo/');
         }
         setOpen(false);
     };

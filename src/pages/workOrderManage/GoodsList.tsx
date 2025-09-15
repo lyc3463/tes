@@ -100,6 +100,10 @@ const GoodsList=(props)=>{
     useEffect(() => {
         getGoodsFY();
     }, []);
+    const sousuo=()=>{
+        setPage(1);
+        getGoodsList();
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -109,9 +113,11 @@ const GoodsList=(props)=>{
                     </div>
                     <Space>
                         <Input
-                            addonBefore="客户姓名:"
+                            addonBefore="物品名称:"
+                            value={goodsName}
+                            onChange={(e)=>setgoodsName(e.target.value)}
                         />
-                        <Button type="primary" >
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>

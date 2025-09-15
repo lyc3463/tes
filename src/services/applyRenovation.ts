@@ -27,3 +27,5 @@ export function getPDFBase64(vals:any) {
 export function fenye(vals:any) {
     return getData(1650, [vals.name,vals.phone,vals.stutes,vals.pageSize,vals.userID]);
 }
+
+

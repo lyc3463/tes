@@ -19,7 +19,8 @@ let pl={
     pageSize:50,
     titleName:'',
     tenannName:'',
-    type:0
+    type:0,
+    phone:''
 }
 
 export interface CheckFpCountState {

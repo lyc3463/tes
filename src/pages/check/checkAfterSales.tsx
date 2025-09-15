@@ -1,12 +1,11 @@
 import {Tabs} from "antd";
 import CheckRename from "@/pages/check/checkRename";
-import CheckTransference from "@/pages/check/checkTransference";
 import CheckRenew from "@/pages/check/checkRenew";
 import CheckOutRent from "@/pages/check/checkOutRent";
 import CheckPreferential from "@/pages/check/checkPreferential";
 import CheckByStages from "@/pages/check/checkByStages";
-import {useEffect, useState} from "react";
-import {StaticInfo} from "@/StaticInfo";
+import {useState} from "react";
+import CheckDeept from "@/pages/check/checkDeept";
 
 
 const CheckAfterSales=()=>{
@@ -32,6 +31,9 @@ const CheckAfterSales=()=>{
                 </Tabs.TabPane>
                 <Tabs.TabPane tab='分期审核' key='6'>
                     <CheckByStages/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='押金审核' key='7'>
+                    <CheckDeept/>
                 </Tabs.TabPane>
             </Tabs>
         </div>

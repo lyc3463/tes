@@ -47,6 +47,7 @@ const CheckAllFp=(props)=>{
     const [titleName,setTitleName]=useState(checkSessionStorage('/check/checkFp/','checkAllFpTitleName')||'');
     // 租户名称
     const [tenannName,setTenannName]=useState(checkSessionStorage('/check/checkFp/','checkAllFpTenannName')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/check/checkFp/','checkAllFpPhone')||'');
     // 账单类型
     const [type,setType]=useState(checkSessionStorage('/check/checkFp/','checkAllFpType')||0);
     // 单元名称
@@ -82,14 +83,14 @@ const CheckAllFp=(props)=>{
             }
         },
         {
-            title: '租户姓名',
+            title: '姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
         },
         {
-            title: '租户手机号',
-            dataIndex: 'tenant_phone',
-            key: 'tenant_phone',
+            title: '手机号',
+            dataIndex: 'appUser_phone',
+            key: 'appUser_phone',
         },
         {
             title: '发票抬头',
@@ -196,18 +197,18 @@ const CheckAllFp=(props)=>{
                 )
             }
         },
-        {
-            title: '通知租户',
-            dataIndex: 'tz',
-            key: 'tz',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.invoiceStatus==2?<Button type='link' onClick={()=>onOpen(record)}>发送</Button>:''}
-                    </div>
-                )
-            }
-        },
+        // {
+        //     title: '通知租户',
+        //     dataIndex: 'tz',
+        //     key: 'tz',
+        //     render:(text:any,record:any,)=>{
+        //         return(
+        //             <div>
+        //                 {record.invoiceStatus==2?<Button type='link' onClick={()=>onOpen(record)}>发送</Button>:''}
+        //             </div>
+        //         )
+        //     }
+        // },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -237,14 +238,14 @@ const CheckAllFp=(props)=>{
     const getfenyeInfo=()=>{
         props.dispatch({
             type:'CheckFp/fenye',
-            payload:{startDate,endDate,openId,stutes,pageSize,titleName,tenannName,type}
+            payload:{startDate,endDate,openId,stutes,pageSize,titleName,tenannName,type,phone}
         });
     };
     // 列表
     const logFenye=()=>{
         props.dispatch({
             type:"CheckFp/fetch",
-            payload:{page,startDate,endDate,openId,stutes,pageSize,titleName,tenannName,type}
+            payload:{page,startDate,endDate,openId,stutes,pageSize,titleName,tenannName,type,phone}
         })
     };
     useEffect(() => {
@@ -340,6 +341,10 @@ const CheckAllFp=(props)=>{
         setTenannName(e.target.value);
         updateSessionStorage('/check/checkFp/','checkAllFpTenannName',e.target.value);
     };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        updateSessionStorage('/check/checkFp/','checkAllFpPhone',e.target.value);
+    };
     const changeType=(e)=>{
         setType(e);
         updateSessionStorage('/check/checkFp/','checkAllFpType',e);
@@ -350,16 +355,19 @@ const CheckAllFp=(props)=>{
                 <List.Item>
                     <Space>
                         <Input
-                            style={{ width: 300 }}
                             addonBefore="抬头名称:"
                             onChange={changTitleName}
                             value={titleName}
                         />
                         <Input
-                            style={{ width: 300 }}
-                            addonBefore="租户名称:"
+                            addonBefore="名称:"
                             onChange={changeTenannName}
                             value={tenannName}
+                        />
+                        <Input
+                            addonBefore="手机号:"
+                            onChange={changePhone}
+                            value={phone}
                         />
                         <Space.Compact>
                             <div

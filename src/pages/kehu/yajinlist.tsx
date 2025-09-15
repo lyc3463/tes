@@ -17,7 +17,9 @@ const Yajinlist=()=>{
     // 押金收费ID
     const [type,setType]=useState(0);
     // 页码
-    const [page,setpage]=useState(1);
+    const [page,setPage]=useState(1);
+    // 每页条数
+    const [pageSize,setPageSize]=useState(50);
     // 租户id
     const [uid,setuid]=useState('0');
     // 押金列表
@@ -32,7 +34,7 @@ const Yajinlist=()=>{
     const [NotBillSum,setNotBillSum]=useState(0);
     // 获取押金列表
     const getYJJlist=(e)=>{
-        ZuhuService.depoList(itemName,phone,startDate,endDate,e,type).then((res:TypeErrorCode)=>{
+        ZuhuService.depoList(page,itemName,phone,startDate,endDate,e,type,pageSize).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setdataSource(res.Data);
             }else {
@@ -42,7 +44,7 @@ const Yajinlist=()=>{
     };
     // 分页信息
     const yajinfenyeid=(e)=>{
-        ZuhuService.depoListFenye(itemName,phone,startDate,endDate,e,type).then((res:TypeErrorCode)=>{
+        ZuhuService.depoListFenye(itemName,phone,startDate,endDate,e,type,pageSize).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setmoneySum(res.Data.moneySum);
                 setNotBillSum(res.Data.NotBillSum);
@@ -59,12 +61,9 @@ const Yajinlist=()=>{
         yajinfenyeid(id);
     }, []);
     const sousuo=()=>{
-        setpage(1);
+        setPage(1);
         yajinfenyeid(uid);
         getYJJlist(uid);
-    };
-    const onChange=(e)=>{
-      setpage(e);
     };
     const columns =[
         {

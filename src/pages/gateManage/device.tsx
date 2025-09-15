@@ -127,6 +127,7 @@ const Device=(props)=>{
     const changeDate=(_:any,item:any)=>{
         // 精确到秒的时间戳
         setTimestamp(Date.parse(item)/1000);
+        console.log('时间戳',Date.parse(item)/1000);
     };
     const synchronousOK=()=>{
       setspinning(true);

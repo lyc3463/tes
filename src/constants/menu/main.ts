@@ -125,7 +125,7 @@ export const menuData: TypeMenu[] = [
     { id: 114, route: '/systemManage/userManage/', name: '用户管理', parentId: 113, authId: 114},
     { id: 115, route: '/appletManage/questionnaireList/', name: '问题列表', parentId: 108, authId: 115},
     { id: 116, route: '/appletManage/result/', name: '问卷结果', parentId: 108, authId: 116},
-    { id: 117, route: '/appletManage/links/', name: '友情链接', parentId: 108, authId: 117},
+    { id: 117, route: '/appletManage/links/', name: '外部链接', parentId: 108, authId: 117},
     { id: 118, route: '/qianbao/zonglan/alljiaoyi/', name: '线上交易', parentId: 2, authId: 118},
     { id: 119, route: '/qianbao/zonglan/yiruzhang/', name: '已入账', parentId: 2, authId: 119},
     { id: 259, route: '/billLog/consumptionLog/', name: '消费记录', parentId: 65, authId: 259},

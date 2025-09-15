@@ -14,6 +14,7 @@ const WorkOrderAdd=(props)=>{
     const [workType,setWorkType]=useState(0);// 工单金额
     const [goodsList,setGoodsList]=useState([]);
     const onFinish=(values)=>{
+        if (!workGood) return message.warning('请选择物品');
         setSpinning(true);
         props.dispatch({
             type:'WorkOrder/add',

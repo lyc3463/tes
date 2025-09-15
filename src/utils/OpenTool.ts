@@ -1166,6 +1166,8 @@ export function filtermessageData(array) {
         13: 420,
         14: 399,
         15: 426,
+        16: 339,
+        17: 335,
     };
     // 过滤数组元素
     const newArr = array.filter(item => {

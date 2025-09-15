@@ -202,7 +202,7 @@ const WorkOrderList=(props:any)=>{
                             <Button type='primary' onClick={()=>jiedan(record)}>接单</Button>
                         </>
                     )}
-                    {record.workStatus === 5?'':<Button type='primary' danger onClick={()=>isDel(item)}>删除</Button>}
+                    {record.workStatus === 5?'':<Button type='primary' danger onClick={()=>isDel(record)}>删除</Button>}
                 </Space>
             ),
         },

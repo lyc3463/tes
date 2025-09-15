@@ -46,7 +46,8 @@ const CheckShuidian=(props)=>{
     // 发送给小程序内容
     const [conten,setconten]=useState('');
     //抬头名称
-    const [riseName,setriseName]=useState(checkSessionStorage('/check/checkFp/','checkShuidianriseName')||'');
+    const [riseName,setRiseName]=useState(checkSessionStorage('/check/checkFp/','checkShuidianRiseName')||'');
+    const [phone,setPhone]=useState(checkSessionStorage('/check/checkFp/','checkShuidianPhone')||'');
     // 租户名称
     const [tenantName,settenantName]=useState(checkSessionStorage('/check/checkFp/','checkShuidiantenantName')||'');
     const [type,setType]=useState(checkSessionStorage('/check/checkFp/','checkShuidianType')||0);
@@ -82,14 +83,14 @@ const CheckShuidian=(props)=>{
             }
         },
         {
-            title: '租户姓名',
+            title: '姓名',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
         },
         {
-            title: '租户手机号',
-            dataIndex: 'tenant_phone',
-            key: 'tenant_phone',
+            title: '手机号',
+            dataIndex: 'appUser_phone',
+            key: 'appUser_phone',
         },
         {
             title: '发票抬头',
@@ -172,18 +173,18 @@ const CheckShuidian=(props)=>{
                 )
             }
         },
-        {
-            title: '通知租户',
-            dataIndex: 'tz',
-            key: 'tz',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.invoiceStatus==2?<Button type='link' onClick={()=>onOpen(record)}>发送</Button>:''}
-                    </div>
-                )
-            }
-        },
+        // {
+        //     title: '通知租户',
+        //     dataIndex: 'tz',
+        //     key: 'tz',
+        //     render:(text:any,record:any,)=>{
+        //         return(
+        //             <div>
+        //                 {record.invoiceStatus==2?<Button type='link' onClick={()=>onOpen(record)}>发送</Button>:''}
+        //             </div>
+        //         )
+        //     }
+        // },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -213,14 +214,14 @@ const CheckShuidian=(props)=>{
     const getfenyeInfo=()=>{
         props.dispatch({
             type:'CheckFpSD/fenye',
-            payload:{startDate,endDate,openId,stutes,pageSize,riseName,tenantName,type}
+            payload:{startDate,endDate,openId,stutes,pageSize,riseName,tenantName,type,phone}
         });
     };
     // 列表
     const logFenye=()=>{
         props.dispatch({
             type:"CheckFpSD/fetch",
-            payload:{page,startDate,endDate,openId,stutes,pageSize,riseName,tenantName,type}
+            payload:{page,startDate,endDate,openId,stutes,pageSize,riseName,tenantName,type,phone}
         })
     };
     useEffect(() => {
@@ -277,6 +278,7 @@ const CheckShuidian=(props)=>{
         setPage(1);
         getfenyeInfo();
         logFenye();
+        console.log('props',props);
     };
     // 发送的弹窗
     const onOpen=(e:any)=>{
@@ -335,8 +337,12 @@ const CheckShuidian=(props)=>{
         setOpenId(e);
     };
     const changeriseName=(e)=>{
-        setriseName(e.target.value);
+        setRiseName(e.target.value);
         updateSessionStorage('/check/checkFp/','checkShuidianriseName',e.target.value);
+    };
+    const changePhone=(e)=>{
+        setPhone(e.target.value);
+        updateSessionStorage('/check/checkFp/','checkShuidianPhone',e.target.value);
     };
     const changetenantName=(e)=>{
         settenantName(e.target.value);
@@ -352,13 +358,16 @@ const CheckShuidian=(props)=>{
                 <List.Item>
                     <Space>
                         <Input
-                            style={{ width: 300 }}
                             addonBefore="抬头名称:"
                             value={riseName}
                             onChange={changeriseName}
                         />
                         <Input
-                            style={{ width: 300 }}
+                            addonBefore="手机号:"
+                            value={phone}
+                            onChange={changePhone}
+                        />
+                        <Input
                             addonBefore="租户名称:"
                             value={tenantName}
                             onChange={changetenantName}

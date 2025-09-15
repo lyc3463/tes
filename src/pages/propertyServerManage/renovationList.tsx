@@ -38,7 +38,6 @@ const RenovationList=(props)=>{
         setPage(1);
         getList();
         getListFenye();
-        console.log('查询',props);
     };
     const toadd=()=>{
         history.push('/propertyServerManage/addRenovation/');
@@ -126,7 +125,16 @@ const RenovationList=(props)=>{
                     return <Tag color="warning">待审核</Tag>;
                 }
                 if (text===2){
-                    return <Tag color="green">已审核</Tag>;
+                    return <Tag color="green">待交押金</Tag>;
+                }
+                if (text===3){
+                    return <Tag color="green">可装修</Tag>;
+                }
+                if (text===4){
+                    return <Tag color="green">申请验收</Tag>;
+                }
+                if (text===5){
+                    return <Tag color="green">验收完成</Tag>;
                 }
                 return '未知状态';
             }
@@ -327,7 +335,16 @@ const RenovationList=(props)=>{
                                     待审核
                                 </Select.Option>
                                 <Select.Option value={2}>
-                                    已审核
+                                    待交押金
+                                </Select.Option>
+                                <Select.Option value={3}>
+                                    可装修
+                                </Select.Option>
+                                <Select.Option value={4}>
+                                    申请验收
+                                </Select.Option>
+                                <Select.Option value={5}>
+                                    验收完成
                                 </Select.Option>
                             </Select>
                         </Space.Compact>

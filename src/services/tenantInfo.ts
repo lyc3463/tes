@@ -1,11 +1,11 @@
-import { getData } from '@/network/http';
+import {getData, postData} from '@/network/http';
 
 export function fetch(vals:any) {
     return getData(1166, [vals.page,vals.content,vals.phone,vals.startDate,vals.endDate,vals.stutes,vals.openid,vals.pageSize]);
 }
 
 export function add(vals:any) {
-    return getData(1164, [vals.conten,vals.tenantId,vals.upimg,vals.mouny=0,vals.title]);
+    return postData(1164, [vals.tenantId,vals.upimg,vals.mouny=0,vals.title],vals.conten);
 }
 
 export function edit(vals:any) {

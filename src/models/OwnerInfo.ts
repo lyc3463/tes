@@ -15,7 +15,8 @@ let pl={
     name:'',
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    pageSize:50
+    pageSize:50,
+    stutes:0
 }
 export interface OwnerInfoCountState {
     count: number;
@@ -34,6 +35,7 @@ export interface OwnerInfoInterface {
         edit: Effect;
         remove: Effect;
         fenye: Effect;
+        check: Effect;
     };
     reducers: {
         list: Reducer<OwnerInfoType[]>;
@@ -48,6 +50,7 @@ const OwnerInfoModel: OwnerInfoInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(OwnerInfoService.fetch, payload?payload:pl);
+            console.log('res',res);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -82,6 +85,12 @@ const OwnerInfoModel: OwnerInfoInterface = {
         },
         *remove({ payload }, { call, put,take}): any {
             const result = yield call(OwnerInfoService.remove, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result;
+        },
+        *check({ payload }, { call, put,take}): any {
+            const result = yield call(OwnerInfoService.check, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result;

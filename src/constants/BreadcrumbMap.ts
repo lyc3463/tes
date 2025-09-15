@@ -117,7 +117,7 @@ const BreadcrumbMap: LooseObject = {
     'userManage': '用户管理',
     'questionnaireList': '问题列表',
     'result': '问卷结果',
-    'links': '友情链接',
+    'links': '外部链接',
     'alljiaoyi': '线上交易',
     'yiruzhang': '已入账',
     'consumptionLog': '消费记录',
