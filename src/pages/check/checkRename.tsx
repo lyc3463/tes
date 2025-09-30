@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
@@ -23,7 +23,39 @@ const CheckRename=(props:any)=>{
     const [uphone,setUphone]=useState('');
     // id
     const [uid,setUid]=useState(0);
+    const [spinning, setSpinning] = useState(false);
     const columns =[
+        {
+            title: '单元名称',
+            dataIndex: 'unitList',
+            key: 'unitList',
+            sorter: {
+                compare: (a, b) => {
+                    // 获取 a 和 b 的 unitList 中第一个 unit_name
+                    const aUnitName = a.unitList[0]?.unit_name || '';
+                    const bUnitName = b.unitList[0]?.unit_name || '';
+
+                    // 比较 unit_name
+                    if (aUnitName < bUnitName) return -1;
+                    if (aUnitName > bUnitName) return 1;
+                    return 0;
+                },
+                multiple: 1,
+            },
+            width:200,
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
+                    </div>
+                )
+            }
+        },
         {
             title: '申请日期',
             dataIndex: 'created',
@@ -151,6 +183,7 @@ const CheckRename=(props:any)=>{
         setUphone(e.tenant_phone)
     };
     const onOk=()=>{
+        setSpinning(true);
         props.dispatch({
             type:'Rename/check',
             payload:uid
@@ -158,8 +191,11 @@ const CheckRename=(props:any)=>{
             if (res.ErrorCode==0){
                 message.success('审核通过');
                 setOpen(false);
+                setSpinning(false);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setOpen(false);
+                setSpinning(false);
             }
         })
     };
@@ -167,7 +203,7 @@ const CheckRename=(props:any)=>{
         fenyeinfo();
     }, []);
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -238,10 +274,10 @@ const CheckRename=(props:any)=>{
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         {/*    审核弹窗*/}
-            <Modal open={isOpen} onOk={onOk} onCancel={()=>setOpen(false)} title='审核更名'>
+            <Modal open={isOpen} onOk={onOk} onCancel={()=>setOpen(false)} title='审核更名' loading={spinning}>
                 <span>是否审核通过手机号:<span style={{color:'red'}}>{uphone}</span>的用户吗?</span>
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

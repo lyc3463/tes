@@ -139,7 +139,7 @@ const YuangonglData=(props:any)=>{
         history.push(`/enter/yuangongInfo?id=${e}`)
     };
     const toedit=(e:number)=>{
-        history.push(`/enter/editYuangong?id=${e}`)
+        history.push(`/enter/editYuangong?id=${e}`);
     };
     // 删除弹窗
     const isDelete=(e:any)=>{

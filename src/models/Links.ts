@@ -107,36 +107,6 @@ const LinkModel: LinksInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                // if (StaticInfo.userId > 0 && pathname === '/appletManage/links/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                //
-                // // 添加房源获取楼盘列表
-                // if (StaticInfo.userId > 0 && pathname === '/appletManage/addResources/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                // // 修改房源获取楼盘列表
-                // if (StaticInfo.userId > 0 && pathname === '/appletManage/editResources/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                // if (
-                //     StaticInfo.userId > 0 &&
-                //     pathname === '/xiangmu/gongsiguanli/detail/'
-                // ) {
-                //     dispatch({
-                //         type: 'fetchOne',
-                //         payload: location.state,
-                //     });
-                // }
             });
         },
     },

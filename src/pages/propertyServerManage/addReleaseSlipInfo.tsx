@@ -54,7 +54,7 @@ const AddReleaseSlipInfo=(props)=>{
             type:'ReleaseSlip/add',
             payload:{startDate,userID,goosJosn:json}
         }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 message.success('添加成功');
                 history.push('/propertyServerManage/releaseSlip');
                 setspinning(false);

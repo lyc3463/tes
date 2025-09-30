@@ -17,7 +17,7 @@ let pl={
     nickname:'',
     phone:'',
     stutes:0,
-    companyName:0,
+    companyName:'',
     pageSize:50
 }
 
@@ -54,7 +54,7 @@ const EmpModels: EmpInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(EmpService.fetch,payload?payload:pl);
-
+            console.log('执行了fetch',res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -111,7 +111,7 @@ const EmpModels: EmpInterface = {
             const result = yield call(EmpService.checkRemove, payload);
             return result
         },
-        *checkOK({ payload }, { call, put,take }): any {
+        *checkOK({ payload, callback }, { call, put, take }): any {
             const result = yield call(EmpService.check, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');

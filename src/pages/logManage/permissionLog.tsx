@@ -16,6 +16,11 @@ const PermissionLog=(props)=>{
             key: 'userName',
         },
         {
+            title: '更改人',
+            dataIndex: 'updateName',
+            key: 'updateName',
+        },
+        {
             title: '更改日期',
             dataIndex: 'updateTime',
             key: 'updateTime',
@@ -90,6 +95,7 @@ const PermissionLog=(props)=>{
     };
     const sousuo=()=>{
         setPage(1);
+        console.log('props',props)
         getFenyeInfo();
         logFenye();
     };

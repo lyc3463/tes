@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
@@ -7,6 +7,7 @@ const CheckOutRent=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
+    const [spinning,setSpinning]=useState(false);
     // 手机号
     const [phone,setPhone]=useState(checkSessionStorage('/check/checkAfterSales/','CheckOutRentPhone')||'');
     // 状态 0全部，1未审核，2审核通过
@@ -22,6 +23,37 @@ const CheckOutRent=(props)=>{
     // id
     const [uid,setUid]=useState(0);
     const columns =[
+        {
+            title: '单元名称',
+            dataIndex: 'unitList',
+            key: 'unitList',
+            sorter: {
+                compare: (a, b) => {
+                    // 获取 a 和 b 的 unitList 中第一个 unit_name
+                    const aUnitName = a.unitList[0]?.unit_name || '';
+                    const bUnitName = b.unitList[0]?.unit_name || '';
+
+                    // 比较 unit_name
+                    if (aUnitName < bUnitName) return -1;
+                    if (aUnitName > bUnitName) return 1;
+                    return 0;
+                },
+                multiple: 1,
+            },
+            width:200,
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
+                    </div>
+                )
+            }
+        },
         {
             title: '日期',
             dataIndex: 'created',
@@ -156,9 +188,10 @@ const CheckOutRent=(props)=>{
     const isCheck=(e:any)=>{
         setOpen(true);
         setUid(e.id);
-        setUphone(e.tenant_phone)
+        setUphone(e.tenant_phone);
     };
     const onOk=()=>{
+        setSpinning(true);
         props.dispatch({
             type:'OutRent/check',
             payload:uid
@@ -166,8 +199,11 @@ const CheckOutRent=(props)=>{
             if (res.ErrorCode==0){
                 message.success('审核通过');
                 setOpen(false);
+                setSpinning(false);
             }else {
-                message.error(res.Data)
+                message.error(res.Data);
+                setSpinning(false);
+                setOpen(false);
             }
         })
     };
@@ -175,7 +211,7 @@ const CheckOutRent=(props)=>{
         fenyeinfo();
     }, []);
     return(
-        <div>
+        <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
@@ -246,10 +282,10 @@ const CheckOutRent=(props)=>{
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*    审核弹窗*/}
-            <Modal open={isOpen} onOk={onOk} onCancel={()=>setOpen(false)} title='审核退租'>
+            <Modal open={isOpen} onOk={onOk} onCancel={()=>setOpen(false)} title='审核退租' loading={spinning}>
                 <span>是否审核通过手机号:<span style={{color:'red'}}>{uphone}</span>的用户吗?</span>
             </Modal>
-        </div>
+        </Spin>
     )
 }
 const mapStateToProps = (state: any) => {

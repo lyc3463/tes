@@ -151,7 +151,14 @@ const CheckDeept = (props) => {
             },
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                setRevokeOpen(false);
+                setspinning(false);
+                message.success('驳回成功');
                 changeStatus(3)
+            }else {
+                message.error(res.ErrorCode + res.Data);
+                setspinning(false);
+                setRevokeOpen(false);
             }
         })
     };
@@ -172,15 +179,20 @@ const CheckDeept = (props) => {
             },
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                setCheckOpen(false);
+                setspinning(false);
+                message.success('审核成功');
                 changeStatus(4)
+            }else {
+                message.error(res.ErrorCode + res.Data);
+                setspinning(false);
+                setCheckOpen(false);
             }
         })
     };
     // 修改账单状态
     const changeStatus=(e)=>{
-        CheckDeeptService.reject(drId,e).then((res:TypeErrorCode)=>{
-
-        })
+        CheckDeeptService.reject(drId,e)
     };
     // 删除弹窗
     const isDel=(e)=>{

@@ -1,6 +1,6 @@
 import {
     Button,
-    DatePicker,
+    DatePicker, Dropdown,
     Form,
     Image,
     Input,
@@ -49,6 +49,38 @@ const ReleaseSlip=(props)=>{
             width:150,
             render:(text)=>{
                 return dayjs(text).format('YYYY-MM-DD');
+            }
+        },
+        {
+            title: '单元名称',
+            dataIndex: 'unitList',
+            key: 'unitList',
+            align:'center',
+            width:100,
+            sorter: {
+                compare: (a, b) => {
+                    // 获取 a 和 b 的 unitList 中第一个 unit_name
+                    const aUnitName = a.unitList[0]?.unit_name || '';
+                    const bUnitName = b.unitList[0]?.unit_name || '';
+
+                    // 比较 unit_name
+                    if (aUnitName < bUnitName) return -1;
+                    if (aUnitName > bUnitName) return 1;
+                    return 0;
+                },
+                multiple: 1,
+            },
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
+                    </div>
+                )
             }
         },
         {
@@ -128,21 +160,53 @@ const ReleaseSlip=(props)=>{
             key:'operation',
             width:200,
             render:(text,record)=>{
+                const menuItems = [];
+                menuItems.push(
+                    {
+                        key: 'info',
+                        label: '详情',
+                        onClick: () => openInfo(record)
+                    }
+                );
+                if (record.relStatus === 1) {
+                    menuItems.push({
+                        key: 'delete',
+                        label: '删除',
+                        onClick: () => del(record)
+                    });
+                    menuItems.push({
+                        key: 'check',
+                        label: '审核',
+                        onClick: () => isCheck(record)
+                    });
+                    menuItems.push({
+                        key: 'edit',
+                        label: '编辑',
+                        onClick: () => toinfo(record)
+                    });
+                }
+                if (record.relStatus === 2) {
+                    menuItems.push({
+                        key: 'release',
+                        label: '放行',
+                        onClick: () => isRelease(record)
+                    });
+                }
                 return(
                     <Space>
-                        <Button type="primary" onClick={()=>openInfo(record)}>
-                            详情
-                        </Button>
-                        {
-                            record.relStatus==1?<>
-                                <Button type="primary" danger onClick={()=>del(record)}>删除</Button>
-                                <Button type="primary" onClick={()=>isCheck(record)}>审核</Button>
-                                <Button type='primary' onClick={()=>toinfo(record)}>编辑</Button>
-                            </>:''
-                        }
-                        {
-                            record.relStatus==2?<Button type='primary' onClick={()=>isRelease(record)}>放行</Button>:''
-                        }
+                        <Dropdown menu={{ items: menuItems }} placement="bottomRight">
+                            <Button type="primary">操作</Button>
+                        </Dropdown>
+                        {/*{*/}
+                        {/*    record.relStatus==1?<>*/}
+                        {/*        <Button type="primary" danger onClick={()=>del(record)}>删除</Button>*/}
+                        {/*        <Button type="primary" onClick={()=>isCheck(record)}>审核</Button>*/}
+                        {/*        <Button type='primary' onClick={()=>toinfo(record)}>编辑</Button>*/}
+                        {/*    </>:''*/}
+                        {/*}*/}
+                        {/*{*/}
+                        {/*    record.relStatus==2?<Button type='primary' onClick={()=>isRelease(record)}>放行</Button>:''*/}
+                        {/*}*/}
                     </Space>
                 )
             }
@@ -152,6 +216,7 @@ const ReleaseSlip=(props)=>{
         setPage(1);
         getListfenYen();
         getList();
+        console.log('props',props)
     };
     // 去详情页面
     const toinfo=(e)=>{
@@ -431,7 +496,7 @@ const ReleaseSlip=(props)=>{
             </Modal>
             {/* 审核的弹窗*/}
             <Modal title="审核" open={checkOpen} onCancel={() => setcheckOpen(false)} onOk={checkFn} loading={spinning}>
-                <p>确定删除吗？</p>
+                <p>确定审核吗？</p>
             </Modal>
             {/* 放行的弹窗*/}
             <Modal title="放行" open={releaseOpen} onCancel={() => setReleaseOpen(false)} onOk={releaseFn} loading={spinning}>

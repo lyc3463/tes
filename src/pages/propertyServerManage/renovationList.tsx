@@ -34,6 +34,7 @@ const RenovationList=(props)=>{
     const [delVisible,setDelVisible]=useState(false);
     const [editDepositOpen,setEditDepositOpen]=useState(false);
     const [checkOpen,setCheckOpen]=useState(false);
+    const [acceptanceOpen,setAcceptanceOpen]=useState(false);
     const suosou=()=>{
         setPage(1);
         getList();
@@ -76,6 +77,37 @@ const RenovationList=(props)=>{
             key:'endTime',
             render:(text)=>{
                 return dayjs(text).format('YYYY-MM-DD');
+            }
+        },
+        {
+            title: '单元名称',
+            dataIndex: 'unitList',
+            key: 'unitList',
+            width:100,
+            sorter: {
+                compare: (a, b) => {
+                    // 获取 a 和 b 的 unitList 中第一个 unit_name
+                    const aUnitName = a.unitList[0]?.unit_name || '';
+                    const bUnitName = b.unitList[0]?.unit_name || '';
+
+                    // 比较 unit_name
+                    if (aUnitName < bUnitName) return -1;
+                    if (aUnitName > bUnitName) return 1;
+                    return 0;
+                },
+                multiple: 1,
+            },
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100px' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
+                    </div>
+                )
             }
         },
         {
@@ -125,16 +157,16 @@ const RenovationList=(props)=>{
                     return <Tag color="warning">待审核</Tag>;
                 }
                 if (text===2){
-                    return <Tag color="green">待交押金</Tag>;
+                    return <Tag color="processing">待交押金</Tag>;
                 }
                 if (text===3){
-                    return <Tag color="green">可装修</Tag>;
+                    return <Tag color="blue">可装修</Tag>;
                 }
                 if (text===4){
-                    return <Tag color="green">申请验收</Tag>;
+                    return <Tag color="orange">申请验收</Tag>;
                 }
                 if (text===5){
-                    return <Tag color="green">验收完成</Tag>;
+                    return <Tag color="success">验收完成</Tag>;
                 }
                 return '未知状态';
             }
@@ -151,6 +183,9 @@ const RenovationList=(props)=>{
                             <Button type="primary" onClick={()=>changeDeposit(record)}>修改押金</Button>
                             <Button type="primary" danger onClick={()=>del(record)}>删除</Button>
                             {/*<Button type="primary" onClick={()=>toEdit(record)}>编辑</Button>*/}
+                        </>:''}
+                        {record.applyStatus==4?<>
+                            <Button type="primary" onClick={()=>acceptance(record)}>验收完成</Button>
                         </>:''}
                         <Button type="primary" onClick={()=>toDol(record)}>下载</Button>
                     </Space>
@@ -173,6 +208,11 @@ const RenovationList=(props)=>{
     const onCheck=(e)=>{
         setUid(e.id);
         setCheckOpen(true);
+    };
+    // 验收
+    const acceptance=(e)=>{
+        setUid(e.id);
+        setAcceptanceOpen(true);
     };
     // 下载
     const toDol= async (record)=>{
@@ -277,11 +317,12 @@ const RenovationList=(props)=>{
             }
         })
     };
+    // 审核完成
     const onCheckOk=()=>{
         setspinning(true);
         props.dispatch({
             type:'ApplyRenovation/check',
-            payload:uid
+            payload:{uid,stutes:2}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('审核成功');
@@ -290,6 +331,24 @@ const RenovationList=(props)=>{
             }else {
                 message.error(res.Data);
                 setCheckOpen(false);
+                setspinning(false);
+            }
+        })
+    };
+    // 验收完成
+    const onAcceptanceOk=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:'ApplyRenovation/check',
+            payload:{uid,stutes:5}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('验收成功');
+                setAcceptanceOpen(false);
+                setspinning(false);
+            }else {
+                message.error(res.Data);
+                setAcceptanceOpen(false);
                 setspinning(false);
             }
         })
@@ -383,6 +442,10 @@ const RenovationList=(props)=>{
             {/*审核弹窗*/}
             <Modal open={checkOpen} onCancel={()=>setCheckOpen(false)} onOk={onCheckOk} loading={spinning}>
                 <div>是否要审核?</div>
+            </Modal>
+            {/*验收弹窗*/}
+            <Modal open={acceptanceOpen} onCancel={()=>setAcceptanceOpen(false)} onOk={onAcceptanceOk} loading={spinning}>
+                <div>是否要验收?</div>
             </Modal>
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </Spin>

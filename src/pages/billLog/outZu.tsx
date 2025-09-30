@@ -210,7 +210,7 @@ const OutZu=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        <Button type='primary' onClick={()=>jiaofei(record.id)}>缴费</Button>
+                        {record.billStatus==1?<Button type='primary' onClick={()=>jiaofei(record.id)}>缴费</Button>:<span></span>}
                         <Button type='primary' onClick={()=>editRemark(record)}>备注</Button>
                     </Space>
                 )
@@ -359,7 +359,7 @@ const OutZu=(props:any)=>{
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
-                scroll={{y:'60vh',x:2000}}
+                scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
                 size='small'
                 dataSource={props.OutZuList}

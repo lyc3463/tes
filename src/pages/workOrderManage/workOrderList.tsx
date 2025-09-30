@@ -118,6 +118,17 @@ const WorkOrderList=(props:any)=>{
             }
         },
         {
+            title: '工单类型',
+            dataIndex: 'workType',
+            render:(text:any,record:any,)=>{
+                return(
+                    <div>
+                        {record.workType==2?'自定义':'固定'}
+                    </div>
+                )
+            }
+        },
+        {
             title: '物品名称',
             dataIndex: 'workGood',
             render:(text:any,record:any,)=>{
@@ -222,7 +233,8 @@ const WorkOrderList=(props:any)=>{
             type:'WorkOrder/fenpei',
             payload:{OnId,userID}
         }).then((res:any)=>{
-            if (res.ErrorCode==0){
+            console.log('分配信息',res);
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 props.dispatch({
                     type:'WorkOrder/edit',
                     payload:{OnId,step:2,amount}
@@ -371,7 +383,7 @@ const WorkOrderList=(props:any)=>{
             type:'WorkOrder/fenpei',
             payload:{OnId,userID:StaticInfo.userId}
         }).then((res:any)=>{
-            if (res.ErrorCode==0){
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 setLoading(false);
                 message.success('自行接单成功');
                 setAcceptOrdersOpen(false);
@@ -392,7 +404,7 @@ const WorkOrderList=(props:any)=>{
             type:'WorkOrder/fenpei',
             payload:{OnId,userID}
         }).then((res:any)=>{
-            if (res.ErrorCode==0){
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 message.success('更换成功');
             }else {
                 message.error(res.Data);

@@ -35,6 +35,37 @@ const OutRent=(props:any)=>{
     const [endDate,setEndDate]=useState(checkSessionStorage('/enter/afterSales/','outRentEndDate')||'2099-01-01');
     const columns =[
         {
+            title: '单元名称',
+            dataIndex: 'unitList',
+            key: 'unitList',
+            sorter: {
+                compare: (a, b) => {
+                    // 获取 a 和 b 的 unitList 中第一个 unit_name
+                    const aUnitName = a.unitList[0]?.unit_name || '';
+                    const bUnitName = b.unitList[0]?.unit_name || '';
+
+                    // 比较 unit_name
+                    if (aUnitName < bUnitName) return -1;
+                    if (aUnitName > bUnitName) return 1;
+                    return 0;
+                },
+                multiple: 1,
+            },
+            width:200,
+            render: (text:any, record:any) => {
+                const limitedUnitList = record.unitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {limitedUnitList.map((item, index) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.unitList.length > 2 && <span>...</span>}
+                    </div>
+                )
+            }
+        },
+        {
             title: '日期',
             dataIndex: 'created',
             key: 'created',

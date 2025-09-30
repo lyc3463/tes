@@ -46,7 +46,7 @@ const CheckShuidian=(props)=>{
     // 发送给小程序内容
     const [conten,setconten]=useState('');
     //抬头名称
-    const [riseName,setRiseName]=useState(checkSessionStorage('/check/checkFp/','checkShuidianRiseName')||'');
+    const [riseName,setRiseName]=useState(checkSessionStorage('/check/checkFp/','checkShuidianriseName')||'');
     const [phone,setPhone]=useState(checkSessionStorage('/check/checkFp/','checkShuidianPhone')||'');
     // 租户名称
     const [tenantName,settenantName]=useState(checkSessionStorage('/check/checkFp/','checkShuidiantenantName')||'');

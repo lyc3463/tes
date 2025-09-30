@@ -70,10 +70,14 @@ const Device=(props)=>{
     const toedit=(record)=>{
         history.push(`/gateManage/editdevice?id=${record.id}`);
     };
-    // 同步数据弹窗
+    // 设置闸机参数
     const synchronousData=()=>{
         TestService.text().then((res:TypeErrorCode)=>{
-
+            if (res.ErrorCode==0){
+                message.success('设置成功');
+            }else {
+                message.error(res.Data);
+            }
         })
     };
     // 生成二维码
@@ -127,7 +131,6 @@ const Device=(props)=>{
     const changeDate=(_:any,item:any)=>{
         // 精确到秒的时间戳
         setTimestamp(Date.parse(item)/1000);
-        console.log('时间戳',Date.parse(item)/1000);
     };
     const synchronousOK=()=>{
       setspinning(true);
@@ -160,7 +163,7 @@ const Device=(props)=>{
                     <Space>
                         {uqx[191]=='1'?<Button type="primary" onClick={toadd}>新增闸机</Button>:''}
                         {uqx[263]=='1'?<Button type="primary" onClick={()=>setOpen(true)}>生成访客二维码</Button>:''}
-                        {/*<Button type='primary' onClick={()=>synchronousData()} danger>测试</Button>*/}
+                        {/*<Button type='primary' onClick={()=>synchronousData()} danger>设置闸机二维码</Button>*/}
                     </Space>
                     <Space>
                         <Input

@@ -15,7 +15,7 @@ const AddRole=(props)=>{
     const navigate=useNavigate();
     const [spinning,setspinning]=useState(false);
     const treeData = buildTree(qxTree);
-    const [selected, setSelected] = useState<string[]>(Array(433).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(441).fill('0'));
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: TypeMenu[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void })=> {
         return (
             <ul>
@@ -163,6 +163,7 @@ const AddRole=(props)=>{
             newSelected[353] = isChecked ? '1' : '0';
             newSelected[354] = isChecked ? '1' : '0';
             newSelected[375] = isChecked ? '1' : '0';
+            newSelected[433] = isChecked ? '1' : '0';
             newSelected[176] = '1' ;
             newSelected[253] = '1';
             newSelected[168] = '1';
@@ -288,6 +289,7 @@ const AddRole=(props)=>{
             newSelected[333] = isChecked ? '1' : '0';
             newSelected[334] = isChecked ? '1' : '0';
             newSelected[335] = isChecked ? '1' : '0';
+            newSelected[434] = isChecked ? '1' : '0';
         }
         if (id === 50){
             newSelected[165] = isChecked ? '1' : '0';
@@ -566,6 +568,15 @@ const AddRole=(props)=>{
             newSelected[340] =  isChecked ? '1' : '0' ;
             newSelected[341] =  isChecked ? '1' : '0' ;
             newSelected[413] =  isChecked ? '1' : '0' ;
+            newSelected[438] =  isChecked ? '1' : '0' ;
+            newSelected[437] =  isChecked ? '1' : '0' ;
+            newSelected[436] =  isChecked ? '1' : '0' ;
+            newSelected[435] =  isChecked ? '1' : '0' ;
+        }
+        if (id === 438){
+            newSelected[437] =  isChecked ? '1' : '0' ;
+            newSelected[436] =  isChecked ? '1' : '0' ;
+            newSelected[435] =  isChecked ? '1' : '0' ;
         }
         if (id === 77){
             newSelected[80] = isChecked ? '1' : '0';
@@ -670,6 +681,11 @@ const AddRole=(props)=>{
             newSelected[388] = isChecked ? '1' : '0';
             newSelected[389] = isChecked ? '1' : '0';
             newSelected[390] = isChecked ? '1' : '0';
+            newSelected[439] = isChecked ? '1' : '0';
+            newSelected[440] = isChecked ? '1' : '0';
+        }
+        if (id === 439){
+            newSelected[440] = isChecked ? '1' : '0';
         }
         if (id === 49){
             newSelected[50] = isChecked ? '1' : '0' ;
@@ -825,6 +841,7 @@ const AddRole=(props)=>{
             newSelected[334] = isChecked ? '1' : '0' ;
             newSelected[332] = isChecked ? '1' : '0' ;
             newSelected[333] = isChecked ? '1' : '0' ;
+            newSelected[434] = isChecked ? '1' : '0' ;
         }
         if (id === 82){
             newSelected[83] = isChecked ? '1' : '0';

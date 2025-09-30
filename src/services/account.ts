@@ -19,3 +19,7 @@ export function remove(vals:any) {
 export function one(vals:any) {
     return getData(1013, [vals]);
 }
+
+export function testOnOK() {
+    return getData(1677, []);
+}

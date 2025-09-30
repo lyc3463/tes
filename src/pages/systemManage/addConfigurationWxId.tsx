@@ -39,14 +39,15 @@ const AddConfigurationWxId=()=>{
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
-                <Form.Item label="企业名称" name="qyName" rules={[{required: true, message: '请输入企业名称'}]}>
+                <Form.Item label="企业名称(简称)" name="qyName" rules={[{required: true, message: '请输入企业名称'}]}>
                     <Input/>
                 </Form.Item>
                 <Form.Item label="企业ID" name="authCorpId" rules={[{required: true, message: '请输入企业ID'}]}>
                     <Input/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                    <a href='https://work.weixin.qq.com/' target='_blank'>查看企业ID</a>
+                    <a href='https://work.weixin.qq.com/' target='_blank'>查看企业简称</a>
+                    <div style={{color:'#555'}}>注意:填写的企业名称请到企业微信后台查看<span style={{color:"red"}}>企业简称,填写企业简称请不要填写企业的全称</span></div>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Space>

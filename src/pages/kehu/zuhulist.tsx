@@ -77,6 +77,7 @@ const Zuhulist=(props:any)=>{
             title: '积分(分)',
             dataIndex: 'integral',
             key: 'integral',
+            sorter: (a, b) => a.integral - b.integral,
             render:(text:any,record:any,)=>{
                 return(
                     <div>
@@ -89,6 +90,7 @@ const Zuhulist=(props:any)=>{
             title: '余额(元)',
             dataIndex: 'balance',
             key: 'balance',
+            sorter: (a, b) => a.balance - b.balance,
             render:(text:any,record:any,)=>{
                 return(
                     <div>
@@ -101,6 +103,7 @@ const Zuhulist=(props:any)=>{
             title: '全部账单(元)',
             dataIndex: 'billMoney',
             key: 'billMoney',
+            sorter: (a, b) => a.billMoney - b.billMoney,
             render:(text:any,record:any,)=>{
                 return(
                     <div>
@@ -113,6 +116,7 @@ const Zuhulist=(props:any)=>{
             title: '公共押金(元)',
             dataIndex: 'deposit',
             key: 'deposit',
+            sorter: (a, b) => a.deposit - b.deposit,
             render:(text:any,record:any,)=>{
                 return(
                     <div>

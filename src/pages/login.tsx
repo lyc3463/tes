@@ -402,8 +402,7 @@ export default function Login() {
                 onFinish={login}
             >
               <Form.Item  name="username"  rules={[{required: true, message: '请输入账户' },{pattern: phonePattern, message: '请输入有效的手机号'}]}>
-                <Input placeholder='请输入用户账户' onChange={(e)=>{
-                  setValPhone(e.target.value)}}/>
+                <Input placeholder='请输入用户账户' onChange={(e)=>{setValPhone(e.target.value)}}/>
               </Form.Item>
               <Form.Item name="password" rules={[{ required: true, message: '请输入密码'}]}>
                 <Input.Password placeholder='请输入密码'/>
@@ -423,7 +422,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.7.3</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.7.9</p>
                 </div>
               </Form.Item>
             </Form>

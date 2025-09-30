@@ -19,7 +19,7 @@ const ImportantNoticeAdd=(props)=>{
             type:'ImportantNotice/add',
             payload:{...val,imgs:joinImg}
         }).then((res)=>{
-            if(res.ErrorCode==0){
+            if(res.ErrorCode==0||res.ErrorCode==9038){
                 message.success('添加成功');
                 history.push('/workOrderManage/worlOrder/');
                 setspinning(false);

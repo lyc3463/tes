@@ -13,7 +13,7 @@ export function editDeposit(vals:any) {
     return getData(1655, [vals.uid,vals.applyMoney]);
 }
 export function check(vals:any) {
-    return getData(1647, [vals]);
+    return getData(1647, [vals.uid,vals.stutes]);
 }
 export function remove(vals:any) {
     return getData(1646, [vals]);

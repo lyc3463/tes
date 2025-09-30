@@ -50,6 +50,7 @@ export const menuData: TypeMenu[] = [
     { id: 42, route: '/enter/staff/', name: '合同申请', parentId: 39, authId: 42},
     { id: 43, route: '/enter/custom/', name: '客户录入', parentId: 39, authId: 43},
     { id: 44, route: '/enter/afterSales/', name: '售后录入', parentId: 39, authId: 44},
+    { id: 433, route: '/enter/tenantRenew/', name: '客户续签', parentId: 39, authId: 433},
     { id: 45, route: '/contract/', name: '合同管理', authId: 45},
     { id: 46, route: '/contract/contractList/', name: '合同列表', parentId: 45, authId: 46},
     { id: 47, route: '/contract/contractType/', name: '合同类型', parentId: 45, authId: 47},
@@ -109,6 +110,7 @@ export const menuData: TypeMenu[] = [
     { id: 98, route: '/gateManage/grouping/', name: '分组下发', parentId: 96, authId: 98},
     // { id: 99, route: '/gateManage/parameter/', name: '参数设置', parentId: 96, authId: 99},
     // { id: 100, route: '/gateManage/OpenGate/', name: '开闸记录', parentId: 96, authId: 100},
+    { id: 441, route: '/warehouse/', name: '仓库管理', authId: 441},
     { id: 101, route: '/message/', name: '短信管理', authId: 101},
     { id: 102, route: '/message/recharge/', name: '短信充值', parentId: 101, authId: 102},
     { id: 103, route: '/message/sendingLog/', name: '短信发送查询', parentId: 101, authId: 103},
@@ -146,6 +148,10 @@ export const menuData: TypeMenu[] = [
     // { id: 395, route: '/enter/enterBankCard/', name: '银行卡录入', parentId: 39, authId: 395},
     // { id: 396, route: '/check/checkBankCard/', name: '银行卡审批', parentId: 71, authId: 396},
     // { id: 397, route: '/systemManage/messageReceive/', name: '消息接收配置', parentId: 113, authId: 397},
-    // { id: 398, route: '/kehu/userPending', name: '挂起用户',parentId: 10, authId: 398 },
-
+    { id: 433, route: '/kehu/userPending', name: '挂起用户',parentId: 10, authId: 433 },
+    { id: 442, route: '/warehouse/warehouseList', name: '仓库列表',parentId: 441, authId: 442 },
+    { id: 443, route: '/warehouse/thingList', name: '物件列表',parentId: 441, authId: 443 },
+    { id: 444, route: '/warehouse/application', name: '采购明细',parentId: 441, authId: 444 },
+    { id: 445, route: '/warehouse/sales', name: '销售明细',parentId: 441, authId: 445 },
+    { id: 446, route: '/warehouse/supplier', name: '供应商列表',parentId: 441, authId: 446 },
 ]

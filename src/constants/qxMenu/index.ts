@@ -435,5 +435,13 @@ export const qxTree: TypeMenu[] = [
     { id: 430, name: '审核装修申请', parentId: 426, authId: 430},
     { id: 431, name: '处理投诉建议', parentId: 53, authId: 431},
     { id: 432, name: '审核日志列表', parentId: 107, authId: 432},
+    { id: 433, name: '挂起用户', parentId: 10, authId: 433},
+    { id: 434, name: '审核业主合同', parentId: 48, authId: 434},
+    { id: 435, name: '添加押金', parentId: 438, authId: 435},
+    { id: 436, name: '删除押金', parentId: 438, authId: 436},
+    { id: 437, name: '审核', parentId: 438, authId: 437},
+    { id: 438, name: '押金列表', parentId: 76, authId: 438},
+    { id: 439, name: '客户续签列表', parentId: 39, authId: 438},
+    { id: 440, name: '跟进', parentId: 439, authId: 440},
 
 ]

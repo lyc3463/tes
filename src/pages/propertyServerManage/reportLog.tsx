@@ -1,6 +1,6 @@
 import {
     Button,
-    DatePicker,
+    DatePicker, Dropdown,
     Input, InputNumber,
     List,
     message,
@@ -238,7 +238,9 @@ const ReportLog=(props:any)=>{
             dataIndex: 'rating',
             render: (_: any, record: any) => (
                 <span>
-                    {record.rating==0?'未评分':record.rating}
+                    {record.rating === 0 ? '未评分' :
+                        record.rating === 1 ? '不满意' :
+                            record.rating === 2 ? '一般' : '满意'}
                 </span>
             )
         },
@@ -290,21 +292,40 @@ const ReportLog=(props:any)=>{
             align:'center',
             dataIndex: 'operation',
             fixed:'right',
-            render: (_: any, record: any) => (
-                <Space>
-                    {record.repair_status !== 5&&record.repair_status!==1 && (
-                        <Button type='primary' onClick={()=>onokOpen(record)}>步骤</Button>
-                    )}
-                    {/* 分配和接单按钮：仅状态等于1时显示 */}
-                    {record.repair_status === 1 && (
-                        <>
-                            {uqx[298] === '1' && <Button type='primary' onClick={()=>genjin(record)}>分配</Button>}
-                            <Button type='primary' onClick={()=>jiedan(record)}>接单</Button>
-                        </>
-                    )}
-                    {record.repair_status==5?'':<Button danger type='primary' onClick={()=>del(record)}>删除</Button>}
-                </Space>
-            ),
+            render: (text:any, record:any) => {
+                const menuItems = [];
+                if (record.repair_status !=5&&record.repair_status !=1) {
+                    menuItems.push({
+                        key: 'step',
+                        label: '步骤',
+                        onClick: () => onokOpen(record)
+                    });
+                }
+                if (record.repair_status === 1 && uqx[298] === '1') {
+                    menuItems.push({
+                        key: 'allocate',
+                        label: '分配',
+                        onClick: () => genjin(record)
+                    });
+                    menuItems.push({
+                        key: 'accept',
+                        label: '接单',
+                        onClick: () => jiedan(record)
+                    });
+                }
+                if (record.repair_status !=5) {
+                    menuItems.push({
+                        key: 'del',
+                        label: '删除',
+                        onClick: () => del(record)
+                    });
+                }
+                return (
+                    <Dropdown menu={{ items: menuItems }} placement="bottomRight">
+                        <Button type="primary">操作</Button>
+                    </Dropdown>
+                )
+            },
         },
     ];
     const del=(e)=>{
@@ -322,7 +343,7 @@ const ReportLog=(props:any)=>{
             type:'Report/fenpei',
             payload:{OnId,userID}
         }).then((res:any)=>{
-            if (res.ErrorCode==0){
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 props.dispatch({
                     type:'Report/edit',
                     payload:{OnId,step:2,amount}
@@ -469,7 +490,7 @@ const ReportLog=(props:any)=>{
             type:'Report/fenpei',
             payload:{OnId,userID:StaticInfo.userId}
         }).then((res:any)=>{
-            if (res.ErrorCode==0){
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 setLoading(false);
                 message.success('自行接单成功');
                 setAcceptOrdersOpen(false);
@@ -490,7 +511,7 @@ const ReportLog=(props:any)=>{
             type:'Report/fenpei',
             payload:{OnId,userID}
         }).then((res:any)=>{
-            if (res.ErrorCode==0){
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 message.success('更换成功');
             }else {
                 message.error(res.Data);
@@ -559,7 +580,6 @@ const ReportLog=(props:any)=>{
                 message.success('删除成功');
                 setDopen(false);
                 setLoading(false);
-
             }else {
                 message.error(res.Data);
                 setDopen(false);
