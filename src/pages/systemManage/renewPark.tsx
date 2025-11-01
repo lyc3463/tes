@@ -28,6 +28,7 @@ const RenewPark=(props)=>{
         setspinning(true);
         RechargeService.infoMealId(StaticInfo.meal_id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log(res.Data);
                 setspinning(false);
                 setoriginal_price(res.Data.original_price);
                 setset_meal_price(res.Data.set_meal_price);

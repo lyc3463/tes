@@ -113,6 +113,9 @@ const HourConsumptionLog=(props)=>{
                     case 9:
                         consumptionTypeText = <Tag style={{ color: '#795588' }}>月保</Tag>;
                         break;
+                    case 10:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>大额转账</Tag>;
+                        break;
                     case 11:
                         consumptionTypeText = <Tag style={{ color: '#795588' }}>报修</Tag>;
                         break;

@@ -2,17 +2,17 @@ import React, { Component, ReactNode } from 'react';
 import _ from 'lodash';
 import '@/layouts/index.less';
 import {
-  Layout,
-  Menu,
-  Avatar,
-  Button,
-  ConfigProvider,
-  Breadcrumb,
-  List,
-  Space,
-  Spin,
-  Modal,
-  message, Table, Tag,
+    Layout,
+    Menu,
+    Avatar,
+    Button,
+    ConfigProvider,
+    Breadcrumb,
+    List,
+    Space,
+    Spin,
+    Modal,
+    message, Table, Tag, Popconfirm,
 } from 'antd';
 import { Link, history as UmiHistory } from 'umi';
 import BreadcrumbMap from '@/constants/BreadcrumbMap';
@@ -29,11 +29,19 @@ import TypeMenu from '@/ModelTypes/TypeMenu';
 import * as LoginService from '@/services/login';
 import type { MenuProps } from 'antd';
 import 'dayjs/locale/zh-cn';
-import {AlertFilled, CloseOutlined, LeftOutlined, QuestionCircleOutlined, RightOutlined} from "@ant-design/icons";
+import {
+    AlertFilled,
+    CloseOutlined,
+    LeftOutlined,
+    QuestionCircleOutlined,
+    RedoOutlined,
+    RightOutlined
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 import {deleteSessionStorageRoute} from "@/utils/OpenTool";
 const { Header, Content, Footer, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
+import * as RechargeService from '@/services/recharge';
 
 class MainPage extends Component<any> {
   constructor(props: any) {
@@ -72,19 +80,23 @@ class MainPage extends Component<any> {
     }
   };
   state = {
-    breadcrumbData: [],
-    menuData: [],
-    openKeys: [],
-    isDashboard: false,
-    modalShow: false,
-    planList: [],
-    currentPlan: '',
-    collapsed: false,
-    menus: new Array<any>(),
-    loading: false,
-    list:[],
-    open:false,
-    sessionStorageMune:[{ id: 0, name: '仪表盘', route: '/dashboard/', authId: 0 }]
+      breadcrumbData: [],
+      menuData: [],
+      openKeys: [],
+      isDashboard: false,
+      modalShow: false,
+      planList: [],
+      currentPlan: '',
+      collapsed: false,
+      menus: new Array<any>(),
+      loading: false,
+      list:[],
+      open:false,
+      smsNumber:0,
+      popOpen:false,
+      parkOpen:false,
+      uqx:[],
+      sessionStorageMune:[{ id: 0, name: '仪表盘', route: '/dashboard/', authId: 0 }]
   };
   errorBoundary: React.RefObject<ComponentErrorBoundary> = React.createRef();
   
@@ -126,6 +138,11 @@ class MainPage extends Component<any> {
     this.setState({
       menus: buildTree(md),
     });
+      let uq=StaticInfo.uqx.split('');
+      this.setState({uqx:uq});
+      if (uq[297]=='1'){
+          this.getSMSNumber();
+      }
     // this.getList();
   }
   componentWillUnmount(): void {
@@ -218,6 +235,22 @@ class MainPage extends Component<any> {
     };
     toOpen=()=>{
         UmiHistory.push('/systemManage/renewPark');
+    };
+    getSMSNumber=()=>{
+      RechargeService.one().then((res:any)=>{
+        if (res.ErrorCode==0){
+          this.setState({smsNumber:res.Data.SmsNumber});
+          if (res.Data.SmsNumber<=300){
+            this.setState({popOpen:true});
+          }
+        }else {
+          message.error(res.Data);
+        }
+      })
+    };
+    // 查询园区有效期
+    getValidityPeriod=()=>{
+
     };
   render() {
     // const ContentPage = loadable(() => import(`@/pages${this.props.contentPage}`));
@@ -388,16 +421,34 @@ class MainPage extends Component<any> {
                         园区有效期:{`${dayjs(StaticInfo.beginTime).format('YYYY-MM-DD')}至${dayjs(StaticInfo.endTime).format('YYYY-MM-DD')}`}
                         <Button style={{border:'none',padding:'0',margin:'0'}} onClick={this.toOpen}><QuestionCircleOutlined/></Button>
                     </span>
-                  <span>
-                    用户姓名:{StaticInfo.username}
-                  </span>
-                  <span>
-                    园区:{StaticInfo.park_name}
-                  </span>
+                    <Popconfirm
+                        title="园区即将到期"
+                        description="该园区即将到期请及时续费"
+                        placement="bottom"
+                        open={this.state.parkOpen}
+                        onPopupClick={() => {this.setState({parkOpen:false})}}
+                        okText="知道了"
+                    />
+                    <span>
+                        用户姓名:{StaticInfo.username}
+                    </span>
+                    <span>
+                        园区:{StaticInfo.park_name}
+                    </span>
+                    {this.state.uqx[297]=='1'?<>
+                        <span>短信条数:{this.state.smsNumber}条<Button style={{border:'none',padding:'0',margin:'0'}} onClick={this.getSMSNumber}><RedoOutlined/></Button>
+                        </span>
+                    </>:null}
+                    <Popconfirm
+                        title="短信条数不足提醒"
+                        description="您的短信剩余数量已不足300条，建议及时到短信管理模块充值。"
+                        placement="bottom"
+                        open={this.state.popOpen}
+                        onPopupClick={() => {this.setState({popOpen:false})}}
+                        okText="知道了"
+                    />
                     <NotificationList/>
-                    <Button type="link" onClick={this.tuichu}>
-                    退出
-                  </Button>
+                    <Button type="link" onClick={this.tuichu}>退出</Button>
                 </Space>
               </div>
             </Header>

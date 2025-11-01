@@ -1,12 +1,7 @@
-import {
-    Button,
-    Descriptions,
-    message,
-  } from 'antd';
-  import { useEffect, useState } from 'react';
+import {Button, Descriptions, message} from 'antd';
+import { useEffect, useState } from 'react';
 import * as AccountService from '@/services/account';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-
 
 export default function TongjiIndex() {
     const [tjdata, setTjdata] = useState([]);
@@ -24,7 +19,7 @@ export default function TongjiIndex() {
     return (
         <div>
             仪表盘
-            <Button onClick={onOK}>按钮</Button>
+            {/*<Button onClick={onOK}>按钮</Button>*/}
         </div>
     );
   }

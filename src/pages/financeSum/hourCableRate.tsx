@@ -193,7 +193,7 @@ const CableRate=(props)=>{
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [
-                        item.recordTime.split('T')[0], // 提取日期部分
+                        (dayjs(item.recordTime).format("YYYY-MM-DD HH:mm:ss")),
                         item.tenant_name,
                         item.address,
                         item.remark,
@@ -234,6 +234,15 @@ const CableRate=(props)=>{
     const changeremark=(e:any)=>{
         setremark(e.target.value);
         updateSessionStorage('/financeSum/CableRate/','hourCableRateRemark',e.target.value);
+    };
+    const upDload=()=>{
+        CableRateService.upDload({page:1,name,cid,startDate,endDate,tenantId,recordStatus,remark,pageSize:10000}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('已下载成功,文件保存在桌面');
+            }else {
+                message.error(res.Data);
+            }
+        })
     };
     return(
         <Spin spinning={spinning}>
@@ -278,7 +287,7 @@ const CableRate=(props)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        {uqx[378]=='1'?   <Button type="primary" onClick={exportToExcel}>
+                        {uqx[378]=='1'?<Button type="primary" onClick={exportToExcel}>
                             导出
                         </Button>:''}
                     </Space>
@@ -324,7 +333,7 @@ const CableRate=(props)=>{
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[10,50,100,500,1000,10000]}/>:''}
         </Spin>
     )
 }

@@ -8,9 +8,9 @@ const ManualRecharge=(props)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 审核状态
-    const [stutes,setStutes]=useState(checkSessionStorage('/message/chongzhiLog','stutes')||0);
-    const [startDate,setStartDate]=useState(checkSessionStorage('/message/chongzhiLog','startDate')||'2000-01-01');
-    const [endDate,setEndDate]=useState(checkSessionStorage('/message/chongzhiLog','endDate')||'2099-01-01');
+    const [stutes,setStutes]=useState(checkSessionStorage('/message/chongzhiLog','sdstutes')||0);
+    const [startDate,setStartDate]=useState(checkSessionStorage('/message/chongzhiLog','sdstartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/message/chongzhiLog','sdendDate')||'2099-01-01');
     const columns =[
         {
             title: '日期',
@@ -60,20 +60,20 @@ const ManualRecharge=(props)=>{
     }, [page,pageSize]);
     const changeType=(e)=>{
         setStutes(e);
-        updateSessionStorage('/message/chongzhiLog','stutes',e);
+        updateSessionStorage('/message/chongzhiLog','sdstutes',e);
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setStartDate('2000-01-01');
             setEndDate('2099-01-01');
-            updateSessionStorage('/message/chongzhiLog','startDate','2000-01-01');
-            updateSessionStorage('/message/chongzhiLog','endDate','2099-01-01');
+            updateSessionStorage('/message/chongzhiLog','sdstartDate','2000-01-01');
+            updateSessionStorage('/message/chongzhiLog','sdendDate','2099-01-01');
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            updateSessionStorage('/message/chongzhiLog','startDate',data[0]);
-            updateSessionStorage('/message/chongzhiLog','endDate',data[1]);
+            updateSessionStorage('/message/chongzhiLog','sdstartDate',data[0]);
+            updateSessionStorage('/message/chongzhiLog','sdendDate',data[1]);
         }
     };
     const sousuo=()=>{

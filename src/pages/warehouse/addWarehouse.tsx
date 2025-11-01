@@ -1,28 +1,45 @@
 import {Form, Input, Select, Button, Switch, InputNumber, message, Spin} from 'antd';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
+import {connect} from "umi";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {history} from "@@/core/history";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const AddWarehouse = (props: any) => {
     const [form] = Form.useForm();
     const [spinning,setSpinning] = useState(false);
-    // 提交表单
-    const handleSubmit = async () => {
-        try {
-            const values = await form.validateFields();
-            // 调用新增接口逻辑
-            console.log('提交数据:', values);
-        } catch (error) {
-            message.error('表单验证失败');
-        }
+    const onFinish=(valus:any)=>{
+        setSpinning(true);
+        props.dispatch({
+            type:'WarehouseList/add',
+            payload:{...valus}
+        }).then((res:TypeErrorCode)=>{
+            if(res.ErrorCode==0){
+                setSpinning(false);
+                message.success('新增成功');
+                history.push('/warehouse/warehouseAndType');
+            }else{
+                setSpinning(false);
+                message.error(res.ErrorCode + res.Data);
+            }
+        })
     };
-
+    const getList=()=>{
+        props.dispatch({
+            type:"WarehouseType/fetch",
+        })
+    };
+    useEffect(() => {
+        getList();
+    }, []);
     return (
         <Spin spinning={spinning}>
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}
                 form={form}
+                onFinish={onFinish}
                 layout="horizontal"
                 size={'large'}
                 style={{ marginTop: '1rem' }}
@@ -30,7 +47,7 @@ const AddWarehouse = (props: any) => {
             >
                 {/* 2. 仓库名称 */}
                 <Form.Item
-                    name="price_name"
+                    name="warehouseName"
                     label="仓库名称"
                     rules={[
                         { required: true, message: '请输入仓库名称' },
@@ -41,21 +58,21 @@ const AddWarehouse = (props: any) => {
                 </Form.Item>
 
                 {/* 3. 仓库类型（与列表页类型对应） */}
-                <Form.Item
-                    name="price_type"
-                    label="仓库类型"
-                    rules={[{ required: true, message: '请选择仓库类型' }]}
-                >
-                    <Select placeholder="请选择类型">
-                        <Select.Option value={1}>普通仓库</Select.Option>
-                        <Select.Option value={2}>冷藏仓库</Select.Option>
-                        <Select.Option value={3}>危险品仓库</Select.Option>
-                    </Select>
+                <Form.Item label='仓库类型' name='typeId' rules={[{required: true, message: '请选择仓库类型' }]}>
+                    <Select
+                        placeholder='请选择仓库类型'
+                        options={Array.isArray(props.list) && props.list.length > 0
+                            ? props.list.map((item:any)=>({
+                                label:item.typeName,
+                                value:item.id,
+                            }))
+                            : []}
+                    />
                 </Form.Item>
 
                 {/* 4. 所在地址 */}
                 <Form.Item
-                    name="address"
+                    name="warehouseAddress"
                     label="所在地址"
                     rules={[{ required: true, message: '请输入仓库地址' }]}
                 >
@@ -64,7 +81,7 @@ const AddWarehouse = (props: any) => {
 
                 {/* 5. 负责人信息 */}
                 <Form.Item
-                    name="manager"
+                    name="personName"
                     label="负责人姓名"
                     rules={[{ required: true, message: '请输入负责人姓名' }]}
                 >
@@ -73,7 +90,7 @@ const AddWarehouse = (props: any) => {
 
                 {/* 6. 联系电话 */}
                 <Form.Item
-                    name="phone"
+                    name="personPhone"
                     label="联系电话"
                     rules={[
                         { required: true, message: '请输入联系电话' },
@@ -91,4 +108,8 @@ const AddWarehouse = (props: any) => {
         </Spin>
     );
 };
-export default AddWarehouse;
+const mapStateToProps = (state: any) => ({
+    list: state.WarehouseType.list,
+    count: state.WarehouseType.count,
+});
+export default connect(mapStateToProps)(AddWarehouse);

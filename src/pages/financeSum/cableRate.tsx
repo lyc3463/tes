@@ -9,6 +9,7 @@ import Bymoney from "@/pages/kehu/bymoney";
 import HourCableRate from "@/pages/financeSum/hourCableRate";
 import DayCableRate from "@/pages/financeSum/dayCableRate";
 import {StaticInfo} from "@/StaticInfo";
+import OldCableRate from "@/pages/financeSum/oldCableRate";
 
 const CableRate=(props)=>{
     const [uqx,setUqx]=useState([]);
@@ -24,13 +25,16 @@ const CableRate=(props)=>{
     return(
         <>
             <Tabs  activeKey={activeKey} onChange={onChange}>
-                <Tabs.TabPane tab='小时扣电费' key='1'>
+                <Tabs.TabPane tab='近两个月扣电费' key='1'>
                     <HourCableRate/>
                 </Tabs.TabPane>
                 {uqx[392]=='1'?
                     <Tabs.TabPane tab='天扣电费' key='2'>
                         <DayCableRate/>
                     </Tabs.TabPane>:''}
+                <Tabs.TabPane tab='历史扣费数据' key='3'>
+                    <OldCableRate/>
+                </Tabs.TabPane>
             </Tabs>
         </>
         // <Spin spinning={spinning}>

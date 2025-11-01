@@ -1,9 +1,9 @@
 import {getData, postData} from '@/network/http';
-export function fetchpz() {
-    return getData(1493, []);
+export function fetchpz(type) {
+    return getData(1493, [type]);
 }
-export function addpz(vals:any) {
-    return getData(1492, [vals]);
+export function addpz(vals:number,type:number) {
+    return getData(1492, [vals,type]);
 }
 export function enidWxID(authCorpId:string) {
     return getData(1603, [authCorpId]);

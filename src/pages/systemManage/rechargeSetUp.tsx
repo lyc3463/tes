@@ -12,7 +12,8 @@ const RechargeSetUp=()=>{
     // 获取配置信息
     const getpeInfo=()=>{
         setspinning(true);
-        AppPzService.fetchpz().then((res:TypeErrorCode)=>{
+        AppPzService.fetchpz(1).then((res:TypeErrorCode)=>{
+
             if (res.ErrorCode==0){
                 setAcValue(res.Data.isExamine);
                 setspinning(false);
@@ -30,7 +31,7 @@ const RechargeSetUp=()=>{
     }, []);
     const onFinish=()=>{
         setspinning(true);
-        AppPzService.addpz(isExamine).then((res:TypeErrorCode)=>{
+        AppPzService.addpz(isExamine,1).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('保存成功');
                 getpeInfo();

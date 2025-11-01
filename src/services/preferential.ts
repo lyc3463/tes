@@ -22,5 +22,10 @@ export function fenye(vals:any) {
 export function one(vals:any) {
     return getData(1514, [vals]);
 }
+// 缴费确定
+export function payment(vals:any) {
+    return getData(1764, [vals.uid,vals.paymentAmount,vals.paymentType]);
+}
+
 
 

@@ -45,3 +45,16 @@ export function wyList(vals:any) {
 export function wyListfenye(vals:any) {
     return getData(1481, [vals.name,vals.startDate,vals.endDate,vals.stutes=2,vals.tenandId,vals.pageSize]);
 }
+
+// 下载缴费统计旧记录
+export function upDload(vals:any) {
+    return getData(1682, [vals.page,vals.name,vals.phone,vals.type,vals.startDate,vals.endDate,vals.userID,vals.pageSize]);
+}
+//缴费统计旧记录
+export function oldFetch(vals:any) {
+    return getData(1680, [vals.page,vals.name,vals.phone,vals.type,vals.startDate,vals.endDate,vals.userID,vals.pageSize]);
+}
+// 缴费统计旧记录分页
+export function oldFenye(vals:any) {
+    return getData(1681, [vals.name,vals.phone,vals.type,vals.startDate,vals.endDate,vals.userID,vals.pageSize]);
+}

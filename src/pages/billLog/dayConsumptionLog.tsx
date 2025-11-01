@@ -134,6 +134,9 @@ const DayConsumptionLog=(props)=>{
                     case 11:
                         consumptionTypeText = <Tag style={{ color: '#795588' }}>报修</Tag>;
                         break;
+                    case 12:
+                        consumptionTypeText = <Tag style={{ color: '#795588' }}>装修押金</Tag>;
+                        break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
@@ -154,16 +157,16 @@ const DayConsumptionLog=(props)=>{
                 )
             }
         },
-        {
-            title: '操作',
-            dataIndex: 'xx',
-            key: 'xx',
-            render:(_:any,record:any)=>{
-                return(
-                    <Button type='primary' onClick={()=>toInfo(record)}>详情</Button>
-                )
-            }
-        },
+        // {
+        //     title: '操作',
+        //     dataIndex: 'xx',
+        //     key: 'xx',
+        //     render:(_:any,record:any)=>{
+        //         return(
+        //             <Button type='primary' onClick={()=>toInfo(record)}>详情</Button>
+        //         )
+        //     }
+        // },
     ];
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -275,6 +278,9 @@ const DayConsumptionLog=(props)=>{
                         break;
                     case 9:
                         consumptionTypeText = <Tag style={{ color: '#795588' }}>月保</Tag>;
+                        break;
+                    case 10:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>大额转账</Tag>;
                         break;
                     case 11:
                         consumptionTypeText = <Tag style={{ color: '#795588' }}>报修</Tag>;

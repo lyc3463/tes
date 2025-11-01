@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween'; // 引入插件
 import Compressor from 'compressorjs';
 import {StaticInfo} from "@/StaticInfo";
+import {pinyin} from "pinyin-pro";
 
 dayjs.extend(isBetween);
 export  const phonePattern = /^1(3|4|5|6|7|8|9)\d{9}$/;
@@ -1251,3 +1252,53 @@ export function getTimeRangeByMonthsz(dateString:string, months:number) {
         endTime: endTime.format('YYYY-MM-DD HH:mm:ss')
     };
 }
+
+//下载文件
+export function downloadFile(ContentType, FileContents, FileDownloadName) {
+    if (!FileContents) {
+        console.error('文件内容为空，无法执行下载');
+        return; // 终止函数执行
+    }
+    // 步骤1: 将 base64 内容解码为二进制数据
+    const byteCharacters = atob(FileContents);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+
+    // 步骤2: 创建 Blob 对象（包含文件内容和类型）
+    const blob = new Blob([byteArray], { type: ContentType });
+
+    // 步骤3: 创建临时下载链接
+    const url = URL.createObjectURL(blob);
+
+    // 步骤4: 创建隐藏的 a 标签并触发下载
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = FileDownloadName; // 指定下载文件名
+    document.body.appendChild(a); // 将 a 标签添加到文档（部分浏览器需要）
+    a.click(); // 模拟点击下载
+    message.success('已下载成功');
+
+    // 步骤5: 清理资源
+    document.body.removeChild(a); // 移除临时 a 标签
+    URL.revokeObjectURL(url); // 释放 Blob URL 内存
+}
+// 汉字转首字母大写
+export const  firstLetterUpperCase=(str:string)=>{
+    let initialsOrderNumber;
+    initialsOrderNumber = pinyin(str, { pattern: 'first', toneType: 'none',separator: '' }).toUpperCase();
+    return initialsOrderNumber;
+}
+// 生成订单号 (园区名首字母拼音大写+当前时间+随机数)
+export const  generate=(str:string)=>{
+    const initialsOrderNumber = pinyin(str, { pattern: 'first', toneType: 'none',separator: '' }).toUpperCase();
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const dateStr = `${year}${month}${day}`;
+    const randomNum = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+    return `${initialsOrderNumber}${dateStr}${randomNum}`;
+};

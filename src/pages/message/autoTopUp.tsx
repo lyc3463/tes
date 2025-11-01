@@ -140,27 +140,7 @@ const AutoTopUp=()=>{
                     </div>
                 )
             }
-        },
-        {
-            title: '到账人',
-            dataIndex: 'user_name',
-            key: 'user_name',
-            render: (text:any, record:any) => {
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.user_name}>
-                            {record.user_name}
-                        </Tooltip>
-                    </div>
-                )
-            },
-        },
-        {
-            title: '充值人',
-            dataIndex: 'appUserPhone',
-            key: 'appUserPhone',
-
-        },
+        }
     ];
     const sousuo=()=>{
         setPage(1);

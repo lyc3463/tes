@@ -3,7 +3,7 @@ export function fetch(vals:any) {
     return getData(1627, [vals.page,vals.name,vals.phone,vals.stutes,vals.userId,vals.startDate,vals.endDate,vals.pageSize]);
 }
 export function add(vals:any) {
-    return getData(1624, [vals.workContent,vals.workGood,vals.workMoney,vals.workType]);
+    return postData(1624, [vals.workGood,vals.workMoney,vals.workType],vals.workContent);
 }
 export function edit(vals:any) {
     return getData(1625, [vals.OnId,vals.step,vals.amount]);

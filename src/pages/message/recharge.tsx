@@ -124,7 +124,7 @@ const Recharge=(props)=>{
     };
     return(
         <div>
-            <div className={styles.titleBox}><h4>手动充值</h4></div>
+            <div className={styles.titleBox}><h4>支付充值</h4></div>
             <div className={styles.tip}>
                 通知短信每条0.1元，暂不支持退款
                 <br/>

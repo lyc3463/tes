@@ -3,6 +3,7 @@
 import TypeMenu from "@/ModelTypes/TypeMenu";
 import WorlOrder from "@/pages/workOrderManage/worlOrder";
 import RepairInvoice from "@/pages/billLog/repairInvoice";
+import WarehouseAndType from "@/pages/warehouse/warehouseAndType";
 
 export const menuData: TypeMenu[] = [
     { id: 0, name: '仪表盘', route: '/dashboard/', authId: 0 },
@@ -50,7 +51,7 @@ export const menuData: TypeMenu[] = [
     { id: 42, route: '/enter/staff/', name: '合同申请', parentId: 39, authId: 42},
     { id: 43, route: '/enter/custom/', name: '客户录入', parentId: 39, authId: 43},
     { id: 44, route: '/enter/afterSales/', name: '售后录入', parentId: 39, authId: 44},
-    { id: 433, route: '/enter/tenantRenew/', name: '客户续签', parentId: 39, authId: 433},
+    { id: 439, route: '/enter/tenantRenew/', name: '客户续签', parentId: 39, authId: 439},
     { id: 45, route: '/contract/', name: '合同管理', authId: 45},
     { id: 46, route: '/contract/contractList/', name: '合同列表', parentId: 45, authId: 46},
     { id: 47, route: '/contract/contractType/', name: '合同类型', parentId: 45, authId: 47},
@@ -149,9 +150,16 @@ export const menuData: TypeMenu[] = [
     // { id: 396, route: '/check/checkBankCard/', name: '银行卡审批', parentId: 71, authId: 396},
     // { id: 397, route: '/systemManage/messageReceive/', name: '消息接收配置', parentId: 113, authId: 397},
     { id: 433, route: '/kehu/userPending', name: '挂起用户',parentId: 10, authId: 433 },
-    { id: 442, route: '/warehouse/warehouseList', name: '仓库列表',parentId: 441, authId: 442 },
+    { id: 442, route: '/warehouse/warehouseAndType', name: '基本资料',parentId: 441, authId: 442 },
     { id: 443, route: '/warehouse/thingList', name: '物件列表',parentId: 441, authId: 443 },
-    { id: 444, route: '/warehouse/application', name: '采购明细',parentId: 441, authId: 444 },
-    { id: 445, route: '/warehouse/sales', name: '销售明细',parentId: 441, authId: 445 },
+    { id: 444, route: '/warehouse/outbound', name: '出库管理',parentId: 441, authId: 444 },
+    { id: 447, route: '/warehouse/checkPurchaseRequest', name: '入库管理',parentId: 441, authId: 447 },
+    { id: 445, route: '/warehouse/sales', name: '销售管理',parentId: 441, authId: 445 },
     { id: 446, route: '/warehouse/supplier', name: '供应商列表',parentId: 441, authId: 446 },
+    { id: 448, route: '/warehouse/thingStock', name: '库存管理',parentId: 441, authId: 448 },
+    { id: 449, route: '/warehouse/inventory', name: '盘点管理',parentId: 441, authId: 449 },
+    { id: 450, route: '/warehouse/paymentManagement', name: '仓库财务',parentId: 441, authId: 450 },
+    { id: 451, route: '/warehouse/warehouseSetting', name: '仓库设置',parentId: 441, authId: 451 },
+    { id: 452, route: '/warehouse/thingTurnoverRate', name: '商品周转率',parentId: 441, authId: 452 },
+
 ]
