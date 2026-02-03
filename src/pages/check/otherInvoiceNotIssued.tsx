@@ -18,6 +18,8 @@ const OtherInvoiceNotIssued = () => {
     const [userId,setUserId]=useState(0);
     const [sumMoney,setSumMoney]=useState(0);
     const [count,setcount]=useState(0);
+    const [startDate,setStartDate]=useState('2000-01-01');
+    const [endDate,setEndDate]=useState('2099-01-01');
     const columns =[
         {
             title: '日期',
@@ -122,9 +124,8 @@ const OtherInvoiceNotIssued = () => {
     ];
     // 获取租金未开记录
     const getList=()=>{
-        UnopenedFpListService.otherfetch(page,name,phone,userId,type,stutes,pageSize).then((res:TypeErrorCode)=>{
+        UnopenedFpListService.otherfetch(page,name,phone,userId,type,stutes,pageSize,startDate,endDate).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('res',res);
                 setZuhuList(res.Data);
             }else {
                 message.error(res.Data);
@@ -133,7 +134,7 @@ const OtherInvoiceNotIssued = () => {
     };
     // 获取租金未开记录
     const getfenye=()=>{
-        UnopenedFpListService.otherfenye(name,phone,userId,type,stutes,pageSize).then((res:TypeErrorCode)=>{
+        UnopenedFpListService.otherfenye(name,phone,userId,type,stutes,pageSize,startDate,endDate).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
                 setSumMoney(res.Data.moneySum);

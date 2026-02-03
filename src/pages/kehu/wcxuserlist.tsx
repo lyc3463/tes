@@ -38,7 +38,7 @@ const Wcxuserlist=(props:any)=>{
     const [uqx,setUqx]=useState([]);
     // 弹窗
     const [isOpen,setIsOpen]=useState(false);
-    const [selected, setSelected] = useState<string[]>(Array(441).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(562).fill('0'));
     const [appid,setAppid]=useState(0);
     const columns =[
         {
@@ -176,7 +176,9 @@ const Wcxuserlist=(props:any)=>{
     // 确定编辑权限
     const onOk=()=>{
         let joinqx=selected.join('');
+        console.log('joinqx',joinqx);
         setIsSpinning(true);
+
         props.dispatch({
             type:'AppUser/edit',
             payload:{appid,joinqx}
@@ -240,6 +242,7 @@ const Wcxuserlist=(props:any)=>{
             newSelected[366] ='1';
             newSelected[368] ='1';
             newSelected[367] ='1';
+            newSelected[365] ='1';
         }
         if (id === 186 ) {
             newSelected[307] ='1';
@@ -389,8 +392,8 @@ const Wcxuserlist=(props:any)=>{
             {/*编辑权限弹窗*/}
             <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk} loading={isSpinning}>
                 <Space>
-                    <Button type='primary' onClick={()=>setSelected(Array(441).fill('1'))}>全选</Button>
-                    <Button type='primary' onClick={()=>setSelected(Array(441).fill('0'))}>反选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(562).fill('1'))}>全选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(562).fill('0'))}>反选</Button>
                 </Space>
                 <TreeMenu tree={treeData} selected={selected} setSelected={setSelected} />
             </Modal>

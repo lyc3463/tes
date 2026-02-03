@@ -71,7 +71,6 @@ const DirectPurchaseModel: StaffInterface = {
                 payload: { one },
             });
         },
-
         *add({ payload, callback }, { call, put, take }): any {
             const result = yield call(Application.addOrType, payload);
             yield put({ type: 'fetch', payload: pl });

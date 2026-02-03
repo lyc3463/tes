@@ -36,8 +36,6 @@ const EditInventoryCheck=(props)=>{
     // 库存的物品
     const [displayData, setDisplayData] = useState([]);
     const [uid,setUid]=useState('0');
-    // 选中行的id
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const columnsz = [
         {
             title: '物品图片',

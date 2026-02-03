@@ -25,9 +25,9 @@ import DayCableRate from "@/pages/financeSum/dayCableRate";
 import NewPayCount from "@/pages/financeSum/newPayCount";
 import OldPayCount from "@/pages/financeSum/oldPayCount";
 
-const PayCount=(props)=>{
+const PayCount=(props:any)=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('payCountActive') || '1');
-    const onChange = (key) => {
+    const onChange = (key:string) => {
         setActiveKey(key);
         sessionStorage.setItem('payCountActive', key);
     };

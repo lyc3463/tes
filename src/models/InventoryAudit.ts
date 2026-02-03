@@ -94,6 +94,7 @@ const InventoryAuditModel: StaffInterface = {
         *check({ payload, callback }, { call, put, take }): any {
             const result = yield call(InventoryRequest.check, payload);
             yield put({ type: 'fetch', payload: pl });
+            yield put({ type: 'InventoryEntry/fetch', payload: { page:1, orderCode:'', warehouseName:'', pageSize:10, startDate:'2000-01-01', endDate:'2099-01-01', orderStatus:1} });
             yield take('fetch/@@end');
             return result;
 

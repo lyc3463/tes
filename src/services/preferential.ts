@@ -24,7 +24,7 @@ export function one(vals:any) {
 }
 // 缴费确定
 export function payment(vals:any) {
-    return getData(1764, [vals.uid,vals.paymentAmount,vals.paymentType]);
+    return getData(1764, [vals.uid,vals.paymentAmount,vals.paymentType,vals.payCrderCode,vals.payOrderType]);
 }
 
 

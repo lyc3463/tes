@@ -2,7 +2,6 @@ import {Button, Form, Input, List, message, Modal, Select, Space, Table, Tabs} f
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import * as ProjectService from '@/services/project';
-import {getContainInfo, remove} from "@/services/project";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 import CompanyList from "@/pages/financeManage/companyList";
@@ -204,7 +203,7 @@ const ProjectList=(props:any)=>{
                             <h2>当前项目绑定有以下信息</h2>
                             {/* 如果iskemuList不为空，则渲染它的内容 */}
                             {iszhList.map((item, index) => (
-                                <div key={index}>{item}</div>
+                                <div key={index}>{item.account_name}</div>
                             ))}
                         </div>
 

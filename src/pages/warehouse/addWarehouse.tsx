@@ -1,4 +1,4 @@
-import {Form, Input, Select, Button, Switch, InputNumber, message, Spin} from 'antd';
+import {Form, Input, Select, Button, Switch, InputNumber, message, Spin, Radio} from 'antd';
 import {useEffect, useState} from 'react';
 import {connect} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -25,14 +25,14 @@ const AddWarehouse = (props: any) => {
             }
         })
     };
-    const getList=()=>{
-        props.dispatch({
-            type:"WarehouseType/fetch",
-        })
-    };
-    useEffect(() => {
-        getList();
-    }, []);
+    // const getList=()=>{
+    //     props.dispatch({
+    //         type:"WarehouseType/fetch",
+    //     })
+    // };
+    // useEffect(() => {
+    //     getList();
+    // }, []);
     return (
         <Spin spinning={spinning}>
             <Form
@@ -42,8 +42,8 @@ const AddWarehouse = (props: any) => {
                 onFinish={onFinish}
                 layout="horizontal"
                 size={'large'}
+                initialValues={{isXs:1,warehouseAddress:'',personName:'',personPhone:''}}
                 style={{ marginTop: '1rem' }}
-
             >
                 {/* 2. 仓库名称 */}
                 <Form.Item
@@ -56,25 +56,22 @@ const AddWarehouse = (props: any) => {
                 >
                     <Input placeholder="请输入仓库名称" />
                 </Form.Item>
-
                 {/* 3. 仓库类型（与列表页类型对应） */}
-                <Form.Item label='仓库类型' name='typeId' rules={[{required: true, message: '请选择仓库类型' }]}>
-                    <Select
-                        placeholder='请选择仓库类型'
-                        options={Array.isArray(props.list) && props.list.length > 0
-                            ? props.list.map((item:any)=>({
-                                label:item.typeName,
-                                value:item.id,
-                            }))
-                            : []}
-                    />
-                </Form.Item>
-
+                {/*<Form.Item label='仓库类型' name='typeId' rules={[{required: true, message: '请选择仓库类型' }]}>*/}
+                {/*    <Select*/}
+                {/*        placeholder='请选择仓库类型'*/}
+                {/*        options={Array.isArray(props.list) && props.list.length > 0*/}
+                {/*            ? props.list.map((item:any)=>({*/}
+                {/*                label:item.typeName,*/}
+                {/*                value:item.id,*/}
+                {/*            }))*/}
+                {/*            : []}*/}
+                {/*    />*/}
+                {/*</Form.Item>*/}
                 {/* 4. 所在地址 */}
                 <Form.Item
                     name="warehouseAddress"
                     label="所在地址"
-                    rules={[{ required: true, message: '请输入仓库地址' }]}
                 >
                     <Input placeholder="请输入详细地址（如：XX市XX区XX路）" />
                 </Form.Item>
@@ -83,7 +80,6 @@ const AddWarehouse = (props: any) => {
                 <Form.Item
                     name="personName"
                     label="负责人姓名"
-                    rules={[{ required: true, message: '请输入负责人姓名' }]}
                 >
                     <Input placeholder="请输入负责人姓名" />
                 </Form.Item>
@@ -92,12 +88,18 @@ const AddWarehouse = (props: any) => {
                 <Form.Item
                     name="personPhone"
                     label="联系电话"
-                    rules={[
-                        { required: true, message: '请输入联系电话' },
-                        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号' }
-                    ]}
                 >
                     <Input placeholder="请输入负责人联系电话" />
+                </Form.Item>
+                <Form.Item
+                    label="是否销售"
+                    name="isXs"
+                    rules={[{required: true, message: '请选择是否销售'}]}
+                >
+                    <Radio.Group>
+                        <Radio value={1}>是</Radio>
+                        <Radio value={0}>否</Radio>
+                    </Radio.Group>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary"  htmlType="submit">
@@ -109,7 +111,7 @@ const AddWarehouse = (props: any) => {
     );
 };
 const mapStateToProps = (state: any) => ({
-    list: state.WarehouseType.list,
+    // list: state.WarehouseType.list,
     count: state.WarehouseType.count,
 });
 export default connect(mapStateToProps)(AddWarehouse);

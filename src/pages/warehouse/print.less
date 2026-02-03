@@ -1,0 +1,20 @@
+/* 隐藏浏览器默认页眉页脚（包含路由名称） */
+@media print {
+  @page {
+    size: auto;  /* 自动纸张大小 */
+    margin: 0;   /* 边距设为0，消除默认页眉页脚区域 */
+  }
+
+  /* 确保打印内容有内边距（替代被隐藏的默认边距） */
+  .print-only-content {
+    padding: 20mm;  /* 模拟A4标准边距 */
+    margin: 0 auto; /* 内容居中 */
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 彻底隐藏非打印内容 */
+  body *:not(.print-only-content):not(.print-only-content *) {
+    visibility: hidden;
+  }
+}

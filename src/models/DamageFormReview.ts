@@ -95,7 +95,9 @@ const DamageFormReviewModel: StaffInterface = {
         },
         *check({ payload, callback }, { call, put, take }): any {
             const result = yield call(RequisitionForm.check, payload);
+            yield put({ type: 'DamageForm/fetch', payload: {page:1, orderCode:'', warehouseName:'', pageSize:50, startDate:'2000-01-01', endDate:'2099-01-01', orderStatus:1, billStatus:0, orderType:3} });
             yield put({ type: 'fetch', payload: pl });
+            yield take('DamageForm/fetch/@@end');
             yield take('fetch/@@end');
             return result;
 

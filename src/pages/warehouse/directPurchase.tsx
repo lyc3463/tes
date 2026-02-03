@@ -4,6 +4,7 @@ import {connect} from "umi";
 import dayjs from "dayjs";
 import {history} from "@@/core/history";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {updateSessionStorage, userQx} from "@/utils/OpenTool";
 
 const DirectPurchase=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -19,6 +20,7 @@ const DirectPurchase=(props)=>{
     const [orderType,setOrderType]=useState(2);// 订单类型
     const [dUid,setDUid]=useState(0);// 审核的ID
     const [dOpne,setDOpen]=useState(false);// 审核确认弹窗
+    const [productsName,setProductsName]=useState('');// 物品名称
     const columns=[
         {
             title:'申请日期',
@@ -104,21 +106,52 @@ const DirectPurchase=(props)=>{
     useEffect(() => {
         getList();
     }, [page,pageSize]);
+    const changeOrderCode=(e)=>{
+        setOrderCode(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','DirectPurchaseOrderCode',e.target.value);
+    };
+    // 监听日期
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','DirectPurchaseStartDate','2000-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','DirectPurchaseEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','DirectPurchaseStartDate',data[0]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','DirectPurchaseEndDate',data[1]);
+        }
+    };
+    const changeWarehouseName=(e)=>{
+        setWarehouseName(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','DirectPurchaseWarehouseName',e.target.value);
+    };
+    const sousuo=()=>{
+        setPage(1);
+        getList();
+        getFenye();
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
-                        <Button type="primary" onClick={toAdd}>
+                        {userQx()[490]=='1'?<Button type="primary" onClick={toAdd}>
                             新增直接入库
-                        </Button>
+                        </Button>:''}
                     </Space>
                     <Space>
                         <Input
-                            addonBefore="仓库名称:"
+                            addonBefore="单号:"
+                            value={orderCode}
+                            onChange={changeOrderCode}
                         />
                         <Input
-                            addonBefore="单号:"
+                            addonBefore="仓库名称:"
+                            value={warehouseName}
+                            onChange={changeWarehouseName}
                         />
                         <Space.Compact>
                             <div
@@ -135,9 +168,9 @@ const DirectPurchase=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        <Button type="primary" >
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -151,6 +184,18 @@ const DirectPurchase=(props)=>{
                 dataSource={props.list}
                 rowKey={(columns) => columns.id}
                 size='small'
+                summary={(columns) => (
+                    <Table.Summary >
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </Spin>

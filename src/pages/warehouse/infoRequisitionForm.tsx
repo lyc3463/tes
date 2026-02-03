@@ -18,7 +18,8 @@ import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
 import * as RequisitionForm from '@/services/requisitionForm';
 import dayjs from "dayjs";
-import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {AlignCenterOutlined} from "@ant-design/icons";
+import DrawPrint from "@/components/DrawPrint";
 
 const InfoRequisitionForm=(props)=>{
     const navigate=useNavigate();
@@ -32,22 +33,45 @@ const InfoRequisitionForm=(props)=>{
     const [orderTime, setOrderTime] = useState('2000-01-01');
     // 仓库id
     const [warehouseId,setWarehouseId]=useState(0);
+    const [warehouseName,setWarehouseName]=useState('');
     // 库存的物品
     const [displayData, setDisplayData] = useState([]);
-    // 选中行的id
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-    // 已付金额
-    const [paidAmount,setPaidAmount]=useState(0);
-    // 总金额
-    const [totalAmount,setTotalAmount]=useState(0);
-
+    // 采购人
+    const [user_name,setUserName]=useState('');
+    const [printVisible,setPrintVisible]=useState(false);
+    const [orderType,setOrderType]=useState(0);
+    const printProps = {
+        orderCode,
+        warehouseName,
+        orderTime,
+        user_name,
+        displayData,
+        title: orderType === 1 ? '领用单' : orderType === 3 ? '报损单' : '未知单据'
+    };
     const columnsz = [
         {
             title: '物品图片',
-            dataIndex: 'productsImageBase64',
-            key:'productsImageBase64',
-            render:(text)=>{
-                return <Image src={text} alt="" style={{width:'50px',height:'50px'}}/>
+            dataIndex: 'productsImage',
+            ellipsis: true,
+            render: (text: string, record: any) => {
+                // 核心修复：先将text转为字符串，再做空值+后缀判断
+                // 步骤1：处理非字符串类型（如null/undefined/数字），转为空字符串
+                const textStr = String(text || '');
+
+                // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
+                const imageUrl = textStr && textStr.endsWith('.png')
+                    ? `http://img.qhwy6.com/${textStr}`
+                    : `http://img.qhwy6.com/${textStr}_X.png`;
+                // 步骤3：仅当字符串非空时渲染图片，否则返回空
+                return textStr ? (
+                    <Image
+                        src={imageUrl}
+                        style={{width:'50px',height:'50px'}}
+                        fallback="https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片"
+                    />
+                ) : (
+                    ''
+                );
             }
         },
         {
@@ -69,7 +93,7 @@ const InfoRequisitionForm=(props)=>{
                 <InputNumber
                     min={0}
                     value={text}
-                    // 使用onChange事件捕获值变化，传递新值和记录ID
+                    disabled
                 />
             )
         },
@@ -78,41 +102,7 @@ const InfoRequisitionForm=(props)=>{
             dataIndex: 'unitsName',
             key:'unitsName',
         },
-        {
-            title: '出库单价(元)',
-            dataIndex: 'price',
-            key:'price',
-            render:(text, record) => (
-                <InputNumber
-                    min={0}
-                    value={text}
-                    // 使用onChange事件捕获值变化，传递新值和记录ID
-                />
-            )
-        },
-        {
-            title: '总价钱(元)',
-            dataIndex: 'totalPrice',
-            key:'totalPrice',
-        },
-        {
-            title: '库存数量',
-            dataIndex: 'quantityKc',
-            key:'quantityKc',
-        },
-        {
-            title: '库存单价(元)',
-            dataIndex: 'priceKc',
-            key:'priceKc',
-        },
     ];
-    const rowSelection = {
-        selectedRowKeys,
-        onChange: (selectedKeys: React.Key[], selectedRows: any[]) => {
-            setSelectedRowKeys(selectedKeys);
-        },
-        type: 'checkbox',  // 复选框类型
-    };
     // 仓库列表
     const getWarehouseList=()=>{
         props.dispatch({
@@ -136,20 +126,71 @@ const InfoRequisitionForm=(props)=>{
             setOrderCode(data.orderCode);
             setWarehouseId(data.warehouseId);
             setOrderTime(data.orderTime);
-            setPaidAmount(data.paidAmount);
-            setTotalAmount(data.totalAmount);
             setRemark(data.remark);
+            setOrderType(data.orderType);
+            setUserName(data.user_name);
         }else {
             message.error(res.Data);
             setSpinning(false);
         }
     };
+    // 自定义打印方法（处理内容隔离和样式）
+    const handlePrint = () => {
+        setTimeout(() => {
+            // 3. 触发打印（此时已应用最新仓库名称）
+            window.print();
+        }, 0);
+    };
+    const isOpen=()=>{
+        setPrintVisible(true);
+        // 1. 动态获取仓库名称（修复硬编码）
+        const warehouse = props.WarehouseList.find(w => w.id === warehouseId);
+        setWarehouseName(warehouse?.warehouseName || '未知仓库');
+    };
     return(
         <Spin spinning={spinning}>
+            <style global>
+                {`
+                    /* 隐藏浏览器默认页眉页脚（包含路由路径） */
+                    @media print {
+                      @page {
+                        size: A4; /* 指定A4纸张 */
+                        margin: 0; /* 边距设为0，消除默认页眉页脚区域 */
+                      }
+            
+                      /* 确保打印内容有内边距（替代浏览器默认边距） */
+                      .print-only-content {
+                        padding: 20mm; /* 模拟A4标准边距（上右下左） */
+                        margin: 0 auto;
+                        width: 210mm; /* A4宽度 */
+                        min-height: 297mm; /* A4高度 */
+                        box-sizing: border-box;
+                      }
+            
+                      /* 隐藏所有非打印内容 */
+                      body *:not(.print-only-content):not(.print-only-content *) {
+                        visibility: hidden;
+                      }
+            
+                      /* 确保打印容器可见且定位正确 */
+                      .print-only-content {
+                        visibility: visible !important;
+                        position: fixed;
+                        left: 0;
+                        top: 0;
+                        background: white;
+                      }
+                    }
+                  `}
+            </style>
             <Space>
                 <Button type="primary" onClick={()=>navigate(-1)}>
                     返回
                 </Button>
+                <Button
+                    onClick={isOpen}
+                    icon={<AlignCenterOutlined />} // 使用打印图标
+                />
             </Space>
             <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
                 <Input addonBefore="单号:" placeholder='随机生成' value={orderCode} disabled/>
@@ -168,7 +209,7 @@ const InfoRequisitionForm=(props)=>{
                     >
                         时间:
                     </div>
-                    <DatePicker defaultValue={dayjs(orderTime)}/>
+                    <DatePicker value={dayjs(orderTime)}/>
                 </Space.Compact>
                 <Space.Compact>
                     <div
@@ -198,10 +239,10 @@ const InfoRequisitionForm=(props)=>{
                 </Space.Compact>
                 <Input placeholder='备注' value={remark} maxLength={50} showCount/>
             </Space>
-            <Space style={{marginTop:'10px'}}>
-                <InputNumber addonBefore="已付(元):" placeholder='已付金额' min={0} value={paidAmount}/>
-                <InputNumber addonBefore="总金额(元):" placeholder='总金额' min={0} value={totalAmount}/>
-            </Space>
+            {/*<Space style={{marginTop:'10px'}}>*/}
+            {/*    <InputNumber addonBefore="已付(元):" placeholder='已付金额' min={0} value={paidAmount}/>*/}
+            {/*    <InputNumber addonBefore="总金额(元):" placeholder='总金额' min={0} value={totalAmount}/>*/}
+            {/*</Space>*/}
             <Table
                 columns={columnsz}
                 rowKey="id"  // 简化rowKey写法
@@ -212,8 +253,20 @@ const InfoRequisitionForm=(props)=>{
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
-                rowSelection={rowSelection}  // 添加选择功能配置
             />
+            <Modal
+                open={printVisible}
+                onCancel={()=>setPrintVisible(false)}
+                width={1200}
+                footer={[
+                    <Button key="print" type="primary" onClick={handlePrint}>打印</Button>,
+                    <Button key="cancel" onClick={()=>setPrintVisible(false)}>关闭</Button>
+                ]}
+            >
+                <div className="print-only-content">
+                    <DrawPrint {...printProps} />
+                </div>
+            </Modal>
         </Spin>
     )
 }

@@ -17,7 +17,7 @@ const EditRole=(props)=>{
     const location=useLocation();
     const [spinning,setspinning]=useState(false);
     const formRef =useRef();
-    const [selected, setSelected] = useState<string[]>(Array(441).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(562).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -1202,6 +1202,390 @@ const EditRole=(props)=>{
             newSelected[408] = isChecked ? '1' : '0' ;
             newSelected[409] = isChecked ? '1' : '0' ;
             newSelected[410] = isChecked ? '1' : '0' ;
+        }
+        if (id === 441){
+            newSelected[442] = isChecked ? '1' : '0' ;
+            newSelected[444] = isChecked ? '1' : '0' ;
+            newSelected[445] = isChecked ? '1' : '0' ;
+            newSelected[452] = isChecked ? '1' : '0' ;
+            newSelected[446] = isChecked ? '1' : '0' ;
+            newSelected[448] = isChecked ? '1' : '0' ;
+            newSelected[449] = isChecked ? '1' : '0' ;
+            newSelected[450] = isChecked ? '1' : '0' ;
+            newSelected[451] = isChecked ? '1' : '0' ;
+            newSelected[447] = isChecked ? '1' : '0' ;
+            newSelected[456] = isChecked ? '1' : '0' ;
+            newSelected[457] = isChecked ? '1' : '0' ;
+            newSelected[458] = isChecked ? '1' : '0' ;
+            newSelected[459] = isChecked ? '1' : '0' ;
+            newSelected[460] = isChecked ? '1' : '0' ;
+            newSelected[461] = isChecked ? '1' : '0' ;
+            newSelected[462] = isChecked ? '1' : '0' ;
+            newSelected[463] = isChecked ? '1' : '0' ;
+            newSelected[464] = isChecked ? '1' : '0' ;
+            newSelected[465] = isChecked ? '1' : '0' ;
+            newSelected[466] = isChecked ? '1' : '0' ;
+            newSelected[467] = isChecked ? '1' : '0' ;
+            newSelected[468] = isChecked ? '1' : '0' ;
+            newSelected[443] = isChecked ? '1' : '0' ;
+            newSelected[453] = isChecked ? '1' : '0' ;
+            newSelected[454] = isChecked ? '1' : '0' ;
+            newSelected[455] = isChecked ? '1' : '0' ;
+            newSelected[456] = isChecked ? '1' : '0' ;
+            newSelected[457] = isChecked ? '1' : '0' ;
+            newSelected[458] = isChecked ? '1' : '0' ;
+            newSelected[459] = isChecked ? '1' : '0' ;
+            newSelected[469] = isChecked ? '1' : '0' ;
+            newSelected[470] = isChecked ? '1' : '0' ;
+            newSelected[471] = isChecked ? '1' : '0' ;
+            newSelected[472] = isChecked ? '1' : '0' ;
+            newSelected[473] = isChecked ? '1' : '0' ;
+            newSelected[474] = isChecked ? '1' : '0' ;
+            newSelected[475] = isChecked ? '1' : '0' ;
+            newSelected[476] = isChecked ? '1' : '0' ;
+            newSelected[477] = isChecked ? '1' : '0' ;
+            newSelected[478] = isChecked ? '1' : '0' ;
+            newSelected[479] = isChecked ? '1' : '0' ;
+            newSelected[480] = isChecked ? '1' : '0' ;
+            newSelected[481] = isChecked ? '1' : '0' ;
+            newSelected[482] = isChecked ? '1' : '0' ;
+            newSelected[483] =  '1'  ;
+            newSelected[484] = isChecked ? '1' : '0' ;
+            newSelected[485] = isChecked ? '1' : '0' ;
+            newSelected[486] = isChecked ? '1' : '0' ;
+            newSelected[487] = isChecked ? '1' : '0' ;
+            newSelected[488] = isChecked ? '1' : '0' ;
+            newSelected[489] = isChecked ? '1' : '0' ;
+            newSelected[490] = isChecked ? '1' : '0' ;
+            newSelected[491] = isChecked ? '1' : '0' ;
+            newSelected[492] = '1'  ;
+            newSelected[493] = isChecked ? '1' : '0' ;
+            newSelected[494] = isChecked ? '1' : '0' ;
+            newSelected[495] =  '1'  ;
+            newSelected[496] =  '1'  ;
+            newSelected[497] = isChecked ? '1' : '0' ;
+            newSelected[498] =  '1'  ;
+            newSelected[500] = isChecked ? '1' : '0' ;
+            newSelected[501] = isChecked ? '1' : '0' ;
+            newSelected[502] =  '1'  ;
+            newSelected[503] = isChecked ? '1' : '0' ;
+            newSelected[504] = isChecked ? '1' : '0' ;
+            newSelected[505] = isChecked ? '1' : '0' ;
+            newSelected[506] = isChecked ? '1' : '0' ;
+            newSelected[507] = isChecked ? '1' : '0' ;
+            newSelected[508] = isChecked ? '1' : '0' ;
+            newSelected[509] = isChecked ? '1' : '0' ;
+            newSelected[510] = isChecked ? '1' : '0' ;
+            newSelected[511] = isChecked ? '1' : '0' ;
+            newSelected[512] = isChecked ? '1' : '0' ;
+            newSelected[513] = isChecked ? '1' : '0' ;
+            newSelected[514] = isChecked ? '1' : '0' ;
+            newSelected[515] = isChecked ? '1' : '0' ;
+            newSelected[516] = isChecked ? '1' : '0' ;
+            newSelected[517] = isChecked ? '1' : '0' ;
+            newSelected[518] = isChecked ? '1' : '0' ;
+            newSelected[519] =  '1'  ;
+            newSelected[520] =  '1'  ;
+            newSelected[521] = isChecked ? '1' : '0' ;
+            newSelected[522] = isChecked ? '1' : '0' ;
+            newSelected[523] = isChecked ? '1' : '0' ;
+            newSelected[524] = isChecked ? '1' : '0' ;
+            newSelected[525] = isChecked ? '1' : '0' ;
+            newSelected[526] = isChecked ? '1' : '0' ;
+            newSelected[527] = isChecked ? '1' : '0' ;
+            newSelected[528] = isChecked ? '1' : '0' ;
+            newSelected[529] = isChecked ? '1' : '0' ;
+            newSelected[530] = isChecked ? '1' : '0' ;
+            newSelected[531] = isChecked ? '1' : '0' ;
+            newSelected[532] = isChecked ? '1' : '0' ;
+            newSelected[533] = isChecked ? '1' : '0' ;
+            newSelected[534] = isChecked ? '1' : '0' ;
+            newSelected[535] = isChecked ? '1' : '0' ;
+            newSelected[536] = isChecked ? '1' : '0' ;
+            newSelected[537] = isChecked ? '1' : '0' ;
+            newSelected[538] = isChecked ? '1' : '0' ;
+            newSelected[539] = isChecked ? '1' : '0' ;
+            newSelected[540] = isChecked ? '1' : '0' ;
+            newSelected[541] = isChecked ? '1' : '0' ;
+            newSelected[542] = isChecked ? '1' : '0' ;
+            newSelected[543] =  '1'  ;
+            newSelected[258] =  '1'  ;
+            newSelected[11] =  '1'  ;
+            newSelected[544] = isChecked ? '1' : '0' ;
+            newSelected[545] = isChecked ? '1' : '0' ;
+            newSelected[546] = isChecked ? '1' : '0' ;
+            newSelected[547] = isChecked ? '1' : '0' ;
+            newSelected[548] = isChecked ? '1' : '0' ;
+            newSelected[549] = isChecked ? '1' : '0' ;
+            newSelected[550] = isChecked ? '1' : '0' ;
+            newSelected[551] = isChecked ? '1' : '0' ;
+            newSelected[552] = isChecked ? '1' : '0' ;
+            newSelected[553] = isChecked ? '1' : '0' ;
+            newSelected[554] = isChecked ? '1' : '0' ;
+            newSelected[555] = isChecked ? '1' : '0' ;
+            newSelected[556] = isChecked ? '1' : '0' ;
+            newSelected[557] = isChecked ? '1' : '0' ;
+            newSelected[558] = isChecked ? '1' : '0' ;
+            newSelected[559] = isChecked ? '1' : '0' ;
+            newSelected[560] = isChecked ? '1' : '0' ;
+            newSelected[561] = isChecked ? '1' : '0' ;
+            newSelected[562] = isChecked ? '1' : '0' ;
+        }
+        if (id === 442){
+            newSelected[464] = isChecked ? '1' : '0' ;
+            newSelected[465] = isChecked ? '1' : '0' ;
+            newSelected[466] = isChecked ? '1' : '0' ;
+            newSelected[467] = isChecked ? '1' : '0' ;
+            newSelected[460] = isChecked ? '1' : '0' ;
+            newSelected[461] = isChecked ? '1' : '0' ;
+            newSelected[462] = isChecked ? '1' : '0' ;
+            newSelected[463] = isChecked ? '1' : '0' ;
+            newSelected[456] = isChecked ? '1' : '0' ;
+            newSelected[457] = isChecked ? '1' : '0' ;
+            newSelected[458] = isChecked ? '1' : '0' ;
+            newSelected[459] = isChecked ? '1' : '0' ;
+            newSelected[475] = isChecked ? '1' : '0' ;
+            newSelected[476] = isChecked ? '1' : '0' ;
+            newSelected[477] = isChecked ? '1' : '0' ;
+            newSelected[478] = isChecked ? '1' : '0' ;
+            newSelected[471] = isChecked ? '1' : '0' ;
+            newSelected[472] = isChecked ? '1' : '0' ;
+            newSelected[473] = isChecked ? '1' : '0' ;
+            newSelected[474] = isChecked ? '1' : '0' ;
+            newSelected[545] = isChecked ? '1' : '0' ;
+            newSelected[546] = isChecked ? '1' : '0' ;
+            newSelected[547] = isChecked ? '1' : '0' ;
+            newSelected[548] = isChecked ? '1' : '0' ;
+        }
+        if (id === 464){
+            newSelected[465] = isChecked ? '1' : '0' ;
+            newSelected[466] = isChecked ? '1' : '0' ;
+            newSelected[467] = isChecked ? '1' : '0' ;
+        }
+        if (id === 460){
+            newSelected[461] = isChecked ? '1' : '0' ;
+            newSelected[462] = isChecked ? '1' : '0' ;
+            newSelected[463] = isChecked ? '1' : '0' ;
+        }
+        if (id === 456){
+            newSelected[457] = isChecked ? '1' : '0' ;
+            newSelected[458] = isChecked ? '1' : '0' ;
+            newSelected[459] = isChecked ? '1' : '0' ;
+        }
+        if (id === 475){
+            newSelected[476] = isChecked ? '1' : '0' ;
+            newSelected[477] = isChecked ? '1' : '0' ;
+            newSelected[478] = isChecked ? '1' : '0' ;
+        }
+        if (id === 471){
+            newSelected[472] = isChecked ? '1' : '0' ;
+            newSelected[473] = isChecked ? '1' : '0' ;
+            newSelected[474] = isChecked ? '1' : '0' ;
+        }
+        if (id === 545){
+            newSelected[546] = isChecked ? '1' : '0' ;
+            newSelected[547] = isChecked ? '1' : '0' ;
+            newSelected[548] = isChecked ? '1' : '0' ;
+        }
+        if (id === 443){
+            newSelected[453] = isChecked ? '1' : '0' ;
+            newSelected[454] = isChecked ? '1' : '0' ;
+            newSelected[455] = isChecked ? '1' : '0' ;
+        }
+        if (id === 444){
+            newSelected[491] = isChecked ? '1' : '0' ;
+            newSelected[492] ='1' ;
+            newSelected[488] ='1' ;
+            newSelected[493] = isChecked ? '1' : '0' ;
+            newSelected[494] = isChecked ? '1' : '0' ;
+            newSelected[497] = isChecked ? '1' : '0' ;
+            newSelected[500] = isChecked ? '1' : '0' ;
+            newSelected[501] = isChecked ? '1' : '0' ;
+            newSelected[496] ='1' ;
+            newSelected[502] ='1' ;
+            newSelected[498] ='1' ;
+            newSelected[503] = isChecked ? '1' : '0' ;
+            newSelected[504] = isChecked ? '1' : '0' ;
+            newSelected[505] = isChecked ? '1' : '0' ;
+            newSelected[506] = isChecked ? '1' : '0' ;
+            newSelected[507] = isChecked ? '1' : '0' ;
+            newSelected[508] = isChecked ? '1' : '0' ;
+            newSelected[509] = isChecked ? '1' : '0' ;
+            newSelected[510] = isChecked ? '1' : '0' ;
+            newSelected[511] = isChecked ? '1' : '0' ;
+            newSelected[512] = isChecked ? '1' : '0' ;
+            newSelected[513] = isChecked ? '1' : '0' ;
+            newSelected[514] = isChecked ? '1' : '0' ;
+        }
+        if (id === 491){
+            newSelected[492] ='1' ;
+            newSelected[498] ='1' ;
+            newSelected[488] ='1' ;
+            newSelected[493] = isChecked ? '1' : '0' ;
+            newSelected[494] = isChecked ? '1' : '0' ;
+            newSelected[497] = isChecked ? '1' : '0' ;
+        }
+        if (id === 500){
+            newSelected[501] = isChecked ? '1' : '0' ;
+            newSelected[502] ='1' ;
+        }
+        if (id === 503){
+            newSelected[504] = isChecked ? '1' : '0' ;
+            newSelected[505] = isChecked ? '1' : '0' ;
+            newSelected[506] = isChecked ? '1' : '0' ;
+            newSelected[498] ='1' ;
+            newSelected[488] ='1' ;
+        }
+        if (id === 507){
+            newSelected[508] = isChecked ? '1' : '0' ;
+            newSelected[502] ='1' ;
+        }
+        if (id === 509){
+            newSelected[498] ='1' ;
+            newSelected[488] ='1' ;
+            newSelected[510] = isChecked ? '1' : '0' ;
+            newSelected[511] = isChecked ? '1' : '0' ;
+            newSelected[512] = isChecked ? '1' : '0' ;
+        }
+        if (id === 513){
+            newSelected[514] = isChecked ? '1' : '0' ;
+            newSelected[502] ='1' ;
+        }
+        if (id === 447){
+            newSelected[443] ='1' ;
+            newSelected[483] ='1' ;
+            newSelected[479] = isChecked ? '1' : '0' ;
+            newSelected[480] = isChecked ? '1' : '0' ;
+            newSelected[481] = isChecked ? '1' : '0' ;
+            newSelected[482] = isChecked ? '1' : '0' ;
+            newSelected[485] = isChecked ? '1' : '0' ;
+            newSelected[484] = isChecked ? '1' : '0' ;
+            newSelected[486] = isChecked ? '1' : '0' ;
+            newSelected[487] = isChecked ? '1' : '0' ;
+            newSelected[489] = isChecked ? '1' : '0' ;
+            newSelected[490] = isChecked ? '1' : '0' ;
+        }
+        if (id === 445){
+            newSelected[526] = isChecked ? '1' : '0' ;
+            newSelected[527] = isChecked ? '1' : '0' ;
+            newSelected[528] = isChecked ? '1' : '0' ;
+            newSelected[529] = isChecked ? '1' : '0' ;
+            newSelected[530] = isChecked ? '1' : '0' ;
+            newSelected[531] = isChecked ? '1' : '0' ;
+            newSelected[532] = isChecked ? '1' : '0' ;
+            newSelected[496] ='1' ;
+            newSelected[498] ='1' ;
+            newSelected[488] ='1' ;
+            newSelected[258] =  '1' ;
+            newSelected[11] =  '1' ;
+        }
+        if (id === 446){
+            newSelected[468] = isChecked ? '1' : '0' ;
+            newSelected[469] = isChecked ? '1' : '0' ;
+            newSelected[470] = isChecked ? '1' : '0' ;
+        }
+        if (id === 448){
+            newSelected[488] = isChecked ? '1' : '0' ;
+            newSelected[533] = isChecked ? '1' : '0' ;
+            newSelected[535] = isChecked ? '1' : '0' ;
+            newSelected[536] = isChecked ? '1' : '0' ;
+            newSelected[537] = isChecked ? '1' : '0' ;
+            newSelected[538] = isChecked ? '1' : '0' ;
+            newSelected[539] = isChecked ? '1' : '0' ;
+            newSelected[534] = isChecked ? '1' : '0' ;
+            newSelected[498] ='1' ;
+            newSelected[496] ='1' ;
+            newSelected[495] ='1' ;
+            newSelected[502] ='1' ;
+        }
+        if (id === 533){
+            newSelected[534] = isChecked ? '1' : '0' ;
+            newSelected[535] = isChecked ? '1' : '0' ;
+            newSelected[536] = isChecked ? '1' : '0' ;
+            newSelected[498] ='1' ;
+            newSelected[496] ='1' ;
+            newSelected[495] ='1' ;
+            newSelected[502] ='1' ;
+        }
+        if (id === 537){
+            newSelected[538] = isChecked ? '1' : '0' ;
+            newSelected[498] ='1' ;
+            newSelected[496] ='1' ;
+            newSelected[495] ='1' ;
+            newSelected[502] ='1' ;
+        }
+        if (id === 449){
+            newSelected[515] = isChecked ? '1' : '0' ;
+            newSelected[516] = isChecked ? '1' : '0' ;
+            newSelected[517] = isChecked ? '1' : '0' ;
+            newSelected[518] = isChecked ? '1' : '0' ;
+            newSelected[525] = isChecked ? '1' : '0' ;
+            newSelected[521] = isChecked ? '1' : '0' ;
+            newSelected[522] = isChecked ? '1' : '0' ;
+            newSelected[523] = isChecked ? '1' : '0' ;
+            newSelected[524] = isChecked ? '1' : '0' ;
+            newSelected[519] ='1' ;
+            newSelected[488] ='1' ;
+            newSelected[520] ='1' ;
+        }
+        if (id === 537){
+            newSelected[538] = isChecked ? '1' : '0' ;
+            newSelected[498] ='1' ;
+            newSelected[496] ='1' ;
+            newSelected[495] ='1' ;
+            newSelected[502] ='1' ;
+            newSelected[488] ='1' ;
+        }
+        if (id === 515){
+            newSelected[516] = isChecked ? '1' : '0' ;
+            newSelected[517] = isChecked ? '1' : '0' ;
+            newSelected[518] = isChecked ? '1' : '0' ;
+            newSelected[519] ='1' ;
+            newSelected[520] ='1' ;
+            newSelected[488] ='1' ;
+        }
+        if (id === 450){
+            newSelected[540] = isChecked ? '1' : '0' ;
+            newSelected[541] = isChecked ? '1' : '0' ;
+            newSelected[542] = isChecked ? '1' : '0' ;
+            newSelected[544] = isChecked ? '1' : '0' ;
+            newSelected[549] = isChecked ? '1' : '0' ;
+            newSelected[550] = isChecked ? '1' : '0' ;
+            newSelected[551] = isChecked ? '1' : '0' ;
+            newSelected[560] = isChecked ? '1' : '0' ;
+            newSelected[561] = isChecked ? '1' : '0' ;
+            newSelected[483] ='1' ;
+            newSelected[498] ='1' ;
+            newSelected[543] ='1' ;
+        }
+        if (id === 540){
+            newSelected[541] = isChecked ? '1' : '0' ;
+            newSelected[483] ='1' ;
+        }
+        if (id === 542){
+            newSelected[544] = isChecked ? '1' : '0' ;
+            newSelected[543] ='1' ;
+            newSelected[498] ='1' ;
+        }
+        if (id === 560){
+            newSelected[561] = isChecked ? '1' : '0' ;
+            newSelected[543] ='1' ;
+            newSelected[498] ='1' ;
+        }
+        if (id === 451){
+            newSelected[554] = isChecked ? '1' : '0' ;
+            newSelected[555] = isChecked ? '1' : '0' ;
+            newSelected[556] = isChecked ? '1' : '0' ;
+            newSelected[557] = isChecked ? '1' : '0' ;
+            newSelected[558] = isChecked ? '1' : '0' ;
+            newSelected[559] = isChecked ? '1' : '0' ;
+            newSelected[562] = isChecked ? '1' : '0' ;
+            newSelected[360] = '1';
+            newSelected[361] = '1';
+        }
+        if (id === 452){
+            newSelected[552] = isChecked ? '1' : '0' ;
+            newSelected[553] = isChecked ? '1' : '0' ;
         }
         // 设置新的选中状态
         setSelected(newSelected);

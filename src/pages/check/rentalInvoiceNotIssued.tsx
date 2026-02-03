@@ -2,7 +2,7 @@ import * as UnopenedFpListService from '@/services/unopenedFpList';
 import {useEffect, useState} from "react";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 import dayjs from "dayjs";
-import {Button, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const RentalInvoiceNotIssued = () => {
@@ -17,6 +17,8 @@ const RentalInvoiceNotIssued = () => {
     const [userId,setUserId]=useState(0);
     const [sumMoney,setSumMoney]=useState(0);
     const [count,setcount]=useState(0);
+    const [startDate,setStartDate]=useState(checkSessionStorage('/check/checkFp/','unopenedzuFpStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/check/checkFp/','unopenedzuFpEndDate')||'2099-01-01');
 
     const columns =[
         {
@@ -77,7 +79,7 @@ const RentalInvoiceNotIssued = () => {
     ];
     // 获取租金未开记录
     const getList=()=>{
-        UnopenedFpListService.fetch(page,name,phone,userId,type,stutes,pageSize).then((res:TypeErrorCode)=>{
+        UnopenedFpListService.fetch(page,name,phone,userId,type,stutes,pageSize,startDate,endDate).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setZuhuList(res.Data);
                 console.log('res',res);
@@ -88,7 +90,7 @@ const RentalInvoiceNotIssued = () => {
     };
     // 获取租金未开记录
     const getfenye=()=>{
-        UnopenedFpListService.fenye(name,phone,userId,type,stutes,pageSize).then((res:TypeErrorCode)=>{
+        UnopenedFpListService.fenye(name,phone,userId,type,stutes,pageSize,startDate,endDate).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
                 setSumMoney(res.Data.moneySum);
@@ -123,6 +125,20 @@ const RentalInvoiceNotIssued = () => {
     const changeStutes=(e)=>{
         setstutes(e);
         updateSessionStorage('/check/checkFp/','unopenedzuFpStutes',e);
+    };
+     // 监听日期
+     const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/check/checkFp/','unopenedzuFpStartDate','2000-01-01');
+            updateSessionStorage('/check/checkFp/','unopenedzuFpEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/check/checkFp/','unopenedzuFpStartDate',data[0]);
+            updateSessionStorage('/check/checkFp/','unopenedzuFpEndDate',data[1]);
+        }
     };
     return (
         <Spin spinning={isLoading}>
@@ -165,6 +181,23 @@ const RentalInvoiceNotIssued = () => {
                                     { value: 3, label: '待审核' },
                                 ]}
                             />
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                时间:
+                            </div>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

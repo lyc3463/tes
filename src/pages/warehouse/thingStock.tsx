@@ -3,6 +3,8 @@ import TransferForm from "@/pages/warehouse/transferForm";
 import ThingStockInfo from "@/pages/warehouse/thingStockInfo";
 import {useState} from "react";
 import ReviewTransferForm from "@/pages/warehouse/ReviewTransferForm";
+import TransferDetails from "@/pages/warehouse/transferDetails";
+import {userQx} from "@/utils/OpenTool";
 
 const ThingStock=()=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('thingStockActiveKey') || '1');
@@ -12,17 +14,18 @@ const ThingStock=()=>{
     };
     return(
         <Tabs activeKey={activeKey} onChange={onChange}>
-            <Tabs.TabPane tab='库存明细' key='1'>
+            {userQx()[488]=='1'?<Tabs.TabPane tab='库存明细' key='1'>
                 <ThingStockInfo/>
-            </Tabs.TabPane>
-            <Tabs.TabPane tab='申请调拨' key='2'>
+            </Tabs.TabPane>:''}
+            {userQx()[533]=='1'?<Tabs.TabPane tab='申请调拨' key='2'>
                 <TransferForm/>
-            </Tabs.TabPane>
-            <Tabs.TabPane tab='审核调拨' key='3'>
+            </Tabs.TabPane>:''}
+            {userQx()[537]=='1'?<Tabs.TabPane tab='审核调拨' key='3'>
                 <ReviewTransferForm/>
-            </Tabs.TabPane>
-            <Tabs.TabPane tab='调拨明细' key='4'>
-            </Tabs.TabPane>
+            </Tabs.TabPane>:''}
+            {userQx()[539]=='1'?<Tabs.TabPane tab='调拨明细' key='4'>
+                <TransferDetails/>
+            </Tabs.TabPane>:''}
         </Tabs>
     )
 }

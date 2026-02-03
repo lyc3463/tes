@@ -26,9 +26,6 @@ const CheckFp=(props:any)=>{
                 <Tabs.TabPane tab='未开水电发票' key='3'>
                     <UnopenedSdFp/>
                 </Tabs.TabPane>
-                {/*<Tabs.TabPane tab='未开发票列表' key='4'>*/}
-                {/*    <UnopenedAllFp/>*/}
-                {/*</Tabs.TabPane>*/}
                 <Tabs.TabPane tab='未开租金发票' key='4'>
                     <RentalInvoiceNotIssued/>
                 </Tabs.TabPane>

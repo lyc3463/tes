@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import {Button, DatePicker, Input, List, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
+import {userQx} from "@/utils/OpenTool";
 
 const InventoryEntry=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -30,7 +31,7 @@ const InventoryEntry=(props)=>{
             key:'stockCode',
             ellipsis:true,
             render:(text,record)=>{
-                return <Button type='link' onClick={()=>{history.push(`/warehouse/inventoryRequestDetail?id=${record.id}`)}}>{text}</Button>
+                return <Button type='link' onClick={()=>{history.push(`/warehouse/noInventoryRequestDetail?id=${record.id}`)}}>{text}</Button>
             }
         },
         {
@@ -61,7 +62,10 @@ const InventoryEntry=(props)=>{
             render:(text,record)=>{
                 return(
                     <>
-                        {record.stockStatus==1?<Button onClick={()=>isCheckOpen(record.id)} type='primary'>盘点数据</Button>:null}
+                        {record.stockStatus==1?
+                            userQx()[522]=='1'?
+                            <Button onClick={()=>isCheckOpen(record.id)} type='primary'>盘点数据</Button>:''
+                            :null}
                     </>
                 )
             }

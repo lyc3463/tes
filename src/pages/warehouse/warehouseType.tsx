@@ -2,9 +2,10 @@ import {Button, Input, List, message, Modal, Pagination, Space, Spin, Table} fro
 import {connect, history} from 'umi';
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const WarehouseType=(props)=>{
     const [spinning,setSpinning]=useState(false);
-    const [name,setName]=useState('');// 类型名称
+    const [name,setName]=useState(checkSessionStorage('/warehouse/warehouseAndType','WarehouseTypeListName') || '');// 类型名称
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [uid,setUid]=useState(0);
@@ -71,6 +72,7 @@ const WarehouseType=(props)=>{
         })
     };
     const changeName=(e)=>{
+        updateSessionStorage('/warehouse/warehouseAndType','WarehouseTypeListName',e.target.value);
         setName(e.target.value);
     };
     const sousuo=()=>{
@@ -82,11 +84,12 @@ const WarehouseType=(props)=>{
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>新增仓库类型</Button>
+                        <Button type="primary" onClick={toadd}>新增物品类型</Button>
                     </div>
                     <Space>
                         <Input
                             addonBefore="类型名称:"
+                            value={name}
                             onChange={changeName}
                         />
                         <Button type="primary" onClick={sousuo}>

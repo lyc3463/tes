@@ -97,7 +97,9 @@ const PurchaseRequestCheckModel: StaffInterface = {
         *check({ payload, callback }, { call, put, take }): any {
             const result = yield call(Application.check, payload);
             yield put({ type: 'fetch', payload: pl });
+            yield put({ type: 'Application/fetch', payload: {page:1, orderCode:'', warehouseName:'', supplierName:'', pageSize:50, startDate:'2000-01-01', endDate:'2099-01-01', orderStatus:1, billStatus:1, orderType:1} });
             yield take('fetch/@@end');
+            yield take('Application/fetch/@@end');
             return result;
 
         },

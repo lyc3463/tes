@@ -42,6 +42,7 @@ import {deleteSessionStorageRoute} from "@/utils/OpenTool";
 const { Header, Content, Footer, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 import * as RechargeService from '@/services/recharge';
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 class MainPage extends Component<any> {
   constructor(props: any) {
@@ -250,7 +251,6 @@ class MainPage extends Component<any> {
     };
     // 查询园区有效期
     getValidityPeriod=()=>{
-
     };
   render() {
     // const ContentPage = loadable(() => import(`@/pages${this.props.contentPage}`));

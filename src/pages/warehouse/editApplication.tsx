@@ -14,12 +14,12 @@ import {
     Table
 } from "antd";
 import {useEffect, useRef, useState} from "react";
-import {generate} from "@/utils/OpenTool";
 import {StaticInfo} from '@/StaticInfo'
 import {connect,useNavigate,history} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as Application from "@/services/application";
 import dayjs from "dayjs";
+import {PlusOutlined} from "@ant-design/icons";
 const EditApplication=(props)=>{
     const navigate=useNavigate();
     const formRef=useRef();
@@ -42,6 +42,7 @@ const EditApplication=(props)=>{
     const [remark,setRemark]=useState('');
     // 订单物品列表
     const [goods,setGoods]=useState([]);
+    const [pmId ,setPayTypeId]=useState(0);
     const getOne=async (id:string)=>{
         setSpinning(true);
         let res:any=await  Application.one(id);
@@ -57,6 +58,7 @@ const EditApplication=(props)=>{
             setTotalAmount(data.totalAmount);
             setRemark(data.remark);
             setGoods(data.ppList);
+            setPayTypeId(data.pmId);
         }else {
             message.error(res.Data);
             setSpinning(false);
@@ -91,7 +93,7 @@ const EditApplication=(props)=>{
                     number: selectedProduct.number || 0, // 同步物品数量
                     presalePrice: selectedProduct.presalePrice || 0, // 同步物品预售价
                     retailPricce: selectedProduct.retailPricce || 0, // 同步物品预售价
-                    costPrice: selectedProduct.retailPricce || 0, // 同步物品预售价
+                    costPrice: selectedProduct.costPrice || 0, // 同步物品预售价
                     specifications: selectedProduct.specifications || '', // 同步物品规格
                     barcode: selectedProduct.barcode || '', // 同步物品条码
                     remark: selectedProduct.remark || '', // 同步物品备注
@@ -100,6 +102,7 @@ const EditApplication=(props)=>{
                     price: selectedProduct.price || 0, // 同步物品预售价
                     totalPrice: selectedProduct.quantity * selectedProduct.price || 0, // 物品总金额
                     unitsList: selectedProduct.unitsList || [], // 同步单位列表
+                    unitsName: selectedProduct.unitsName || '', // 同步单位名称
                 };
             }
             return item;
@@ -114,7 +117,7 @@ const EditApplication=(props)=>{
                 item.id === recordId ? {
                     ...item,
                     quantity: value || 0,
-                    totalPrice: (value || 0) * item.price  // 计算总价
+                    totalPrice:((value || 0) * item.price).toFixed(2)*1
                 } : item
             )
         );
@@ -128,7 +131,7 @@ const EditApplication=(props)=>{
                 item.id === recordId ? {
                     ...item,
                     price: value || 0,
-                    totalPrice: item.quantity * (value || 0)  // 计算总价
+                    totalPrice: (item.quantity * (value || 0)).toFixed(2)*1
                 } : item
             )
         );
@@ -137,19 +140,54 @@ const EditApplication=(props)=>{
     const changeUnitsId = (value, recordId) => {
         // 使用函数式更新确保获取最新状态
         setGoods(prevGoods =>
-            prevGoods.map(item =>
-                // 找到对应ID的记录，更新productsNum字段
-                item.id === recordId ? { ...item, unitsId: value || 0 } : item
-            )
+            prevGoods.map(item => {
+                if (item.id === recordId) {
+                    // 1. 从当前物品的unitsList中找到选中单位（from_unit_id === value）
+                    const selectedUnit = Array.isArray(item.unitsList)
+                        ? item.unitsList.find(unit => unit.from_unit_id === value)
+                        : null;
+                    // 2. 提取选中单位的price（默认0）
+                    const newPrice = selectedUnit?.price || 0;
+                    const presalePrice = selectedUnit?.presalePrice || 0;
+                    const retailPricce = selectedUnit?.retailPricce || 0;
+                    console.log('选中单位的单价:', newPrice);
+                    return {
+                        ...item,
+                        unitsId: value || 0, // 更新单位ID
+                        price: (newPrice.toFixed(2))*1, // 赋值单位对应的单价
+                        presalePrice,
+                        retailPricce,
+                        totalPrice: ((item.quantity * newPrice).toFixed(2))*1 // 联动更新总价（数量 × 新单价）
+                    };
+                }
+                return item;
+            })
         );
     };
     const columnsz = [
         {
             title: '物品图片',
-            dataIndex: 'productsImageBase64',
-            key:'productsImageBase64',
-            render:(text)=>{
-                return <Image src={text} alt="" style={{width:'50px',height:'50px'}}/>
+            dataIndex: 'productsImage',
+            ellipsis: true,
+            render: (text: string, record: any) => {
+                // 核心修复：先将text转为字符串，再做空值+后缀判断
+                // 步骤1：处理非字符串类型（如null/undefined/数字），转为空字符串
+                const textStr = String(text || '');
+
+                // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
+                const imageUrl = textStr && textStr.endsWith('.png')
+                    ? `http://img.qhwy6.com/${textStr}`
+                    : `http://img.qhwy6.com/${textStr}_X.png`;
+                // 步骤3：仅当字符串非空时渲染图片，否则返回空
+                return textStr ? (
+                    <Image
+                        src={imageUrl}
+                        style={{width:'50px',height:'50px'}}
+                        fallback="https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片"
+                    />
+                ) : (
+                    ''
+                );
             }
         },
         {
@@ -205,18 +243,23 @@ const EditApplication=(props)=>{
             dataIndex: 'unitsId',
             key:'unitsId',
             render:(text, record) => (
-                <Select
-                    placeholder='选择单位'
-                    style={{width:120}}
-                    value={record.unitsId}
-                    options={Array.isArray(record.unitsList) && record.unitsList.length > 0
-                        ? record.unitsList.map((item:any)=>({
-                            label:item.unitsName,
-                            value:item.from_unit_id,
-                        }))
-                        : []}
-                    onChange={(value) => changeUnitsId(value, record.id)}
-                />
+                <div>
+                    {record.groupId==0?record.unitsName:
+                        <Select
+                            placeholder='选择单位'
+                            style={{width:120}}
+                            value={text}
+                            options={Array.isArray(record.unitsList) && record.unitsList.length > 0
+                                ? record.unitsList.map((item:any)=>({
+                                    label:item.unitsName,
+                                    value:item.from_unit_id,
+                                }))
+                                : []}
+                            onChange={(value) => changeUnitsId(value, record.id)}
+                        />
+                    }
+                </div>
+
             )
         },
         {
@@ -281,12 +324,14 @@ const EditApplication=(props)=>{
     const getThingList=()=>{
         props.dispatch({
             type:"ThingList/fetch",
+            payload:{page:1, code:'', name:'', pageSize:10000}
         })
     };
     useEffect(() => {
         getSupplierList();
         getWarehouseList();
         getThingList();
+        getPayList();
     }, []);
     // 仓库id
     const changeWarehouse=(e)=>{
@@ -310,11 +355,43 @@ const EditApplication=(props)=>{
     };
     // 提交
     const onOk= ()=>{
+        if (goods.length < 1) {
+            message.error('请添加入库物品');
+            return; // 阻止提交
+        }
+        if (warehouseId===0) {
+            message.error('请选择入库仓库');
+            return;
+        }
+        if (supplierId===0) {
+            message.error('请选择供应商');
+            return;
+        }
+        if (orderTime==='') {
+            message.error('请选择采购日期');
+            return;
+        }
+        if (pmId==0){
+            message.error('请选择支付方式');
+            return;
+        }
+        const hasInvalidItem = goods.some(item => {
+            // 物品未选择（名称为空）、单位ID为0、数量为0、单价为0 均视为不完整
+            const productEmpty = !item.productsName; // 未选择物品
+            const unitEmpty = item.unitsId === 0; // 单位未选择
+            const quantityEmpty = item.quantity === 0; // 数量为0
+            const priceEmpty = item.price === 0; // 单价为0
+            return productEmpty || unitEmpty || quantityEmpty || priceEmpty;
+        });
+        if (hasInvalidItem) {
+            message.error('请先填写完整所有物品的资料（物品名称、单位、数量、单价）');
+            return; // 阻止提交
+        }
         let jsonData = JSON.stringify(goods);
         setSpinning(true);
         props.dispatch({
             type:"Application/edit",
-            payload:{uid,orderCode,orderTime,warehouseId,supplierId,paidAmount,totalAmount,remark,jsonData},
+            payload:{uid,orderCode,orderTime,warehouseId,supplierId,paidAmount,totalAmount,remark,jsonData,pmId},
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('修改成功');
@@ -333,7 +410,7 @@ const EditApplication=(props)=>{
             ? Math.max(...goods.map(item => item.id))
             : 0;
         // 生成10条空记录，ID递增
-        const newRecords = Array.from({length: 2}, (_, i) => ({
+        const newRecords = Array.from({length: 1}, (_, i) => ({
             id: maxId + i + 1,
             productsImageBase64: '', // 同步物品图片
             productsName: '', // 更新物品名称
@@ -354,9 +431,28 @@ const EditApplication=(props)=>{
             price: 0, // 同步物品预售价
             totalPrice: 0, // 物品总金额
             unitsList: [], // 同步单位列表
+            isHs: 0,// 是否换算
+            unitsName:''
         }));
         // 添加到现有记录中
         setGoods([...goods, ...newRecords]);
+    };
+    useEffect(() => {
+        // 累加所有物品的totalPrice（处理空值情况）
+        const sum = goods.reduce((acc, item) => {
+            const price = (item.totalPrice.toFixed(2)*1) || 0; // 确保totalPrice为数字，默认0
+            return acc + price;
+        }, 0);
+        setTotalAmount(sum); // 更新总金额状态
+    }, [goods]);
+    // 支付方式
+    const changePayType=(e)=>{
+        setPayTypeId(e);
+    };
+    const getPayList=()=>{
+        props.dispatch({
+            type:'PayType/fetch',
+        })
     };
     return(
         <Spin spinning={spinning}>
@@ -375,6 +471,13 @@ const EditApplication=(props)=>{
                     placeholder='请选择入库仓库'
                     onChange={changeWarehouse}
                     value={warehouseId}
+                    showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) => {
+                        // 假设每个 option 都有一个与数据项对应的 value 属性
+                        const item = props.warehouseListList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                        return item?.warehouseName?.toLowerCase().includes(input.toLowerCase());
+                    }}
                     options={Array.isArray(props.warehouseListList) && props.warehouseListList.length > 0
                         ? props.warehouseListList.map((item:any)=>({
                             label:item.warehouseName,
@@ -384,10 +487,15 @@ const EditApplication=(props)=>{
                 />
                 <Select
                     placeholder='请选择供应商'
-                    showSearch
                     value={supplierId}
                     onChange={changeSupplier}
+                    showSearch
                     optionFilterProp="children"
+                    filterOption={(input, option) => {
+                        // 假设每个 option 都有一个与数据项对应的 value 属性
+                        const item = props.supplierList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                        return item?.supplierName?.toLowerCase().includes(input.toLowerCase());
+                    }}
                     options={Array.isArray(props.supplierList) && props.supplierList.length > 0
                         ? props.supplierList.map((item:any)=>({
                             label:item.supplierName,
@@ -395,11 +503,42 @@ const EditApplication=(props)=>{
                         }))
                         : []}
                 />
-                <Input addonBefore="备注:" placeholder='50字以下' style={{width:'300px'}} value={remark} onChange={changeRemark}/>
+                <Space.Compact>
+                    <div
+                        style={{
+                            borderRadius: '6px',
+                            borderStartEndRadius: 0,
+                            borderEndEndRadius: 0,
+                            padding: '0 11px',
+                            border: '1px solid #d9d9d9',
+                            display: 'flex',
+                            alignItems: 'center',
+                            borderInlineEnd: 0,
+                        }}
+                    >
+                        支付方式:
+                    </div>
+                    <Select
+                        showSearch
+                        value={pmId}
+                        placeholder='支付方式'
+                        onChange={changePayType}
+                        filterOption={(input, option) =>
+                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                        }
+                        options={Array.isArray(props.PayTypeList) && props.PayTypeList.length > 0
+                            ? props.PayTypeList.map((item:any)=>({
+                                label:item.pmName,
+                                value:item.id,
+                            }))
+                            : []}
+                    />
+                </Space.Compact>
             </Space>
             <Space>
                 <InputNumber addonBefore="已付(元):" placeholder='已付金额' min={0} value={paidAmount} onChange={changePaidAmount}/>
-                <InputNumber addonBefore="总金额(元):" placeholder='总金额' min={0} value={totalAmount} onChange={changeTotalAmount}/>
+                <InputNumber addonBefore="总金额(元):" placeholder='总金额' min={0} disabled value={totalAmount} onChange={changeTotalAmount}/>
+                <Input addonBefore="备注:" placeholder='50字以下' style={{width:'300px'}} value={remark} onChange={changeRemark}/>
             </Space>
             <Table
                 columns={columnsz}
@@ -417,7 +556,7 @@ const EditApplication=(props)=>{
                 onClick={addTenEmptyRecords}
                 style={{ marginTop: '10px' }}
             >
-                增加2条记录
+                <PlusOutlined />
             </Button>
         </Spin>
     )
@@ -426,5 +565,6 @@ const mapStateToProps = (state: any) => ({
     warehouseListList: state.WarehouseList.list,
     supplierList: state.Supplier.list,
     thingList: state.ThingList.list,
+    PayTypeList: state.PayType.list,
 });
 export default connect(mapStateToProps)(EditApplication);

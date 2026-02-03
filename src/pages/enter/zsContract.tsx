@@ -320,8 +320,6 @@ const ZsContract=(props:any)=>{
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
-            sessionStorage.setItem('enterStaffZsContractStartDate',data[0]);
-            sessionStorage.setItem('enterStaffZsContractEndDate',data[1]);
             updateSessionStorage('/enter/staff/','startDate',data[0]);
             updateSessionStorage('/enter/staff/','endDate',data[1]);
         }

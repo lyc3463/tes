@@ -20,8 +20,6 @@ export function one(vals:any) {
     return getData(1084, [vals]);
 }
 
-
-
 // 强制删除
 export function remove(vals:any) {
     return getData(1082, [vals]);

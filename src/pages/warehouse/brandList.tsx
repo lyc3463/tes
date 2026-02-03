@@ -2,9 +2,10 @@ import {connect,history} from "umi";
 import {useEffect, useState} from "react";
 import {Button, Input, List, message, Modal, Space, Spin, Table} from "antd";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const BrandList=(props)=>{
-    const [name, setName] = useState('');
+    const [name, setName] = useState(checkSessionStorage('/warehouse/warehouseAndType','BrandListName')||'');
     const [spinning, setSpinning] = useState(false);
     const [uid,setUid]=useState(0);
     const [delOpen,setDelOpen]=useState(false);
@@ -28,6 +29,7 @@ const BrandList=(props)=>{
     ];
     const changeName=(e:any)=>{
         setName(e.target.value);
+        updateSessionStorage('/warehouse/warehouseAndType','BrandListName',e.target.value);
     }
     const toadd=()=>{
         history.push('/warehouse/brandAdd');

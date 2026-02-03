@@ -3,15 +3,16 @@ import {useEffect, useState} from "react";
 import {connect, history} from "umi";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
 
 const SalesList=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);// 当前页数
-    const [orderCode,setOrderCode]=useState('');// 单号
-    const [warehouseName,setWarehouseName]=useState('');// 仓库名称
-    const [startDate,setStartDate]=useState('2000-01-01');// 开始日期
-    const [endDate,setEndDate]=useState('2099-01-01');// 结束日期
-    const [orderStatus,setOrderStatus]=useState(1);// 订单状态
+    const [orderCode,setOrderCode]=useState(checkSessionStorage('/warehouse/sales','SalesListOrderCode')||'');// 单号
+    const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/sales','SalesListWarehouseName')||'');// 仓库名称
+    const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/sales','SalesListStartDate')||'2000-01-01');// 开始日期
+    const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/sales','SalesListEndDate')||'2099-01-01');// 结束日期
+    const [orderStatus,setOrderStatus]=useState(0);// 订单状态
     const [billStatus,setBillStatus]=useState(0);// 账单状态
     const [pageSize,setPageSize]=useState(10);// 每页数量
     const [orderType,setOrderType]=useState(5);// 订单类型
@@ -39,7 +40,7 @@ const SalesList=(props)=>{
             ellipsis: true,
             align:'center',
             render:(text,record)=>{
-                return <Button type='link' onClick={()=>history.push(`/warehouse/infoRequisitionForm?id=${record.id}`)}> {text}</Button>
+                return <Button type='link' onClick={()=>history.push(`/warehouse/infoSalesList?id=${record.id}`)}>{text}</Button>
             }
         },
         {
@@ -54,6 +55,12 @@ const SalesList=(props)=>{
         {
             title: '申请人',
             dataIndex: 'user_name',
+            ellipsis: true,
+            align:'center',
+        },
+        {
+            title: '销售人',
+            dataIndex: 'xsName',
             ellipsis: true,
             align:'center',
         },
@@ -83,13 +90,10 @@ const SalesList=(props)=>{
                 <Space size="small">
                     {record.orderStatus==1?
                         <>
-                            <Button
-                                type="primary"
-                                onClick={()=>{isDleOpen(record.id)}}
-                                danger
-                            >删除</Button>
-                            <Button type="primary" onClick={()=>{
-                            }}>编辑</Button>
+                            {userQx()[529]=='1'?
+                                <Button type="primary" onClick={()=>{isDleOpen(record.id)}} danger>删除</Button>:''}
+                            {userQx()[528]=='1'?
+                                <Button type="primary" onClick={()=>{history.push(`/warehouse/editSalesList?id=${record.id}`)}}>编辑</Button>:''}
                         </>
                         :
                         null
@@ -108,13 +112,13 @@ const SalesList=(props)=>{
     };
     const getList=()=>{
         props.dispatch({
-            type:'SalesList/fetch',
+            type:'SalesCustomerList/fetch',
             payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
         })
     };
     const getFenye=()=>{
         props.dispatch({
-            type:'SalesList/fenye',
+            type:'SalesCustomerList/fenye',
             payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
         })
     };
@@ -145,19 +149,50 @@ const SalesList=(props)=>{
             }
         })
     };
+    const changeWarehouseName=(e)=>{
+        updateSessionStorage('/warehouse/sales','SalesListWarehouseName',e.target.value);
+        setWarehouseName(e.target.value);
+    };
+    const changeOrderCode=(e)=>{
+        setOrderCode(e.target.value);
+        updateSessionStorage('/warehouse/sales','SalesListOrderCode',e.target.value);
+    }
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/warehouse/sales','SalesListStartDate','2000-01-01');
+            updateSessionStorage('/warehouse/sales','SalesListEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/warehouse/sales','SalesListStartDate',data[0]);
+            updateSessionStorage('/warehouse/sales','SalesListEndDate',data[1]);
+        }
+    };
+    const sousuo=()=>{
+        setPage(1);
+        getList();
+        getFenye();
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>新增销售</Button>
+                        {userQx()[527]=='1'?
+                            <Button type="primary" onClick={toadd}>新增销售</Button>:''}
                     </div>
                     <Space>
                         <Input
                             addonBefore="仓库名称:"
+                            value={warehouseName}
+                            onChange={changeWarehouseName}
                         />
                         <Input
                             addonBefore="单号:"
+                            value={orderCode}
+                            onChange={changeOrderCode}
                         />
                         <Space.Compact>
                             <div
@@ -174,9 +209,9 @@ const SalesList=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        <Button type="primary" >
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -190,6 +225,20 @@ const SalesList=(props)=>{
                 dataSource={props.list}
                 rowKey={(columns) => columns.id}
                 size='small'
+                summary={(columns) => (
+                    <Table.Summary >
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal title='删除' onOk={onOK} loading={spinning} open={dOpen} onCancel={()=>{setDOpen(false)}}>
@@ -199,8 +248,8 @@ const SalesList=(props)=>{
     )
 }
 const mapStateToProps = (state: any) => ({
-    list: state.SalesList.list,
-    count: state.SalesList.count,
+    list: state.SalesCustomerList.list,
+    count: state.SalesCustomerList.count,
 });
 
 export default connect(mapStateToProps)(SalesList);

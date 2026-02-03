@@ -1,4 +1,4 @@
-import {Button, Form, Input, message, Select, Spin} from "antd";
+import {Button, Form, Input, message, Radio, Select, Spin} from "antd";
 import {useState} from "react";
 import {connect,history} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -47,7 +47,7 @@ const AddWarehouseType=(props)=>{
                         { max: 50, message: '名称长度不超过50字符' }
                     ]}
                 >
-                    <Input placeholder="请输入仓库名称" />
+                    <Input placeholder="请输入物品类型" />
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary"  htmlType="submit">

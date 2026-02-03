@@ -10,6 +10,7 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import AccountType from '@/ModelTypes/TypeAccount';
 import { fixPathname } from '@/utils/common';
+import * as ProjectService from "@/services/project";
 let pl={
     name:'',
     account_type:2
@@ -27,6 +28,7 @@ export interface AccountInterface {
     effects: {
         fetch: Effect;
         fetchOne: Effect;
+        projectOrAccount: Effect;
         add: Effect;
         edit: Effect;
         remove: Effect;
@@ -44,6 +46,20 @@ const AccountModels: AccountInterface = {
     effects: {
         *fetch({ type, payload,callback }, { put, call, select }): any {
             const res = yield call(AccountService.fetch, payload?payload:pl);
+            if (res.ErrorCode == 0) {
+                yield put({
+                    type: 'list',
+                    payload: { list: res.Data },
+                });
+            } else {
+                message.error(res.ErrorCode + res.Data);
+            }
+            console.log('es',res)
+            return res
+        },
+        *projectOrAccount({ type, payload,callback }, { put, call, select }): any {
+            const res = yield call(ProjectService.getContainInfo, payload);
+            console.log('项目下的账户列表',res);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',

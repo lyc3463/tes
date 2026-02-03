@@ -194,6 +194,7 @@ const AddStaff=(props:any)=>{
         setStartDate(item[0]);
         setEndDate(item[1]);
         let dataArr=calculateTimePeriods(item[0],item[1],zuMoney);
+        console.log('选中的日期',dataArr);
         setFormItems(dataArr);
     };
     // 更新起租日

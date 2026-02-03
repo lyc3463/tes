@@ -1,9 +1,7 @@
 //permission 1显示 0隐藏/禁用
 
 import TypeMenu from "@/ModelTypes/TypeMenu";
-import WorlOrder from "@/pages/workOrderManage/worlOrder";
-import RepairInvoice from "@/pages/billLog/repairInvoice";
-import WarehouseAndType from "@/pages/warehouse/warehouseAndType";
+
 
 export const menuData: TypeMenu[] = [
     { id: 0, name: '仪表盘', route: '/dashboard/', authId: 0 },

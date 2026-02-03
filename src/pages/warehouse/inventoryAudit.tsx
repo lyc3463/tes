@@ -3,6 +3,7 @@ import {history,connect} from "umi";
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {userQx} from "@/utils/OpenTool";
 
 const InventoryAudit=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -62,7 +63,10 @@ const InventoryAudit=(props)=>{
             render:(text,record)=>{
                 return(
                     <>
-                        {record.stockStatus==1?<Button onClick={()=>isCheckOpen(record.id)} type='primary'>审核</Button>:null}
+                        {record.stockStatus==1?
+                            userQx()[524]=='1'?
+                            <Button onClick={()=>isCheckOpen(record.id)} type='primary'>审核</Button>:''
+                            :null}
                     </>
                 )
             }

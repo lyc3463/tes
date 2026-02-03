@@ -103,6 +103,7 @@ const ReturnFormModel: StaffInterface = {
 
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(RequisitionForm.fenye,payload?payload:pl);
+            console.log('分页信息',res);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'count',

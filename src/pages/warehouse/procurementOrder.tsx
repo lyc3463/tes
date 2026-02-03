@@ -18,23 +18,27 @@ import {
 } from "antd";
 import {history} from "@@/core/history";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
 
 const ProcurementOrder=(props:any)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);  // 当前页数
-    const [orderCode,setOrderCode]=useState('');// 采购单号
-    const [warehouseName,setWarehouseName]=useState('');// 仓库名称
+    const [orderCode,setOrderCode]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderOrderCode')||'');// 采购单号
+    const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderWarehouseName')||'');// 仓库名称
     const [supplierName,setSupplierName]=useState('');// 供应商
-    const [startDate,setStartDate]=useState('2000-01-01');// 开始时间
-    const [endDate,setEndDate]=useState('2099-01-01');// 结束日期
-    const [orderStatus,setOrderStatus]=useState(2);// 订单状态 已审核/未审核
-    const [billStatus,setBillStatus]=useState(0);// 是否交完钱状态
+    const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderStartDate')||'2000-01-01');// 开始时间
+    const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderEndDate')||'2099-01-01');// 结束日期
+    const [orderStatus,setOrderStatus]=useState(2); // 1 未审核 2已审核
+    const [billStatus,setBillStatus]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderBillStatus')||0);// 0 全部类型，1未缴费,2 已交付
     const [pageSize,setPageSize]=useState(50); // 每页数量
-    const [orderType,setOrderType]=useState(0);// 订单类型
+    const [orderType,setOrderType]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderType')||0);// 订单类型
     const [dUid,setDUid]=useState(0);// 缴费的ID
     const [dOpen,setDOpen]=useState(false);// 缴费确认弹窗
     const [paymentAmount,setPaymentAmount]=useState(0);// 缴费金额
-    const [paymentType,setPaymentType]=useState(0);// 缴费类型
+    const [paymentType,setPaymentType]=useState(0);// 缴费支付类型
+    const [payCrderCode,setPayCrderCode]=useState('');// 缴费订单号
+    const [payOrderType,setPayOrderType]=useState(0);// 缴费订单类型
+
     const columns=[
         {
             title:'申请日期',
@@ -50,11 +54,7 @@ const ProcurementOrder=(props:any)=>{
             dataIndex:'orderCode',
             key:'orderCode',
             align:'center',
-            render:(text,record)=>{
-                return(
-                    <Button type='link' onClick={()=>{history.push(`/warehouse/infpApplication?id=${record.id}`);}}>{text}</Button>
-                )
-            }
+            ellipsis: true,
         },
         {
             title:'入库仓库',
@@ -72,11 +72,13 @@ const ProcurementOrder=(props:any)=>{
             ellipsis:true,
         },
         {
-            title:'备注',
-            dataIndex:'remark',
-            key:'remark',
+            title:'订单类型',
+            dataIndex:'orderType',
+            key:'orderType',
             align:'center',
-            ellipsis:true,
+            render:(text)=>{
+                return text==1?'采购订单':'直接入库单'
+            }
         },
         {
             title:'已交金额',
@@ -91,13 +93,10 @@ const ProcurementOrder=(props:any)=>{
             align:'center',
         },
         {
-            title:'订单类型',
-            dataIndex:'orderType',
-            key:'orderType',
+            title:'采购人',
+            dataIndex:'user_name',
+            key:'user_name',
             align:'center',
-            render:(text)=>{
-                return text==1?'采购订单':'直接入库单'
-            }
         },
         {
             title:'缴费状态',
@@ -107,7 +106,15 @@ const ProcurementOrder=(props:any)=>{
             render:(text)=>{
                 return <Tag color={text==2?'green':'red'}>{text==2?'已交':'未交完'}</Tag>
             }
-        }, {
+        },
+        {
+            title:'备注',
+            dataIndex:'remark',
+            key:'remark',
+            align:'center',
+            ellipsis:true,
+        },
+        {
             title:'操作',
             dataIndex:'billStatus',
             key:'billStatus',
@@ -115,7 +122,10 @@ const ProcurementOrder=(props:any)=>{
             render:(text,record)=>{
                 return(
                     <Space>
-                        <Button type='primary' onClick={()=>isPayment(record.id)}>缴费</Button>
+                        {record.billStatus==2?'':
+                            userQx()[541]=='1'?
+                            <Button type='primary' onClick={()=>isPayment(record)}>缴费</Button>:''
+                        }
                     </Space>
                 )
             }
@@ -141,25 +151,38 @@ const ProcurementOrder=(props:any)=>{
     };
     useEffect(() => {
         getFenye();
+        getPayList();
     }, []);
     useEffect(() => {
         getList();
     }, [page,pageSize]);
     const isPayment=(e)=>{
-        setDUid(e);
+        setDUid(e.id);
+        setPayCrderCode(e.orderCode);
+        setPayOrderType(e.orderType);
         setDOpen(true);
     };
     // 确定缴费
     const onOk=()=>{
+        if (!paymentAmount){
+            message.error('请输入缴费金额');
+            return;
+        }
+        if (paymentType==0){
+            message.error('请选择支付类型');
+            return;
+        }
         setSpinning(false);
         props.dispatch({
             type:'ProcurementOrder/payment',
-            payload:{uid:dUid,paymentAmount,paymentType}
+            payload:{uid:dUid,paymentAmount,paymentType,payCrderCode,payOrderType}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('缴费成功');
                 setDOpen(false);
                 setSpinning(false);
+                setPaymentType(0);
+                setPaymentAmount(0);
             }else{
                 setDOpen(false);
                 setSpinning(false);
@@ -175,6 +198,47 @@ const ProcurementOrder=(props:any)=>{
     const changePaymentType=(e)=>{
         setPaymentType(e);
     };
+    const getPayList=()=>{
+        props.dispatch({
+            type:'PayType/fetch',
+        })
+    };
+    // 监听日期
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderStartDate','2000-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderStartDate',data[0]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderEndDate',data[1]);
+        }
+    };
+    const changeWarehouseName=(e)=>{
+        setWarehouseName(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderWarehouseName',e.target.value);
+
+    };
+    const changeOrderCode=(e)=>{
+        setOrderCode(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderOrderCode',e.target.value);
+    };
+    const changeBillStatus=(e)=>{
+        setBillStatus(e);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderBillStatus',e);
+    };
+    const changeOrderStatus=(e)=>{
+        setOrderType(e);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','ProcurementOrderType',e);
+    };
+    const sousuo=()=>{
+        setPage(1);
+        getList();
+        getFenye();
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -182,10 +246,88 @@ const ProcurementOrder=(props:any)=>{
                     <Space>
                         <Input
                             addonBefore="仓库名称:"
+                            value={warehouseName}
+                            onChange={changeWarehouseName}
                         />
                         <Input
                             addonBefore="单号:"
+                            value={orderCode}
+                            onChange={changeOrderCode}
                         />
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                缴费状态:
+                            </div>
+                            <Select
+                                style={{
+                                    width: 120,
+                                }}
+                                value={billStatus}
+                                onChange={changeBillStatus}
+                                options={[
+                                    {
+                                        label: '全部',
+                                        value: 0,
+                                    },
+                                    {
+                                        label: '已缴费',
+                                        value: 2,
+                                    },
+                                    {
+                                        label: '未缴费',
+                                        value: 1,
+                                    },
+                                ]}
+                            />
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                订单类型:
+                            </div>
+                            <Select
+                                style={{
+                                    width: 120,
+                                }}
+                                value={orderType}
+                                onChange={changeOrderStatus}
+                                options={[
+                                    {
+                                        label: '全部',
+                                        value: 0,
+                                    },
+                                    {
+                                        label: '采购订单',
+                                        value: 1,
+                                    },
+                                    {
+                                        label: '直接入库',
+                                        value: 2,
+                                    },
+                                ]}
+                            />
+                        </Space.Compact>
                         <Space.Compact>
                             <div
                                 style={{
@@ -201,9 +343,9 @@ const ProcurementOrder=(props:any)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        <Button type="primary" >
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -217,33 +359,52 @@ const ProcurementOrder=(props:any)=>{
                 dataSource={props.list}
                 rowKey={(columns) => columns.id}
                 size='small'
+                summary={(columns) => (
+                    <Table.Summary >
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal open={dOpen} onCancel={()=>setDOpen(false)} onOk={onOk} loading={spinning} title='缴费确认'>
-               <Space>
+               <div style={{display:'flex',alignItems:'center',flexDirection: 'column',}}>
                    <Select
+                       showSearch // 启用搜索
+                       optionFilterProp="children" // 搜索选项的哪个属性
+                       placeholder="选择支付类型"
+                       style={{ width: 200 }}
                        onChange={changePaymentType}
-                       style={{width:'120px'}}
-                       options={[{
-                           label:'现金',
-                           value:'1',
-                       },{
-                           label:'支付宝',
-                           value:'2',
-                       },{
-                           label:'微信',
-                           value:'3',
-                       }]
-                       }
-                       placeholder="请选择支付类型"
+                       filterOption={(input, option) => {
+                           // 边界处理：选项不存在或无支付类型数据时不显示
+                           if (!option || !Array.isArray(props.payTypeList)) return false;
+                           // 根据选项value（支付类型ID）查找对应的支付类型对象
+                           const payTypeItem = props.payTypeList.find(item => item.id === option.value);
+                           // 不区分大小写匹配支付类型名称
+                           return payTypeItem?.pmName.toLowerCase().includes(input.toLowerCase());
+                       }}
+                       options={Array.isArray(props.payTypeList)
+                           ? props.payTypeList.map(item => ({
+                               label: item.pmName, // 显示名称
+                               value: item.id // 选项值（物品ID）
+                           }))
+                           : []}
                    />
                    <InputNumber
+                       style={{ width: 200,marginTop:'10px' }}
                        addonBefore="缴费金额(元):"
                        value={paymentAmount}
                        min={0}
                        onChange={changePaymentAmount}
                    />
-               </Space>
+               </div>
             </Modal>
         </Spin>
     )
@@ -251,5 +412,6 @@ const ProcurementOrder=(props:any)=>{
 const mapStateToProps = (state: any) => ({
     list: state.ProcurementOrder.list,
     count: state.ProcurementOrder.count,
+    payTypeList: state.PayType.list
 });
 export default connect(mapStateToProps)(ProcurementOrder);

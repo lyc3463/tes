@@ -15,7 +15,8 @@ let pl={
     warehouseName:'',
     personName:'',
     personPhone:'',
-    pageSize:50
+    pageSize:50,
+    isXs:2
 }
 export interface StaffCountState {
     count: number;

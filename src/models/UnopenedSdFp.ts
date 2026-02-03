@@ -17,7 +17,9 @@ let pl = {
     type:0,
     tenantr:0,
     stutes:0,
-    pageSize:50
+    pageSize:50,
+    startDate:'2000-01-01',
+    endDate:'2099-01-01',
 };
 
 export interface NuitCountState {

@@ -1,8 +1,23 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Input,
+    InputNumber,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag
+} from "antd";
 import {useEffect, useState} from "react";
 import {connect, history} from "umi";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {userQx} from "@/utils/OpenTool";
 
 const SalesPayment=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -15,8 +30,12 @@ const SalesPayment=(props)=>{
     const [billStatus,setBillStatus]=useState(0);// 账单状态
     const [pageSize,setPageSize]=useState(10);// 每页数量
     const [orderType,setOrderType]=useState(5);// 订单类型
-    const [dOpen,setDOpen]=useState(false);// 删除弹窗是否打开
-    const [dId,setDId]=useState(0);// 删除的id
+    const [dOpen,setDOpen]=useState(false);// 缴费弹窗是否打开
+    const [dId,setDId]=useState(0);// 缴费的id
+    const [paymentAmount,setPaymentAmount]=useState(0);// 缴费金额
+    const [paymentType,setPaymentType]=useState(0);// 缴费支付类型
+    const [payCrderCode,setPayCrderCode]=useState('');// 缴费订单号
+    const [payOrderType,setPayOrderType]=useState(0);// 缴费订单类型
     const columns = [
         {
             title: '申请时间',
@@ -38,17 +57,14 @@ const SalesPayment=(props)=>{
             dataIndex: 'orderCode',
             ellipsis: true,
             align:'center',
-            render:(text,record)=>{
-                return <Button type='link' onClick={()=>history.push(`/warehouse/infoRequisitionForm?id=${record.id}`)}> {text}</Button>
-            }
         },
         {
-            title: '订单状态',
-            dataIndex: 'orderStatus',
+            title: '缴费状态',
+            dataIndex: 'billStatus',
             ellipsis: true,
             align:'center',
             render: (text: any) => {
-                return <Tag color={text==2?'green':'red'}>{text==2?'已审核':'未审核'}</Tag>
+                return <Tag color={text==2?'green':'red'}>{text==2?'已缴费':'未交完'}</Tag>
             },
         },
         {
@@ -76,28 +92,26 @@ const SalesPayment=(props)=>{
             align:'center',
         },
         {
-            title: '操作',
+            title:'操作',
+            dataIndex:'billStatus',
+            key:'billStatus',
             align:'center',
-            dataIndex: 'operation',
-            render: (_: any, record: any) => (
-                <Space size="small">
-                    {record.orderStatus==1?
-                        <>
-                            <Button
-                                type="primary"
-                                onClick={()=>{isDleOpen(record.id)}}
-                            >缴费</Button>
-                        </>
-                        :
-                        null
-                    }
-                </Space>
-            ),
+            render:(text,record)=>{
+                return(
+                    <Space>
+                        {record.billStatus==2?'':
+                             userQx()[544]=='1'?
+                             <Button type='primary' onClick={()=>isPayment(record)}>缴费</Button>:''
+                        }
+                    </Space>
+                )
+            }
         },
     ];
-    // 删除的弹窗
-    const isDleOpen=(e:number)=>{
-        setDId(e);
+    const isPayment=(e)=>{
+        setDId(e.id);
+        setPayCrderCode(e.orderCode);
+        setPayOrderType(e.orderType);
         setDOpen(true);
     };
     const getList=()=>{
@@ -117,13 +131,52 @@ const SalesPayment=(props)=>{
     }, [page,pageSize]);
     useEffect(() => {
         getFenye();
+        getPayList();
     }, []);
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setPageSize(pageSize);
     };
-    const onOK=()=>{
-
+    // 缴费金额
+    const changePaymentAmount=(e)=>{
+        setPaymentAmount(e);
+    };
+    // 支付类型
+    const changePaymentType=(e)=>{
+        setPaymentType(e);
+    };
+    const getPayList=()=>{
+        props.dispatch({
+            type:'PayType/fetch',
+        })
+    };
+    // 确定缴费
+    const onOk=()=>{
+        if (!paymentAmount){
+            message.error('请输入缴费金额');
+            return;
+        }
+        if (paymentType==0){
+            message.error('请选择支付类型');
+            return;
+        }
+        setSpinning(false);
+        props.dispatch({
+            type:'SalesPayment/payment',
+            payload:{uid:dId,paymentAmount,paymentType,payCrderCode,payOrderType}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('缴费成功');
+                setDOpen(false);
+                setSpinning(false);
+                setPaymentType(0);
+                setPaymentAmount(0);
+            }else{
+                setDOpen(false);
+                setSpinning(false);
+                message.error(res.ErrorCode + res.Data);
+            }
+        })
     };
     return(
         <Spin spinning={spinning}>
@@ -132,9 +185,6 @@ const SalesPayment=(props)=>{
                     <Space>
                         <Input
                             addonBefore="仓库名称:"
-                        />
-                        <Input
-                            addonBefore="销售人:"
                         />
                         <Input
                             addonBefore="单号:"
@@ -205,10 +255,52 @@ const SalesPayment=(props)=>{
                 dataSource={props.list}
                 rowKey={(columns) => columns.id}
                 size='small'
+                summary={(columns) => (
+                    <Table.Summary >
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-            <Modal title='删除' onOk={onOK} loading={spinning} open={dOpen} onCancel={()=>{setDOpen(false)}}>
-                <p>确定删除吗？</p>
+            <Modal open={dOpen} onCancel={()=>setDOpen(false)} onOk={onOk} loading={spinning} title='缴费确认'>
+                <div style={{display:'flex',alignItems:'center',flexDirection: 'column',}}>
+                    <Select
+                        showSearch // 启用搜索
+                        optionFilterProp="children" // 搜索选项的哪个属性
+                        placeholder="选择支付类型"
+                        style={{ width: 200 }}
+                        onChange={changePaymentType}
+                        filterOption={(input, option) => {
+                            // 边界处理：选项不存在或无支付类型数据时不显示
+                            if (!option || !Array.isArray(props.payTypeList)) return false;
+                            // 根据选项value（支付类型ID）查找对应的支付类型对象
+                            const payTypeItem = props.payTypeList.find(item => item.id === option.value);
+                            // 不区分大小写匹配支付类型名称
+                            return payTypeItem?.pmName.toLowerCase().includes(input.toLowerCase());
+                        }}
+                        options={Array.isArray(props.payTypeList)
+                            ? props.payTypeList.map(item => ({
+                                label: item.pmName, // 显示名称
+                                value: item.id // 选项值（物品ID）
+                            }))
+                            : []}
+                    />
+                    <InputNumber
+                        style={{ width: 200,marginTop:'10px' }}
+                        addonBefore="缴费金额(元):"
+                        value={paymentAmount}
+                        min={0}
+                        onChange={changePaymentAmount}
+                    />
+                </div>
             </Modal>
         </Spin>
     )
@@ -216,6 +308,8 @@ const SalesPayment=(props)=>{
 const mapStateToProps = (state: any) => ({
     list: state.SalesPayment.list,
     count: state.SalesPayment.count,
+    payTypeList: state.PayType.list
+
 });
 
 export default connect(mapStateToProps)(SalesPayment);

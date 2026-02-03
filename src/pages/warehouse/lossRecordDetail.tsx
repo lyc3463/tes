@@ -184,7 +184,7 @@ const LossRecordDetail=(props)=>{
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
-                rowSelection={rowSelection}  // 添加选择功能配置
+                rowSelection={rowSelection}
             />
         </Spin>
     )

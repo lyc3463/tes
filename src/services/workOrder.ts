@@ -11,7 +11,6 @@ export function edit(vals:any) {
 export function fenpei(vals:any) {
     return getData(1629, [vals.OnId,vals.userID]);
 }
-
 export function remove(vals:any) {
     return getData(1626, [vals]);
 }

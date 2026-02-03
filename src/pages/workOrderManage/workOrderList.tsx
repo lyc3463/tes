@@ -287,6 +287,7 @@ const WorkOrderList=(props:any)=>{
     };
     // 步骤弹窗
     const onokOpen=(e:any)=>{
+        console.log('e',e);
         setOnId(e.id);
         setUserID(e.gjUserId);
         setOnOpen(true);

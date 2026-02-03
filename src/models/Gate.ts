@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import GateType from '@/ModelTypes/TypeGate';
 import { fixPathname } from '@/utils/common';
-import {fenye} from "@/services/gate";
 let pl={
     page:1,
     deviceSn:'',

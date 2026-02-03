@@ -8,11 +8,11 @@ export function fenye(vals:any) {
 }
 
 export function add(vals:any) {
-    return postData(1735, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.supplierId,vals.paidAmount,vals.totalAmount,vals.remark],vals.jsonData);
+    return postData(1735, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.supplierId,vals.paidAmount,vals.totalAmount,vals.remark,vals.pmId],vals.jsonData);
 }
 
 export function edit(vals:any) {
-    return postData(1736, [vals.uid,vals.orderCode,vals.orderTime,vals.warehouseId,vals.supplierId,vals.paidAmount,vals.totalAmount,vals.remark],vals.jsonData);
+    return postData(1736, [vals.uid,vals.orderCode,vals.orderTime,vals.warehouseId,vals.supplierId,vals.paidAmount,vals.totalAmount,vals.remark,vals.pmId],vals.jsonData);
 }
 
 export function remove(vals:any) {
@@ -29,5 +29,5 @@ export function addWarehousing(vals:any) {
 }
 
 export function addOrType(vals:any) {
-    return postData(1745, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.supplierId,vals.paidAmount,vals.totalAmount,vals.remark],vals.jsonData);
+    return postData(1745, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.supplierId,vals.paidAmount,vals.totalAmount,vals.remark,vals.pmId],vals.jsonData);
 }

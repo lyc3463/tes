@@ -66,6 +66,12 @@ const CheckAllFp=(props)=>{
             }
         },
         {
+            title: '所属房屋',
+            dataIndex: 'house_name',
+            key: 'house_name',
+            ellipsis: true,
+        },
+        {
             title: '单元名称',
             dataIndex: 'unitList',
             key: 'unitList',
@@ -122,7 +128,7 @@ const CheckAllFp=(props)=>{
             key: 'consumptionType',
             render:(_:any,item:any)=>{
                 let consumptionTypeText;
-                switch (item.consumptionType) {
+                switch (item.consumptionType?item.consumptionType:item.billType) {
                     case 1:
                         consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>微信充值</Tag>;
                         break;
@@ -153,6 +159,10 @@ const CheckAllFp=(props)=>{
                     case 11:
                         consumptionTypeText = <Tag style={{ color: '#795558' }}>报修</Tag>;
                         break;
+                    case 12:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>装修押金</Tag>;
+                        break;
+
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
@@ -163,12 +173,15 @@ const CheckAllFp=(props)=>{
         },
         {
             title: '开票金额',
-            dataIndex: 'consumptionMoney',
-            key: 'consumptionMoney',
+            dataIndex: 'sdprice',
+            key: 'sdprice',
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        <span style={{fontSize:'14px',color:'red'}}>{record.consumptionMoney.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
+                        {
+                            record.consumptionType==0?<span style={{fontSize:'14px',color:'red'}}>{record.sdprice.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>:
+                            <span style={{fontSize:'14px',color:'red'}}>{record.consumptionMoney.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
+                        }
                     </div>
                 )
             }
@@ -197,18 +210,6 @@ const CheckAllFp=(props)=>{
                 )
             }
         },
-        // {
-        //     title: '通知租户',
-        //     dataIndex: 'tz',
-        //     key: 'tz',
-        //     render:(text:any,record:any,)=>{
-        //         return(
-        //             <div>
-        //                 {record.invoiceStatus==2?<Button type='link' onClick={()=>onOpen(record)}>发送</Button>:''}
-        //             </div>
-        //         )
-        //     }
-        // },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -219,7 +220,7 @@ const CheckAllFp=(props)=>{
                         {record.invoiceStatus==1?(<>
                             <Button type='primary' onClick={()=>onTongguo(record)}>审核通过</Button>
                         </>):''}
-                        <Button type='primary' onClick={()=>toedit(record)}>详情</Button>
+                        {/* <Button type='primary' onClick={()=>toedit(record)}>详情</Button> */}
                     </Space>
                 )
             }
@@ -250,6 +251,8 @@ const CheckAllFp=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('props',props);
+        
     }, [page,pageSize]);
     // 审核通过弹窗
     const onTongguo=(e:TypeCheckFp)=>{
@@ -476,10 +479,12 @@ const CheckAllFp=(props)=>{
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {props.count?props.count.moneySum.toFixed(2):''}元
+                                {props.count?(props.count.moneySum+props.count.energyUsage).toFixed(2):''}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

@@ -3,6 +3,7 @@ import {history,connect} from "umi";
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {userQx} from "@/utils/OpenTool";
 
 const InventoryRequest=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -37,7 +38,7 @@ const InventoryRequest=(props)=>{
             key:'stockCode',
             ellipsis:true,
             render:(text,record)=>{
-                return <Button type='link' onClick={()=>{history.push(`/warehouse/inventoryRequestDetail?id=${record.id}`)}}>{text}</Button>
+                return <Button type='link' onClick={()=>{history.push(`/warehouse/noInventoryRequestDetail?id=${record.id}`)}}>{text}</Button>
             }
         },
         {
@@ -70,8 +71,8 @@ const InventoryRequest=(props)=>{
                 return <Space>
                     {
                         record.stockStatus==1?<>
-                            <Button type='primary'>编辑</Button>
-                            <Button type='primary' danger onClick={()=>isDelOpen(record.id)}>删除</Button>
+                            {userQx()[517]=='1'?<Button type='primary' onClick={()=>{history.push(`/warehouse/editInventoryRequest?id=${record.id}`)}}>编辑</Button>:''}
+                            {userQx()[518]=='1'?<Button type='primary' danger onClick={()=>isDelOpen(record.id)}>删除</Button>:''}
                         </>:''
                     }
                 </Space>
@@ -121,6 +122,7 @@ const InventoryRequest=(props)=>{
     useEffect(() => {
         getList();
     }, [page,pageSize]);
+
     useEffect(() => {
         getFenye();
     }, []);
@@ -129,17 +131,17 @@ const InventoryRequest=(props)=>{
         getList();
         getFenye();
     };
-    const changeOrderCode=()=>{
-
-    };0
+    const changeOrderCode=(e)=>{
+        setOrderCode(e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
-                        <Button type="primary" onClick={toAdd}>
+                        {userQx()[516]=='1'?<Button type="primary" onClick={toAdd}>
                             申请盘点
-                        </Button>
+                        </Button>:''}
                     </Space>
                     <Space>
                         <Input

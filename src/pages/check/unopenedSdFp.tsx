@@ -20,13 +20,15 @@ import {
 import TypeCheckFp from "@/ModelTypes/TypeCheckFp";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
-const UnopenedSdFp=(props)=>{
+const UnopenedSdFp=(props:any)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     const [type,settype]=useState(checkSessionStorage('/check/checkFp/','unopenedSdFptype')||0);
     const [tenantr,settenantr]=useState(checkSessionStorage('/check/checkFp/','unopenedSdFpTenantr')||0);
     const [stutes,setstutes]=useState(checkSessionStorage('/check/checkFp/','unopenedSdFpStutes')||0);
+    const [startDate,setStartDate]=useState(checkSessionStorage('/check/checkFp/','unopenedSdFptypeStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/check/checkFp/','unopenedSdFptypeEndDate')||'2099-01-01');
     const [zuhuList,setZuhuList]=useState([]);
     const [sumMoney,setSumMoney]=useState(0);
     const columns =[
@@ -106,7 +108,7 @@ const UnopenedSdFp=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'UnopenedSdFp/fetch',
-            payload:{tenantr,type,stutes}
+            payload:{tenantr,type,stutes,startDate,endDate}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 // 计算eleMoney总和
@@ -147,6 +149,20 @@ const UnopenedSdFp=(props)=>{
     const changeType=(e)=>{
         settype(e);
         updateSessionStorage('/check/checkFp/','unopenedSdFptype',e);
+    };
+    // 监听日期
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/check/checkFp/','unopenedSdFptypeStartDate','2000-01-01');
+            updateSessionStorage('/check/checkFp/','unopenedSdFptypeEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/check/checkFp/','unopenedSdFptypeStartDate',data[0]);
+            updateSessionStorage('/check/checkFp/','unopenedSdFptypeEndDate',data[1]);
+        }
     };
     return(
         <Spin spinning={isLoading}>
@@ -205,6 +221,23 @@ const UnopenedSdFp=(props)=>{
                                     { value: 3, label: '待审核' },
                                 ]}
                             />
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                时间:
+                            </div>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Space.Compact>
                             <div

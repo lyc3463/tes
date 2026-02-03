@@ -1,15 +1,19 @@
-import {Button, DatePicker, Input, List, Pagination, Select, Space, Spin, Table} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table} from "antd";
 import dayjs from "dayjs";
 import {connect, history} from "umi";
 import {useEffect, useState} from "react";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const Supplier=(props)=>{
     const [spinning, setSpinning] = useState(false);
     const [page,setPage]=useState(1);
-    const [supplierName,setSupplierName]=useState('');
-    const [personName,setPersonName]=useState('');
-    const [personPhone,setPersonPhone]=useState('');
+    const [supplierName,setSupplierName]=useState(checkSessionStorage('/warehouse/supplier','supplierName') || '');
+    const [personName,setPersonName]=useState(checkSessionStorage('/warehouse/supplier','personName') || '');
+    const [personPhone,setPersonPhone]=useState(checkSessionStorage('/warehouse/supplier','personPhone') || '');
     const [pageSize,setPageSize]=useState(50);
+    const [uid,setUid]=useState(0);
+    const [dopen,setDopen]=useState(false);
     const columns = [
         {
             title: '供应商名称',
@@ -42,13 +46,17 @@ const Supplier=(props)=>{
             render: (_: any, record: any) => (
                 <Space size="small">
                     <Button type="primary" onClick={()=>{history.push(`/warehouse/editSupplier?id=${record.id}`)}}>编辑</Button>
-                    <Button type="primary" danger>删除</Button>
+                    <Button type="primary" danger onClick={()=>isDel(record)}>删除</Button>
                 </Space>
             ),
         },
     ];
     const toadd=()=>{
         history.push('/warehouse/addSupplier');
+    };
+    const isDel=(record:any)=>{
+        setUid(record.id);
+        setDopen(true);
     };
     // 获取列表
     const getList=()=>{
@@ -74,6 +82,38 @@ const Supplier=(props)=>{
         setPage(page);
         setPageSize(pageSize);
     };
+    const sousuo=()=>{
+        setPage(1);
+        getList();
+    };
+    const changeSupplierName=(e)=>{
+        setSupplierName(e.target.value);
+        updateSessionStorage('/warehouse/supplier','supplierName',e.target.value);
+    };
+    const changePersonName=(e)=>{
+        setPersonName(e.target.value);
+        updateSessionStorage('/warehouse/supplier','personName',e.target.value);
+    };
+    const changePersonPhone=(e)=>{
+        setPersonPhone(e.target.value);
+        updateSessionStorage('/warehouse/supplier','personPhone',e.target.value);
+    };
+    const onOK=()=>{
+      setSpinning(true);
+      props.dispatch({
+          type:"Supplier/remove",
+          payload:uid
+      }).then((res:TypeErrorCode)=>{
+          if (res.ErrorCode == 0) {
+            message.success('删除成功');
+            setDopen(false);
+            setSpinning(false);
+          } else {
+            message.error(res.ErrorCode + res.Data);
+            setSpinning(false);
+          }
+      })
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -86,7 +126,20 @@ const Supplier=(props)=>{
                     <Space>
                         <Input
                             addonBefore="供应商名称:"
+                            value={supplierName}
+                            onChange={changeSupplierName}
                         />
+                        <Input
+                            addonBefore="联系电话:"
+                            value={personPhone}
+                            onChange={changePersonPhone}
+                        />
+                        <Input
+                            addonBefore="联系人:"
+                            value={personName}
+                            onChange={changePersonName}
+                        />
+                        <Button type="primary" onClick={sousuo}>搜索</Button>
                     </Space>
                 </List.Item>
             </List>
@@ -100,6 +153,9 @@ const Supplier=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
+            <Modal open={dopen} loading={spinning} title='确认删除吗？' onOk={onOK} onCancel={()=>setDopen(false)}>
+
+            </Modal>
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </Spin>
     )

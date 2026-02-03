@@ -70,6 +70,15 @@ const EditWarehouseType=(props)=>{
                 >
                     <Input placeholder="请输入仓库名称" />
                 </Form.Item>
+                <Form.Item
+                    name="typeName"
+                    label="类型名称"
+                    rules={[
+                        { required: true, message: '请输入类型名称' },
+                    ]}
+                >
+
+                </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary"  htmlType="submit">
                         修改

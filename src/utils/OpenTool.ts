@@ -1302,3 +1302,50 @@ export const  generate=(str:string)=>{
     const randomNum = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
     return `${initialsOrderNumber}${dateStr}${randomNum}`;
 };
+// 用户权限
+export const userQx = () => StaticInfo.uqx.split('');
+
+// 新财务数据列表
+export function newprocessBills(data) {
+    const bills = data;
+    // 分离bill_status为0和1的账单
+    const pendingBills = bills.filter(bill => bill.orderStatus === 1);
+    const otherBills = bills.filter(bill => bill.orderStatus === 2);
+
+    // 按account_id分组待处理的账单
+    const groupedBills = {};
+    pendingBills.reverse();
+
+    pendingBills.forEach(bill => {
+        if (!groupedBills[bill.accountId]) {
+            groupedBills[bill.accountId] = [];
+        }
+        groupedBills[bill.accountId].push(bill);
+    });
+
+    // 对每个账户进行处理
+    for (const accountId in groupedBills) {
+        const group = groupedBills[accountId];
+
+        // 获取该组的第一个balance值
+        let balance = group[0].balance;
+
+        // 遍历该组账单进行累加或减去
+        group.forEach((bill, index) => {
+            // 每次都更新当前账单的balance，依赖前一项的结果
+            if (bill.moneyType === 2) {
+                balance -= bill.totalAmount;
+            } else if (bill.moneyType === 1) {
+                balance += bill.totalAmount;
+            }
+
+            // 更新当前账单的balance
+            bill.balance2 = balance;
+        });
+    }
+    // 返回更新后的账单数据
+    return {
+        ErrorCode: 0,
+        Data: [...otherBills, ...pendingBills]
+    };
+}

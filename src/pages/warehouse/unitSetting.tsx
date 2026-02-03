@@ -2,11 +2,12 @@ import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import {Button, Input, List, message, Modal, Pagination, Space, Spin, Table} from "antd";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const UnitSetting=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);
-    const [name,setName]=useState('');
+    const [name,setName]=useState(checkSessionStorage('/warehouse/warehouseAndType','WarehouseUnitSettingListName') || '');
     const [pageSize,setPageSize]=useState(50);
     const [visible,setVisible]=useState(false);
     const [uid,setUid]=useState('');
@@ -78,6 +79,10 @@ const UnitSetting=(props)=>{
         setPage(page);
         setPageSize(pageSize);
     };
+    const changeName=(e:any)=>{
+        setName(e.target.value);
+        updateSessionStorage('/warehouse/warehouseAndType','WarehouseUnitSettingListName',e.target.value);
+    }
     return(
       <Spin spinning={spinning}>
           <List>
@@ -89,7 +94,7 @@ const UnitSetting=(props)=>{
                       <Input
                           addonBefore="单位名称:"
                           value={name}
-                          onChange={(e)=>setName(e.target.value)}
+                          onChange={changeName}
                       />
                       <Button type="primary" onClick={getList}>
                           搜索

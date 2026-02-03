@@ -74,10 +74,27 @@ const AddPurchase=(props)=>{
     const columnsz = [
         {
             title: '物品图片',
-            dataIndex: 'productsImageBase64',
-            key:'productsImageBase64',
-            render:(text)=>{
-                return <Image src={text} alt="" style={{width:'50px',height:'50px'}}/>
+            dataIndex: 'productsImage',
+            ellipsis: true,
+            render: (text: string, record: any) => {
+                // 核心修复：先将text转为字符串，再做空值+后缀判断
+                // 步骤1：处理非字符串类型（如null/undefined/数字），转为空字符串
+                const textStr = String(text || '');
+
+                // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
+                const imageUrl = textStr && textStr.endsWith('.png')
+                    ? `http://img.qhwy6.com/${textStr}`
+                    : `http://img.qhwy6.com/${textStr}_X.png`;
+                // 步骤3：仅当字符串非空时渲染图片，否则返回空
+                return textStr ? (
+                    <Image
+                        src={imageUrl}
+                        style={{width:'50px',height:'50px'}}
+                        fallback="https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片"
+                    />
+                ) : (
+                    ''
+                );
             }
         },
         {
@@ -227,6 +244,10 @@ const AddPurchase=(props)=>{
     };
     // 确定入库
     const onOK=()=>{
+        if (selectedRowKeys.length < 1) {
+            message.error('请选择要入库的物品');
+            return; // 阻止提交
+        }
         setSpinning(true);
         props.dispatch({
             type:'Purchase/addWarehousing',
@@ -238,6 +259,8 @@ const AddPurchase=(props)=>{
             if (res.ErrorCode==0){
                 message.success('入库成功');
                 setSpinning(false);
+                getOne(uid);
+                setSelectedRowKeys([]);
             } else {
                 message.error(res.ErrorCode + res.Data);
                 setSpinning(false);

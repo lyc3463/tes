@@ -40,6 +40,7 @@ export interface StaffInterface {
         check: Effect;
         add: Effect;
         remove: Effect;
+        payment: Effect;
     };
     reducers: {
         list: Reducer<StaffType[]>;
@@ -54,6 +55,7 @@ const SalesPaymentModel: StaffInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(RequisitionForm.fetch, payload?payload:pl);
+            console.log('res',res);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -100,10 +102,17 @@ const SalesPaymentModel: StaffInterface = {
             return result;
 
         },
-
+        *payment({ payload, callback }, { call, put, take }): any {
+            const result = yield call(RequisitionForm.payment, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield put({ type: 'fenye', payload: pl });
+            yield take('fetch/@@end');
+            return result;
+        },
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(RequisitionForm.fenye,payload?payload:pl);
             if (res.ErrorCode == 0) {
+                console.log('分页信息',res)
                 yield put({
                     type: 'count',
                     payload: { count: res.Data },

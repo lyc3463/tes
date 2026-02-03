@@ -8,15 +8,15 @@ export function fenye(vals:any) {
 }
 // 添加领用订单
 export function add(vals:any) {
-    return postData(1746, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.paidAmount,vals.totalAmount,vals.remark,vals.warehouseId2,vals.customerType,vals.customerId],vals.jsonData);
+    return postData(1746, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.paidAmount,vals.totalAmount,vals.remark,0],vals.jsonData);
 }
 // 添加退货订单
 export function addReturn(vals:any) {
-    return postData(1753, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.paidAmount,vals.totalAmount,vals.remark],vals.jsonData);
+    return postData(1753, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.paidAmount,vals.totalAmount,vals.remark,vals.pmId],vals.jsonData);
 }
 // 添加调拨单
 export function addTransfer(vals:any) {
-    return postData(1763, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.warehouseId2,vals.remark],vals.jsonData);
+    return postData(1763, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.remark,vals.warehouseId2],vals.jsonData);
 }
 // 添加损耗单
 export function addDamage(vals:any) {
@@ -24,10 +24,10 @@ export function addDamage(vals:any) {
 }
 // 添加销售单
 export function addSales(vals:any) {
-    return postData(1762, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.paidAmount,vals.totalAmount,vals.remark,vals.customerType,vals.customerId],vals.jsonData);
+    return postData(1762, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.remark,vals.paidAmount,vals.totalAmount,vals.customerType,vals.customerId,vals.discountRate,vals.discountPrice,vals.pmId,vals.salesperson],vals.jsonData);
 }
 export function edit(vals:any) {
-    return postData(1747, [vals.uid,vals.orderCode,vals.orderTime,vals.warehouseId,vals.paidAmount,vals.totalAmount,vals.remark,vals.warehouseId2,vals.customerType,vals.customerId],vals.jsonData);
+    return postData(1747, [vals.uid,vals.orderCode,vals.orderTime,vals.warehouseId,vals.paidAmount,vals.totalAmount,vals.remark,vals.warehouseId2,vals.customerType,vals.customerId,vals.discountRate,vals.discountPrice,vals.pmId,vals.salesperson],vals.jsonData);
 }
 
 export function remove(vals:any) {
@@ -38,6 +38,9 @@ export function one(vals:any) {
 }
 export function check(vals:any) {
     return getData(1752, [vals,2]);
+}
+export function payment(vals:any) {
+    return getData(1765, [vals.uid,vals.paymentAmount,vals.paymentType,vals.payCrderCode,vals.payOrderType]);
 }
 
 

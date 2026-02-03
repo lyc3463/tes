@@ -29,7 +29,7 @@ const AddCar=(props)=>{
             type:'UserCar/add',
             payload:{appId, carNo, carColor, carType, driversLicense, vehicleLicense,remark}
         }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
+            if (res.ErrorCode==0||res.ErrorCode==9038){
                 message.success('添加成功');
                 history.push('/wisdomStop/carManage/');
                 setSpinning(false);

@@ -16,7 +16,8 @@ let pl={
     productsName:'',// 物品名称
     startDate:'2000-01-01',// 开始时间
     endDate:'2099-01-01',// 结束日期
-    pageSize:50 // 每页数量
+    pageSize:50, // 每页数量
+    unitId:0// 单位id
 }
 export interface StaffCountState {
     count: number;
@@ -69,6 +70,7 @@ const ThingStockInfoModel: StaffInterface = {
 
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(ThingStockInfo.fenye,payload?payload:pl);
+            console.log('分页信息',res);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'count',

@@ -1,19 +1,19 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
-import {connect} from "umi";
+import {connect,history} from "umi";
 import dayjs from "dayjs";
-import {history} from "@@/core/history";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
 
 const PurchaseRequestCheck=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);  // 当前页数
-    const [orderCode,setOrderCode]=useState('');// 采购单号
-    const [warehouseName,setWarehouseName]=useState('');// 仓库名称
-    const [supplierName,setSupplierName]=useState('');// 供应商
-    const [startDate,setStartDate]=useState('2000-01-01');// 开始时间
-    const [endDate,setEndDate]=useState('2099-01-01');// 结束日期
-    const [orderStatus,setOrderStatus]=useState(0);// 订单状态
+    const [orderCode,setOrderCode]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckOrderCode')||'');// 采购单号
+    const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckWarehouseName')||'');// 仓库名称
+    const [supplierName,setSupplierName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckSupplierName')||'');// 供应商
+    const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckStartDate')||'2000-01-01');// 开始时间
+    const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckEndDate')||'2099-01-01');// 结束日期
+    const [orderStatus,setOrderStatus]=useState(Number(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckOrderStatus')||0));// 订单状态
     const [billStatus,setBillStatus]=useState(0);// 是否交完钱状态
     const [pageSize,setPageSize]=useState(50); // 每页数量
     const [orderType,setOrderType]=useState(1);// 订单类型
@@ -68,6 +68,13 @@ const PurchaseRequestCheck=(props)=>{
             align:'center',
         },
         {
+            title:'备注',
+            dataIndex:'remark',
+            key:'remark',
+            align:'center',
+            ellipsis:true,
+        },
+        {
             title:'状态',
             dataIndex:'orderStatus',
             key:'orderStatus',
@@ -81,24 +88,16 @@ const PurchaseRequestCheck=(props)=>{
             }
         },
         {
-            title:'备注',
-            dataIndex:'remark',
-            key:'remark',
-            align:'center',
-            ellipsis:true,
-        },
-        {
             title:'操作',
             dataIndex:'status',
             key:'status',
             align:'center',
+            fixed:'right',
             render:(text,record)=>{
                 return(
                     <Space>
                         {record.orderStatus==1&&<>
-                            <Button type="primary" onClick={()=>isCheckOpen(record.id)}>
-                                审核
-                            </Button>
+                            {userQx()[484]=='1'?<Button type="primary" onClick={()=>isCheckOpen(record.id)}>审核</Button>:''}
                         </>}
                     </Space>
                 )
@@ -116,10 +115,10 @@ const PurchaseRequestCheck=(props)=>{
             type:'PurchaseRequestCheck/check',
             payload:dUid,
         }).then((res:TypeErrorCode)=>{
-            setSpinning(false);
             if(res.ErrorCode===0){
                 message.success('审核成功');
                 setDOpen(false);
+                setSpinning(false);
             }else{
                 message.error(res.Data);
                 setSpinning(false);
@@ -150,16 +149,60 @@ const PurchaseRequestCheck=(props)=>{
     useEffect(() => {
         getList();
     }, [page,pageSize]);
+    const sousuo=()=>{
+        setPage(1);
+        getList();
+        getFenye();
+    };
+    const changeWarehouseName=(e)=>{
+        updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckWarehouseName',e.target.value);
+        setWarehouseName(e.target.value);
+    };
+    const changeOrderCode=(e)=>{
+        setOrderCode(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckOrderCode',e.target.value);
+    };
+    const changeSupplierName=(e)=>{
+        setSupplierName(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckSupplierName',e.target.value);
+    };
+    // 监听日期
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckStartDate','2000-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckStartDate',data[0]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckEndDate',data[1]);
+        }
+    };
+    const changeOrderStatus=(e)=>{
+        setOrderStatus(e);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckOrderStatus',e);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
+                            addonBefore="供应商:"
+                            value={supplierName}
+                            onChange={changeSupplierName}
+                        />
+                        <Input
                             addonBefore="仓库名称:"
+                            value={warehouseName}
+                            onChange={changeWarehouseName}
                         />
                         <Input
                             addonBefore="单号:"
+                            value={orderCode}
+                            onChange={changeOrderCode}
                         />
                         <Space.Compact>
                             <div
@@ -176,9 +219,35 @@ const PurchaseRequestCheck=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        <Button type="primary" >
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                style={{ width: 120 }}
+                                value={orderStatus}
+                                onChange={changeOrderStatus}
+                                options={[
+                                    {label:'全部',value:0},
+                                    {label:'待审核',value:1},
+                                    {label:'已审核',value:2},
+                                ]}
+                            />
+                        </Space.Compact>
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -188,15 +257,28 @@ const PurchaseRequestCheck=(props)=>{
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
-                scroll={{y:'60vh'}}
+                scroll={{y:'60vh',x:1500}}
                 dataSource={props.list}
                 rowKey={(columns) => columns.id}
                 size='small'
+                summary={(columns) => (
+                    <Table.Summary >
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal title="审核弹窗" open={dOpne} onOk={()=>checkOk()} onCancel={()=>setDOpen(false)} loading={spinning}>
                 是否要审核?
             </Modal>
+
         </Spin>
     )
 }

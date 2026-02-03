@@ -9,3 +9,7 @@ export function fetch(vals:string,isYs:number) {
 export function addList(vals:string) {
     return postData(1651, [],vals);
 }
+// png 图片上传
+export function fetch1078(vals:string,isYs:number) {
+    return postData(1805, [isYs],vals);
+}

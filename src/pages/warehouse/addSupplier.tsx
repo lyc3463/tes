@@ -33,7 +33,7 @@ const AddSupplier=(props:any)=>{
                 wrapperCol={{ span: 14 }}
                 form={form}
                 onFinish={onFinish}
-                initialValues={{remark:''}}
+                initialValues={{remark:'',supplierAddress:'',personName:'',personPhone:''}}
                 layout="horizontal"
                 size={'large'}
                 style={{ marginTop: '1rem' }}
@@ -48,21 +48,18 @@ const AddSupplier=(props:any)=>{
                 <Form.Item
                     name="supplierAddress"
                     label="所在地址"
-                    rules={[{ required: true, message: '请输入所在地址' }]}
                 >
                     <Input placeholder="请输入详细地址（如：XX市XX区XX路）" />
                 </Form.Item>
                 <Form.Item
                     name="personName"
                     label="联系人"
-                    rules={[{ required: true, message: '请输入联系人' }]}
                 >
                     <Input placeholder="请输入联系人" />
                 </Form.Item>
                 <Form.Item
                     name="personPhone"
                     label="联系电话"
-                    rules={[{ required: true, message: '请输入联系电话' }]}
                 >
                     <Input placeholder="请输入负责人联系电话"/>
                 </Form.Item>

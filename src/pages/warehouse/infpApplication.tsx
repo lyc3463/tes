@@ -20,6 +20,10 @@ import {connect,useNavigate,history} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as Application from "@/services/application";
 import dayjs from "dayjs";
+import WarehousingPrint from "@/components/WarehousingPrint";
+import './print.less';
+import {AlignCenterOutlined} from "@ant-design/icons";
+
 const InfpApplication=(props)=>{
     const navigate=useNavigate();
     const formRef=useRef();
@@ -40,8 +44,26 @@ const InfpApplication=(props)=>{
     const [totalAmount,setTotalAmount]=useState(0);
     // 备注
     const [remark,setRemark]=useState('');
+    // 仓库名称
+    const [warehouseName,setWarehouseName]=useState('');
+    // 供应商名称
+    const [supplierName,setSupplierName]=useState('');
+    // 采购人
+    const [user_name,setUserName]=useState('');
     // 订单物品列表
     const [goods,setGoods]=useState([]);
+    const [printVisible,setPrintVisible]=useState(false);
+    const printProps = {
+        orderCode,
+        warehouseName,
+        orderTime,
+        totalAmount,
+        paidAmount,
+        user_name,
+        goods,
+        title:'采购申请',
+        supplierName
+    };
     const getOne=async (id:string)=>{
         setSpinning(true);
         let res:any=await  Application.one(id);
@@ -54,6 +76,7 @@ const InfpApplication=(props)=>{
             setSupplierId(data.supplierId);
             setOrderTime(data.orderTime);
             setPaidAmount(data.paidAmount);
+            setUserName(data.user_name);
             setTotalAmount(data.totalAmount);
             setRemark(data.remark);
             setGoods(data.ppList);
@@ -72,10 +95,27 @@ const InfpApplication=(props)=>{
     const columnsz = [
         {
             title: '物品图片',
-            dataIndex: 'productsImageBase64',
-            key:'productsImageBase64',
-            render:(text)=>{
-                return <Image src={text} alt="" style={{width:'50px',height:'50px'}}/>
+            dataIndex: 'productsImage',
+            ellipsis: true,
+            render: (text: string, record: any) => {
+                // 核心修复：先将text转为字符串，再做空值+后缀判断
+                // 步骤1：处理非字符串类型（如null/undefined/数字），转为空字符串
+                const textStr = String(text || '');
+
+                // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
+                const imageUrl = textStr && textStr.endsWith('.png')
+                    ? `http://img.qhwy6.com/${textStr}`
+                    : `http://img.qhwy6.com/${textStr}_X.png`;
+                // 步骤3：仅当字符串非空时渲染图片，否则返回空
+                return textStr ? (
+                    <Image
+                        src={imageUrl}
+                        style={{width:'50px',height:'50px'}}
+                        fallback="https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片"
+                    />
+                ) : (
+                    ''
+                );
             }
         },
         {
@@ -130,17 +170,22 @@ const InfpApplication=(props)=>{
             dataIndex: 'unitsId',
             key:'unitsId',
             render:(text, record) => (
-                <Select
-                    placeholder='选择单位'
-                    style={{width:120}}
-                    value={record.unitsId}
-                    options={Array.isArray(record.unitsList) && record.unitsList.length > 0
-                        ? record.unitsList.map((item:any)=>({
-                            label:item.unitsName,
-                            value:item.from_unit_id,
-                        }))
-                        : []}
-                />
+                <div>
+                    {
+                        record.isHs==0?<span>{record.unitsName}</span>:
+                            <Select
+                                placeholder='选择单位'
+                                disabled={record.isHs==0}
+                                style={{width:120}}
+                                options={Array.isArray(record.unitsList) && record.unitsList.length > 0
+                                    ? record.unitsList.map((item:any)=>({
+                                        label:item.unitsName,
+                                        value:item.from_unit_id,
+                                    }))
+                                    : []}
+                            />
+                    }
+                </div>
             )
         },
         {
@@ -206,13 +251,66 @@ const InfpApplication=(props)=>{
         getWarehouseList();
         getThingList();
     }, []);
-
+    // 自定义打印方法（处理内容隔离和样式）
+    const handlePrint = () => {
+        setTimeout(() => {
+            // 3. 触发打印（此时已应用最新仓库名称）
+            window.print();
+        }, 0);
+    };
+    const isOpen=()=>{
+        setPrintVisible(true);
+        // 1. 动态获取仓库名称（修复硬编码）
+        const warehouse = props.warehouseListList.find(w => w.id === warehouseId);
+        setWarehouseName(warehouse?.warehouseName || '未知仓库');
+        // 3. 动态获取供应商名称（修复硬编码）
+        const supplier = props.supplierList.find(s => s.id === supplierId);
+        setSupplierName(supplier?.personName || '未知供应商');
+    };
     return(
         <Spin spinning={spinning}>
+            <style global>
+                {`
+                    /* 隐藏浏览器默认页眉页脚（包含路由路径） */
+                    @media print {
+                      @page {
+                        size: A4; /* 指定A4纸张 */
+                        margin: 0; /* 边距设为0，消除默认页眉页脚区域 */
+                      }
+            
+                      /* 确保打印内容有内边距（替代浏览器默认边距） */
+                      .print-only-content {
+                        padding: 20mm; /* 模拟A4标准边距（上右下左） */
+                        margin: 0 auto;
+                        width: 210mm; /* A4宽度 */
+                        min-height: 297mm; /* A4高度 */
+                        box-sizing: border-box;
+                      }
+            
+                      /* 隐藏所有非打印内容 */
+                      body *:not(.print-only-content):not(.print-only-content *) {
+                        visibility: hidden;
+                      }
+            
+                      /* 确保打印容器可见且定位正确 */
+                      .print-only-content {
+                        visibility: visible !important;
+                        position: fixed;
+                        left: 0;
+                        top: 0;
+                        background: white;
+                      }
+                    }
+                  `}
+            </style>
             <Space>
                 <Button type="primary" onClick={()=>navigate(-1)}>
                     返回
                 </Button>
+                <Button
+                    onClick={isOpen}
+                    icon={<AlignCenterOutlined />} // 使用打印图标
+                />
             </Space>
             <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',margin:'10px 0'}}>
                 <Input addonBefore="单号:" placeholder='随机生成' value={orderCode} disabled/>
@@ -257,6 +355,19 @@ const InfpApplication=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
+            <Modal
+                open={printVisible}
+                onCancel={()=>setPrintVisible(false)}
+                width={1200}
+                footer={[
+                    <Button key="print" type="primary" onClick={handlePrint}>打印</Button>,
+                    <Button key="cancel" onClick={()=>setPrintVisible(false)}>关闭</Button>
+                ]}
+            >
+                <div className="print-only-content">
+                    <WarehousingPrint {...printProps} />
+                </div>
+            </Modal>
         </Spin>
     )
 }

@@ -250,7 +250,7 @@ const EndContran=()=>{
                     </p>
                     <p style={{marginLeft:'30px',fontWeight:500,fontSize:'24px'}}>第二条：租赁期限</p>
                     <p style={{marginLeft:'50px'}}>
-                        租赁期限为<Input style={{width:'100px'}} placeholder='模板不用填写' disabled/>年，即从<DatePicker.RangePicker disabled/>止（含免租期）。租赁期限届满前1个月，如双方未就续约事宜达成一致的，甲方可带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的1个月前向甲方书面申请，在同等条件下，乙方有优先承租权。
+                        租赁期限为<Input style={{width:'100px'}} placeholder='模板不用填写' disabled/>年，即从<DatePicker.RangePicker disabled/>止（含免租期）。租赁期限届满前1个月，如双方未就续约事宜达成一致的，甲方可带新租户或未来使用者勘察该出租单元。合同到期乙方如需续租，须在合同到期日的1个月前向甲方书面申请，在同等条件下，乙方有优先承租权。租赁期限届满后，若双方未重新签订租赁合同且乙方继续使用租赁物，甲方没有提出异议的，则租赁期限自动顺延一年（可多次顺延）；顺延期间，双方权利义务，包括租金递增等，按本合同约定类推执行。
                     </p>
                     <p style={{marginLeft:'30px',fontWeight:500,fontSize:'24px'}}>第三条：免租期</p>
                     <p style={{marginLeft:'50px'}}>

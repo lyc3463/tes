@@ -4,14 +4,15 @@ import {connect, history} from "umi";
 import {getData} from "@/network/http";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
 
 const TransferForm=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);// 当前页数
-    const [orderCode,setOrderCode]=useState('');// 单号
-    const [warehouseName,setWarehouseName]=useState('');// 仓库名称
-    const [startDate,setStartDate]=useState('2000-01-01');// 开始日期
-    const [endDate,setEndDate]=useState('2099-01-01');// 结束日期
+    const [orderCode,setOrderCode]=useState(checkSessionStorage('/warehouse/thingStock','transferFormOrderCode')||'');// 单号
+    const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/thingStock','transferFormWarehouseName')||'');// 仓库名称
+    const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/thingStock','transferFormStartDate')||'2000-01-01');// 开始日期
+    const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/thingStock','transferFormEndDate')||'2099-01-01');// 结束日期
     const [orderStatus,setOrderStatus]=useState(1);// 订单状态
     const [billStatus,setBillStatus]=useState(0);// 账单状态
     const [pageSize,setPageSize]=useState(10);// 每页数量
@@ -34,7 +35,7 @@ const TransferForm=(props)=>{
             ellipsis: true,
             align:'center',
             render:(text,record)=>{
-                return <Button type='link' onClick={()=>history.push(`/warehouse/infoRequisitionForm?id=${record.id}`)}> {text}</Button>
+                return <Button type='link' onClick={()=>history.push(`/warehouse/infoTransferForm?id=${record.id}`)}> {text}</Button>
             }
         },
         {
@@ -78,13 +79,8 @@ const TransferForm=(props)=>{
                 <Space size="small">
                     {record.orderStatus==1?
                         <>
-                            <Button
-                                type="primary"
-                                onClick={()=>{isDleOpen(record.id)}}
-                                danger
-                            >删除</Button>
-                            <Button type="primary" onClick={()=>{
-                            }}>编辑</Button>
+                            {userQx()[536]=='1'?<Button type="primary" onClick={()=>{isDleOpen(record.id)}} danger>删除</Button>:''}
+                            {userQx()[535]=='1'?<Button type="primary" onClick={()=>{history.push(`/warehouse/editTransferForm?id=${record.id}`)}}>编辑</Button>:''}
                         </>
                         :
                         null
@@ -103,13 +99,13 @@ const TransferForm=(props)=>{
     };
     const getList=()=>{
         props.dispatch({
-            type:'TransferForm/fetch',
+            type:'ReviewTransferForm/fetch',
             payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
         })
     };
     const getFenye=()=>{
         props.dispatch({
-            type:'TransferForm/fenye',
+            type:'ReviewTransferForm/fenye',
             payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
         })
     };
@@ -140,19 +136,49 @@ const TransferForm=(props)=>{
             }
         })
     };
+    const changeWarehouseName=(e)=>{
+        updateSessionStorage('/warehouse/thingStock','transferFormWarehouseName',e.target.value);
+        setWarehouseName(e.target.value);
+    };
+    const changeOrderCode=(e)=>{
+        setOrderCode(e.target.value);
+        updateSessionStorage('/warehouse/thingStock','transferFormOrderCode',e.target.value);
+    }
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/warehouse/thingStock','transferFormStartDate','2000-01-01');
+            updateSessionStorage('/warehouse/thingStock','transferFormEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/warehouse/thingStock','transferFormStartDate',data[0]);
+            updateSessionStorage('/warehouse/thingStock','transferFormEndDate',data[1]);
+        }
+    };
+    const sousuo=()=>{
+        setPage(1);
+        getList();
+        getFenye();
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
-                        <Button type="primary" onClick={toadd}>申请调拨</Button>
+                        {userQx()[534]=='1'?<Button type="primary" onClick={toadd}>申请调拨</Button>:''}
                     </div>
                     <Space>
                         <Input
                             addonBefore="仓库名称:"
+                            value={warehouseName}
+                            onChange={changeWarehouseName}
                         />
                         <Input
                             addonBefore="单号:"
+                            value={orderCode}
+                            onChange={changeOrderCode}
                         />
                         <Space.Compact>
                             <div
@@ -169,9 +195,9 @@ const TransferForm=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        <Button type="primary" >
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -194,8 +220,8 @@ const TransferForm=(props)=>{
     )
 }
 const mapStateToProps = (state: any) => ({
-    list: state.TransferForm.list,
-    count: state.TransferForm.count,
+    list: state.ReviewTransferForm.list,
+    count: state.ReviewTransferForm.count,
 });
 
 export default connect(mapStateToProps)(TransferForm);

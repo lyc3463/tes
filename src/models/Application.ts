@@ -39,6 +39,7 @@ export interface StaffInterface {
         fenye: Effect;
         add: Effect;
         remove: Effect;
+
     };
     reducers: {
         list: Reducer<StaffType[]>;
@@ -82,7 +83,9 @@ const ApplicationModel: StaffInterface = {
         *remove({ payload, callback }, { call, put, take }): any {
             const result = yield call(Application.remove, payload);
             yield put({ type: 'fetch', payload: pl });
+            yield put({ type: 'PurchaseRequestCheck/fetch', payload: {page:1, orderCode:'', warehouseName:'', supplierName:'', pageSize:50, startDate:'2000-01-01', endDate:'2099-01-01', orderStatus:0, billStatus:0, orderType:1} });
             yield take('fetch/@@end');
+            yield take('PurchaseRequestCheck/fetch/@@end');
             return result;
 
         },
@@ -91,8 +94,8 @@ const ApplicationModel: StaffInterface = {
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result;
-
         },
+
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(Application.fenye,payload?payload:pl);
             if (res.ErrorCode == 0) {

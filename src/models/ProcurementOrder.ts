@@ -19,8 +19,8 @@ let pl={
     pageSize:50,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    orderStatus:0,
-    billStatus:2,
+    orderStatus:2,
+    billStatus:0,
     orderType:0
 }
 export interface StaffCountState {
@@ -52,6 +52,7 @@ const ProcurementOrderModel: StaffInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(Application.fetch, payload?payload:pl);
+            console.log('res',res);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
@@ -64,6 +65,7 @@ const ProcurementOrderModel: StaffInterface = {
         *payment({ payload, callback }, { call, put, take }): any {
             const result = yield call(PreferentialService.payment, payload);
             yield put({ type: 'fetch', payload: pl });
+            yield put({ type: 'fenye', payload: pl });
             yield take('fetch/@@end');
             return result
         },
@@ -79,6 +81,7 @@ const ProcurementOrderModel: StaffInterface = {
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(Application.fenye,payload?payload:pl);
             if (res.ErrorCode == 0) {
+                console.log('分页信息',res);
                 yield put({
                     type: 'count',
                     payload: { count: res.Data },

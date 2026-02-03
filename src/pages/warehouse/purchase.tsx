@@ -1,18 +1,19 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {connect} from "umi";
 import dayjs from "dayjs";
 import {history} from "@@/core/history";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
 
 const Purchase=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);  // 当前页数
-    const [orderCode,setOrderCode]=useState('');// 采购单号
-    const [warehouseName,setWarehouseName]=useState('');// 仓库名称
-    const [supplierName,setSupplierName]=useState('');// 供应商
-    const [startDate,setStartDate]=useState('2000-01-01');// 开始时间
-    const [endDate,setEndDate]=useState('2099-01-01');// 结束日期
+    const [orderCode,setOrderCode]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseOrderCode')||'');// 采购单号
+    const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseWarehouseName')||'');// 仓库名称
+    const [supplierName,setSupplierName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseSupplierName')||'');// 供应商
+    const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseStartDate')||'2000-01-01');// 开始时间
+    const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseEndDate')||'2099-01-01');// 结束日期
     const [orderStatus,setOrderStatus]=useState(2);// 订单状态 已审核/未审核
     const [billStatus,setBillStatus]=useState(0);// 是否交完钱状态
     const [pageSize,setPageSize]=useState(50); // 每页数量
@@ -34,11 +35,6 @@ const Purchase=(props)=>{
             dataIndex:'orderCode',
             key:'orderCode',
             align:'center',
-            render:(text,record)=>{
-                return(
-                    <Button type='link' onClick={()=>{history.push(`/warehouse/infpApplication?id=${record.id}`);}}>{text}</Button>
-                )
-            }
         },
         {
             title:'入库仓库',
@@ -96,14 +92,11 @@ const Purchase=(props)=>{
                 return(
                     <Space>
                         {record.orderStatus==2&&<>
-                            <Button type='primary' onClick={()=>toadd(record.id)}>
-                                入库
-                            </Button>
+                            {userQx()[487]=='1'?<Button type='primary' onClick={()=>toadd(record.id)}>入库</Button>:''}
                         </>}
                     </Space>
                 )
             }
-
         },
     ];
     // 前往入库
@@ -134,16 +127,56 @@ const Purchase=(props)=>{
     useEffect(() => {
         getList();
     }, [page,pageSize]);
+    const sousuo=()=>{
+        setPage(1);
+        getList();
+        getFenye();
+    };
+    const changeWarehouseName=(e)=>{
+        updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseWarehouseName',e.target.value);
+        setWarehouseName(e.target.value);
+    };
+    const changeOrderCode=(e)=>{
+        setOrderCode(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseOrderCode',e.target.value);
+    };
+    const changeSupplierName=(e)=>{
+        setSupplierName(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseSupplierName',e.target.value);
+    };
+    // 监听日期
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseStartDate','2000-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseStartDate',data[0]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseEndDate',data[1]);
+        }
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
+                            addonBefore="供应商:"
+                            value={supplierName}
+                            onChange={changeSupplierName}
+                        />
+                        <Input
                             addonBefore="仓库名称:"
+                            value={warehouseName}
+                            onChange={changeWarehouseName}
                         />
                         <Input
                             addonBefore="单号:"
+                            value={orderCode}
+                            onChange={changeOrderCode}
                         />
                         <Space.Compact>
                             <div
@@ -160,9 +193,9 @@ const Purchase=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        <Button type="primary" >
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -176,6 +209,18 @@ const Purchase=(props)=>{
                 dataSource={props.list}
                 rowKey={(columns) => columns.id}
                 size='small'
+                summary={(columns) => (
+                    <Table.Summary >
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
+                        </Table.Summary.Row>
+                    </Table.Summary>
+                )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </Spin>

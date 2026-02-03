@@ -13,28 +13,6 @@ const AddSales=()=>{
     const openGoods=()=>{
         setOpen(true);
     };
-    const columns = [
-        {
-            title: '物品名称',
-            dataIndex: 'goods_name',
-        },
-        {
-            title: '物品编号',
-            dataIndex: 'goods_code',
-        },
-        {
-            title: '助查码',
-            dataIndex: 'goods_check_code',
-        },
-        {
-            title: '单位',
-            dataIndex: 'goods_unit',
-        },
-        {
-            title: '库存',
-            dataIndex: 'goods_num',
-        },
-    ];
     const columnsz = [
         {
             title: '物品名称',
@@ -65,9 +43,6 @@ const AddSales=()=>{
             dataIndex: 'goods_num',
         },
     ];
-    const rowSelection = {
-
-    };
     return(
         <Spin spinning={spinning}>
             <Space>
@@ -103,33 +78,7 @@ const AddSales=()=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
-            <Modal open={open} onCancel={()=>setOpen(false)} title={'物品列表'} width={1000}>
-                <List>
-                    <List.Item>
-                        <Space>
-                            <Input
-                                addonBefore="物品名称:"
-                            />
-                            <Input
-                                addonBefore="助查码:"
-                            />
-                            <Button type="primary">
-                                搜索
-                            </Button>
-                        </Space>
-                    </List.Item>
-                </List>
-                <Table
-                    columns={columns}
-                    rowKey={(columns) => columns.id}
-                    pagination={false}
-                    size='small'
-                    rowSelection={rowSelection} // 启用内置选择功能（自动添加选择列）
-                    rowClassName={(record, index) =>
-                        index % 2 === 1 ? 'tbodd' : 'tbeven'
-                    }
-                />
-            </Modal>
+
         </Spin>
     )
 }

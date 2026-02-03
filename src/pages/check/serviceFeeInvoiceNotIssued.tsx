@@ -17,6 +17,8 @@ const ServiceFeeInvoiceNotIssued = () => {
     const [userId,setUserId]=useState(0);
     const [sumMoney,setSumMoney]=useState(0);
     const [count,setcount]=useState(0);
+    const [startDate,setStartDate]=useState(checkSessionStorage('/check/checkFp/','unopenedserverFpStartDate')||'2000-01-01');
+    const [endDate,setEndDate]=useState(checkSessionStorage('/check/checkFp/','unopenedserverFpEndDate')||'2099-01-01');
     const columns =[
         {
             title: '日期',
@@ -76,7 +78,7 @@ const ServiceFeeInvoiceNotIssued = () => {
     ];
     // 获取租金未开记录
     const getList=()=>{
-        UnopenedFpListService.fetch(page,name,phone,userId,type,stutes,pageSize).then((res:TypeErrorCode)=>{
+        UnopenedFpListService.fetch(page,name,phone,userId,type,stutes,pageSize,startDate,endDate).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setZuhuList(res.Data);
             }else {
@@ -86,7 +88,7 @@ const ServiceFeeInvoiceNotIssued = () => {
     };
     // 获取租金未开记录
     const getfenye=()=>{
-        UnopenedFpListService.fenye(name,phone,userId,type,stutes,pageSize).then((res:TypeErrorCode)=>{
+        UnopenedFpListService.fenye(name,phone,userId,type,stutes,pageSize,startDate,endDate).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setcount(res.Data.count);
                 setSumMoney(res.Data.moneySum);
@@ -121,6 +123,20 @@ const ServiceFeeInvoiceNotIssued = () => {
     const changeStutes=(e)=>{
         setstutes(e);
         updateSessionStorage('/check/checkFp/','unopenedserverFpStutes',e);
+    };
+     // 监听日期
+     const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/check/checkFp/','unopenedserverFpStartDate','2000-01-01');
+            updateSessionStorage('/check/checkFp/','unopenedserverFpEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/check/checkFp/','unopenedserverFpStartDate',data[0]);
+            updateSessionStorage('/check/checkFp/','unopenedserverFpEndDate',data[1]);
+        }
     };
     return (
         <Spin spinning={isLoading}>
@@ -163,6 +179,23 @@ const ServiceFeeInvoiceNotIssued = () => {
                                     { value: 3, label: '待审核' },
                                 ]}
                             />
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                时间:
+                            </div>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

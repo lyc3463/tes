@@ -19,6 +19,12 @@ const AccountList=(props:any)=>{
             key: 'account_name',
         },
         {
+            title: '卡号',
+            dataIndex: 'account_card',
+            key: 'account_card',
+        },
+
+        {
             title: '公司',
             dataIndex: 'company_name',
             key: 'company_name',

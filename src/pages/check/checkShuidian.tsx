@@ -66,6 +66,12 @@ const CheckShuidian=(props)=>{
             }
         },
         {
+            title: '所属房屋',
+            dataIndex: 'house_name',
+            key: 'house_name',
+            ellipsis: true,
+        },
+        {
             title: '单元名称',
             dataIndex: 'unitList',
             key: 'unitList',
@@ -110,7 +116,8 @@ const CheckShuidian=(props)=>{
             key: 'consumptionType',
             render:(_:any,item:any)=>{
                 let consumptionTypeText;
-                switch (item.consumptionType) {
+
+                switch (item.consumptionType?item.consumptionType:item.billType) {
                     case 1:
                         consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>电费</Tag>;
                         break;
@@ -144,7 +151,10 @@ const CheckShuidian=(props)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        <span style={{fontSize:'14px',color:'red'}}>{record.consumptionMoney.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
+                        {
+                            record.consumptionType==0?<span style={{fontSize:'14px',color:'red'}}>{record.sdprice.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>:
+                            <span style={{fontSize:'14px',color:'red'}}>{record.consumptionMoney.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
+                        }
                     </div>
                 )
             }
@@ -195,7 +205,7 @@ const CheckShuidian=(props)=>{
                         {record.invoiceStatus==1?(<>
                             <Button type='primary' onClick={()=>onTongguo(record)}>审核通过</Button>
                         </>):''}
-                        <Button type='primary' onClick={()=>toedit(record)}>详情</Button>
+                        {/* <Button type='primary' onClick={()=>toedit(record)}>详情</Button> */}
                     </Space>
                 )
             }
@@ -226,6 +236,7 @@ const CheckShuidian=(props)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log(props);
     }, [page,pageSize]);
     useEffect(() => {
         getfenyeInfo();
@@ -233,8 +244,8 @@ const CheckShuidian=(props)=>{
     }, []);
     // 审核通过弹窗
     const onTongguo=(e:TypeCheckFp)=>{
-        setUid(e.id);
         setCheckOpen(true);
+        setUid(e.id);
     };
     // 审核通过弹窗按钮
     const onOk=()=>{
@@ -480,10 +491,12 @@ const CheckShuidian=(props)=>{
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {props.count?props.count.moneySum.toFixed(2):''}元
+                                {props.count?(props.count.moneySum+props.count.energyUsage).toFixed(2):''}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
@@ -495,7 +508,7 @@ const CheckShuidian=(props)=>{
                 <div>确定审核通过吗?</div>
             </Modal>
             {/*    发送的弹窗*/}
-            <Modal open={FSopen} onOk={fsOk} onCancel={()=>setFSopen(false)}>
+            {/* <Modal open={FSopen} onOk={fsOk} onCancel={()=>setFSopen(false)}>
                 <Form>
                     <Form.Item label='内容'>
                         <Input.TextArea onChange={(e)=>setconten(e.target.value)}/>
@@ -505,7 +518,7 @@ const CheckShuidian=(props)=>{
                         {imgB64?<Image src={imgB64} style={{width:'100px',height:'100px'}}/>:''}
                     </Form.Item>
                 </Form>
-            </Modal>
+            </Modal> */}
         </Spin>
     )
 }

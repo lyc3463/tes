@@ -4,7 +4,6 @@ import {connect} from "umi";
 import {StaticInfo} from "@/StaticInfo";
 
 const Zhanghupeizhi=(props)=>{
-    const [disabled, setDisabled] = useState(false);
     const [isopen,setopen]=useState(false);
     // 结算方式 1实时结算 2每天自动结算 3指定日期结算 4手动结算
     const [settlement,setSettlement]=useState(0);

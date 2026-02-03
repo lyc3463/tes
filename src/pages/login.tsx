@@ -422,7 +422,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.8.3</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:2.9.6</p>
                 </div>
               </Form.Item>
             </Form>
@@ -487,30 +487,30 @@ export default function Login() {
       {/*  <div className={styles.panel}>*/}
       {/*    <h2 className={styles.title}>物业管理后台</h2>*/}
       {/*    <Form*/}
-      {/*      {...layout}*/}
-      {/*      name="loginForm"*/}
-      {/*      form={form}*/}
-      {/*      onFinish={login}*/}
+      {/*        {...layout}*/}
+      {/*        name="loginForm"*/}
+      {/*        form={form}*/}
+      {/*        onFinish={login}*/}
       {/*    >*/}
       {/*      <Form.Item*/}
-      {/*        label="账号"*/}
-      {/*        name="username"*/}
-      {/*        labelCol={{ span: 6 }}*/}
-      {/*        wrapperCol={{ span: 18 }}*/}
-      {/*        rules={[*/}
-      {/*          { required: true, message: 'Please input your username!' },*/}
-      {/*        ]}*/}
+      {/*          label="账号"*/}
+      {/*          name="username"*/}
+      {/*          labelCol={{ span: 6 }}*/}
+      {/*          wrapperCol={{ span: 18 }}*/}
+      {/*          rules={[*/}
+      {/*            { required: true, message: 'Please input your username!' },*/}
+      {/*          ]}*/}
       {/*      >*/}
       {/*        <Input style={{ width: '100%' }} />*/}
       {/*      </Form.Item>*/}
       {/*      <Form.Item*/}
-      {/*        label="密码"*/}
-      {/*        name="password"*/}
-      {/*        labelCol={{ span: 6 }}*/}
-      {/*        wrapperCol={{ span: 18 }}*/}
-      {/*        rules={[*/}
-      {/*          { required: true, message: 'Please input your password!' },*/}
-      {/*        ]}*/}
+      {/*          label="密码"*/}
+      {/*          name="password"*/}
+      {/*          labelCol={{ span: 6 }}*/}
+      {/*          wrapperCol={{ span: 18 }}*/}
+      {/*          rules={[*/}
+      {/*            { required: true, message: 'Please input your password!' },*/}
+      {/*          ]}*/}
       {/*      >*/}
       {/*        <Input.Password />*/}
       {/*      </Form.Item>*/}
@@ -525,33 +525,33 @@ export default function Login() {
       {/*      >*/}
       {/*        <Input.Password/>*/}
       {/*      </Form.Item>*/}
-            {/*{yzvsi ? (*/}
-            {/*  <Form.Item*/}
-            {/*    label="验证码"*/}
-            {/*    name='cacode'*/}
-            {/*    labelCol={{ span: 6 }}*/}
-            {/*    wrapperCol={{ span: 18 }}*/}
-            {/*    rules={[*/}
-            {/*      { required: yzvsi, message: 'Please input captcha code!' },*/}
-            {/*    ]}*/}
-            {/*  >*/}
-            {/*    <div style={{ display: 'flex' }}>*/}
-            {/*      <Input*/}
-            {/*        value={yzmval}*/}
-            {/*        onChange={yzminputcg}*/}
-            {/*        style={{ marginRight: '8px' }}*/}
-            {/*      />*/}
-            {/*      <Captcha*/}
-            {/*        ref={captchaRef}*/}
-            {/*        height={32}*/}
-            {/*        charNum={4}*/}
-            {/*        onChange={yzmcg}*/}
-            {/*      />*/}
-            {/*    </div>*/}
-            {/*  </Form.Item>*/}
-            {/*) : (*/}
-            {/*  ''*/}
-            {/*)}*/}
+      {/*      {yzvsi ? (*/}
+      {/*          <Form.Item*/}
+      {/*              label="验证码"*/}
+      {/*              name='cacode'*/}
+      {/*              labelCol={{ span: 6 }}*/}
+      {/*              wrapperCol={{ span: 18 }}*/}
+      {/*              rules={[*/}
+      {/*                { required: yzvsi, message: 'Please input captcha code!' },*/}
+      {/*              ]}*/}
+      {/*          >*/}
+      {/*            <div style={{ display: 'flex' }}>*/}
+      {/*              <Input*/}
+      {/*                  value={yzmval}*/}
+      {/*                  onChange={yzminputcg}*/}
+      {/*                  style={{ marginRight: '8px' }}*/}
+      {/*              />*/}
+      {/*              <Captcha*/}
+      {/*                  ref={captchaRef}*/}
+      {/*                  height={32}*/}
+      {/*                  charNum={4}*/}
+      {/*                  onChange={yzmcg}*/}
+      {/*              />*/}
+      {/*            </div>*/}
+      {/*          </Form.Item>*/}
+      {/*      ) : (*/}
+      {/*          ''*/}
+      {/*      )}*/}
       {/*      <Form.Item {...tailLayout}>*/}
       {/*        <Button type="primary" htmlType="submit" block>*/}
       {/*          登录*/}
@@ -565,37 +565,37 @@ export default function Login() {
       {/*    </div>*/}
 
       {/*    <div*/}
-      {/*      style={{*/}
-      {/*        textAlign: 'center',*/}
-      {/*        bottom: '1rem',*/}
-      {/*        position: 'absolute',*/}
-      {/*        width: 'calc(100% - 2rem)',*/}
-      {/*        fontSize: '12px',*/}
-      {/*        color: '#666666'*/}
-      {/*      }}*/}
+      {/*        style={{*/}
+      {/*          textAlign: 'center',*/}
+      {/*          bottom: '1rem',*/}
+      {/*          position: 'absolute',*/}
+      {/*          width: 'calc(100% - 2rem)',*/}
+      {/*          fontSize: '12px',*/}
+      {/*          color: '#666666'*/}
+      {/*        }}*/}
       {/*    >*/}
       {/*      /!* CloudPay ©{new Date().getFullYear()} *!/*/}
       {/*    </div>*/}
       {/*  </div>*/}
       {/*</div>*/}
       {/*{showError ? (*/}
-      {/*  <div*/}
-      {/*    style={{*/}
-      {/*      width: '50%',*/}
-      {/*      marginLeft: 'auto',*/}
-      {/*      marginRight: 'auto',*/}
-      {/*      paddingTop: '1rem',*/}
-      {/*    }}*/}
-      {/*  >*/}
-      {/*    <Alert*/}
-      {/*      message="登录失败"*/}
-      {/*      description="请检查用户名和密码是否正确！"*/}
-      {/*      type="error"*/}
-      {/*      showIcon*/}
-      {/*      closable*/}
-      {/*      afterClose={handleErrorClose}*/}
-      {/*    />*/}
-      {/*  </div>*/}
+      {/*    <div*/}
+      {/*        style={{*/}
+      {/*          width: '50%',*/}
+      {/*          marginLeft: 'auto',*/}
+      {/*          marginRight: 'auto',*/}
+      {/*          paddingTop: '1rem',*/}
+      {/*        }}*/}
+      {/*    >*/}
+      {/*      <Alert*/}
+      {/*          message="登录失败"*/}
+      {/*          description="请检查用户名和密码是否正确！"*/}
+      {/*          type="error"*/}
+      {/*          showIcon*/}
+      {/*          closable*/}
+      {/*          afterClose={handleErrorClose}*/}
+      {/*      />*/}
+      {/*    </div>*/}
       {/*) : null}*/}
     </>
   );

@@ -1,14 +1,16 @@
-import {Button, Input, List, message, Pagination, Space, Spin, Table} from "antd";
+import {Button, Input, List, message, Modal, Pagination, Space, Spin, Table} from "antd";
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const UnitCalculation=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState('');// 换算名称
+    const [name,setName]=useState(checkSessionStorage('/warehouse/warehouseAndType','WarehouseUnitCalculationListName')||'');// 换算名称
     const [uid,setUid]=useState(0);
+    const [dopen,setDopen]=useState(false);
     const toadd=()=>{
         history.push('/warehouse/addUnitCalculation');
     };
@@ -49,11 +51,38 @@ const UnitCalculation=(props)=>{
         },
     ];
     const isDelOpen=(e)=>{
-
+        setUid(e);
+        setDopen(true);
     };
     const onChange=(page,pageSize)=>{
         setPage(page);
         setPageSize(pageSize);
+    };
+    const changeName=(e:any)=>{
+        setName(e.target.value);
+        updateSessionStorage('/warehouse/warehouseAndType','WarehouseUnitCalculationListName',e.target.value);
+    }
+    const sousuo=()=>{
+        setPage(1);
+        getList();
+        getFenye();
+    };
+    const onOk=()=>{
+      setSpinning(true);
+      props.dispatch({
+          type:'UnitCalculation/remove',
+          payload:uid
+      }).then((res:TypeErrorCode)=>{
+          if (res.ErrorCode==0){
+              message.success('删除成功');
+              setDopen(false);
+              setSpinning(false);
+          }else {
+              message.error(res.ErrorCode + res.Data);
+              setSpinning(false);
+              setDopen(false);
+          }
+      })
     };
     return(
         <Spin spinning={spinning}>
@@ -65,8 +94,10 @@ const UnitCalculation=(props)=>{
                     <Space>
                         <Input
                             addonBefore="计算名称:"
+                            value={name}
+                            onChange={changeName}
                         />
-                        <Button type="primary">
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>
@@ -82,6 +113,9 @@ const UnitCalculation=(props)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
+            <Modal open={dopen} onCancel={()=>setDopen(false)} onOk={onOk} loading={spinning}>
+                <div>确定要删除吗?</div>
+            </Modal>
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
         </Spin>
     )
