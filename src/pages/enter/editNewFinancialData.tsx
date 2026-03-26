@@ -8,9 +8,11 @@ import {ClearOutlined, DeleteOutlined, PlusOutlined} from "@ant-design/icons";
 import * as AccountService from "@/services/account";
 import * as NewFinancialDataService from "@/services/newFinancialData";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import * as BillService from "@/services/bill";
 
 const AddNewFinancialData=(props:any)=>{
     const [spinning, setSpinning] = useState(false);
+    const [prohibit,setProhibit]=useState(false);
     const navigate=useNavigate();
     // 账单日期
     const [orderDate,setOrderDate]=useState('2000-01-01');
@@ -18,6 +20,7 @@ const AddNewFinancialData=(props:any)=>{
     const [orderCode,setOrderCode]=useState('');
     // 添加的物品列表
     const [goodsList,setGoodsList]=useState([]);
+    const [billList,setBillList]=useState([]);
     // 1公账，0私账
     const [accountType,setAccountType]=useState(0);
     // 总金额
@@ -36,6 +39,9 @@ const AddNewFinancialData=(props:any)=>{
     const [remark,setRemark]=useState('');
     // 单号id
     const [uid,setUid]=useState(0);
+    const [bxId,setBxId]=useState(0);
+    const [imgUrl,setImgUrl]=useState('');
+    const [supplierId,setSupplierId]=useState(0);
     useEffect(()=>{
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
@@ -56,7 +62,8 @@ const AddNewFinancialData=(props:any)=>{
                 setTotalAmount(res.Data.totalAmount);
                 setPaidAmount(res.Data.paidAmount);
                 setRemark(res.Data.remark);
-
+                setSupplierId(res.Data.supplierId);
+                setImgUrl(res.Data.foImage);
             }else {
                 message.error(res.Data);
             }
@@ -105,6 +112,62 @@ const AddNewFinancialData=(props:any)=>{
                     style={{ width: '100%' }}
                     value={text}
                     onChange={(e) => handleSummaryChange(record.id, e.target.value)}
+                />
+            )
+        },
+        {
+            title:'数量',
+            dataIndex:'quantity',
+            key:'quantity',
+            render: (text: number, record: any) => (
+                <InputNumber
+                    disabled={prohibit}
+                    value={text}
+                    min={0}
+                    onChange={(value) =>{
+                        setGoodsList(prev =>
+                            prev.map(item =>
+                                item.id === record.id ? { ...item, quantity: value,amount:((value*record.unitPrice).toFixed(2) *1) } : item
+                            )
+                        );
+                    }}
+                />
+            )
+        },
+        {
+            title:'单位',
+            dataIndex:'unit',
+            key:'unit',
+            render: (text: number, record: any) => (
+                <Input
+                    disabled={prohibit}
+                    value={text}
+                    onChange={(value) =>{
+                        setGoodsList(prev =>
+                            prev.map(item =>
+                                item.id === record.id ? { ...item, unit: value.target.value } : item
+                            )
+                        );
+                    }}
+                />
+            )
+        },
+        {
+            title:'单价',
+            dataIndex:'unitPrice',
+            key:'unitPrice',
+            render: (text: number, record: any) => (
+                <InputNumber
+                    disabled={prohibit}
+                    value={text}
+                    min={0}
+                    onChange={(value) =>{
+                        setGoodsList(prev =>
+                            prev.map(item =>
+                                item.id === record.id ? { ...item, unitPrice: value,amount:((value*record.quantity).toFixed(2))*1 } : item
+                            )
+                        );
+                    }}
                 />
             )
         },
@@ -173,7 +236,10 @@ const AddNewFinancialData=(props:any)=>{
                         ...item,
                         subjectName: '', // 清空科目名称
                         summary: '',     // 清空摘要
-                        amount: 0        // 清空金额
+                        amount: 0 ,     // 清空金额
+                        quantity:0, // 清空数量
+                        unit:'', // 单位
+                        unitPrice:0,
                     }
                     : item
             )
@@ -190,6 +256,12 @@ const AddNewFinancialData=(props:any)=>{
     // 收入支出
     const changeMoneyType=(e)=>{
         setMoneyType(e.target.value);
+        if (e.target.value==1){
+            setProhibit(false);
+            setPaidAmount(0);
+            setBxId(0);
+            getAccountList();
+        }
     };
     // 公司id
     const changeCompanyId=(e)=>{
@@ -240,17 +312,52 @@ const AddNewFinancialData=(props:any)=>{
             type:'Subject/fetch',
         })
     };
+    // 获取供应商列表
+    const getSupplierList=()=>{
+        props.dispatch({
+            type:"Supplier/fetch",
+        })
+    };
+    // 获取报销单录入
+    const getBillInfo=async()=>{
+        BillService.fetch({
+            page:1,
+            orderCode:'',
+            company_name:'',
+            account_card:'',
+            project_name:'',
+            startDate:'2000-01-01',
+            endDate:'2099-01-01',
+            pageSize:1000,
+            orderStatus:12,
+            moneyType:0,
+            supplierId:0,
+            foType:1,
+            paidStatus:0,
+            expenseCode:''
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                console.log('查看列表',res);
+                setBillList(res.Data);
+            }else {
+
+            }
+        })
+    }
     useEffect(() => {
         getCompanList();
         getProjectList();
         getAccountList();
         getSubjectList();
+        getBillInfo();
+        getSupplierList();
     }, []);
     const onOK=()=>{
         if (!orderDate) return  message.error('请选择日期');
         if (!accountId) return  message.error('请选择账户');
         if (!companyId) return  message.error('请选择公司');
         if (!projectId) return  message.error('请选择项目');
+        // if (moneyType==2&&!supplierId) return  message.error('请选择供应商');
         if (goodsList.length === 0) return message.error('请增加明细记录');
         const filteredGoodsList = goodsList.filter(item =>
             item.subjectName.trim() !== '' || item.summary.trim() !== ''
@@ -259,7 +366,7 @@ const AddNewFinancialData=(props:any)=>{
         setSpinning(true);
         props.dispatch({
             type:'NewFinancialData/edit',
-            payload:{uid,orderCode, orderDate, accountId, projectId,companyId, paidAmount, totalAmount, moneyType,remark, jsonData}
+            payload:{uid,orderCode, orderDate, accountId, projectId,companyId, paidAmount, totalAmount, moneyType,remark, jsonData,supplierId,bxId,imgUrl}
         }).then((res:any)=>{
             if (res.ErrorCode == 0) {
                 message.success('编辑成功');
@@ -286,7 +393,11 @@ const AddNewFinancialData=(props:any)=>{
             id: maxId + i + 1,
             subjectName: '', // 科目
             summary: '', // 摘要
-            amount: 0    // 金额
+            amount: 0,    // 金额
+            quantity:0, // 数量
+            unit:'', // 单位
+            unitPrice:0, // 单价
+            // image:[], // 图片
         }));
 
         // 添加到现有列表
@@ -299,6 +410,22 @@ const AddNewFinancialData=(props:any)=>{
             generateMultipleRecords(neededCount);
         }
     }, [goodsList]);
+    const changeBillId=(e)=>{
+        const result = billList.find(item => item.id === e);
+        console.log('报销单详情',result);
+        setGoodsList(result.fdList);
+        setCompanyId(result.companyId);
+        setProjectId(result.projectId);
+        // getAccountListInfo(result.projectId);
+        setRemark(result.remark);
+        setSupplierId(result.supplierId);
+        setBxId(result.id);
+        setProhibit(true);
+        setImgUrl(result.foImage);
+    };
+    const changeSupplierId=(e)=>{
+        setSupplierId(e);
+    };
     return(
         <Spin spinning={spinning}>
             <Space>
@@ -329,12 +456,48 @@ const AddNewFinancialData=(props:any)=>{
                     <DatePicker placeholder={'请选择日期'} value={dayjs(orderDate)} onChange={changeData}/>
                 </Space.Compact>
                 <InputNumber addonBefore="总金额:" placeholder='总金额' disabled value={totalAmount}/>
-                {/*<InputNumber addonBefore="已收/已付:" placeholder='已收/已付金额' value={paidAmount} onChange={changePaidAmount}/>*/}
+                {moneyType==2?<InputNumber addonBefore="已付:" placeholder='已付金额' value={paidAmount} onChange={changePaidAmount} min={0}/>:null}
+                <Space.Compact>
+                    <div
+                        style={{
+                            borderRadius: '6px',
+                            borderStartEndRadius: 0,
+                            borderEndEndRadius: 0,
+                            padding: '0 11px',
+                            border: '1px solid #d9d9d9',
+                            display: 'flex',
+                            alignItems: 'center',
+                            borderInlineEnd: 0,
+                        }}
+                    >
+                        供应商:
+                    </div>
+                    <Select
+                        style={{width:'250px'}}
+                        showSearch
+                        disabled={prohibit}
+                        onChange={changeSupplierId}
+                        placeholder='供应商'
+                        value={supplierId}
+                        filterOption={(input, option) => {
+                            // 假设每个 option 都有一个与数据项对应的 value 属性
+                            const item = props.SupplierList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                            return item?.supplierName?.toLowerCase().includes(input.toLowerCase());
+                        }}
+                        options={
+                            [
+                                ...(Array.isArray(props.SupplierList) && props.SupplierList.length > 0
+                                        ? props.SupplierList.map((item:any)=>({
+                                            label: item.supplierName,
+                                            value: item.id,
+                                        }))
+                                        : []
+                                )
+                            ]
+                        }
+                    />
+                </Space.Compact>
                 <Input addonBefore="备注:" placeholder='备注' value={remark} onChange={changeRemark}/>
-                <Radio.Group value={moneyType} onChange={changeMoneyType}>
-                    <Radio value={1}>收入</Radio>
-                    <Radio value={2}>支出</Radio>
-                </Radio.Group>
             </Space>
             <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
                 <Space.Compact>
@@ -439,10 +602,54 @@ const AddNewFinancialData=(props:any)=>{
                             : []}
                     />
                 </Space.Compact>
+                <Radio.Group value={moneyType} onChange={changeMoneyType}>
+                    <Radio value={1}>收入</Radio>
+                    <Radio value={2}>支出</Radio>
+                </Radio.Group>
                 <Radio.Group value={accountType} style={{display:'flex'}} disabled>
                     <Radio value={1} style={{width:'80px'}}>公账</Radio>
                     <Radio value={0} style={{width:'80px'}}>私账</Radio>
                 </Radio.Group>
+
+            </Space>
+            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
+                {moneyType==2?
+                    <>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                报销单号:
+                            </div>
+                            <Select
+                                style={{width:'250px'}}
+                                showSearch
+                                onChange={changeBillId}
+                                placeholder='报销单号'
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = billList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                    return item?.number?.toLowerCase().includes(input.toLowerCase());
+                                }}
+                                options={Array.isArray(billList) && billList.length > 0
+                                    ? billList.map((item:any)=>({
+                                        label:item.number+'('+item.project_name+')',
+                                        value:item.id,
+                                    }))
+                                    : []}
+                            />
+                        </Space.Compact>
+                    </>:''
+                }
             </Space>
             <Table
                 columns={columnsz}
@@ -465,6 +672,8 @@ const mapStateToProps = (state: any) => {
         AccountList: state.Account.list,
         CompanList: state.Compan.list,
         ProjectList: state.Project.list,
+        SupplierList: state.Supplier.list,
+
     }
 };
 export default connect(mapStateToProps)(AddNewFinancialData);

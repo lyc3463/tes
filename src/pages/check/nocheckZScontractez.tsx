@@ -141,8 +141,9 @@ const NocheckZScontractez=(props)=>{
                 setelePice(res.Data.elePrice);
                 setwaterPice(res.Data.waterPrice);
                 seteleloss(res.Data.loss);
-                let documentBase64sp = res.Data.documentBase64.split('|')
-                setB64(documentBase64sp);
+                let documentBase64sp = res.Data.documentBase64.split('|');
+                let newdocumentBase64sp=groupImages(documentBase64sp, 1);
+                setB64(newdocumentBase64sp);
             }
         })
     };
@@ -166,7 +167,7 @@ const NocheckZScontractez=(props)=>{
                 setmanageFeeRent(res.Data[0].manageFeeRent);
                 setdeposit(res.Data[0].deposit);
                 let documentBase64Split=res.Data[0].documentBase64.split('|');
-                let newczB64=groupImages(documentBase64Split, 4);
+                let newczB64=groupImages(documentBase64Split, 1);
                 setczB64(newczB64);
                 let unitBase64Split=res.Data[0].unitBase64.split('|');
                 let newunitB64=groupImages(unitBase64Split, 4);
@@ -854,13 +855,33 @@ const NocheckZScontractez=(props)=>{
                             附件一：《租赁物平面图》
                         </h3>
                         <p>
-                            {unitB64.length>0?
-                                unitB64.map((item:any,index:any)=>{
-                                    return <p key={index}>
-                                        <Image src={item} style={{width:'300px',height:'300px'}}/>
-                                    </p>
-                                })
-                                :''}
+                            {unitB64.map((group, groupIndex) => (
+                                <div
+                                    key={groupIndex}
+                                    style={{
+                                        height: "1000px",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "flex-start",
+                                        alignItems: "flex-start",
+                                        pageBreakAfter: "always", // 用于打印时分页
+                                    }}
+                                >
+                                    <h4>
+                                        1.{groupIndex + 1}
+                                    </h4>
+                                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                                        {group.map((item, index) => (
+                                            <Space key={index}>
+                                                <Image
+                                                    src={item}
+                                                    style={{ width: "70%", margin: "5px", maxHeight: "600px" }}
+                                                />
+                                            </Space>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
                         </p>
                     </p>
                     <p  >
@@ -981,22 +1002,72 @@ const NocheckZScontractez=(props)=>{
                     <p className={styles.linheP}  >
                         <h4>
                             1、承租方证照文件
-                            {czb64.length>0 ?czb64.map((item:any,index:number)=><p key={index}>
-                                    <Image src={item} style={{ width: '200px',height:'200px',margin:'5px'}} />
-                                </p>
-
-                            ) : ''}
+                             {czb64.map((group, groupIndex) => (
+                                <div
+                                    key={groupIndex}
+                                    style={{
+                                        height: "1010px",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "flex-start",
+                                        alignItems: "flex-start",
+                                        pageBreakAfter: "always", // 用于打印时分页
+                                    }}
+                                >
+                                    <h4>
+                                        1.{groupIndex + 1}承租方证照文件
+                                    </h4>
+                                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                                        {group.map((item, index) => (
+                                            <Space key={index} style={{ flex: "1 1 40%" }}>
+                                                <Image
+                                                    src={item}
+                                                    style={{ width: "100%", margin: "5px", maxHeight: "600px" }}
+                                                />
+                                            </Space>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
                         </h4>
                     </p>
                     <p className={styles.linheP}  >
                         <h4>
                             2、出租方证照文件
+                            {b64.map((group, groupIndex) => (
+                                <div
+                                    key={groupIndex}
+                                    style={{
+                                        height: "1030px",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "flex-start",
+                                        alignItems: "flex-start",
+                                        pageBreakAfter: "always", // 用于打印时分页
+                                    }}
+                                >
+                                    <h4>
+                                        2.{groupIndex + 1}出租方证照文件
+                                    </h4>
+                                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                                        {group.map((item, index) => (
+                                            <Space key={index} style={{ flex: "1 1 40%" }}>
+                                                <Image
+                                                    src={item}
+                                                    style={{ width: "100%", margin: "5px",maxHeight: "600px" }}
+                                                    // style={{ width: "100%", margin: "5px", maxHeight: "400px" }}
+                                                />
+                                            </Space>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
                         </h4>
-                        {b64.length>0 ?b64.map((item:any,index:number)=><p key={index}>
-                                <Image src={item} style={{ width: '200px',height:'200px',margin:'5px' }} />
-                            </p>
+                        {/*{documentImage.length>0 ?documentImage.map((item:any,index:number)=>  <p className={styles.linheP}  key={index}>*/}
+                        {/*        <Image src={item} style={{ width: '200px',height:'200px',margin:'5px' }} />*/}
+                        {/*    </p>*/}
+                        {/*) : ''}*/}
 
-                        ) : ''}
                     </p>
                     <p  >
                         <h3>
@@ -1886,7 +1957,7 @@ const NocheckZScontractez=(props)=>{
                                                 <Space key={index}>
                                                     <Image
                                                         src={item}
-                                                        style={{ width: "300px", margin: "5px", maxHeight: "400px" }}
+                                                        style={{ width: "70%", margin: "5px", maxHeight: "600px" }}
                                                     />
                                                 </Space>
                                             ))}
@@ -2062,41 +2133,51 @@ const NocheckZScontractez=(props)=>{
                                             <Space key={index} style={{ flex: "1 1 40%" }}>
                                                 <Image
                                                     src={item}
-                                                    style={{ width: "100%", margin: "5px", maxHeight: "400px" }}
+                                                    style={{ width: "100%", margin: "5px", maxHeight: "600px" }}
                                                 />
                                             </Space>
                                         ))}
                                     </div>
                                 </div>
                             ))}
-
-                            {/*<p className={styles.linheP}>*/}
-                            {/*    <h4>*/}
-                            {/*        1、承租方证照文件*/}
-                            {/*        <p style={{display:'flex',flexWrap:'wrap'}}>*/}
-                            {/*            {czb64.length>0 ?czb64.map((item:any,index:number)=><Space key={index}>*/}
-                            {/*                    <Image src={item} style={{ width:'300px',margin:'5px',maxHeight:'400px'}} />*/}
-                            {/*                </Space>*/}
-
-                            {/*            ) : ''}*/}
-                            {/*        </p>*/}
-
-                            {/*    </h4>*/}
-                            {/*</p>*/}
                         </p>
-                        <p style={{  height:'1030px'}}>
-                            <p className={styles.linheP}>
-                                <h4>
-                                    2、出租方证照文件
-                                </h4>
-                                <p style={{display:'flex'}}>
-                                    {b64.length>0 ?b64.map((item:any,index:number)=><Space key={index}>
-                                            <Image src={item}  style={{ width:'300px',margin:'5px',maxHeight:'400px'}}/>
-                                        </Space>
+                        <p className={styles.linheP}  >
+                            <h4>
+                                2、出租方证照文件
+                                {b64.map((group, groupIndex) => (
+                                    <div
+                                        key={groupIndex}
+                                        style={{
+                                            height: "1030px",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "flex-start",
+                                            alignItems: "flex-start",
+                                            pageBreakAfter: "always", // 用于打印时分页
+                                        }}
+                                    >
+                                        <h4>
+                                            2.{groupIndex + 1}出租方证照文件
+                                        </h4>
+                                        <div style={{ display: "flex", flexWrap: "wrap" }}>
+                                            {group.map((item, index) => (
+                                                <Space key={index} style={{ flex: "1 1 40%" }}>
+                                                    <Image
+                                                        src={item}
+                                                        style={{ width: "100%", margin: "5px",maxHeight: "600px" }}
+                                                        // style={{ width: "100%", margin: "5px", maxHeight: "400px" }}
+                                                    />
+                                                </Space>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </h4>
+                            {/*{documentImage.length>0 ?documentImage.map((item:any,index:number)=>  <p className={styles.linheP}  key={index}>*/}
+                            {/*        <Image src={item} style={{ width: '200px',height:'200px',margin:'5px' }} />*/}
+                            {/*    </p>*/}
+                            {/*) : ''}*/}
 
-                                    ) : ''}
-                                </p>
-                            </p>
                         </p>
                       <p style={{  height:'1030px'}}>
                           <p>

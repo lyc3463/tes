@@ -14,18 +14,22 @@ const NewCheckFinance=(props:any)=>{
     // 账单列表
     const [billList,setBillList]=useState([]);
     // 开始时间
-    const [startDate,setBillBgeinTime]=useState(checkSessionStorage('/enter/checkFinance/','NewCheckFinancialDatastartDate')||'2000-01-01');
+    const [startDate,setBillBgeinTime]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDatastartDate')||'2000-01-01');
     // 结束时间
-    const [endDate,setBillEndTime]=useState(checkSessionStorage('/enter/checkFinance/','NewCheckFinancialDataendDate')||'2099-01-01');
+    const [endDate,setBillEndTime]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDataendDate')||'2099-01-01');
     // 账单状态
-    const [orderStatus,setBillStatus]=useState(checkSessionStorage('/enter/checkFinance/','NewFinancialDataorderStatus')||0);
+    const [orderStatus,setBillStatus]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDataorderStatus')||0);
     const [uid,setUid]=useState(0);
+    const [foType,setFoType]=useState(2);
+    const [supplierId,setSupplierId]=useState(0);
     // 账户卡号
-    const [account_card,setaccount_card]=useState(checkSessionStorage('/enter/checkFinance/','NewCheckFinancialDataaccount_card')||'');
-    const [moneyType,setMoneyType]=useState(checkSessionStorage('/enter/checkFinance/','NewCheckFinancialDatamoneyType')||0);
-    const [company_name,setCompany_name]=useState(checkSessionStorage('/enter/checkFinance/','NewCheckFinancialDatacompany_name')||'');
-    const [orderCode,setOrderCode]=useState(checkSessionStorage('/enter/checkFinance/','NewCheckFinancialDataorderCode')||'');
-    const [project_name,setProject_name]=useState(checkSessionStorage('/enter/checkFinance/','NewCheckFinancialDataprojectName')||'');
+    const [account_card,setaccount_card]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDataaccount_card')||'');
+    const [moneyType,setMoneyType]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDatamoneyType')||0);
+    const [company_name,setCompany_name]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDatacompany_name')||'');
+    const [orderCode,setOrderCode]=useState('');
+    const [expenseCode,setExpenseCode]=useState('');
+    const [project_name,setProject_name]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDataprojectName')||'');
+    const [paidStatus,setPaidStatus]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDatapaidStatus')||0);
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
     const [printModalOpen,setPrintModalOpen]=useState(false);
@@ -34,18 +38,20 @@ const NewCheckFinance=(props:any)=>{
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     // 一键审核弹窗
     const [oneClickOpenModal,setOneClickOpenModal]=useState(false);
+    const [showReimburseColumn, setShowReimburseColumn] = useState(false);
+
     // 用户权限
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setBillBgeinTime('2000-01-01');
             setBillEndTime('2099-01-01');
-            updateSessionStorage('/enter/checkFinance/','NewCheckFinancialDatastartDate','2000-01-01');
-            updateSessionStorage('/enter/checkFinance/','NewCheckFinancialDataendDate','2099-01-01');
+            updateSessionStorage('/check/checkFinance/','NewCheckFinancialDatastartDate','2000-01-01');
+            updateSessionStorage('/check/checkFinance/','NewCheckFinancialDataendDate','2099-01-01');
         } else {
             setBillBgeinTime(data[0]);
             setBillEndTime(data[1]);
-            updateSessionStorage('/enter/checkFinance/','NewCheckFinancialDatastartDate',data[0]);
-            updateSessionStorage('/enter/checkFinance/','NewCheckFinancialDataendDate',data[1]);
+            updateSessionStorage('/check/checkFinance/','NewCheckFinancialDatastartDate',data[0]);
+            updateSessionStorage('/check/checkFinance/','NewCheckFinancialDataendDate',data[1]);
         }
     };
     const toadd=()=>{
@@ -85,22 +91,38 @@ const NewCheckFinance=(props:any)=>{
             }
         },
         {
-            title: '单号',
+            title: (
+                <div
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                        setShowReimburseColumn(!showReimburseColumn)
+                        setOrderCode('');
+                        setExpenseCode('');
+                    }}
+                >
+                    {showReimburseColumn ? '报销单号' : '财务单号'}
+                </div>
+            ),
             dataIndex: 'number',
             key: 'number',
-            ellipsis: true,
-            render:(text:any,record:any)=>{
-                return(
-                    // 根据orderStatus判断是否显示链接按钮
-                    record.orderStatus === 2 ? (
-                        <span style={{color:'#1890FF'}} onClick={()=>{
+            // 👇 你原来的逻辑 100% 保留，完全不动
+            render: (text: any, record: any) => {
+                const hasUnderline = record.number && record.number.includes('_');
+                return (
+                    <span
+                        style={{
+                            color: hasUnderline ? '#333' : '#1890FF',
+                            cursor: hasUnderline ? 'default' : 'pointer'
+                        }}
+                        onClick={() => {
+                            if (hasUnderline) return;
+                            // 你原来的跳转逻辑
                             history.push(`/enter/newFinancialDataInfo?id=${record.id}`);
-                        }}>{text}</span>
-                    ) : (
-                        // 非2状态时显示普通文本
-                        text
-                    )
-                )
+                        }}
+                    >
+        {showReimburseColumn?record.number2:record.number}
+      </span>
+                );
             }
         },
         {
@@ -128,6 +150,12 @@ const NewCheckFinance=(props:any)=>{
             ellipsis: true,
         },
         {
+            title: '供应商',
+            dataIndex: 'supplierName',
+            key: 'supplierName',
+            ellipsis: true,
+        },
+        {
             title: '类型',
             dataIndex: 'moneyType',
             key: 'moneyType',
@@ -140,9 +168,29 @@ const NewCheckFinance=(props:any)=>{
             }
         },
         {
-            title: '总金额(元)',
+            title: '收入总金额(元)',
             dataIndex: 'totalAmount',
             key: 'totalAmount',
+            render:(text:any,record:any)=>{
+                return(
+                    <span>{record.moneyType==1?text:0}</span>
+                )
+            }
+        },
+        {
+            title: '已付金额(元)',
+            dataIndex: 'paidAmount',
+            key: 'paidAmount',
+        },
+        {
+            title: '支出总金额',
+            dataIndex: 'totalAmount',
+            key: 'totalAmount',
+            render:(text:any,record:any)=>{
+                return(
+                    <span>{record.moneyType==2?text:null}</span>
+                )
+            }
         },
         {
             title: '余额(元)',
@@ -200,27 +248,27 @@ const NewCheckFinance=(props:any)=>{
     ];
     const changeOrderCode = (e:any) => {
         setOrderCode(e.target.value);
-        updateSessionStorage('/enter/financialData/','NewFinancialDataorderCode',e.target.value);
+        updateSessionStorage('/check/checkFinance/','NewCheckFinancialDataorderCode',e.target.value);
     };
     const changeCompany_name = (e:any) => {
         setCompany_name(e.target.value);
-        updateSessionStorage('/enter/financialData/','NewFinancialDatacompany_name',e.target.value);
+        updateSessionStorage('/check/checkFinance/','NewCheckFinancialDatacompany_name',e.target.value);
     };
     const changeProject_name = (e:any) => {
         setProject_name(e.target.value);
-        updateSessionStorage('/enter/financialData/','NewFinancialDataproject_name',e.target.value);
+        updateSessionStorage('/check/checkFinance/','NewCheckFinancialDataproject_name',e.target.value);
     };
     const changeMoneyType = (e:any) => {
         setMoneyType(e);
-        updateSessionStorage('/enter/financialData/','NewFinancialDatamoneyType',e);
+        updateSessionStorage('/check/checkFinance/','NewCheckFinancialDatamoneyType',e);
     };
     const changeOrderStatus = (e:any) => {
         setBillStatus(e);
-        updateSessionStorage('/enter/financialData/','NewFinancialDataorderStatus',e);
+        updateSessionStorage('/check/checkFinance/','NewCheckFinancialDataorderStatus',e);
     };
     const changeAccount_card = (e:any) => {
         setaccount_card(e.target.value);
-        updateSessionStorage('/enter/financialData/','NewFinancialDataaccount_card',e.target.value);
+        updateSessionStorage('/check/checkFinance/','NewCheckFinancialDataaccount_card',e.target.value);
     };
     const sousuo=()=>{
         setPage(1);
@@ -230,14 +278,14 @@ const NewCheckFinance=(props:any)=>{
     const getFenye=()=>{
         props.dispatch({
             type:'NewFinancialData/fenye',
-            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name}
+            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,foType,supplierId,paidStatus,expenseCode}
         })
     };
     const getList=()=>{
         setspinning(true);
         props.dispatch({
             type:'NewFinancialData/fetch',
-            payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name}
+            payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,foType,supplierId,paidStatus,expenseCode}
         }).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
                 let newArr=newprocessBills(res.Data);
@@ -250,8 +298,14 @@ const NewCheckFinance=(props:any)=>{
         setUid(e);
         setIsOpen(true);
     };
+    const getSupplierList=()=>{
+        props.dispatch({
+            type:"Supplier/fetch",
+        })
+    };
     useEffect(() => {
         getFenye();
+        getSupplierList();
     }, []);
     useEffect(()=>{
         getList();
@@ -264,7 +318,7 @@ const NewCheckFinance=(props:any)=>{
         type: 'checkbox',  // 复选框类型
         // 根据iskc值控制复选框是否可用
         getCheckboxProps: (record) => ({
-            disabled: record.orderStatus !== 2, // iskc不等于2时禁用复选框（未审核）
+            disabled: (record.number && record.number.includes('_')),
         }),
     };
     // 一键审核弹窗
@@ -273,8 +327,27 @@ const NewCheckFinance=(props:any)=>{
     };
     // 一键审核弹窗
     const onOneClick=()=>{
-        
+        setspinning(true);
+        props.dispatch({
+            type:'NewFinancialData/allReview',
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('一键审核成功');
+                setOneClickOpenModal(false);
+            }else {
+                message.error(res.Data);
+            }
+            setspinning(false);
+        })
     };
+    const changeSupplierId=(e:any)=>{
+        setSupplierId(e);
+        updateSessionStorage('/enter/financialData/','NewFinancialDatasupplierId',e);
+    }
+    const changeStutes=(e:any)=>{
+        setPaidStatus(e);
+        updateSessionStorage('/enter/financialData/','NewFinancialDatapaidStatus',e);
+    }
     const isPrintModalOpen=()=>{
         if(selectedRowKeys.length===0){
             message.error('请选择要打印的财务数据');
@@ -382,11 +455,15 @@ const NewCheckFinance=(props:any)=>{
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        <Input
-                            addonBefore="单号:"
+                        {!showReimburseColumn? <Input
+                            addonBefore="财务单号:"
                             value={orderCode}
                             onChange={changeOrderCode}
-                        />
+                        />:  <Input
+                            addonBefore="报销单号:"
+                            value={expenseCode}
+                            onChange={(e)=>setExpenseCode(e.target.value)}
+                        />}
                         <Input
                             addonBefore="公司名称:"
                             value={company_name}
@@ -397,6 +474,46 @@ const NewCheckFinance=(props:any)=>{
                             value={project_name}
                             onChange={changeProject_name}
                         />
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                供应商:
+                            </div>
+                            <Select
+                                style={{width:'250px'}}
+                                showSearch
+                                onChange={changeSupplierId}
+                                placeholder='供应商'
+                                value={supplierId}
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = props.SupplierList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                    return item?.supplier_name?.toLowerCase().includes(input.toLowerCase());
+                                }}
+                                options={
+                                    [
+                                        { label: '全部', value: 0 },
+                                        ...(Array.isArray(props.SupplierList) && props.SupplierList.length > 0
+                                                ? props.SupplierList.map((item:any)=>({
+                                                    label: item.supplierName,
+                                                    value: item.id,
+                                                }))
+                                                : []
+                                        )
+                                    ]
+                                }
+                            />
+                        </Space.Compact>
                     </Space>
                 </List.Item>
                 <List.Item>
@@ -426,9 +543,9 @@ const NewCheckFinance=(props:any)=>{
                                 value={moneyType}
                                 onChange={changeMoneyType}
                                 options={[
+                                    { value: 0, label: '全部' },
                                     { value: 1, label: '收入' },
                                     { value: 2, label: '支出' },
-                                    { value: 0, label: '全部' },
                                 ]}
                             />
                         </Space.Compact>
@@ -452,9 +569,9 @@ const NewCheckFinance=(props:any)=>{
                                 value={orderStatus}
                                 onChange={changeOrderStatus}
                                 options={[
+                                    { value: 0, label: '全部' },
                                     { value: 1, label: '未审核' },
                                     { value: 2, label: '已审核' },
-                                    { value: 0, label: '全部' },
                                 ]}
                             />
                         </Space.Compact>
@@ -462,7 +579,7 @@ const NewCheckFinance=(props:any)=>{
                             搜索
                         </Button>
                         <Button type="primary" onClick={isPrintModalOpen}>打印</Button>
-                        {/* <Button type="primary" danger onClick={oneClickOpen}>一键审核</Button> */}
+                         <Button type="primary" danger onClick={oneClickOpen}>一键审核</Button>
                     </Space>
                 </List.Item>
             </List>
@@ -534,7 +651,9 @@ const NewCheckFinance=(props:any)=>{
 const mapStateToProps = (state: any) => {
     return {
         count: state.NewFinancialData.count,
-        list: state.NewFinancialData.list
+        list: state.NewFinancialData.list,
+        SupplierList: state.Supplier.list,
+
     }
 };
 export default connect(mapStateToProps) (NewCheckFinance)

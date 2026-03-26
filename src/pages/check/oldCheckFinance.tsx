@@ -1,75 +1,119 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    Col,
+    DatePicker,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Row,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Form, InputNumber
+} from "antd";
 import dayjs from "dayjs";
-import {history,connect} from "umi";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
+import {connect,history} from "umi";
+import {checkSessionStorage, newprocessBills, processBills, updateSessionStorage, userQx} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {checkSessionStorage, processBills, updateSessionStorage} from "@/utils/OpenTool";
+import { useReactToPrint } from 'react-to-print';
+import AllFinancialDataPrint from "@/components/AllFinancialDataPrint";
 import {StaticInfo} from "@/StaticInfo";
-
+import * as processConfiguration from "@/services/processConfiguration";
+import ReimbursePrint from "@/components/MyReimbursePrint";
+const statusMap: any = {
+    1: { text: '', color: 'orange',next: 3,btnText:'' },
+    // 2: { text: '已入账', color: 'green'  },
+    3: { text: '', color: 'blue' ,next: 4,btnText:''},
+    4: { text: '', color: 'purple',next: 5 ,btnText:''},
+    5: { text: '', color: 'purple',next: 6 ,btnText:''},
+    6: { text: '', color: 'purple',next: 7 ,btnText:''},
+    7: { text: '', color: 'purple',next: 8 ,btnText:''},
+    8: { text: '', color: 'purple',next: 9 ,btnText:''},
+    9: { text: '', color: 'purple',next: 10 ,btnText:''},
+    10: { text: '', color: 'purple',next: 11 ,btnText:''},
+    11: { text: '', color: 'purple',next: 12 ,btnText:''},
+    12: { text: '已审核,未入账', color: 'purple'},
+    13: { text: '终止', color: 'purple'},
+    14: { text: '已入账', color: 'purple'},
+}
 const OldCheckFinance=(props:any)=>{
     // 展示total
-    const [isfenye,setisfenye]=useState(true);
-    // 唯一id
-    const [uid,setUid]=useState(0);
-    // 审核弹窗
-    const [isOpen,setIsOpen]=useState(false);
-    // 页码
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    // 摘要
-    const [billAbstract,setBillAbstract]=useState(checkSessionStorage('/check/checkFinance/','OldbillAbstract')||'');
-    // 开始时间
-    const [billBgeinTime,setBillBgeinTime]=useState(checkSessionStorage('/check/checkFinance/','OldstartDate')||'2000-01-01');
-    // 结束时间
-    const [billEndTime,setBillEndTime]=useState(checkSessionStorage('/check/checkFinance/','OldendDate')||'2099-01-01');
-    // 状态  0 未审核  1已审核  2全部
-    const [billStatus,setBillStatus]=useState(checkSessionStorage('/check/checkFinance/','Oldstatus')||2);
-    // 类型   1 支出  2全部  0收入
-    const [billMoneyType,setBillMoneyType]=useState(checkSessionStorage('/check/checkFinance/','OldbillMoneyType')||2);
-    // 公司ID
-    const [companyId,setCompanyId]=useState(checkSessionStorage('/check/checkFinance/','OldcompanyId')||0);
-    // 项目ID
-    const [projectId,setProjectId]=useState(checkSessionStorage('/check/checkFinance/','OldprojectId')||0);
-    // 科目ID
-    const [subjectId,setSubjectId]=useState(checkSessionStorage('/check/checkFinance/','Oldsubject')||0);
-    // 公司列表
-    const [companyList,setCompanyList]=useState([]);
-    // 科目列表
-    const [subjList,setSubjList]=useState([]);
-    // 项目列表
-    const [projectlist,setProjectlist]=useState([]);
-    // 加载转圈
-    const [spinning,setspinning]=useState(false);
-    // 账户卡号
-    const [account_card,setaccount_card]=useState(checkSessionStorage('/check/checkFinance/','Oldaccount_card')||'');
-    // 财务账单列表
+    // 账单列表
     const [billList,setBillList]=useState([]);
-    // 一键审核弹窗
-    const [allOpen,setAllOpen]=useState(false);
-    // 用户权限
-    const [uqx,setUqx]=useState([]);
+    // 开始时间
+    const [startDate,setBillBgeinTime]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinanceStartDate')||'2000-01-01');
+    // 结束时间
+    const [endDate,setBillEndTime]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinanceEndDate')||'2099-01-01');
+    // 账单状态
+    const [orderStatus,setOrderStatus]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinanceorderStatus')||0);
+    // 报销单id
+    const [uid,setUid]=useState(0);
+    // 账户卡号
+    const [account_card,setaccount_card]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinanceaccount_card')||'');
+    // 公司名称
+    const [company_name,setCompany_name]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinancecompany_name')||'');
+    // 财务单号
+    const [orderCode,setOrderCode]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinanceorderCode')||'');
+    const [expenseCode,setExpenseCode]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinanceexpenseCode')||'');
+    // 收入支出类型
+    const [moneyType,setMoneyType]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinancemoneyType')||3);
+    const [project_name,setProject_name]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinanceproject_name')||'');
+    const [supplierId,setsupplierId]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinancesupplierId')||0);
+    const [foType,setFoType]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinancefoType')||1);
+    const [spinning,setspinning]=useState(false);
+    const [paidStatus,setPaidStatus]=useState(0);
+    const [printModalOpen,setPrintModalOpen]=useState(false);
+    const [printList,setPrintList]=useState([]);
+    const printRef = useRef();
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    // 缴费的弹窗
+    const [paymentOpen,setPaymentOpen]=useState(false);
+    const [rejectOpen,setRejectOpen]=useState(false);
+    // 审核状态
+    const [status,setStatus]=useState(0);
+    const [isOpen,setIsOpen]=useState(false);
+    // 账户名称
+    const [accountName,setAccountName]=useState('');
+    // 账户余额
+    const [accountBalance,setAccountBalance]=useState(0);
+    // 备注
+    const [remark,setRemark]=useState('');
+    // 报销单明细
+    const [fdList,setFdList]=useState([]);
+    const [accId,setAccId]=useState(0);
+    const [checkUser,setCheckUser]=useState('');
+    const [checkInfo,setCheckInfo]=useState({});
+    const [goodsList,setGoodsList]=useState([]);
     const columns =[
         {
             title: '日期',
-            dataIndex: 'billDate',
-            key: 'billDate',
+            dataIndex: 'orderDate',
+            key: 'orderDate',
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        {dayjs(record.billDate).format('YYYY-MM-DD')}
+                        {dayjs(record.orderDate).format('YYYY-MM-DD')}
                     </div>
                 )
             }
         },
         {
-            title: '摘要',
-            dataIndex: 'billAbstract',
-            key: 'billAbstract',
-            render:(text:any,record:any,)=>{
+            title: '单号',
+            dataIndex: 'number',
+            key: 'number',
+            ellipsis: true,
+            render:(text:any,record:any)=>{
                 return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.billAbstract}
-                    </div>
+                    <span style={{color:'#1890FF'}} onClick={()=>{
+                        history.push(`/enter/invoiceFinancialDalaInfo?id=${record.id}`);
+                    }}>{text}</span>
                 )
             }
         },
@@ -77,399 +121,481 @@ const OldCheckFinance=(props:any)=>{
             title: '公司',
             dataIndex: 'company_name',
             key: 'company_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.company_name}
-                    </div>
-                )
-            }
+            ellipsis: true,
         },
         {
             title: '项目',
             dataIndex: 'project_name',
             key: 'project_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.project_name}
-                    </div>
+            ellipsis: true,
+        },
+        {
+            title: '类型',
+            dataIndex: 'moneyType',
+            key: 'moneyType',
+            render: (text: any) => {
+                const map: any = {
+                    1: { color: 'green', label: '收入' },
+                    2: { color: 'red', label: '支出' },
+                    3: { color: 'blue', label: '报销' },
+                };
+                const current = map[text] || { color: 'default', label: '未知' };
+                return (
+                    <Tag color={current.color}>
+                        {current.label}
+                    </Tag>
+                );
+            }
+        },
+        {
+            title: '报销金额(元)',
+            dataIndex: 'totalAmount',
+            key: 'totalAmount',
+        },
+        // {
+        //     title: '已支付金额(元)',
+        //     dataIndex: 'paidAmount',
+        //     key: 'paidAmount',
+        // },
+        {
+            title: '状态',
+            dataIndex: 'orderStatus',
+            key: 'orderStatus',
+            render: (text: any) => {
+                const current = statusMap[text] || { text: '未知', color: 'default' }
+                return (
+                    <Tag color={current.color}>
+                        {current.text}
+                    </Tag>
                 )
             }
         },
         {
-            title: '账户名称',
-            dataIndex: 'account_name',
-            key: 'account_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.account_name}
-                    </div>
-                )
-            }
+            title: '提交人',
+            dataIndex: 'createUserName',
+            key: 'createUserName',
         },
         {
-            title: '账户卡号',
-            dataIndex: 'account_card',
-            key: 'account_card',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.account_card}
-                    </div>
-                )
-            }
-        },
-        {
-            title: '科目',
-            dataIndex: 'subject_name',
-            key: 'subject_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        {record.subject_name}
-                    </div>
-                )
-            }
-        },
-        {
-            title: '收入/支出',
-            dataIndex: 'money_type',
-            key: 'money_type',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.money_type==1?<Tag color="red">支出</Tag>:<Tag color="green">收入</Tag>}
-                    </div>
-                )
-            }
-        },
-        {
-            title: '收入/支出金额',
-            dataIndex: 'billMoney',
-            key: 'billMoney',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        <span style={{fontSize:'14px',color:'red'}}>{record.billMoney}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
-                    </div>
-                )
-            }
-        },
-        {
-            title: '余额',
-            dataIndex: 'balance',
-            key: 'balance',
-            render:(text:any,record:any,)=>{
+            title: '操作',
+            dataIndex: 'amount',
+            key: 'amount',
+            render:(text:any,record:any)=>{
+                let isCok=checkAuditPermission(record.orderStatus,checkUser);
+                const current = statusMap[record.orderStatus];
                 return(
                     <Space>
-                        {/*{getRdc(record.balance)}*/}
                         {
-                            record.bill_status==0?<>
-                                <span style={{fontWeight:700}}>{(record.accountBalance).toFixed(2)}</span><span>(元)</span>
-                            </>:<>
-                                <span style={{fontWeight:700}}>{(record.balance).toFixed(2)}</span><span>(元)</span>
-                            </>
+                            isCok?<Space>
+                                {[1,2,3,4,5,6,7,8,9,10,11].includes(record.orderStatus) && (
+                                    <a
+                                        onClick={() => handleUpdateStatus(record, current.next)}
+                                    >
+                                        审核
+                                    </a>
+                                )}
+                                {/* 终止按钮（所有流程中都可以点） */}
+                                {[1,2,3,4,5,6,7,8,9,10,11].includes(record.orderStatus) && (
+                                    <a
+                                        style={{ color: 'red' }}
+                                        onClick={() => handleUpdateStatus(record, 13)}
+                                    >
+                                        终止
+                                    </a>
+                                )}
+                                {record.orderStatus !== 12 && record.orderStatus !== 13 && record.orderStatus !== 14 && (
+                                    <a
+                                        style={{ color: '#1890ff' }}
+                                        onClick={() => handleReject(record)}
+                                    >
+                                        驳回
+                                    </a>
+                                )}
+                            </Space>:''
                         }
+
                     </Space>
                 )
             }
         },
-        {
-            title: '状态',
-            dataIndex: 'bill_status',
-            key: 'bill_status',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.bill_status==0?<Tag color="red">未审核</Tag>:<Tag color="green">已审核</Tag>}
-                    </div>
-                )
-            }
-        },
-        {
-            title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
-            render: (text:any, record:any) => {
-                return(
-                    <div>
-                        {
-                            record.bill_status==0?
-                                <Space>
-                                    {uqx[202]=='1'?<Button type='primary' onClick={()=>checkOpen(record.id)}>审核通过</Button> :''}
-                                    {uqx[200]=='1'?<Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button> :''}
-                                    <Button type='primary' onClick={()=>toInfo(record.id)}>详情</Button>
-                                </Space>:
-                                <>
-                                    <Button type='primary' onClick={()=>toInfo(record.id)}>详情</Button>
-                                </>
-                        }
-                    </div>
-                )
-            }
-        },
     ];
-    // 监听状态
-    const changeStutes=(e:number)=>{
-        setBillStatus(e);
-        updateSessionStorage('/check/checkFinance/','status',e);
+    const generateMultipleRecords = (count: number) => {
+        // 计算起始ID（当前最大ID + 1，若为空则从1开始）
+        const maxId = goodsList.length > 0
+            ? Math.max(...goodsList.map(item => item.id))
+            : 0;
+
+        // 生成指定数量的新记录
+        const newRecords = Array.from({ length: count }, (_, i) => ({
+            id: maxId + i + 1,
+            subjectName: '', // 科目
+            summary: '', // 摘要
+            amount: 0,    // 金额
+            quantity:0, // 数量
+            unit:'', // 单位
+            unitPrice:0, // 单价
+            // image:[], // 图片
+        }));
+
+        // 添加到现有列表
+        setGoodsList(prevGoodsList => [...prevGoodsList, ...newRecords]);
     };
-    // 详情页面
-    const toInfo=(id:number)=>{
-        history.push(`/enter/financialDataInfo?id=${id}`)
-    };
-    // 编辑页面
-    const toedit=(id:number)=>{
-        history.push(`/enter/editFinancialData?id=${id}`)
-    };
-    // 审核弹窗
-    const checkOpen=(id:number)=>{
-        setUid(id);
+    useEffect(() => {
+        // 仅当现有记录不足7条时才补充生成
+        const neededCount = 7 - goodsList.length;
+        if (neededCount > 0) {
+            generateMultipleRecords(neededCount);
+        }
+    }, [goodsList]);
+    // 3-4-5审核，6终止
+    const handleUpdateStatus = (record: any, status: number) => {
+        setUid(record.id);
+        setStatus(status);
+        setCheckInfo(record);
+        setGoodsList(record.fdList);
+        console.log('详情',[record]);
         setIsOpen(true);
     };
-    // 确定审核提交
-    const openOk=()=>{
-        setspinning(true);
-        props.dispatch({
-            type:'Bill/check',
-            payload:uid,
-        }).then((res:any)=>{
-            if (res.ErrorCode==0){
-                setspinning(false);
-                message.success('审核通过');
-                setIsOpen(false);
-                logFenye();
-            }else {
-                message.error(res.Data);
-                setIsOpen(false);
-                setspinning(false);
-            }
-        })
+    // 付款弹窗
+    const handlePayment=(record:any)=>{
+        setUid(record.id);
+        setPaymentOpen(true);
+        const newList = record.fdList.map((item: any) => ({
+            ...item,
+            payAmount: item.payAmount ?? 0, // 初始化
+        }));
+        setFdList(newList);
     };
-    // 监听摘要名称
-    const changeName=(e)=>{
-        setBillAbstract(e.target.value);
-        updateSessionStorage('/check/checkFinance/','OldbillAbstract',e.target.value);
+    // 驳回弹窗
+    const handleReject=(record:any)=>{
+        setUid(record.id);
+        setRejectOpen(true);
     };
-    // 搜索
-    const sousuo=()=>{
-        setisfenye(true);
-        setPage(1);
-        getBillFenye();
-        logFenye();
-    };
-    // 分页信息
-    const getBillFenye=()=>{
-        props.dispatch({
-            type:'Bill/fenye',
-            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize}
-        });
-    };
-    // 分页
-    const logFenye=()=>{
-        props.dispatch({
-            type:"Bill/fetch",
-            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize}
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                let newdata=processBills(res.Data);
-                setBillList(res.Data);
-            }
-        })
-    };
-    // 监听页数
-    const onChange=(e:number,pageSize:number)=>{
-        setPage(e);
-        setPageSize(pageSize);
-    };
-    // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setBillBgeinTime('2000-01-01');
             setBillEndTime('2099-01-01');
-            updateSessionStorage('/check/checkFinance/','OldstartDate','2000-01-01');
-            updateSessionStorage('/check/checkFinance/','OldendDate','2099-01-01');
+            updateSessionStorage('/check/checkFinance/','OldCheckFinanceStartDate','2000-01-01');
+            updateSessionStorage('/check/checkFinance/','OldCheckFinanceEndDate','2099-01-01');
         } else {
             setBillBgeinTime(data[0]);
             setBillEndTime(data[1]);
-            updateSessionStorage('/check/checkFinance/','OldstartDate',data[0]);
-            updateSessionStorage('/check/checkFinance/','OldendDate',data[1]);
+            updateSessionStorage('/check/checkFinance/','OldCheckFinanceStartDate',data[0]);
+            updateSessionStorage('/check/checkFinance/','OldCheckFinanceEndDate',data[1]);
         }
     };
-    // 监听类型
-    const changeType=(e:number)=>{
-        setBillMoneyType(e);
-        updateSessionStorage('/check/checkFinance/','OldbillMoneyType',e);
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
-    // 获取公司列表
-    const getCompanList=()=>{
-        props.dispatch({
-            type:'Compan/fetch',
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                conterCompay(res.Data)
-            }else {
-                conterCompay([])
-            }
-        })
+    const isDelOpen=(e)=>{
+        setIsOpen(true);
+        setUid(e);
     };
-    // 获取项目列表
-    const getProjectList=()=>{
-        props.dispatch({
-            type:'Project/fetch',
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                conterproject(res.Data);
-            }else {
-                conterproject([]);
-            }
-        });
-    };
-    // 获取科目列表
-    const getSubjectList=()=>{
-        props.dispatch({
-            type:'Subject/fetch',
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                contersubj(res.Data);
-            }else {
-                contersubj([]);
-            }
-        });
-    };
-    useEffect(() => {
-        logFenye();
-    }, [page,pageSize]);
-    useEffect(() => {
-        getProjectList();
-        getSubjectList();
-        getCompanList();
-    }, []);
-    // 监听公司id
-    const changeCompany=(e:number)=>{
-        setCompanyId(e);
-        updateSessionStorage('/check/checkFinance/','OldcompanyId',e);
-
-    };
-    // 监听项目id
-    const changeProject=(e:number)=>{
-        setProjectId(e);
-        updateSessionStorage('/check/checkFinance/','OldprojectId',e);
-
-    };
-    // 监听项目id
-    const changeSubject=(e:number)=>{
-        setSubjectId(e);
-        updateSessionStorage('/check/checkFinance/','Oldsubject',e);
-    };
-    // 公司拼接
-    const conterCompay=(item)=>{
-        let oldarr=[ {label:'全部',value:0}];
-        let newarr=item.map((item:any)=>{
-            return {
-                label:item.company_name,
-                value:item.id
-            }
-        });
-        setCompanyList(oldarr.concat(newarr));
-    };
-    // 项目拼接
-    const conterproject=(item)=>{
-        let oldarr=[ {label:'全部',value:0}];
-        let newarr=item.map((item:any)=>{
-            return {
-                label:item.project_name,
-                value:item.id
-            }
-        });
-        setProjectlist(oldarr.concat(newarr));
-    };
-    // 科目拼接
-    const contersubj=(item)=>{
-        let oldarr=[ {label:'全部',value:0}];
-        let newarr=item.map((item:any)=>{
-            return {
-                label:item.subject_name,
-                value:item.id
-            }
-        });
-        setSubjList(oldarr.concat(newarr));
-    };
-    // 一键审核弹窗
-    const allCheck=()=>{
-        setAllOpen(true);
-    };
-    // 确定一键审核
-    const allOk=()=>{
+    // 审核按钮
+    const onOK=()=>{
         setspinning(true);
         props.dispatch({
-            type:'Bill/allCheck',
-        }).then((res:any)=>{
-            if (res.ErrorCode==0){
-                message.success('一键审核通过');
-                setAllOpen(false);
+            type:'Bill/check',
+            payload:{uid,status}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode == 0||res.ErrorCode == 9038) {
+                message.success(status==6?'终止成功':'审核成功');
                 setspinning(false);
-                logFenye();
+                setIsOpen(false);
+                getList();
             }else {
-                message.error(res.Data);
-                setAllOpen(false);
+                message.error(res.ErrorCode + res.Data);
                 setspinning(false);
             }
         })
     };
-    // 录入数据不分页
-    const isduizhang=()=>{
+    // 驳回按钮
+    const rejectOK=()=>{
         setspinning(true);
         props.dispatch({
-            type:"Bill/fetchNo",
-            payload:{page,billAbstract,billBgeinTime,billEndTime,billMoneyType,companyId,projectId,subjectId,account_card}
+            type:'Bill/reject',
+            payload:uid
         }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                let newdata=processBills(res.Data);
+            if (res.ErrorCode == 0||res.ErrorCode == 9038) {
+                message.success('驳回成功');
+                setspinning(false);
+                setRejectOpen(false);
+                getList();
+            }else {
+                message.error(res.ErrorCode + res.Data);
+                setspinning(false);
+            }
+        })
+    };
+    const getList=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:'Bill/fetch',
+            payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode}
+        }).then((res:TypeErrorCode)=>{
+            if(res.ErrorCode==0){
                 setBillList(res.Data);
-                setspinning(false);
-                setisfenye(false);
-            }else {
-                message.error(res.Data);
-                setspinning(false);
             }
+            setspinning(false);
         })
-        getBillFenye();
     };
-    useEffect(() => {
-        let uq=StaticInfo.uqx.split('');
-        setUqx(uq);
-    }, []);
-    useEffect(() => {
-        getBillFenye();
-    }, []);
-    const changeAccountCard=(e)=>{
+    const changeOrderCode = (e:any) => {
+        setOrderCode(e.target.value);
+        updateSessionStorage('/check/checkFinance/','OldCheckFinanceorderCode',e.target.value);
+    };
+    const changeCompany_name = (e:any) => {
+        setCompany_name(e.target.value);
+        updateSessionStorage('/check/checkFinance/','OldCheckFinancecompany_name',e.target.value);
+    };
+    const changeMoneyType = (e:any) => {
+        setMoneyType(e);
+        updateSessionStorage('/check/checkFinance/','OldCheckFinancemoneyType',e);
+    };
+    const changeAccount_card = (e:any) => {
         setaccount_card(e.target.value);
-        updateSessionStorage('/check/checkFinance/','Oldaccount_card',e.target.value);
+        updateSessionStorage('/check/checkFinance/','OldCheckFinanceaccount_card',e.target.value);
     };
+    const sousuo=()=>{
+        setPage(1);
+        getList();
+        getFenye();
+        console.log(billList)
+    };
+    const getFenye=()=>{
+        props.dispatch({
+            type:'Bill/fenye',
+            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode}
+        })
+    };
+    const updateStatusMap=(data)=> {
+        const statusKeys = [1,3,4,5,6,7,8,9,10,11];
+        // 先清空
+        statusKeys.forEach(key => {
+            statusMap[key].text = '';
+            statusMap[key].btnText = '';
+        });
+        for (let i = 0; i < statusKeys.length; i++) {
+            const reviewIndex = i + 1;
+            const status = statusKeys[i];
+            const reviewer = data[`reviewer${reviewIndex}`];
+            const rpName = data[`rpName${reviewIndex}`];
+
+            // 没有审核人 → 后面不显示按钮
+            if (!reviewer || reviewer.trim() === '') {
+                if (rpName) {
+                    // 自动加：待xx审核
+                    statusMap[status].text = `待${rpName}审核`;
+                }
+                for (let j = i; j < statusKeys.length; j++) {
+                    statusMap[statusKeys[j]].btnText = '';
+                }
+                break;
+            }
+
+            // ✅ 自动拼接：待xx审核
+            statusMap[status].text = `待${rpName}审核`;
+
+            // 按钮文字 = 下一个审核名称
+            const nextRpName = data[`rpName${reviewIndex + 1}`];
+            if (nextRpName) {
+                statusMap[status].btnText = nextRpName;
+            }
+        }
+        return statusMap
+    }
+    const getSupplierList=()=>{
+        props.dispatch({
+            type:"Supplier/fetch",
+        })
+    };
+    const getReviewer=()=>{
+        processConfiguration.one().then((res:TypeErrorCode)=>{
+            updateStatusMap(res.Data);
+            setCheckUser(res.Data);
+            // let isCok=checkAuditPermission(1,res.Data);
+        })
+    };
+    useEffect(() => {
+        getFenye();
+        getAccountList();
+        getReviewer();
+        getSupplierList();
+
+    }, []);
+    useEffect(()=>{
+        getList();
+    },[page, pageSize]);
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (selectedKeys: React.Key[], selectedRows: any[]) => {
+            setSelectedRowKeys(selectedKeys);
+        },
+        type: 'checkbox',  // 复选框类型
+    };
+    const isPrintModalOpen=()=>{
+        if(selectedRowKeys.length===0){
+            message.error('请选择要打印的报销数据');
+            return;
+        }
+        const selectedIds = selectedRowKeys.map(key => Number(key));
+        // 筛选出选中的财务数据，并处理fdList不足7条的情况
+        const printList = billList
+            .filter(item => selectedIds.includes(item.id))
+            .map(item => {
+                const fdList = item.fdList || []; // 获取当前项目的fdList，默认空数组
+                const currentLength = fdList.length;
+
+                // 如果已达到或超过7条，直接返回原数据
+                if (currentLength >= 7) {
+                    return item;
+                }
+
+                // 计算需要补充的空记录数量
+                const neededCount = 7 - currentLength;
+                // 获取当前fdList中的最大ID，用于生成新记录ID
+                const maxId = currentLength > 0
+                    ? Math.max(...fdList.map(item => item.id))
+                    : 0;
+
+                // 生成补充的空记录
+                const newArr = Array.from({ length: neededCount }, (_, i) => ({
+                    id: maxId + i + 1,       // 自增ID
+                    subjectName: '',         // 空科目
+                    summary: '',             // 空摘要
+                    amount: 0                // 金额0
+                }));
+
+                // 返回包含补充记录的新对象（不修改原数据）
+                return {
+                    ...item,
+                    fdList: [...fdList, ...newArr]
+                };
+            });
+        setPrintList(printList);
+        setPrintModalOpen(true);
+    };
+    const changeProject_name=(e:any)=>{
+        setProject_name(e.target.value);
+        updateSessionStorage('/check/checkFinance/','OldCheckFinanceproject_name',e.target.value);
+    }
+    // 获取账户列表
+    const getAccountList=()=>{
+        props.dispatch({
+            type:'Account/fetch',
+        })
+    };
+    const changeAccountId=(e:any)=>{
+        const selected = props.AccountList.find((item: any) => item.id === e);
+        console.log('选择的账户id:', selected);
+        setAccId(selected.id);
+        setAccountName(selected.account_name+selected.account_card);
+        setAccountBalance(selected.balance);
+    };
+    const getAuditSelectOptions = () => {
+        // 你要的顺序（固定不变）
+        const keys = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+
+        const options = keys.map(key => ({
+            label: statusMap[key].text,
+            value: key,
+        })).filter(item => item.label);
+
+        // ✅ 在最前面插入一行：全部（value=0）
+        return [
+            { label: '全部', value: 0 },
+            ...options
+        ];
+    };
+    const changeStutes=(e:any)=>{
+        setOrderStatus(e);
+        updateSessionStorage('/check/checkFinance/','OldCheckFinanceorderStatus',e);
+    }
+    const changeSupplierId=(e:any)=>{
+        setsupplierId(e);
+        updateSessionStorage('/check/checkFinance/','OldCheckFinancesupplierId',e);
+    }
+    const checkAuditPermission = (status, auditObj) => {
+        const statusMap = {
+            1: 1,
+            3: 2,
+            4: 3,
+            5: 4,
+            6: 5,
+            7: 6,
+            8: 7,
+            9: 8,
+            10: 9,
+            11: 10,
+        };
+        // 2. 获取当前状态对应的审核人索引，不存在则直接无权限
+        const reviewerIndex = statusMap[status];
+        if (!reviewerIndex) return false;
+
+        // 3. 拼接对应的字段名 reviewer1 ~ reviewer11
+        const reviewerKey = `reviewer${reviewerIndex}`;
+
+        // 4. 获取该字段的值
+        const reviewerValue = auditObj[reviewerKey];
+
+        // 5. 校验：字段为空 → 无权限
+        if (!reviewerValue) return false;
+
+        // 6. 把用户ID转为字符串，兼容数字/字符串类型
+        const targetId = String(StaticInfo.userId);
+
+        // 7. 判断用户ID是否在审核人列表中（用|分隔）
+        const userList = reviewerValue.split('|');
+        return userList.includes(targetId);
+    };
+    // 修改打印方法，使用useReactToPrint的完整功能
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,  // 使用 content 而不是 contentRef
+        pageStyle: `
+        @page {
+            size: A4;
+            margin: 2mm 20mm;
+        }
+        @media print {
+            /* 分页样式 */
+            .page-break {
+                page-break-after: always;
+            }
+            /* 防止内容被分页截断 */
+            .no-break {
+                page-break-inside: avoid;
+            }
+            /* 隐藏 Modal 相关元素 */
+            .ant-modal-wrap,
+            .ant-modal-mask {
+                display: none !important;
+            }
+            .ant-modal {
+                position: static !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            .ant-modal-content {
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+            .ant-modal-header,
+            .ant-modal-footer {
+                display: none !important;
+            }
+            .ant-modal-body {
+                padding: 0 !important;
+            }
+            body *:not(.print-only-content):not(.print-only-content *) {
+                        visibility: hidden;
+                      }
+        }
+    `,
+    });
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
-                        <Button type="primary" onClick={isduizhang}>
-                            对账
-                        </Button>
-                        <Input
-                            onChange={changeName}
-                            style={{ width: 300 }}
-                            addonBefore="摘要:"
-                            value={billAbstract}
-
-                        />
-                        <Input
-                            onChange={changeAccountCard}
-                            style={{ width: 300 }}
-                            addonBefore="账户卡号:"
-                            value={account_card}
-                        />
                         <Space.Compact>
                             <div
                                 style={{
@@ -485,8 +611,18 @@ const OldCheckFinance=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            {billBgeinTime=='2000-01-01'&&billEndTime=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(billBgeinTime),dayjs(billEndTime)]}/>}
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
+                        <Input
+                            addonBefore="单号:"
+                            value={orderCode}
+                            onChange={changeOrderCode}
+                        />
+                        <Input
+                            addonBefore="公司名称:"
+                            value={company_name}
+                            onChange={changeCompany_name}
+                        />
                         <Space.Compact>
                             <div
                                 style={{
@@ -500,23 +636,47 @@ const OldCheckFinance=(props:any)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                状态:
+                                供应商:
                             </div>
                             <Select
-                                onChange={changeStutes}
-                                value={billStatus}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value: 0, label: '未审核' },
-                                    { value: 1, label: '已审核' },
-                                    { value: 2, label: '全部' },
-                                ]}
+                                style={{width:'250px'}}
+                                showSearch
+                                onChange={changeSupplierId}
+                                placeholder='供应商'
+                                value={supplierId}
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = props.SupplierList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                    return item?.supplierName?.toLowerCase().includes(input.toLowerCase());
+                                }}
+                                options={
+                                    [
+                                        { label: '全部', value: 0 },
+                                        ...(Array.isArray(props.SupplierList) && props.SupplierList.length > 0
+                                                ? props.SupplierList.map((item:any)=>({
+                                                    label: item.supplierName,
+                                                    value: item.id,
+                                                }))
+                                                : []
+                                        )
+                                    ]
+                                }
                             />
                         </Space.Compact>
                     </Space>
                 </List.Item>
                 <List.Item>
                     <Space>
+                        {/*<Input*/}
+                        {/*    addonBefore="账户卡号:"*/}
+                        {/*    value={account_card}*/}
+                        {/*    onChange={changeAccount_card}*/}
+                        {/*/>*/}
+                        <Input
+                            addonBefore="项目:"
+                            value={project_name}
+                            onChange={changeProject_name}
+                        />
                         <Space.Compact>
                             <div
                                 style={{
@@ -530,113 +690,19 @@ const OldCheckFinance=(props:any)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                公司:
+                                审核状态:
                             </div>
                             <Select
-                                onChange={changeCompany}
-                                defaultValue={companyId}
-                                style={{ width: 240 }}
-                                options={companyList}
-                                showSearch
-                                optionFilterProp="children"
-                                filterOption={(input, option) => {
-                                    // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = companyList.find(unit => unit.value == option.value);
-                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
-                                }}
-                            >
-                            </Select>
-                        </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                项目:
-                            </div>
-                            <Select
-                                onChange={changeProject}
-                                defaultValue={projectId}
-                                style={{ width: 240 }}
-                                options={projectlist}
-                                showSearch
-                                optionFilterProp="children"
-                                filterOption={(input, option) => {
-                                    // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = projectlist.find(unit => unit.value == option.value);
-                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
-                                }}
-                            >
-                            </Select>
-                        </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                科目:
-                            </div>
-                            <Select
-                                onChange={changeSubject}
-                                defaultValue={subjectId}
-                                style={{ width: 240 }}
-                                options={subjList}
-                                showSearch
-                                optionFilterProp="children"
-                                filterOption={(input, option) => {
-                                    // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = subjList.find(unit => unit.value == option.value);
-                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
-                                }}
-                            >
-                            </Select>
-                        </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                类型:
-                            </div>
-                            <Select
-                                onChange={changeType}
-                                defaultValue={billMoneyType}
                                 style={{ width: 120 }}
-                                options={[
-                                    { value: 1, label: '支出' },
-                                    { value: 0, label: '收入' },
-                                    { value: 2, label: '全部' },
-                                ]}
+                                value={orderStatus}
+                                onChange={changeStutes}
+                                options={getAuditSelectOptions()}
                             />
                         </Space.Compact>
-                        <Button type="primary"  onClick={sousuo}>
+                        <Button type="primary" onClick={isPrintModalOpen}>打印</Button>
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        {uqx[202]=='1'?<Button type="primary" danger  onClick={allCheck}>一键审核</Button> :''}
                     </Space>
                 </List.Item>
             </List>
@@ -644,16 +710,16 @@ const OldCheckFinance=(props:any)=>{
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
-                size='small'
+                dataSource={billList}
                 scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
-                dataSource={billList}
+                size='small'
                 summary={(columns) => (
                     <Table.Summary fixed>
                         <Table.Summary.Row>
-                            <Table.Summary.Cell
-                                index={1}
-                            >
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={1}>
                                 统计
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
@@ -664,39 +730,51 @@ const OldCheckFinance=(props:any)=>{
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
-                            <Table.Summary.Cell index={0}>
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell index={0}>
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell index={0}>
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell
-                                index={8}
-                            >
-                                {props.count?props.count.moneySum:''}元
+                            <Table.Summary.Cell index={8}>
+                                {props.count?props.count.totalAmountSum.toFixed(2):''}
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
+                rowSelection={rowSelection}  // 添加选择功能配置
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-            {/*    审核通过弹窗*/}
-            <Modal open={isOpen} onOk={openOk} onCancel={()=>setIsOpen(false)} loading={spinning}>
-                <div>
-                    确定要审核通过吗？
-                </div>
+            {/*终止/审核流程*/}
+            <Modal open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOK} loading={spinning} width={1000} height={800}>
+                <div>{status==13?'是否要终止?':
+                    <ReimbursePrint item={{...checkInfo,fdList:goodsList}}/>
+                }</div>
             </Modal>
-            {/*    一键审核弹窗*/}
-            <Modal open={allOpen} onOk={allOk} onCancel={()=>setAllOpen(false)} loading={spinning}>
-                <div>是否一键审核？</div>
+            {/*驳回弹窗*/}
+            <Modal open={rejectOpen} onCancel={()=>setRejectOpen(false)} onOk={rejectOK} loading={spinning} title={'驳回'}>
+                <div>是否要驳回?</div>
+            </Modal>
+            {/*打印*/}
+            <Modal
+                width={1000}
+                open={printModalOpen}
+                onCancel={()=>setPrintModalOpen(false)}
+                footer={[
+                    <Button key="print" type="primary" onClick={handlePrint}>打印</Button>,
+                    <Button key="cancel" type="primary" onClick={()=>setPrintModalOpen(false)}>关闭</Button>
+                ]}
+            >
+                <div className="print-only-content">
+                    <AllFinancialDataPrint
+                        ref={printRef}
+                        printList={printList}
+                        className="print-only-content"
+                    />
+                </div>
             </Modal>
         </Spin>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
-        BillList: state.Bill.list,
-        count: state.Bill.count
+        count: state.Bill.count,
+        AccountList: state.Account.list,
+        SupplierList: state.Supplier.list,
     }
 };
 export default connect(mapStateToProps) (OldCheckFinance)

@@ -14,7 +14,7 @@ let pl={
     carNo:'',
     appId:0,
     stutes:0,
-    pageSize:50
+    pageSize:20
 }
 
 export interface CarManageCountState {

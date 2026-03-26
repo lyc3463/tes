@@ -20,9 +20,9 @@ import {
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 import * as UserCarServer from "@/services/userCar";
 
-const WxUserCar=(props)=>{
+const WxUserCar=(props:any)=>{
     const [page,setPage]=useState(1);// 页码
-    const [pageSize,setPageSize]=useState(50);// 页数
+    const [pageSize,setPageSize]=useState(20);// 页数
     const [carNo,setCarNo]=useState(checkSessionStorage('/wisdomStop/carManage/','carNo')||'');//车牌号
     const [appId,setAppid]=useState(0);
     const [stutes,setStutes]=useState(checkSessionStorage('/wisdomStop/carManage/','stutes')||0);

@@ -1,6 +1,6 @@
 import {Button, Form, Input, message, Select, Spin} from "antd";
 import {useEffect, useRef, useState} from "react";
-import {connect,history} from "umi";
+import {connect,history,useNavigate} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as Suppliervice from '@/services/supplier';
 
@@ -8,6 +8,7 @@ const tailLayout = {
     wrapperCol: { offset: 4 },
 };
 const EditSupplier=(props:any)=>{
+    const navigate = useNavigate();
     const [form] = Form.useForm();
     const formRef=useRef();
     const [uid,setUid]=useState('0');
@@ -22,7 +23,7 @@ const EditSupplier=(props:any)=>{
             if(res.ErrorCode===0){
                 message.success('修改成功');
                 setSpinning(false);
-                history.push('/warehouse/supplier');
+                navigate(-1)
             }else{
                 message.error(res.Data);
                 setSpinning(false);
@@ -75,15 +76,15 @@ const EditSupplier=(props:any)=>{
                 </Form.Item>
                 <Form.Item
                     name="personName"
-                    label="联系人"
+                    label="账户"
                 >
-                    <Input placeholder="请输入联系人" />
+                    <Input placeholder="请输入账户" />
                 </Form.Item>
                 <Form.Item
                     name="personPhone"
-                    label="联系电话"
+                    label="账户名"
                 >
-                    <Input placeholder="请输入负责人联系电话"/>
+                    <Input placeholder="请输入账户名"/>
                 </Form.Item>
                 <Form.Item label="备注(选填)" name='remark'>
                     <Input placeholder="请输入备注" />

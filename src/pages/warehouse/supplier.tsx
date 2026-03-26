@@ -26,12 +26,12 @@ const Supplier=(props)=>{
             ellipsis: true,
         },
         {
-            title: '联系人',
+            title: '账户',
             dataIndex: 'personName',
             ellipsis: true,
         },
         {
-            title: '联系电话',
+            title: '账户名',
             dataIndex: 'personPhone',
             ellipsis: true,
         },
@@ -130,12 +130,12 @@ const Supplier=(props)=>{
                             onChange={changeSupplierName}
                         />
                         <Input
-                            addonBefore="联系电话:"
+                            addonBefore="账户名:"
                             value={personPhone}
                             onChange={changePersonPhone}
                         />
                         <Input
-                            addonBefore="联系人:"
+                            addonBefore="账户:"
                             value={personName}
                             onChange={changePersonName}
                         />

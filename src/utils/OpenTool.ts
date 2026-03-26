@@ -1334,7 +1334,7 @@ export function newprocessBills(data) {
         group.forEach((bill, index) => {
             // 每次都更新当前账单的balance，依赖前一项的结果
             if (bill.moneyType === 2) {
-                balance -= bill.totalAmount;
+                balance -= bill.paidAmount;
             } else if (bill.moneyType === 1) {
                 balance += bill.totalAmount;
             }

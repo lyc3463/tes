@@ -1,65 +1,98 @@
-import {connect} from 'umi'
-import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
+import {
+    Button,
+    DatePicker,
+    Form,
+    Input,
+    InputNumber,
+    List,
+    message,
+    Modal,
+    Pagination, Segmented,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag
+} from "antd";
 import dayjs from "dayjs";
-import {history} from "@@/core/history";
-import {useEffect, useState} from "react";
-import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
+import {useEffect, useRef, useState} from "react";
+import {connect,history} from "umi";
+import {checkSessionStorage, newprocessBills, processBills, updateSessionStorage, userQx} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import * as BillService from "@/services/billSum";
+import * as BillService from '@/services/bill';
 import {StaticInfo} from "@/StaticInfo";
+
 const OldBillSum=(props:any)=>{
+    // 展示total
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    // 账单编号
-    const [billAbstract,setBillAbstract]=useState(checkSessionStorage('/financeManage/billSum/','billAbstract')||'');
+    // 账单列表
+    const [billList,setBillList]=useState([]);
     // 开始时间
-    const [billBgeinTime,setBillBgeinTime]=useState(checkSessionStorage('/financeManage/billSum/','startDate')||'2000-01-01');
+    const [startDate,setBillBgeinTime]=useState(checkSessionStorage('/financeManage/billSum/','OldBillSumstartDate')||'2000-01-01');
     // 结束时间
-    const [billEndTime,setBillEndTime]=useState(checkSessionStorage('/financeManage/billSum/','endDate')||'2099-01-01');
-    // 账单状态 0 未审核 1已审核 2全查
-    const [billStatus,setBillStatus]=useState(1);
-    // 账单类型   1支出 0收入 2全部
-    const [billMoneyType,setBillMoneyType]=useState(checkSessionStorage('/financeManage/billSum/','billMoneyType')||2);
-    // 公司id
-    const [companyId,setCompanyId]=useState(checkSessionStorage('/financeManage/billSum/','companyId')||0);
-    // 项目id
-    const [projectId,setProjectId]=useState(checkSessionStorage('/financeManage/billSum/','projectId')||0);
-    // 科目id
-    const [subjectId,setSubjectId]=useState(checkSessionStorage('/financeManage/billSum/','subjectId')||0);
-    // 公司列表
-    const [companyList,setCompanyList]=useState([]);
-    // 科目项目
-    const [subjList,setSubjList]=useState([]);
-    // 项目列表
-    const [projectlist,setProjectlist]=useState([]);
+    const [endDate,setBillEndTime]=useState(checkSessionStorage('/financeManage/billSum/','OldBillSumendDate')||'2099-01-01');
+    // 账单状态
+    const [orderStatus,setBillStatus]=useState(checkSessionStorage('/financeManage/billSum/','OldBillSumbillStatus')||2);
+    // 删除的id
+    const [uid,setUid]=useState(0);
     // 账户卡号
-    const [account_card,setaccount_card]=useState(checkSessionStorage('/financeManage/billSum/','account_card')||'');
+    const [account_card,setaccount_card]=useState(checkSessionStorage('/financeManage/billSum/','OldBillSumaccount_card')||'');
+    // 公司名称
+    const [company_name,setCompany_name]=useState(checkSessionStorage('/financeManage/billSum/','OldBillSumcompany_name')||'');
+    // 财务单号
+    const [orderCode,setOrderCode]=useState('');
+    const [expenseCode,setExpenseCode]=useState('');    // 收入支出类型
+    const [moneyType,setMoneyType]=useState(checkSessionStorage('/financeManage/billSum/','OldBillSummoneyType')||2);
+    const [project_name,setProject_name]=useState(checkSessionStorage('/financeManage/billSum/','OldBillSumproject_name')||'');
+    const [supplierId,setsupplierId]=useState(checkSessionStorage('/financeManage/billSum/','OldBillSumsupplierId')||0);
+    const [foType,setFoType]=useState(checkSessionStorage('/financeManage/billSum/','OldBillSumfoType')||2);
+    const [paidStatus,setPaidStatus]=useState(checkSessionStorage('/financeManage/billSum/','OldBillSumpaidStatus')||0);
+    const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
-    const [uqx,setUqx]=useState([]);
+    const [handlePayOpen,setHandlePayOpen]=useState(false);
+    const [accountId,setAccountId]=useState(0);// 缴费的账户id
+    const [paidAccountCard,setPaidAccountCard]=useState('');// 缴费的账户卡号
+    const [paidAccountName,setPaidAccountName]=useState('');// 缴费的账户名
+    const [paymentRemarks,setPaymentRemarks]=useState('');// 缴费的备注
+    const [paymentAmount,setPaymentAmount]=useState(0);// 缴费的金额
+
+
     const columns =[
         {
             title: '日期',
-            dataIndex: 'billDate',
-            key: 'billDate',
+            dataIndex: 'orderDate',
+            key: 'orderDate',
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        {dayjs(record.billDate).format('YYYY-MM-DD')}
+                        {dayjs(record.orderDate).format('YYYY-MM-DD')}
                     </div>
                 )
             }
         },
         {
-            title: '摘要',
-            dataIndex: 'billAbstract',
-            key: 'billAbstract',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.billAbstract}>
-                            {record.billAbstract}
-                        </Tooltip>
-                    </div>
+            title: '单号',
+            dataIndex: 'number',
+            key: 'number',
+            render:(text: any, record: any)=>{
+                // 判断：是否包含下划线
+                const hasUnderline = record.number && record.number.includes('_');
+                return (
+                    <span
+                        style={{
+                            color: hasUnderline ? '#333' : '#1890FF', // 有下划线=黑色，无=蓝色
+                            cursor: hasUnderline ? 'default' : 'pointer' // 有下划线=无手型
+                        }}
+                        onClick={() => {
+                            // 有下划线 → 不跳转
+                            if (hasUnderline) return;
+                            // 没有下划线 → 跳转
+                            history.push(`/enter/newFinancialDataInfo?id=${record.id}`);
+                        }}
+                    >
+                {text}
+            </span>
                 )
             }
         },
@@ -67,342 +100,351 @@ const OldBillSum=(props:any)=>{
             title: '公司',
             dataIndex: 'company_name',
             key: 'company_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.company_name}>
-                            {record.company_name}
-                        </Tooltip>
-                    </div>
-                )
-            }
+            ellipsis: true,
         },
         {
             title: '项目',
             dataIndex: 'project_name',
             key: 'project_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.project_name}>
-                            {record.project_name}
-                        </Tooltip>
-                    </div>
-                )
-            }
+            ellipsis: true,
         },
         {
-            title: '科目',
-            dataIndex: 'subject_name',
-            key: 'subject_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.subject_name}>
-                            {record.subject_name}
-                        </Tooltip>
-                    </div>
-                )
-            }
-        },
-        {
-            title: '账户',
+            title: '账户名',
             dataIndex: 'account_name',
             key: 'account_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.account_name}>
-                            {record.account_name}
-                        </Tooltip>
-                    </div>
-                )
-            }
+            ellipsis: true,
         },
         {
             title: '账户卡号',
             dataIndex: 'account_card',
             key: 'account_card',
-            render:(text:any,record:any,)=>{
+            ellipsis: true,
+        },
+        {
+            title: '类型',
+            dataIndex: 'moneyType',
+            key: 'moneyType',
+            render:(text:any,record:any)=>{
                 return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.account_card}>
-                            {record.account_card}
-                        </Tooltip>
-                    </div>
+                    <Tag color={text==1?'green':'red'}>
+                        {text==1?'收入':'支出'}
+                    </Tag>
                 )
             }
         },
         {
-            title: '收入/支出',
-            dataIndex: 'money_type',
-            key: 'money_type',
-            render:(text:any,record:any,)=>{
+            title: '已付金额(元)',
+            dataIndex: 'paidAmount',
+            key: 'paidAmount',
+        },
+        {
+            title: '支出总金额',
+            dataIndex: 'totalAmount',
+            key: 'totalAmount',
+            render:(text:any,record:any)=>{
+                return(
+                    <span>{record.moneyType==2?text:null}</span>
+                )
+            }
+        },
+        {
+            title: '余额(元)',
+            dataIndex: 'balance2',
+            key: 'balance2',
+            render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.money_type==1?<Tag color="red">支出</Tag>:<Tag color="green">收入</Tag>}
+                        {text.toFixed(2)}
                     </div>
                 )
             }
         },
         {
-            title: '收入/支出金额',
-            dataIndex: 'billMoney',
-            key: 'billMoney',
-            render:(text:any,record:any,)=>{
+            title: '缴费状态',
+            dataIndex: 'paidStatus',
+            key: 'paidStatus',
+            render:(text:any,record:any)=>{
                 return(
-                    <div>
-                        <span style={{fontSize:'14px',color:'red'}}>{record.billMoney}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
-                    </div>
-                )
-            }
-        },
-        {
-            title: '余额',
-            dataIndex: 'balance',
-            key: 'balance',
-            render:(text:any,record:any,)=>{
-                return(
-                    <Space>
-                        <span style={{fontWeight:700}}>{(record.balance).toFixed(2)}</span><span>(元)</span>
-                    </Space>
+                    <Tag color={text==1?'red':'green'}>
+                        {text==1?'未交完':'已交完'}
+                    </Tag>
                 )
             }
         },
         {
             title: '状态',
-            dataIndex: 'bill_status',
-            key: 'bill_status',
-            render:(text:any,record:any,)=>{
+            dataIndex: 'orderStatus',
+            key: 'orderStatus',
+            render:(text:any,record:any)=>{
                 return(
-                    <div>
-                        {record.bill_status==0?<Tag color="red">未审核</Tag>:<Tag color="green">已审核</Tag>}
-                    </div>
+                    <Tag color={text==1?'red':'green'}>
+                        {text==1?'未审核':'已审核'}
+                    </Tag>
+                )
+            }
+        },
+        {
+            title: '提交人',
+            dataIndex: 'createUserName',
+            key: 'createUserName',
+        },
+        {
+            title: '审核人',
+            dataIndex: 'reviewerName',
+            key: 'reviewerName',
+            render:(text:any,record:any)=>{
+                return(
+                    <Tag color={record.orderStatus==2?'green':'blue'}>
+                        {record.orderStatus==2?text:''}
+                    </Tag>
                 )
             }
         },
         {
             title: '操作',
-            dataIndex: 'cao',
-            key: 'cao',
-            render: (text:any, record:any) => {
-                return(
-                    <div>
-                        <Button type='link' onClick={()=>toInfo(record.id)}>详情</Button>
-                    </div>
-                )
-            }
+            dataIndex: 'amount',
+            key: 'amount',
+            render: (text: any, record: any) => {
+                // 🔥 核心逻辑：
+                // 1. 只要包含 _ → 不显示
+                // 2. 不包含 _ 并且 状态=1 → 才显示
+                const showPay =
+                    !(record.number && record.number.includes('_'))
+                    && record.paidStatus === 1;
+                return (
+                    <Space>
+                        {showPay && (
+                            <Button type="primary" onClick={() => handlePay(record)}>
+                                缴费
+                            </Button>
+                        )}
+                    </Space>
+                );
+            },
         },
     ];
-    const toInfo=(id:number)=>{
-        history.push(`/enter/financialDataInfo?id=${id}`);
+    const handlePay=(e)=>{
+        setUid(e.id);
+        setHandlePayOpen(true);
+        console.log(e);
+        setAccountId(e.accountId);
+        setPaidAccountCard(e.account_card);
+        setPaidAccountName(e.account_name);
     };
-    // 导出数据
-    const getDcList=()=>{
-        setspinning(true);
-        BillService.fetch({page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize:100000}).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                let headers=['日期','编号','摘要','公司','项目','科目','收入/支出','收入/支出金额(元)','账户余额(元)'];
-                const ws_data = [
-                    headers.map(header => ({ v: header, t: 's' })), // 表头
-                    ...res.Data.map(item => [
-                        item.billDate.split('T')[0], // 提取日期部分
-                        item.number,
-                        item.billAbstract,
-                        item.company_name,
-                        item.project_name,
-                        item.subject_name,
-                        item.money_type === 1 ? '支出' : '收入',
-                        item.billMoney,
-                        item.balance
-                    ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
-                ];
-                exportDataToExcel(ws_data);
-                setspinning(false);
-            }else {
-                message.error(res.Data);
-                setspinning(false);
-            }
-        })
-    };
-
-    useEffect(() => {
-        logFenye();
-    }, [page,pageSize]);
-    const onChange=(e:number,pageSize:number)=>{
-        setPage(e);
-        setPageSize(pageSize);
-    };
-    useEffect(() => {
-        getProjectList();
-        getSubjectList();
-        getCompanList();
-        getFenyeInfo();
-        let uq=StaticInfo.uqx.split('');
-        setUqx(uq);
-    }, []);
-    // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
             setBillBgeinTime('2000-01-01');
             setBillEndTime('2099-01-01');
-            updateSessionStorage('/financeManage/billSum/','startDate','2000-01-01');
-            updateSessionStorage('/financeManage/billSum/','endDate','2099-01-01');
+            updateSessionStorage('/financeManage/billSum/','OldBillSumstartDate','2000-01-01');
+            updateSessionStorage('/financeManage/billSum/','OldBillSumendDate','2099-01-01');
         } else {
             setBillBgeinTime(data[0]);
             setBillEndTime(data[1]);
-            updateSessionStorage('/financeManage/billSum/','startDate',data[0]);
-            updateSessionStorage('/financeManage/billSum/','endDate',data[1]);
+            updateSessionStorage('/financeManage/billSum/','OldBillSumstartDate',data[0]);
+            updateSessionStorage('/financeManage/billSum/','OldBillSumendDate',data[1]);
         }
     };
-    // 监听类型
-    const changeType=(e:number)=>{
-        setBillMoneyType(e);
-        updateSessionStorage('/financeManage/billSum/','billMoneyType',e);
+    const toadd=()=>{
+        history.push('/enter/addNewFinancialData');
     };
-    // 监听摘要名称
-    const changeName=(e)=>{
-        setBillAbstract(e.target.value);
-        updateSessionStorage('/financeManage/billSum/','billAbstract',e.target.value);
+    const onChange=(e:number,pageSize:number)=>{
+        setPage(e);
+        setPageSize(pageSize);
     };
-    // 分页
-    const logFenye=()=>{
+    const isDelOpen=(e)=>{
+        setIsOpen(true);
+        setUid(e);
+    };
+    // 删除确定按钮
+    const onOK=()=>{
+        setspinning(true);
         props.dispatch({
-            type:"BillSum/fetch",
-            payload:{page,billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize}
+            type:'NewFinancialData/remove',
+            payload:uid
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('删除成功');
+                setspinning(false);
+                setIsOpen(false);
+                getList(paidStatus);
+            }else {
+                message.error(res.ErrorCode + res.Data);
+                setspinning(false);
+            }
         })
     };
-    // 搜索
+    const getList=(e)=>{
+        setspinning(true);
+        props.dispatch({
+            type:'NewFinancialData/fetch',
+            payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus:e,expenseCode}
+        }).then((res:TypeErrorCode)=>{
+            if(res.ErrorCode==0){
+                console.log('原始数据列表',res.Data);
+                let newArr=newprocessBills(res.Data);
+                // console.log('新数据列表',newArr);
+                setBillList(res.Data);
+            }
+            setspinning(false);
+        })
+    };
+
+    const changeOrderCode = (e:any) => {
+        setOrderCode(e.target.value);
+        updateSessionStorage('/financeManage/billSum/','OldBillSumorderCode',e.target.value);
+    };
+    const changeCompany_name = (e:any) => {
+        setCompany_name(e.target.value);
+        updateSessionStorage('/financeManage/billSum/','OldBillSumcompany_name',e.target.value);
+    };
+    const changeMoneyType = (e:any) => {
+        setMoneyType(e);
+        updateSessionStorage('/financeManage/billSum/','OldBillSummoneyType',e);
+    };
+    const changeAccount_card = (e:any) => {
+        setaccount_card(e.target.value);
+        updateSessionStorage('/financeManage/billSum/','OldBillSumaccount_card',e.target.value);
+    };
     const sousuo=()=>{
         setPage(1);
-        getFenyeInfo();
-        logFenye();
+        getList(paidStatus);
+        getFenye(paidStatus);
     };
-    const getFenyeInfo=()=>{
+    const getFenye=(e)=>{
         props.dispatch({
-            type:'BillSum/fenye',
-            payload:{billAbstract,billBgeinTime,billEndTime,billStatus,billMoneyType,companyId,projectId,subjectId,account_card,pageSize}
-        });
-    };
-    // 获取公司列表
-    const getCompanList=()=>{
-        props.dispatch({
-            type:'Compan/fetch',
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                conterCompay(res.Data);
-            }else {
-                conterCompay([])
-            }
+            type:'NewFinancialData/fenye',
+            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus:e,expenseCode}
         })
     };
-    // 获取项目列表
-    const getProjectList=()=>{
+    useEffect(() => {
+        getFenye(paidStatus);
+        getSupplierList();
+    }, []);
+    useEffect(()=>{
+        getList(paidStatus);
+    },[page, pageSize]);
+    const getSupplierList=()=>{
         props.dispatch({
-            type:'Project/fetch',
-            payload:{name:'',companyId}
+            type:"Supplier/fetch",
+        })
+    };
+    const changeSupplierId=(e:any)=>{
+        setsupplierId(e);
+        updateSessionStorage('/financeManage/billSum/','OldBillSumsupplierId',e);
+    }
+    const changeStutes=(e:any)=>{
+        setPaidStatus(e);
+        updateSessionStorage('/financeManage/billSum/','OldBillSumpaidStatus',e);
+        getList(e);
+        getFenye(e);
+    }
+
+    const changeProject_name=(e:any)=>{
+        setProject_name(e.target.value);
+        updateSessionStorage('/financeManage/billSum/','OldBillSumproject_name',e.target.value);
+    }
+    const handlePayOk=()=>{
+        if (!paymentAmount) return message.error('请输入缴费金额');
+        setspinning(true);
+        BillService.payment({
+            uid,
+            accountName:paidAccountName,
+            accountBalance:0,
+            payAmount:paymentAmount,
+            remark:paymentRemarks,
+            accountId,
+            createName:StaticInfo.username
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                conterproject(res.Data);
+                message.success('缴费成功');
+                setHandlePayOpen(false);
+                getList(paidStatus);
+                getFenye(paidStatus);
             }else {
-                conterproject([]);
+                message.error(res.ErrorCode + res.Data);
             }
-        });
+        })
+        setspinning(false);
     };
-    const ChangeProjectList=(e:number)=>{
-        props.dispatch({
-            type:'Project/fetch',
-            payload:{name:'',companyId:e}
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                conterproject(res.Data);
-            }else {
-                conterproject([]);
-            }
-        });
-    };
-    // 获取科目列表
-    const getSubjectList=()=>{
-        props.dispatch({
-            type:'Subject/fetch',
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                contersubj(res.Data);
-            }else {
-                contersubj([]);
-            }
-        });
-    };
-    // 监听公司id
-    const changeCompany=(e:number)=>{
-        setCompanyId(e);
-        ChangeProjectList(e);
-        updateSessionStorage('/financeManage/billSum/','companyId',e);
-    };
-    // 监听项目id
-    const changeProject=(e:number)=>{
-        setProjectId(e);
-        updateSessionStorage('/financeManage/billSum/','projectId',e);
-    };
-    // 监听项目id
-    const changeSubject=(e:number)=>{
-        setSubjectId(e);
-        updateSessionStorage('/financeManage/billSum/','subjectId',e);
-    };
-    // 公司拼接
-    const conterCompay=(item)=>{
-        let oldarr=[ {label:'全部',value:0}];
-        let newarr=item.map((item:any)=>{
-            return {
-                label:item.company_name,
-                value:item.id
-            }
-        });
-        setCompanyList(oldarr.concat(newarr));
-    };
-    // 项目拼接
-    const conterproject=(item)=>{
-        let oldarr=[ {label:'全部',value:0}];
-        let newarr=item.map((item:any)=>{
-            return {
-                label:item.project_name,
-                value:item.id
-            }
-        });
-        setProjectlist(oldarr.concat(newarr));
-    };
-    // 科目拼接
-    const contersubj=(item)=>{
-        let oldarr=[ {label:'全部',value:0}];
-        let newarr=item.map((item:any)=>{
-            return {
-                label:item.subject_name,
-                value:item.id
-            }
-        });
-        setSubjList(oldarr.concat(newarr));
-    };
-    const changeAccountCard=(e)=>{
-        setaccount_card(e.target.value);
-        updateSessionStorage('/financeManage/billSum/','account_card',e.target.value);
-    };
+
     return(
         <Spin spinning={spinning}>
+            <Space.Compact>
+                <div
+                    style={{
+                        borderRadius: "6px",
+                        borderStartEndRadius: 0,
+                        borderEndEndRadius: 0,
+                        padding: "0 11px",
+                        border: "1px solid #d9d9d9",
+                        display: "flex",
+                        alignItems: "center",
+                        borderInlineEnd: 0,
+                        height: 32,
+                    }}
+                >
+                    缴费状态:
+                </div>
+
+                {/* 👇 替换成这个手写的 */}
+                <div
+                    style={{
+                        display: "flex",
+                        height: 32,
+                        border: "1px solid #d9d9d9",
+                        borderLeft: 0,
+                        borderTopRightRadius: 6,
+                        borderBottomRightRadius: 6,
+                        overflow: "hidden",
+                    }}
+                >
+                    <div
+                        onClick={() => changeStutes(0)}
+                        style={{
+                            padding: "0 12px",
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                            backgroundColor: paidStatus === 0 ? "#ff4d4f" : "#f5f5f5",
+                            color: paidStatus === 0 ? "#fff" : "#333",
+                        }}
+                    >
+                        全部
+                    </div>
+                    <div
+                        onClick={() => changeStutes(1)}
+                        style={{
+                            padding: "0 12px",
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                            backgroundColor: paidStatus === 1 ? "#ff4d4f" : "#f5f5f5",
+                            color: paidStatus === 1 ? "#fff" : "#333",
+                            borderLeft: "1px solid #d9d9d9",
+                        }}
+                    >
+                        未交完
+                    </div>
+                    <div
+                        onClick={() => changeStutes(2)}
+                        style={{
+                            padding: "0 12px",
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                            backgroundColor: paidStatus === 2 ? "#ff4d4f" : "#f5f5f5",
+                            color: paidStatus === 2 ? "#fff" : "#333",
+                            borderLeft: "1px solid #d9d9d9",
+                        }}
+                    >
+                        已交完
+                    </div>
+                </div>
+            </Space.Compact>
             <List>
                 <List.Item>
                     <Space>
-                        <Input
-                            onChange={changeName}
-                            style={{ width: 300 }}
-                            addonBefore="摘要:"
-                            value={billAbstract}
-                        />
-                        <Input
-                            onChange={changeAccountCard}
-                            style={{ width: 300 }}
-                            addonBefore="账户卡号:"
-                            value={account_card}
-                        />
+                        {/*<Button type="primary" onClick={toadd}>财务数据录入</Button>*/}
                         <Space.Compact>
                             <div
                                 style={{
@@ -418,8 +460,28 @@ const OldBillSum=(props:any)=>{
                             >
                                 时间:
                             </div>
-                            {billBgeinTime=='2000-01-01'&&billEndTime=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(billBgeinTime),dayjs(billEndTime)]}/>}
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
+                        <Input
+                            addonBefore="单号:"
+                            value={orderCode}
+                            onChange={changeOrderCode}
+                        />
+                        <Input
+                            addonBefore="公司名称:"
+                            value={company_name}
+                            onChange={changeCompany_name}
+                        />
+                        <Input
+                            addonBefore="账户卡号:"
+                            value={account_card}
+                            onChange={changeAccount_card}
+                        />
+                        <Input
+                            addonBefore="项目:"
+                            value={project_name}
+                            onChange={changeProject_name}
+                        />
                     </Space>
                 </List.Item>
                 <List.Item>
@@ -437,115 +499,91 @@ const OldBillSum=(props:any)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                公司:
+                                供应商:
                             </div>
                             <Select
-                                onChange={changeCompany}
-                                value={companyId}
-                                style={{ width: 240 }}
-                                options={companyList}
+                                style={{width:'250px'}}
                                 showSearch
-                                optionFilterProp="children"
+                                onChange={changeSupplierId}
+                                placeholder='供应商'
+                                value={supplierId}
                                 filterOption={(input, option) => {
                                     // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = companyList.find(unit => unit.value == option.value);
-                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
+                                    const item = props.SupplierList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                    return item?.supplierName?.toLowerCase().includes(input.toLowerCase());
                                 }}
-                            >
-                            </Select>
-                        </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                项目:
-                            </div>
-                            <Select
-                                onChange={changeProject}
-                                value={projectId}
-                                style={{ width: 240 }}
-                                options={projectlist}
-                                showSearch
-                                optionFilterProp="children"
-                                filterOption={(input, option) => {
-                                    // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = projectlist.find(unit => unit.value == option.value);
-                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
-                                }}
-                            >
-                            </Select>
-                        </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                科目:
-                            </div>
-                            <Select
-                                onChange={changeSubject}
-                                value={subjectId}
-                                style={{ width: 240 }}
-                                options={subjList}
-                                showSearch
-                                optionFilterProp="children"
-                                filterOption={(input, option) => {
-                                    // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = subjList.find(unit => unit.value == option.value);
-                                    return item?.label?.toLowerCase().includes(input.toLowerCase());
-                                }}
-                            >
-                            </Select>
-                        </Space.Compact>
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                类型:
-                            </div>
-                            <Select
-                                onChange={changeType}
-                                value={billMoneyType}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value: 1, label: '支出' },
-                                    { value: 0, label: '收入' },
-                                    { value: 2, label: '全部' },
-                                ]}
+                                options={
+                                    [
+                                        { label: '全部', value: 0 },
+                                        ...(Array.isArray(props.SupplierList) && props.SupplierList.length > 0
+                                                ? props.SupplierList.map((item:any)=>({
+                                                    label: item.supplierName,
+                                                    value: item.id,
+                                                }))
+                                                : []
+                                        )
+                                    ]
+                                }
                             />
                         </Space.Compact>
-                        <Button type="primary"  onClick={sousuo}>
+                        {/*<Space.Compact>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            borderStartEndRadius: 0,*/}
+                        {/*            borderEndEndRadius: 0,*/}
+                        {/*            padding: '0 11px',*/}
+                        {/*            border: '1px solid #d9d9d9',*/}
+                        {/*            display: 'flex',*/}
+                        {/*            alignItems: 'center',*/}
+                        {/*            borderInlineEnd: 0,*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        类型:*/}
+                        {/*    </div>*/}
+                        {/*    <Select*/}
+                        {/*        style={{ width: 120 }}*/}
+                        {/*        value={moneyType}*/}
+                        {/*        onChange={changeMoneyType}*/}
+                        {/*        options={[*/}
+                        {/*            { value: 1, label: '收入' },*/}
+                        {/*            { value: 2, label: '支出' },*/}
+                        {/*            { value: 0, label: '全部' },*/}
+                        {/*        ]}*/}
+                        {/*    />*/}
+                        {/*</Space.Compact>*/}
+
+                        {/*<Space.Compact>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            borderStartEndRadius: 0,*/}
+                        {/*            borderEndEndRadius: 0,*/}
+                        {/*            padding: '0 11px',*/}
+                        {/*            border: '1px solid #d9d9d9',*/}
+                        {/*            display: 'flex',*/}
+                        {/*            alignItems: 'center',*/}
+                        {/*            borderInlineEnd: 0,*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        审核状态:*/}
+                        {/*    </div>*/}
+                        {/*    <Select*/}
+                        {/*        style={{ width: 120 }}*/}
+                        {/*        value={orderStatus}*/}
+                        {/*        onChange={changeOrderStatus}*/}
+                        {/*        options={[*/}
+                        {/*            { value: 0, label: '全部' },*/}
+                        {/*            { value: 1, label: '未审核' },*/}
+                        {/*            { value: 2, label: '已审核' },*/}
+
+                        {/*        ]}*/}
+                        {/*    />*/}
+                        {/*</Space.Compact>*/}
+                        {/*<Button type="primary" onClick={isPrintModalOpen}>打印</Button>*/}
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
-                        {uqx[376]=='1'? <Button type="primary" onClick={getDcList}>
-                            导出
-                        </Button>:''}
                     </Space>
                 </List.Item>
             </List>
@@ -553,13 +591,15 @@ const OldBillSum=(props:any)=>{
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
-                size='small'
-                scroll={{y:'65vh'}}
+                dataSource={billList}
+                scroll={{y:'60vh'}}
                 rowKey={(columns) => columns.id}
-                dataSource={props.BillSumList}
+                size='small'
                 summary={(columns) => (
                     <Table.Summary fixed>
                         <Table.Summary.Row>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
                             <Table.Summary.Cell
                                 index={1}
                             >
@@ -577,28 +617,36 @@ const OldBillSum=(props:any)=>{
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
-                            <Table.Summary.Cell index={0}>
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell
-                                index={7}
-                            >
-                                {props.count?props.count.moneySum.toFixed(2):''}元
+                            <Table.Summary.Cell index={8}>
+                                {props.count?props.count.totalAmountSum.toFixed(2):''}
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
+                // rowSelection={rowSelection}  // 添加选择功能配置
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+            <Modal open={handlePayOpen} title={'缴费}'} loading={spinning} onCancel={()=>setHandlePayOpen(false)} onOk={handlePayOk}>
+                <Form>
+                    <Form.Item label='缴费账户'>
+                        <Input value={`${paidAccountName}(${paidAccountCard})`} disabled/>
+                    </Form.Item>
+                    <Form.Item label='缴费金额'>
+                        <InputNumber value={paymentAmount} onChange={(e)=>setPaymentAmount(e)}/>
+                    </Form.Item>
+                    <Form.Item label='备注'>
+                        <Input.TextArea value={paymentRemarks} onChange={(e)=>setPaymentRemarks(e.target.value)} />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </Spin>
     )
 }
 const mapStateToProps = (state: any) => {
     return {
-        BillSumList: state.BillSum.list,
-        count: state.BillSum.count,
-        CompanList: state.Compan.list,
-        SubjectList: state.Subject.list,
-        ProjectList: state.Project.list,
+        count: state.NewFinancialData.count,
+        SupplierList: state.Supplier.list,
+
     }
 };
 export default connect(mapStateToProps) (OldBillSum)

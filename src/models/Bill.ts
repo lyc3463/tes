@@ -12,16 +12,19 @@ import BillType from '@/ModelTypes/TypeBill';
 import { fixPathname } from '@/utils/common';
 let pl={
     page:1,
-    billAbstract:'',
-    billBgeinTime:'2000-01-01',
-    billEndTime:'2099-01-01',
-    billStatus:2,
-    billMoneyType:2,
-    companyId:0,
-    projectId:0,
-    subjectId:0,
+    orderCode:'',
+    company_name:'',
     account_card:'',
-    pageSize:50
+    project_name:'',
+    startDate:'2000-01-01',
+    endDate:'2099-01-01',
+    pageSize:50,
+    orderStatus:0,
+    moneyType:0,
+    supplierId:0,
+    foType:1,
+    paidStatus:0,
+    expenseCode:'',
 }
 
 export interface BiaoqianCountState {
@@ -41,8 +44,9 @@ export interface BiaoqianInterface {
         remove: Effect;
         check: Effect;
         fenye:Effect;
-        allCheck:Effect;
-        fetchNo:Effect;
+        reject:Effect;
+        payment:Effect;
+        // fetchNo:Effect;
     };
     reducers: {
         list: Reducer<BillType[]>;
@@ -51,7 +55,7 @@ export interface BiaoqianInterface {
     };
     subscriptions: { setup: Subscription };
 }
-const BannerModel: BiaoqianInterface = {
+const BillModel: BiaoqianInterface = {
     namespace: 'Bill',
     state: {},
     effects: {
@@ -82,6 +86,12 @@ const BannerModel: BiaoqianInterface = {
             yield take('fetch/@@end');
             return result
         },
+        *payment({ payload, callback }, { call, put, take }): any {
+            const result = yield call(BillService.payment, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(BillService.edit, payload);
             yield put({ type: 'fetch', payload: pl });
@@ -94,12 +104,18 @@ const BannerModel: BiaoqianInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *allCheck({ payload, callback }, { call, put, take }): any {
-            const result = yield call(BillService.allCheck, payload);
+        *reject({ payload, callback }, { call, put, take }): any {
+            const result = yield call(BillService.reject, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result
         },
+        // *allCheck({ payload, callback }, { call, put, take }): any {
+        //     const result = yield call(BillService.allCheck, payload);
+        //     yield put({ type: 'fetch', payload: pl });
+        //     yield take('fetch/@@end');
+        //     return result
+        // },
         *remove({ payload ,callback}, { call, put ,take}): any {
             const result = yield call(BillService.remove, payload);
             yield put({ type: 'fetch', payload: pl });
@@ -117,18 +133,18 @@ const BannerModel: BiaoqianInterface = {
                 message.error(res.ErrorCode + res.Data);
             }
         },
-        *fetchNo({ type, payload }, { put, call, select }): any {
-            const res = yield call(BillService.fetchNo, payload?payload:pl);
-            if (res.ErrorCode == 0) {
-                yield put({
-                    type: 'list',
-                    payload: { list: res.Data },
-                });
-            } else {
-                message.error(res.ErrorCode + res.Data);
-            }
-            return res
-        },
+        // *fetchNo({ type, payload }, { put, call, select }): any {
+        //     const res = yield call(BillService.fetchNo, payload?payload:pl);
+        //     if (res.ErrorCode == 0) {
+        //         yield put({
+        //             type: 'list',
+        //             payload: { list: res.Data },
+        //         });
+        //     } else {
+        //         message.error(res.ErrorCode + res.Data);
+        //     }
+        //     return res
+        // },
     },
     reducers: {
         list(state, action) {
@@ -154,27 +170,10 @@ const BannerModel: BiaoqianInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/enter/financialData/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/check/checkFinance/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/enter/financialData/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+
             });
         },
     },
 };
 
-export default BannerModel;
+export default BillModel;

@@ -23,6 +23,9 @@ interface PrintProps {
         summary?: string;
         subjectName?: string;
         amount?: number;
+        quantity?: number;
+        unit?: string;
+        unitPrice?: number;
     }>;
 }
 
@@ -30,7 +33,6 @@ const FinancialDataPrint: React.FC<PrintProps> = ({orderCode,title, orderDate,cr
     return (
         <>
             {moneyType==1?<>
-
                 <div style={{
                     display: "flex",
                     flexDirection: "column",
@@ -74,7 +76,8 @@ const FinancialDataPrint: React.FC<PrintProps> = ({orderCode,title, orderDate,cr
                             <p style={{
                                 margin: '0',  // 增加底部间距，与下方单号信息分离
                                 fontSize: '14px',
-                            }}></p>
+                                fontWeight: 600,
+                            }}>{orderCode}</p>
                         </div>
                     </div>
                 </div>
@@ -86,8 +89,11 @@ const FinancialDataPrint: React.FC<PrintProps> = ({orderCode,title, orderDate,cr
                         <tr style={{ border: '1px solid red' }}>
                             {/* 调整列宽分配比例，摘要列设置更大宽度 */}
                             <th style={{ border: '1px solid red',color:'red', padding: '8px', textAlign: 'center', width: '20%' }}>明细科目</th>
-                            <th style={{ border: '1px solid red',color:'red', padding: '8px', textAlign: 'center', width: '40%' }}>摘要</th>
-                            <th style={{ border: '1px solid red',color:'red', padding: '8px', textAlign: 'center', width: '20%' }}>金额</th>
+                            <th style={{ border: '1px solid red',color:'red', padding: '8px', textAlign: 'center', width: '20%' }}>摘要</th>
+                            <th style={{ border: '1px solid red',color:'red', padding: '8px', textAlign: 'center', width: '10%' }}>数量</th>
+                            <th style={{ border: '1px solid red',color:'red', padding: '8px', textAlign: 'center', width: '10%' }}>单位</th>
+                            <th style={{ border: '1px solid red',color:'red', padding: '8px', textAlign: 'center', width: '10%' }}>单价</th>
+                            <th style={{ border: '1px solid red',color:'red', padding: '8px', textAlign: 'center', width: '10%' }}>金额</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -120,6 +126,30 @@ const FinancialDataPrint: React.FC<PrintProps> = ({orderCode,title, orderDate,cr
                                             fontSize:'12px',
                                             textAlign: 'center',
                                             borderBottom: isLastRow ? '1px solid red' : 'none'
+                                        }}>{item.quantity || ''}</td>
+                                        <td style={{
+                                            border: '1px solid red',
+                                            color: '#000',
+                                            height: '32px',
+                                            fontSize:'12px',
+                                            textAlign: 'center',
+                                            borderBottom: isLastRow ? '1px solid red' : 'none'
+                                        }}>{item.unit || ''}</td>
+                                        <td style={{
+                                            border: '1px solid red',
+                                            color: '#000',
+                                            height: '32px',
+                                            fontSize:'12px',
+                                            textAlign: 'center',
+                                            borderBottom: isLastRow ? '1px solid red' : 'none'
+                                        }}>{item.unitPrice || ''}</td>
+                                        <td style={{
+                                            border: '1px solid red',
+                                            color: '#000',
+                                            height: '32px',
+                                            fontSize:'12px',
+                                            textAlign: 'center',
+                                            borderBottom: isLastRow ? '1px solid red' : 'none'
                                         }}>{item.amount === 0 ? '' : item.amount || ''}</td>
                                     </tr>
                                 );
@@ -142,6 +172,27 @@ const FinancialDataPrint: React.FC<PrintProps> = ({orderCode,title, orderDate,cr
                                 fontSize: '12px',
                                 textAlign: 'center'
                             }}>{numberToRMB(totalAmount)}</td>
+                            <td style={{
+                                border: '1px solid red',
+                                color: '#000',
+                                height: '32px',
+                                fontSize: '12px',
+                                textAlign: 'center'
+                            }}></td>
+                            <td style={{
+                                border: '1px solid red',
+                                color: '#000',
+                                height: '32px',
+                                fontSize: '12px',
+                                textAlign: 'center'
+                            }}></td>
+                            <td style={{
+                                border: '1px solid red',
+                                color: '#000',
+                                height: '32px',
+                                fontSize: '12px',
+                                textAlign: 'center'
+                            }}></td>
                             <td style={{
                                 border: '1px solid red',
                                 color: '#000',
@@ -221,7 +272,9 @@ const FinancialDataPrint: React.FC<PrintProps> = ({orderCode,title, orderDate,cr
                             <p style={{
                                 margin: '0',  // 增加底部间距，与下方单号信息分离
                                 fontSize: '14px',
-                            }}></p>
+                                fontWeight: 600,
+                                color:'#4d85ff',
+                            }}>{orderCode}</p>
                         </div>
                     </div>
                 </div>
@@ -232,9 +285,12 @@ const FinancialDataPrint: React.FC<PrintProps> = ({orderCode,title, orderDate,cr
                         <thead>
                         <tr style={{ border: '1px solid #4d85ff' }}>
                             {/* 调整列宽分配比例，摘要列设置更大宽度 */}
-                            <th style={{ border: '1px solid #4d85ff',color:'#4d85ff', padding: '8px', textAlign: 'center', width: '30%' }}>明细科目</th>
-                            <th style={{ border: '1px solid #4d85ff',color:'#4d85ff', padding: '8px', textAlign: 'center', width: '40%' }}>摘要</th>
-                            <th style={{ border: '1px solid #4d85ff',color:'#4d85ff', padding: '8px', textAlign: 'center', width: '30%' }}>金额</th>
+                            <th style={{ border: '1px solid #4d85ff',color:'#4d85ff', padding: '8px', textAlign: 'center', width: '20%' }}>明细科目</th>
+                            <th style={{ border: '1px solid #4d85ff',color:'#4d85ff', padding: '8px', textAlign: 'center', width: '20%' }}>摘要</th>
+                            <th style={{ border: '1px solid #4d85ff',color:'#4d85ff', padding: '8px', textAlign: 'center', width: '10%' }}>数量</th>
+                            <th style={{ border: '1px solid #4d85ff',color:'#4d85ff', padding: '8px', textAlign: 'center', width: '10%' }}>单位</th>
+                            <th style={{ border: '1px solid #4d85ff',color:'#4d85ff', padding: '8px', textAlign: 'center', width: '10%' }}>单价</th>
+                            <th style={{ border: '1px solid #4d85ff',color:'#4d85ff', padding: '8px', textAlign: 'center', width: '10%' }}>金额</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -267,6 +323,38 @@ const FinancialDataPrint: React.FC<PrintProps> = ({orderCode,title, orderDate,cr
                                             fontSize:'12px',
                                             textAlign: 'center',
                                             borderBottom: isLastRow ? '1px solid #4d85ff' : 'none'
+                                        }}>{item.summary || ''}</td>
+                                        <td style={{
+                                            border: '1px solid #4d85ff',
+                                            color: '#4d85ff',
+                                            height: '32px',
+                                            fontSize:'12px',
+                                            textAlign: 'center',
+                                            borderBottom: isLastRow ? '1px solid #4d85ff' : 'none'
+                                        }}>{item.quantity || ''}</td>
+                                        <td style={{
+                                            border: '1px solid #4d85ff',
+                                            color: '#4d85ff',
+                                            height: '32px',
+                                            fontSize:'12px',
+                                            textAlign: 'center',
+                                            borderBottom: isLastRow ? '1px solid #4d85ff' : 'none'
+                                        }}>{item.unit || ''}</td>
+                                        <td style={{
+                                            border: '1px solid #4d85ff',
+                                            color: '#4d85ff',
+                                            height: '32px',
+                                            fontSize:'12px',
+                                            textAlign: 'center',
+                                            borderBottom: isLastRow ? '1px solid #4d85ff' : 'none'
+                                        }}>{item.unitPrice || ''}</td>
+                                        <td style={{
+                                            border: '1px solid #4d85ff',
+                                            color: '#4d85ff',
+                                            height: '32px',
+                                            fontSize:'12px',
+                                            textAlign: 'center',
+                                            borderBottom: isLastRow ? '1px solid #4d85ff' : 'none'
                                         }}>{item.amount === 0 ? '' : item.amount || ''}</td>
                                     </tr>
                                 );
@@ -289,6 +377,34 @@ const FinancialDataPrint: React.FC<PrintProps> = ({orderCode,title, orderDate,cr
                                 fontSize: '12px',
                                 textAlign: 'center'
                             }}>{numberToRMB(totalAmount)}</td>
+                            <td style={{
+                                border: '1px solid #4d85ff',
+                                color: '#4d85ff',
+                                height: '32px',
+                                fontSize: '12px',
+                                textAlign: 'center'
+                            }}></td>
+                            <td style={{
+                                border: '1px solid #4d85ff',
+                                color: '#4d85ff',
+                                height: '32px',
+                                fontSize: '12px',
+                                textAlign: 'center'
+                            }}></td>
+                            <td style={{
+                                border: '1px solid #4d85ff',
+                                color: '#4d85ff',
+                                height: '32px',
+                                fontSize: '12px',
+                                textAlign: 'center'
+                            }}></td>
+                            <td style={{
+                                border: '1px solid #4d85ff',
+                                color: '#4d85ff',
+                                height: '32px',
+                                fontSize: '12px',
+                                textAlign: 'center'
+                            }}></td>
                             <td style={{
                                 border: '1px solid #4d85ff',
                                 color: '#4d85ff',

@@ -11,11 +11,11 @@ const BillSum=(props:any)=>{
     };
     return(
         <Tabs activeKey={activeKey} onChange={onChange}>
-            <Tabs.TabPane tab="旧数据" key="1">
-                <OldBillSum/>
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="新数据" key="2">
+            <Tabs.TabPane tab="财务数据" key="1">
                 <NewBillSum/>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="缴费列表" key="2">
+                <OldBillSum/>
             </Tabs.TabPane>
         </Tabs>
     )

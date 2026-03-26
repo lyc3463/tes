@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import NoticeType from '@/ModelTypes/TypeNotice';
 import { fixPathname } from '@/utils/common';
-
 let pl = {
     page:1,
     numBerOrder:'',
@@ -21,6 +20,8 @@ let pl = {
     endDate:'2099-01-01',
     moneyType:0,
     pageSize:50,
+    foType:0,
+    subjectName:''
 };
 export interface NoticeCountState {
     count: number;
@@ -49,7 +50,7 @@ const NewBillSumModel: NoticeInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(NewBillSumService.fetch, payload?payload:pl);
-            console.log('res',res)
+            console.log('res',res);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',

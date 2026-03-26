@@ -464,7 +464,7 @@ export const qxTree: TypeMenu[] = [
     { id: 444, name: '出库管理',parentId: 441, authId: 444},
     { id: 447, name: '入库管理',parentId: 441, authId: 447},
     { id: 445, name: '销售管理',parentId: 441, authId: 445},
-    { id: 446, name: '供应商列表',parentId: 441, authId: 446},
+    { id: 446, name: '供应商列表',parentId: 55, authId: 446},
     { id: 448, name: '库存管理',parentId: 441, authId: 448},
     { id: 449, name: '盘点管理',parentId: 441, authId: 449},
     { id: 450, name: '仓库财务',parentId: 441, authId: 450},

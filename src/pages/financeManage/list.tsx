@@ -5,6 +5,8 @@ import AccountList from "@/pages/financeManage/accountList";
 import SubjectList from "@/pages/financeManage/subjectList";
 import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
+import Supplier from "@/pages/warehouse/supplier";
+import ProcessConfiguration from "@/pages/financeManage/processConfiguration";
 const List=()=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('financeManageList') || '1');
     // 用户权限
@@ -40,6 +42,12 @@ const List=()=>{
                       <SubjectList/>
                   </Tabs.TabPane>
                   :''}
+              <Tabs.TabPane tab="供应商列表" key="5">
+                  <Supplier/>
+              </Tabs.TabPane>
+              <Tabs.TabPane tab="流程配置" key="6">
+                  <ProcessConfiguration/>
+              </Tabs.TabPane>
           </Tabs>
         </div>
     )

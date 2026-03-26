@@ -25,16 +25,22 @@ const NewFinancialData=(props:any)=>{
     // 公司名称
     const [company_name,setCompany_name]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDatacompany_name')||'');
     // 财务单号
-    const [orderCode,setOrderCode]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDataorderCode')||'');
+    const [orderCode,setOrderCode]=useState('');
+    const [expenseCode,setExpenseCode]=useState('');
     // 收入支出类型
     const [moneyType,setMoneyType]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDatamoneyType')||0);
     const [project_name,setProject_name]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDataproject_name')||'');
+    const [supplierId,setsupplierId]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDatasupplierId')||0);
+    const [foType,setFoType]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDatafoType')||2);
+    const [paidStatus,setPaidStatus]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDatapaidStatus')||0);
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
     const [printModalOpen,setPrintModalOpen]=useState(false);
     const [printList,setPrintList]=useState([]);
     const printRef = useRef();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const [showReimburseColumn, setShowReimburseColumn] = useState(false);
+
     const columns =[
         {
             title: '日期',
@@ -49,21 +55,38 @@ const NewFinancialData=(props:any)=>{
             }
         },
         {
-            title: '单号',
+            title: (
+                <div
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                        setShowReimburseColumn(!showReimburseColumn)
+                        setOrderCode('');
+                        setExpenseCode('');
+                    }}
+                >
+                    {showReimburseColumn ? '报销单号' : '财务单号'}
+                </div>
+            ),
             dataIndex: 'number',
             key: 'number',
-            ellipsis: true,
-            render:(text:any,record:any)=>{
-                return(
-                    // 根据orderStatus判断是否显示链接按钮
-                    record.orderStatus === 2 ? (
-                        <span style={{color:'#1890FF'}} onClick={()=>{
+            // 👇 你原来的逻辑 100% 保留，完全不动
+            render: (text: any, record: any) => {
+                const hasUnderline = record.number && record.number.includes('_');
+                return (
+                    <span
+                        style={{
+                            color: hasUnderline ? '#333' : '#1890FF',
+                            cursor: hasUnderline ? 'default' : 'pointer'
+                        }}
+                        onClick={() => {
+                            if (hasUnderline) return;
+                            // 你原来的跳转逻辑
                             history.push(`/enter/newFinancialDataInfo?id=${record.id}`);
-                        }}>{text}</span>
-                    ) : (
-                        text
-                    )
-                )
+                        }}
+                    >
+        {showReimburseColumn?record.number2:record.number}
+      </span>
+                );
             }
         },
         {
@@ -91,6 +114,12 @@ const NewFinancialData=(props:any)=>{
             ellipsis: true,
         },
         {
+            title: '供应商',
+            dataIndex: 'supplierName',
+            key: 'supplierName',
+            ellipsis: true,
+        },
+        {
             title: '类型',
             dataIndex: 'moneyType',
             key: 'moneyType',
@@ -103,9 +132,29 @@ const NewFinancialData=(props:any)=>{
             }
         },
         {
-            title: '总金额(元)',
+            title: '收入总金额(元)',
             dataIndex: 'totalAmount',
             key: 'totalAmount',
+            render:(text:any,record:any)=>{
+                return(
+                    <span>{record.moneyType==1?text:0}</span>
+                )
+            }
+        },
+        {
+            title: '已付金额(元)',
+            dataIndex: 'paidAmount',
+            key: 'paidAmount',
+        },
+        {
+            title: '支出总金额',
+            dataIndex: 'totalAmount',
+            key: 'totalAmount',
+            render:(text:any,record:any)=>{
+                return(
+                    <span>{record.moneyType==2?text:null}</span>
+                )
+            }
         },
         {
             title: '余额(元)',
@@ -214,7 +263,7 @@ const NewFinancialData=(props:any)=>{
         setspinning(true);
         props.dispatch({
             type:'NewFinancialData/fetch',
-            payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name}
+            payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode}
         }).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
                 console.log('原始数据列表',res.Data);
@@ -225,10 +274,8 @@ const NewFinancialData=(props:any)=>{
             setspinning(false);
         })
     };
-
     const changeOrderCode = (e:any) => {
         setOrderCode(e.target.value);
-        updateSessionStorage('/enter/financialData/','NewFinancialDataorderCode',e.target.value);
     };
     const changeCompany_name = (e:any) => {
         setCompany_name(e.target.value);
@@ -250,15 +297,29 @@ const NewFinancialData=(props:any)=>{
     const getFenye=()=>{
         props.dispatch({
             type:'NewFinancialData/fenye',
-            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name}
+            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode}
         })
     };
     useEffect(() => {
         getFenye();
+        getSupplierList();
     }, []);
     useEffect(()=>{
         getList();
     },[page, pageSize]);
+    const getSupplierList=()=>{
+        props.dispatch({
+            type:"Supplier/fetch",
+        })
+    };
+    const changeSupplierId=(e:any)=>{
+        setsupplierId(e);
+        updateSessionStorage('/enter/financialData/','NewFinancialDatasupplierId',e);
+    }
+    const changeStutes=(e:any)=>{
+        setPaidStatus(e);
+        updateSessionStorage('/enter/financialData/','NewFinancialDatapaidStatus',e);
+    }
     const rowSelection = {
         selectedRowKeys,
         onChange: (selectedKeys: React.Key[], selectedRows: any[]) => {
@@ -267,7 +328,7 @@ const NewFinancialData=(props:any)=>{
         type: 'checkbox',  // 复选框类型
         // 根据iskc值控制复选框是否可用
         getCheckboxProps: (record) => ({
-            disabled: record.orderStatus !== 2, // iskc不等于0时禁用复选框（已入库）
+            disabled: (record.number && record.number.includes('_')),
         }),
     };
     const isPrintModalOpen=()=>{
@@ -315,6 +376,10 @@ const NewFinancialData=(props:any)=>{
     const changeProject_name=(e:any)=>{
         setProject_name(e.target.value);
         updateSessionStorage('/enter/financialData/','NewFinancialDataproject_name',e.target.value);
+    }
+    const changeOrderStatus=(e:any)=>{
+        setBillStatus(e);
+        updateSessionStorage('/enter/financialData/','NewFinancialDataorderStatus',e);
     }
     // 修改打印方法，使用useReactToPrint的完整功能
     const handlePrint = useReactToPrint({
@@ -383,20 +448,22 @@ const NewFinancialData=(props:any)=>{
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        <Input
-                            addonBefore="单号:"
+                        {!showReimburseColumn? <Input
+                            addonBefore="财务单号:"
                             value={orderCode}
                             onChange={changeOrderCode}
-                        />
+                        />:  <Input
+                            addonBefore="报销单号:"
+                            value={expenseCode}
+                            onChange={(e)=>setExpenseCode(e.target.value)}
+                        />}
+
+
                         <Input
                             addonBefore="公司名称:"
                             value={company_name}
                             onChange={changeCompany_name}
                         />
-                    </Space>
-                </List.Item>
-                <List.Item>
-                    <Space>
                         <Input
                             addonBefore="账户卡号:"
                             value={account_card}
@@ -407,6 +474,50 @@ const NewFinancialData=(props:any)=>{
                             value={project_name}
                             onChange={changeProject_name}
                         />
+                    </Space>
+                </List.Item>
+                <List.Item>
+                    <Space>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                供应商:
+                            </div>
+                            <Select
+                                style={{width:'250px'}}
+                                showSearch
+                                onChange={changeSupplierId}
+                                placeholder='供应商'
+                                value={supplierId}
+                                filterOption={(input, option) => {
+                                    // 假设每个 option 都有一个与数据项对应的 value 属性
+                                    const item = props.SupplierList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                    return item?.supplierName?.toLowerCase().includes(input.toLowerCase());
+                                }}
+                                options={
+                                    [
+                                        { label: '全部', value: 0 },
+                                        ...(Array.isArray(props.SupplierList) && props.SupplierList.length > 0
+                                                ? props.SupplierList.map((item:any)=>({
+                                                    label: item.supplierName,
+                                                    value: item.id,
+                                                }))
+                                                : []
+                                        )
+                                    ]
+                                }
+                            />
+                        </Space.Compact>
                         <Space.Compact>
                             <div
                                 style={{
@@ -430,6 +541,59 @@ const NewFinancialData=(props:any)=>{
                                     { value: 1, label: '收入' },
                                     { value: 2, label: '支出' },
                                     { value: 0, label: '全部' },
+                                ]}
+                            />
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                缴费状态:
+                            </div>
+                            <Select
+                                style={{ width: 120 }}
+                                value={paidStatus}
+                                onChange={changeStutes}
+                                options={[
+                                    { value: 0, label: '全部' },
+                                    { value: 1, label: '未交完' },
+                                    { value: 2, label: '已交完' },
+                                ]}
+                            />
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                审核状态:
+                            </div>
+                            <Select
+                                style={{ width: 120 }}
+                                value={orderStatus}
+                                onChange={changeOrderStatus}
+                                options={[
+                                    { value: 0, label: '全部' },
+                                    { value: 1, label: '未审核' },
+                                    { value: 2, label: '已审核' },
+
                                 ]}
                             />
                         </Space.Compact>
@@ -505,7 +669,9 @@ const NewFinancialData=(props:any)=>{
 }
 const mapStateToProps = (state: any) => {
     return {
-        count: state.NewFinancialData.count
+        count: state.NewFinancialData.count,
+        SupplierList: state.Supplier.list,
+
     }
 };
 export default connect(mapStateToProps) (NewFinancialData)

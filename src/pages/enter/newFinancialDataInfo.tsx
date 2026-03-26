@@ -138,6 +138,42 @@ const AddNewFinancialData=(props:any)=>{
             )
         },
         {
+            title:'数量',
+            dataIndex:'quantity',
+            key:'quantity',
+            render: (text: number, record: any) => (
+                <InputNumber
+                    value={text}
+                    min={0}
+                    disabled
+                />
+            )
+        },
+        {
+            title:'单位',
+            dataIndex:'unit',
+            key:'unit',
+            render: (text: string, record: any) => (
+                <Input
+                    value={text}
+                    min={0}
+                    disabled
+                />
+            )
+        },
+        {
+            title:'单价',
+            dataIndex:'unitPrice',
+            key:'unitPrice',
+            render: (text: number, record: any) => (
+                <InputNumber
+                    value={text}
+                    min={0}
+                    disabled
+                />
+            )
+        },
+        {
             title:'金额(元)',
             dataIndex:'amount',
             key:'amount',

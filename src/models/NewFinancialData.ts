@@ -20,7 +20,11 @@ let pl={
     endDate:'2099-01-01',
     pageSize:50,
     orderStatus:0,
-    moneyType:0
+    moneyType:0,
+    supplierId:0,
+    foType:2,
+    paidStatus:0,
+    expenseCode:'',
 }
 
 export interface LinksCountState {
@@ -40,6 +44,7 @@ export interface LinksInterface {
         remove: Effect;
         fenye: Effect;
         check: Effect;
+        allReview: Effect;
     };
     reducers: {
         list: Reducer<LinksType[]>;
@@ -76,6 +81,12 @@ const NewFinancialDataModel: LinksInterface = {
         },
         *add({ payload }, { call, put,take }): any {
             const result = yield call(NewFinancialDataService.add, payload);
+            yield put({ type: 'fetch', payload: pl });  // 重新加载数据
+            yield take('fetch/@@end');
+            return result
+        },
+        *allReview({ payload }, { call, put,take }): any {
+            const result = yield call(NewFinancialDataService.allReview, payload);
             yield put({ type: 'fetch', payload: pl });  // 重新加载数据
             yield take('fetch/@@end');
             return result

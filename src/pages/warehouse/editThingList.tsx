@@ -393,8 +393,8 @@ const EditThingList=(props)=>{
                     {productsImage?<Image
                         src={
                             productsImage?.endsWith('.png')
-                                ? `http://img.qhwy6.com/${productsImage}`
-                                : `http://img.qhwy6.com/${productsImage}_X.png`
+                                ? `${window.ServerConfig.imgServer}${productsImage}`
+                                : `${window.ServerConfig.imgServer}${productsImage}_X.png`
                         }
                         style={{ width: '80px', height: '80px' }}
                         // 可选：添加图片加载失败的兜底占位图，提升体验

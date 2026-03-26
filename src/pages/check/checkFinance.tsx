@@ -12,10 +12,10 @@ const CheckFinance=()=>{
     };
     return(
          <Tabs activeKey={activeKey} onChange={onChange}>
-             <Tabs.TabPane tab="旧数据" key="1">
+             <Tabs.TabPane tab="报销单" key="1">
                  <OldCheckFinance />
              </Tabs.TabPane>
-             <Tabs.TabPane tab="新数据" key="2">
+             <Tabs.TabPane tab="财务单" key="2">
                  <NewCheckFinance />
              </Tabs.TabPane>
          </Tabs>
