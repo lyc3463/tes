@@ -44,6 +44,7 @@ const EditInvoiceFinancialDala=(props:any)=>{
     // 图片列表
     const [imgList,setImgList]=useState([]);
     const [oneInfo,setOneInfo]=useState({});
+
     const getOneInfo=(id:any)=>{
         NewFinancialDataService.one(id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
@@ -242,8 +243,9 @@ const EditInvoiceFinancialDala=(props:any)=>{
     };
     useEffect(() => {
         // 累加所有金额，处理可能的空值
-        const sum = goodsList.reduce((acc, item) => acc + (item.amount || 0), 0);
-        setTotalAmount(sum);
+        const sum = goodsList.reduce((acc, item) => acc + (Number(item.amount) || 0), 0);
+        // 四舍五入保留两位小数
+        setTotalAmount(Number(sum.toFixed(2)));
     }, [goodsList]);
 
     useEffect(() => {

@@ -23,19 +23,26 @@ const AddUser=(props:any)=>{
     const [isTask,setisTask]=useState([0]);
     const [qyList,setqyList]=useState([]);
     const [qyId,setqyId]=useState(0);
+    const [park_id,setPark_id]=useState([]);
+    const [spinning, setSpinning] = useState(false);
     const onFinish= (values)=>{
         let mm =CryptoUtils.md5(values.passWord);
         values.passWord=mm;
         let joinqx=selected.join('');
         let joinOsTask=isTask.join('|');
+        if (park_id.length<1) return message.warning('请选择园区!')
+        let joinPark=park_id.join('|');
+        setSpinning(true);
         props.dispatch({
             type:'Users/add',
-            payload:{...values,joinqx,joinOsTask,qyId}
+            payload:{...values,joinqx,joinOsTask,qyId,joinPark}
         }).then((res)=>{
             if (res.ErrorCode==0){
+                setSpinning(false);
                 message.success('添加成功');
                 history.push('/systemManage/userManage');
             }else {
+                setSpinning(false);
                 message.error(res.Data);
             }
          })
@@ -275,6 +282,7 @@ const AddUser=(props:any)=>{
             newSelected[157] = '1';
             newSelected[161] = '1';
             newSelected[39] = '1';
+            newSelected[446] = '1';
         }
         if (id === 41){
             newSelected[185] = isChecked ? '1' : '0';
@@ -430,6 +438,10 @@ const AddUser=(props:any)=>{
             newSelected[164] = isChecked ? '1' : '0';
             newSelected[56] = isChecked ? '1' : '0';
             newSelected[376] = isChecked ? '1' : '0';
+            newSelected[446] = isChecked ? '1' : '0';
+            newSelected[468] = isChecked ? '1' : '0';
+            newSelected[469] = isChecked ? '1' : '0';
+            newSelected[470] = isChecked ? '1' : '0';
         }
         if (id === 55){
             newSelected[54] =  '1';
@@ -737,6 +749,7 @@ const AddUser=(props:any)=>{
             newSelected[390] = isChecked ? '1' : '0';
             newSelected[439] = isChecked ? '1' : '0';
             newSelected[440] = isChecked ? '1' : '0';
+            newSelected[446] = isChecked ? '1' : '0';
         }
         if (id === 439){
             newSelected[440] = isChecked ? '1' : '0';
@@ -1639,6 +1652,9 @@ const AddUser=(props:any)=>{
     const changeQyId=(e)=>{
         setqyId(e);
     };
+    const changePark=(value:any)=>{
+        setPark_id(value);
+    };
     return(
         <div>
             <Form
@@ -1669,6 +1685,22 @@ const AddUser=(props:any)=>{
                 </Form.Item>
                 <Form.Item label="管理员密码" name="passWord" rules={[{required: true, message: '请输入密码'},{pattern: pwdPattern, message: '密码必须包含大小写加特殊符号'}]}>
                     <Input.Password/>
+                </Form.Item>
+                <Form.Item label='配置园区'>
+                    <Select
+                        mode="multiple"
+                        placeholder="请选择园区"
+                        value={park_id}  // 注意：现在必须是 数组！
+                        onChange={(value:any) => changePark(value)}
+                    >
+                        {Array.isArray(StaticInfo.parkList) && StaticInfo.parkList.map(park => (
+                            <Select.Option
+                                key={park.parkId}
+                            >
+                                {park.park_name}
+                            </Select.Option>
+                        ))}
+                    </Select>
                 </Form.Item>
                 <Form.Item label='接收消息'>
                     <Select onChange={changeIsTask} value={isTask}  mode="multiple">

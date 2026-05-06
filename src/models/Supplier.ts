@@ -15,7 +15,7 @@ let pl={
     supplierName:'',
     personName:'',
     personPhone:'',
-    pageSize:50
+    pageSize:1000
 }
 export interface StaffCountState {
     count: number;

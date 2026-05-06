@@ -4,7 +4,6 @@ import {useEffect, useState} from "react";
 import * as ProjectService from '@/services/project';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
-import CompanyList from "@/pages/financeManage/companyList";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const ProjectList=(props:any)=>{

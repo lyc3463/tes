@@ -23,6 +23,7 @@ const EditUser=(props:any)=>{
     const formRef =useRef();
     const [qyList,setqyList]=useState([]);
     const [qyId,setqyId]=useState(0);
+    const [park_id,setPark_id]=useState([]);
     const [selected, setSelected] = useState<string[]>(Array(562).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
@@ -34,9 +35,11 @@ const EditUser=(props:any)=>{
     },[]);
     let getOneUserInfo=(id:string)=>{
         UsersService.one(id).then((res:TypeErrorCode)=>{
+            console.log('详情',res)
             if (res.ErrorCode==0){
                 formRef.current.setFieldsValue(res.Data);
-                setisTask(res.Data.isTask.split("|").map(Number))
+                setisTask(res.Data.isTask.split("|").map(Number));
+                setPark_id(res.Data.parkList.map((item:any)=>String(item.parkId)));
                 const authorityString = res.Data.authority;
                 setqyId(res.Data.qyId);
                 const splitArray = authorityString.split('');
@@ -252,6 +255,7 @@ const EditUser=(props:any)=>{
             newSelected[157] = '1';
             newSelected[161] = '1';
             newSelected[39] = '1';
+            newSelected[446] = '1';
         }
         if (id === 41){
             newSelected[185] = isChecked ? '1' : '0';
@@ -407,6 +411,10 @@ const EditUser=(props:any)=>{
             newSelected[164] = isChecked ? '1' : '0';
             newSelected[56] = isChecked ? '1' : '0';
             newSelected[376] = isChecked ? '1' : '0';
+            newSelected[446] = isChecked ? '1' : '0';
+            newSelected[468] = isChecked ? '1' : '0';
+            newSelected[469] = isChecked ? '1' : '0';
+            newSelected[470] = isChecked ? '1' : '0';
         }
         if (id === 55){
             newSelected[54] =  '1';
@@ -714,6 +722,7 @@ const EditUser=(props:any)=>{
             newSelected[390] = isChecked ? '1' : '0';
             newSelected[439] = isChecked ? '1' : '0';
             newSelected[440] = isChecked ? '1' : '0';
+            newSelected[446] = isChecked ? '1' : '0';
         }
         if (id === 439){
             newSelected[440] = isChecked ? '1' : '0';
@@ -1601,9 +1610,11 @@ const EditUser=(props:any)=>{
     const onFinish=(value:any)=>{
         let joinqx=selected.join('');
         let joinOsTask=isTask.join('|');
+        if (park_id.length<1) return message.warning('请选择园区!')
+        let joinPark=park_id.join('|');
         props.dispatch({
             type:'Users/edit',
-            payload:{...value,uid,joinqx,joinOsTask,qyId}
+            payload:{...value,uid,joinqx,joinOsTask,qyId,joinPark}
         }).then((res)=>{
             if (res.ErrorCode==0){
                 message.success('修改成功');
@@ -1663,6 +1674,9 @@ const EditUser=(props:any)=>{
     useEffect(() => {
         getQyList();
     }, []);
+    const changePark=(value:any)=>{
+        setPark_id(value);
+    };
     return(
         <div>
             <Form
@@ -1711,6 +1725,22 @@ const EditUser=(props:any)=>{
                                 </Select.Option>
                             )
                         })}
+                    </Select>
+                </Form.Item>
+                <Form.Item label='配置园区'>
+                    <Select
+                        mode="multiple"
+                        placeholder="请选择园区"
+                        value={park_id}  // 注意：现在必须是 数组！
+                        onChange={(value:any) => changePark(value)}
+                    >
+                        {Array.isArray(StaticInfo.parkList) && StaticInfo.parkList.map(park => (
+                            <Select.Option
+                                key={park.parkId}
+                            >
+                                {park.park_name}
+                            </Select.Option>
+                        ))}
                     </Select>
                 </Form.Item>
                 <Form.Item label='选择公司'>

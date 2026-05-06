@@ -170,7 +170,6 @@ const AddPurchase=(props)=>{
                 <InputNumber
                     min={0}
                     value={text}
-                    // 使用onChange事件捕获值变化，传递新值和记录ID
                 />
             )
         },

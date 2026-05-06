@@ -2,6 +2,7 @@ import {connect,history,useNavigate} from "umi";
 import {useEffect, useRef, useState} from "react";
 import {Button, Form, Input, InputNumber, message, Radio, Space, Spin} from "antd";
 import * as GongsiService from "@/services/gongsi";
+import {replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -60,7 +61,7 @@ const EditShoufei=(props:any)=>{
         setspinning(true);
         let res=await props.dispatch({
             type:'Gongsi/edit',
-            payload:{...values,itemType,monthly_amount,deduction_method,item_interval,price,prepaidAmount,count_method,uid}
+            payload:{...values,itemType,monthly_amount,deduction_method,item_interval,price,prepaidAmount,count_method,uid,remark:replaceEnglishCommasWithChinese(values.remark)}
         })
         if (res.ErrorCode==0){
             message.success('修改成功');

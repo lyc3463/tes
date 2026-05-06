@@ -16,9 +16,9 @@ const ImageUploadPng: React.FC<ImageUploadProps> = ({ onImageUpload,oldBase64 })
     async function compressBase641(base64: any) {
         if (!base64) return  ''
         const options = {
-            quality: 0.6, // 压缩质量
-            maxWidth: 700, // 最大宽度
-            maxHeight: 350, // 最大高度
+            quality: 1, // 压缩质量
+            maxWidth: 2000, // 最大宽度
+            maxHeight: 1000, // 最大高度
         };
         // 将 base64 转换为 Blob 对象
         const byteString = atob(base64.split(',')[1]);

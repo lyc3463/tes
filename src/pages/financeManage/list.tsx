@@ -1,4 +1,4 @@
-import {Button, Space,Tabs} from "antd";
+import {Tabs} from "antd";
 import CompanyList from "@/pages/financeManage/companyList";
 import ProjectList from "@/pages/financeManage/projectList";
 import AccountList from "@/pages/financeManage/accountList";

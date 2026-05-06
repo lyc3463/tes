@@ -18,6 +18,10 @@ interface PrintProps {
         totalAmount: number,
         moneyType: number,
         remark?: string;
+        supplierName?: string;
+        personPhone?: string;
+        supplierAddress?: string;
+        personName?: string;
         fdList: Array<{
             id: string | number;
             summary?: string;
@@ -578,12 +582,43 @@ const AllFinancialDataPrint = React.forwardRef<HTMLDivElement, PrintProps>(({ pr
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div style={{ display: 'flex', justifyContent: "space-around", marginBottom: '20px', color: '#4d85ff' }}>
+                                            <div style={{ display: 'flex', justifyContent: "space-around", marginBottom: '10px', color: '#4d85ff' }}>
                                                 <span>会计主管:</span>
                                                 <span>复核:</span>
                                                 <span>出纳:</span>
                                                 <span>经手人:<span style={{color:'#000'}}>{item.createUserName}</span></span>
                                                 <span>领款人:</span>
+                                            </div>
+                                            <div>
+                                                {/* 供应商名称 */}
+                                                {item.supplierName && typeof item.supplierName === 'string' && item.supplierName.trim() !== '' ? (
+                                                    <>
+                                                        {item.supplierName}
+                                                        {/* 后面有内容才显示逗号 */}
+                                                        {(item.supplierAddress || item.personPhone || item.personName) && '，'}
+                                                    </>
+                                                ) : ''}
+
+                                                {/* 供应商地址 */}
+                                                {item.supplierAddress && typeof item.supplierAddress === 'string' && item.supplierAddress.trim() !== '' ? (
+                                                    <>
+                                                        {item.supplierAddress}
+                                                        {/* 后面有内容才显示逗号 */}
+                                                        {(item.personPhone || item.personName) && '，'}
+                                                    </>
+                                                ) : ''}
+
+                                                {/* 联系人 */}
+                                                {item.personName && typeof item.personName === 'string' && item.personName.trim() !== '' ? (
+                                                    <>
+                                                        {item.personName}
+                                                        {/* 后面有电话才显示逗号 */}
+                                                        {item.personPhone && '，'}
+                                                    </>
+                                                ) : ''}
+
+                                                {/* 联系电话 */}
+                                                {item.personPhone && typeof item.personPhone === 'string' && item.personPhone.trim() !== '' ? item.personPhone : ''}
                                             </div>
                                         </div>
                                     )}

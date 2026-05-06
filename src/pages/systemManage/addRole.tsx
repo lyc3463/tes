@@ -1,5 +1,5 @@
 import {Button, Form, Input, message, Space, Spin} from "antd";
-import {buildTree, mmPattern, phonePattern} from "@/utils/OpenTool";
+import {buildTree} from "@/utils/OpenTool";
 import {qxTree} from "@/constants/qxMenu";
 import {useState} from "react";
 import {history,connect,useNavigate} from "umi";
@@ -221,6 +221,7 @@ const AddRole=(props)=>{
             newSelected[157] = '1';
             newSelected[161] = '1';
             newSelected[39] = '1';
+            newSelected[446] = '1';
         }
         if (id === 41){
             newSelected[185] = isChecked ? '1' : '0';
@@ -376,6 +377,10 @@ const AddRole=(props)=>{
             newSelected[164] = isChecked ? '1' : '0';
             newSelected[56] = isChecked ? '1' : '0';
             newSelected[376] = isChecked ? '1' : '0';
+            newSelected[446] = isChecked ? '1' : '0';
+            newSelected[468] = isChecked ? '1' : '0';
+            newSelected[469] = isChecked ? '1' : '0';
+            newSelected[470] = isChecked ? '1' : '0';
         }
         if (id === 55){
             newSelected[54] =  '1';
@@ -683,6 +688,7 @@ const AddRole=(props)=>{
             newSelected[390] = isChecked ? '1' : '0';
             newSelected[439] = isChecked ? '1' : '0';
             newSelected[440] = isChecked ? '1' : '0';
+            newSelected[446] = isChecked ? '1' : '0';
         }
         if (id === 439){
             newSelected[440] = isChecked ? '1' : '0';

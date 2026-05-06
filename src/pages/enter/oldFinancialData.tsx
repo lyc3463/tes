@@ -1,4 +1,18 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    Tooltip
+} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useRef, useState} from "react";
 import {connect,history} from "umi";
@@ -7,6 +21,8 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import { useReactToPrint } from 'react-to-print';
 import * as processConfiguration from '@/services/processConfiguration';
 import AllFinancialDataPrint from "@/components/AllFinancialDataPrint";
+import {QuestionCircleOutlined} from "@ant-design/icons";
+import {StaticInfo} from "@/StaticInfo";
 const statusMap: any = {
     1: { text: '', color: 'orange',next: 3,btnText:'会计审核' },
     // 2: { text: '已入账', color: 'green'  },
@@ -22,6 +38,7 @@ const statusMap: any = {
     12: { text: '已审核,未入账', color: 'purple'},
     13: { text: '终止', color: 'purple'},
     14: { text: '已入账', color: 'purple'},
+    15: { text: '驳回', color: 'red'},
 }
 const OldFinancialData=(props:any)=>{
     // 展示total
@@ -147,11 +164,27 @@ const OldFinancialData=(props:any)=>{
             title: '状态',
             dataIndex: 'orderStatus',
             key: 'orderStatus',
-            render: (text: any) => {
+            render: (text: any,record:any) => {
                 const current = statusMap[text] || { text: '未知', color: 'default' }
                 return (
                     <Tag color={current.color}>
                         {current.text}
+                        {record.orderStatus === 15 && (
+                            <Tooltip
+                                title={record.rejectReason}
+                                placement="right"
+                            >
+                                <QuestionCircleOutlined style={{ color: '#999', cursor: 'pointer' }} />
+                            </Tooltip>
+                        )}
+                        {record.orderStatus === 13 && (
+                            <Tooltip
+                                title={record.terminateReason}
+                                placement="right"
+                            >
+                                <QuestionCircleOutlined style={{ color: '#999', cursor: 'pointer' }} />
+                            </Tooltip>
+                        )}
                     </Tag>
                 )
             }
@@ -181,7 +214,7 @@ const OldFinancialData=(props:any)=>{
                 return(
                     <Space>
                         {
-                            record.orderStatus==1?<>
+                            record.orderStatus==15?<>
                                 <Button type='primary' onClick={()=>{
                                     history.push(`/enter/editInvoiceFinancialDala?id=${record.id}`);
                                 }}>编辑</Button>
@@ -239,7 +272,7 @@ const OldFinancialData=(props:any)=>{
         setspinning(true);
         props.dispatch({
             type:'Bill/fetch',
-            payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode}
+            payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode,userId:StaticInfo.userId}
         }).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
                 console.log('原始数据列表',res.Data);
@@ -271,7 +304,7 @@ const OldFinancialData=(props:any)=>{
     const getFenye=()=>{
         props.dispatch({
             type:'Bill/fenye',
-            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode}
+            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode,userId:StaticInfo.userId}
         })
     };
     const updateStatusMap=(data)=> {
@@ -388,7 +421,7 @@ const OldFinancialData=(props:any)=>{
     };
     const getAuditSelectOptions = () => {
         // 你要的顺序（固定不变）
-        const keys = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+        const keys = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,15];
 
         const options = keys.map(key => ({
             label: statusMap[key].text,

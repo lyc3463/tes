@@ -1,4 +1,4 @@
-import {Button, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
@@ -111,6 +111,16 @@ const MovementCable=(props:any)=>{
       setPage(e);
       setPageSize(pageSize);
     };
+    // 监听日期
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+        }
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -121,6 +131,7 @@ const MovementCable=(props:any)=>{
                         </Button>
                     </div>
                     <Space>
+                        {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         <Input
                             addonBefore="电表地址:"
                             onChange={(e)=>setCollector_id(e.target.value)}

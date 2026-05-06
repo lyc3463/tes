@@ -10,7 +10,7 @@ import * as NewFinancialDataService from "@/services/newFinancialData";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as BillService from "@/services/bill";
 
-const AddNewFinancialData=(props:any)=>{
+const EditNewFinancialData=(props:any)=>{
     const [spinning, setSpinning] = useState(false);
     const [prohibit,setProhibit]=useState(false);
     const navigate=useNavigate();
@@ -247,8 +247,9 @@ const AddNewFinancialData=(props:any)=>{
     };
     useEffect(() => {
         // 累加所有金额，处理可能的空值
-        const sum = goodsList.reduce((acc, item) => acc + (item.amount || 0), 0);
-        setTotalAmount(sum);
+        const sum = goodsList.reduce((acc, item) => acc + (Number(item.amount) || 0), 0);
+        // 四舍五入保留两位小数
+        setTotalAmount(Number(sum.toFixed(2)));
     }, [goodsList]);
     const changePaidAmount=(e)=>{
         setPaidAmount(e);
@@ -334,7 +335,8 @@ const AddNewFinancialData=(props:any)=>{
             supplierId:0,
             foType:1,
             paidStatus:0,
-            expenseCode:''
+            expenseCode:'',
+            userId:0
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 console.log('查看列表',res);
@@ -676,4 +678,4 @@ const mapStateToProps = (state: any) => {
 
     }
 };
-export default connect(mapStateToProps)(AddNewFinancialData);
+export default connect(mapStateToProps)(EditNewFinancialData);

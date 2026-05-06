@@ -25,6 +25,7 @@ let pl={
     foType:2,
     paidStatus:0,
     expenseCode:'',
+    userId:0
 }
 
 export interface LinksCountState {

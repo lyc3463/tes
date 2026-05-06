@@ -1,7 +1,6 @@
 import {Button, Form, Input, List, message, Modal, Select, Space, Table} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
-import * as CompanService from "@/services/compan";
 import {StaticInfo} from "@/StaticInfo";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 

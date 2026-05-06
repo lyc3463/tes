@@ -12,7 +12,7 @@ import {
     Space,
     Spin,
     Modal,
-    message, Table, Tag, Popconfirm,
+    message, Table, Tag, Popconfirm, Select,
 } from 'antd';
 import { Link, history as UmiHistory } from 'umi';
 import BreadcrumbMap from '@/constants/BreadcrumbMap';
@@ -97,6 +97,7 @@ class MainPage extends Component<any> {
       popOpen:false,
       parkOpen:false,
       uqx:[],
+      park_id:StaticInfo.park_id,
       sessionStorageMune:[{ id: 0, name: '仪表盘', route: '/dashboard/', authId: 0 }]
   };
   errorBoundary: React.RefObject<ComponentErrorBoundary> = React.createRef();
@@ -251,6 +252,22 @@ class MainPage extends Component<any> {
     };
     // 查询园区有效期
     getValidityPeriod=()=>{
+
+    };
+    changePark=(e:any,parkList:any)=>{
+        CommonService.swPark(e).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                StaticInfo.park_id=e;
+                this.setState({park_id:e});
+                sessionStorage.setItem('park_id',e);
+                sessionStorage.setItem('park_name',parkList.children);
+                UmiHistory.push('/');
+                window.location.reload();
+            }else {
+                message.error(res.Data);
+            }
+        })
+
     };
   render() {
     // const ContentPage = loadable(() => import(`@/pages${this.props.contentPage}`));
@@ -433,7 +450,16 @@ class MainPage extends Component<any> {
                         用户姓名:{StaticInfo.username}
                     </span>
                     <span>
-                        园区:{StaticInfo.park_name}
+                       当前园区:<Select placeholder="请选择园区" style={{ width: 200 }} value={this.state.park_id} onChange={(e,parkList)=>this.changePark(e,parkList)}>
+                            {Array.isArray(StaticInfo.parkList) && StaticInfo.parkList.map(park => (
+                                <Select.Option
+                                    key={park.parkId}
+                                    value={park.parkId}
+                                >
+                                    {park.park_name}
+                                </Select.Option>
+                            ))}
+                        </Select>
                     </span>
                     {this.state.uqx[297]=='1'?<>
                         <span>短信条数:{this.state.smsNumber}条<Button style={{border:'none',padding:'0',margin:'0'}} onClick={this.getSMSNumber}><RedoOutlined/></Button>

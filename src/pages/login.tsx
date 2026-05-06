@@ -213,6 +213,7 @@ export default function Login() {
         1
     ).then((res: TypeErrorCode) => {
       if (res.ErrorCode == 0) {
+        console.log('登录信息',res.Data);
         let data = res.Data;
         StaticInfo.userId = data.id;
         StaticInfo.userState = true;
@@ -225,6 +226,7 @@ export default function Login() {
         StaticInfo.endTime= data.endTime;
         StaticInfo.meal_id= data.meal_id;
         StaticInfo.isTask= data.isTask;
+        StaticInfo.parkList= data.parkList;
         sessionStorage.setItem('userId',data.id);
         sessionStorage.setItem('userState','true');
         sessionStorage.setItem('token',data.token);
@@ -236,6 +238,7 @@ export default function Login() {
         sessionStorage.setItem('loginendTime',data.endTime);
         sessionStorage.setItem('loginmeal_id',data.meal_id);
         sessionStorage.setItem('isTask',data.isTask);
+        sessionStorage.setItem('parkList',JSON.stringify(data.parkList));
         history.push('/');
       } else {
         message.error(res.ErrorCode + res.Data)
@@ -395,7 +398,7 @@ export default function Login() {
           </div>
           {/*右侧图片*/}
           <div className={styles.rightBox}>
-            <p style={{fontSize:'30px',color:"#000",fontWeight:'600',textAlign:'center'}}>钱市街公司端系统</p>
+            <p style={{fontSize:'30px',color:"#000",fontWeight:'600',textAlign:'center'}}>公司端系统</p>
             <Form
                 name="loginForm"
                 form={form}
@@ -422,7 +425,7 @@ export default function Login() {
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:3.0.5</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:3.1.2</p>
                 </div>
               </Form.Item>
             </Form>
@@ -431,7 +434,7 @@ export default function Login() {
         </div>
       </div>
       <div style={{textAlign:'center'}}>
-        <a href='#' style={{textDecoration:'none',color:'#555',marginRight:"30px"}}>本系统由欢逗八提供技术支持</a><a target='_blank' style={{textDecoration:'none',color:'#555'}} href='https://beian.miit.gov.cn/#/Integrated/index'>粤ICP备2024319327号-3</a>
+        <a href='#' style={{textDecoration:'none',color:'#555',marginRight:"30px"}}>本系统由广州慧弘易码事网络科技有限公司提供技术支持</a><a target='_blank' style={{textDecoration:'none',color:'#555'}} href='https://beian.miit.gov.cn/#/Integrated/index'>粤ICP备2024319327号-3</a>
       </div>
       {/*忘记密码输入手机验证弹窗*/}
       <Modal open={isyzmOpen} onCancel={()=>setIsyzmOpen(false)} title='找回密码' footer={false}>

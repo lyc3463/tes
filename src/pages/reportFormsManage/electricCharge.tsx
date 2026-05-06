@@ -192,6 +192,7 @@ const ElectricCharge=(props:any)=>{
             }
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('res',res);
                 const sum=calculateSums(res.Data);
                 setenergyNew(sum.energyNew);
                 setenergyNew2(sum.energyNew2);

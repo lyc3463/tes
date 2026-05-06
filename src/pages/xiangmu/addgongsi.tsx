@@ -32,6 +32,7 @@ import {
 } from 'antd';
 import { getAvatarUrl } from '@/utils/common';
 import { SyncOutlined } from '@ant-design/icons';
+import {replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
 
 
 const { Option } = Select;
@@ -75,10 +76,12 @@ function Addgongsi(props: any) {
     setDeduction_method(e.target.value)
   }
   const onFinish = async (values: any) => {
+    console.log('参数',values);
+
     setspinning(true);
     let res=await props.dispatch({
       type:'Gongsi/add',
-      payload:{...values,itemType,monthly_amount,deduction_method,item_interval,price,prepaidAmount,count_method}
+      payload:{...values,itemType,monthly_amount,deduction_method,item_interval,price,prepaidAmount,count_method,remark:replaceEnglishCommasWithChinese(values.remark)}
     })
     if (res.ErrorCode==0){
       message.success('添加成功');

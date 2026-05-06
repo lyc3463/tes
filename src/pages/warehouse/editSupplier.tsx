@@ -70,15 +70,15 @@ const EditSupplier=(props:any)=>{
                 </Form.Item>
                 <Form.Item
                     name="supplierAddress"
-                    label="所在地址"
+                    label="开户行"
                 >
-                    <Input placeholder="请输入详细地址（如：XX市XX区XX路）" />
+                    <Input/>
                 </Form.Item>
                 <Form.Item
                     name="personName"
-                    label="账户"
+                    label="账号"
                 >
-                    <Input placeholder="请输入账户" />
+                    <Input placeholder="请输入账号" />
                 </Form.Item>
                 <Form.Item
                     name="personPhone"

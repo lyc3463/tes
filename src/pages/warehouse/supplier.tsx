@@ -21,12 +21,12 @@ const Supplier=(props)=>{
             ellipsis: true,
         },
         {
-            title: '地址',
+            title: '开户行',
             dataIndex: 'supplierAddress',
             ellipsis: true,
         },
         {
-            title: '账户',
+            title: '账号',
             dataIndex: 'personName',
             ellipsis: true,
         },

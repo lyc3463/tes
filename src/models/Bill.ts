@@ -25,6 +25,7 @@ let pl={
     foType:1,
     paidStatus:0,
     expenseCode:'',
+    userId:StaticInfo.userId,
 }
 
 export interface BiaoqianCountState {
@@ -46,6 +47,7 @@ export interface BiaoqianInterface {
         fenye:Effect;
         reject:Effect;
         payment:Effect;
+        terminate:Effect;
         // fetchNo:Effect;
     };
     reducers: {
@@ -106,6 +108,12 @@ const BillModel: BiaoqianInterface = {
         },
         *reject({ payload, callback }, { call, put, take }): any {
             const result = yield call(BillService.reject, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *terminate({ payload, callback }, { call, put, take }): any {
+            const result = yield call(BillService.terminate, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result

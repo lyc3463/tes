@@ -9,6 +9,7 @@ import {message} from "antd";
 export async function getData(ActionId: number, canshus: any[]) {
     console.log("canshus",canshus)
     let sendstr = getSendStr(ActionId, canshus);
+    console.log("sendstr",sendstr)
     return fetch(window.ServerConfig.apiServer + '?' + sendstr).then((_res: any) => {
         EventMgr.event(info_event.hideWait);
         const res = _res.json();
@@ -30,12 +31,9 @@ export async function getData(ActionId: number, canshus: any[]) {
                     setTimeout(()=>{
                         location.pathname = '/login';
                     },0);
-                }else if (res.ErrorCode==-1201){
-                    message.error('登录信息验证错误，请重新登录');
-                    setTimeout(()=>{
-                        location.pathname = '/login';
-                    },500);
-                } else {
+                } else if (res.ErrorCode==-1920){
+                    message.error('权限不足，联系管理员分配权限，重新登录');
+                }else {
                     if (res.Data != null) {
                         EventMgr.event(info_event.Error, res.Data);
                     }

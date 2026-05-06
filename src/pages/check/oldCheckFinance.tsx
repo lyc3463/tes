@@ -13,7 +13,7 @@ import {
     Spin,
     Table,
     Tag,
-    Form, InputNumber
+    Form, InputNumber, Tooltip
 } from "antd";
 import dayjs from "dayjs";
 import {useEffect, useRef, useState} from "react";
@@ -25,6 +25,7 @@ import AllFinancialDataPrint from "@/components/AllFinancialDataPrint";
 import {StaticInfo} from "@/StaticInfo";
 import * as processConfiguration from "@/services/processConfiguration";
 import ReimbursePrint from "@/components/MyReimbursePrint";
+import {QuestionCircleOutlined} from "@ant-design/icons";
 const statusMap: any = {
     1: { text: '', color: 'orange',next: 3,btnText:'' },
     // 2: { text: '已入账', color: 'green'  },
@@ -40,6 +41,8 @@ const statusMap: any = {
     12: { text: '已审核,未入账', color: 'purple'},
     13: { text: '终止', color: 'purple'},
     14: { text: '已入账', color: 'purple'},
+    15: { text: '驳回', color: 'red'},
+
 }
 const OldCheckFinance=(props:any)=>{
     // 展示total
@@ -70,6 +73,8 @@ const OldCheckFinance=(props:any)=>{
     const [spinning,setspinning]=useState(false);
     const [paidStatus,setPaidStatus]=useState(0);
     const [printModalOpen,setPrintModalOpen]=useState(false);
+    // 终止弹窗
+    const [terminateOpen,setTerminateOpen]=useState(false);
     const [printList,setPrintList]=useState([]);
     const printRef = useRef();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -91,6 +96,10 @@ const OldCheckFinance=(props:any)=>{
     const [checkUser,setCheckUser]=useState('');
     const [checkInfo,setCheckInfo]=useState({});
     const [goodsList,setGoodsList]=useState([]);
+    // 终止描述
+    const [terminateTxt,setTerminateTxt]=useState('');
+    // 驳回描述
+    const [rejectTxt,setRejectTxt]=useState('');
     const columns =[
         {
             title: '日期',
@@ -130,6 +139,12 @@ const OldCheckFinance=(props:any)=>{
             ellipsis: true,
         },
         {
+            title: '供应商',
+            dataIndex: 'supplierName',
+            key: 'supplierName',
+            ellipsis: true,
+        },
+        {
             title: '类型',
             dataIndex: 'moneyType',
             key: 'moneyType',
@@ -152,20 +167,31 @@ const OldCheckFinance=(props:any)=>{
             dataIndex: 'totalAmount',
             key: 'totalAmount',
         },
-        // {
-        //     title: '已支付金额(元)',
-        //     dataIndex: 'paidAmount',
-        //     key: 'paidAmount',
-        // },
         {
             title: '状态',
             dataIndex: 'orderStatus',
             key: 'orderStatus',
-            render: (text: any) => {
+            render: (text: any,record:any) => {
                 const current = statusMap[text] || { text: '未知', color: 'default' }
                 return (
                     <Tag color={current.color}>
                         {current.text}
+                        {record.orderStatus === 15 && (
+                            <Tooltip
+                                title={record.rejectReason}
+                                placement="right"
+                            >
+                                <QuestionCircleOutlined style={{ color: '#999', cursor: 'pointer' }} />
+                            </Tooltip>
+                        )}
+                        {record.orderStatus === 13 && (
+                            <Tooltip
+                                title={record.terminateReason}
+                                placement="right"
+                            >
+                                <QuestionCircleOutlined style={{ color: '#999', cursor: 'pointer' }} />
+                            </Tooltip>
+                        )}
                     </Tag>
                 )
             }
@@ -185,7 +211,7 @@ const OldCheckFinance=(props:any)=>{
                 return(
                     <Space>
                         {
-                            isCok?<Space>
+                            record.orderStatus !== 15 && isCok?<Space>
                                 {[1,2,3,4,5,6,7,8,9,10,11].includes(record.orderStatus) && (
                                     <a
                                         onClick={() => handleUpdateStatus(record, current.next)}
@@ -197,7 +223,7 @@ const OldCheckFinance=(props:any)=>{
                                 {[1,2,3,4,5,6,7,8,9,10,11].includes(record.orderStatus) && (
                                     <a
                                         style={{ color: 'red' }}
-                                        onClick={() => handleUpdateStatus(record, 13)}
+                                        onClick={() => handleTerminateStatus(record)}
                                     >
                                         终止
                                     </a>
@@ -212,12 +238,16 @@ const OldCheckFinance=(props:any)=>{
                                 )}
                             </Space>:''
                         }
-
                     </Space>
                 )
             }
         },
     ];
+    // 终止弹窗
+    const handleTerminateStatus=(e)=>{
+        setUid(e.id);
+        setTerminateOpen(true);
+    };
     const generateMultipleRecords = (count: number) => {
         // 计算起始ID（当前最大ID + 1，若为空则从1开始）
         const maxId = goodsList.length > 0
@@ -309,12 +339,30 @@ const OldCheckFinance=(props:any)=>{
             }
         })
     };
+    // 终止按钮
+    const onTerminateOK=()=>{
+        setspinning(true);
+        props.dispatch({
+            type:'Bill/terminate',
+            payload:{uid,terminateTxt}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode == 0||res.ErrorCode == 9038) {
+                message.success('终止成功')
+                setspinning(false);
+                setTerminateOpen(false);
+                getList();
+            }else {
+                message.error(res.ErrorCode + res.Data);
+                setspinning(false);
+            }
+        })
+    };
     // 驳回按钮
     const rejectOK=()=>{
         setspinning(true);
         props.dispatch({
             type:'Bill/reject',
-            payload:uid
+            payload:{uid,rejectTxt}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode == 0||res.ErrorCode == 9038) {
                 message.success('驳回成功');
@@ -331,9 +379,10 @@ const OldCheckFinance=(props:any)=>{
         setspinning(true);
         props.dispatch({
             type:'Bill/fetch',
-            payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode}
+            payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode,userId:0}
         }).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
+                console.log('rees',res)
                 setBillList(res.Data);
             }
             setspinning(false);
@@ -364,7 +413,7 @@ const OldCheckFinance=(props:any)=>{
     const getFenye=()=>{
         props.dispatch({
             type:'Bill/fenye',
-            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode}
+            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode,userId:0}
         })
     };
     const updateStatusMap=(data)=> {
@@ -493,7 +542,7 @@ const OldCheckFinance=(props:any)=>{
     };
     const getAuditSelectOptions = () => {
         // 你要的顺序（固定不变）
-        const keys = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+        const keys = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,15];
 
         const options = keys.map(key => ({
             label: statusMap[key].text,
@@ -730,6 +779,8 @@ const OldCheckFinance=(props:any)=>{
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
+                            </Table.Summary.Cell>
                             <Table.Summary.Cell index={8}>
                                 {props.count?props.count.totalAmountSum.toFixed(2):''}
                             </Table.Summary.Cell>
@@ -739,15 +790,26 @@ const OldCheckFinance=(props:any)=>{
                 rowSelection={rowSelection}  // 添加选择功能配置
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-            {/*终止/审核流程*/}
+            {/*审核流程*/}
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOK} loading={spinning} width={1000} height={800}>
-                <div>{status==13?'是否要终止?':
-                    <ReimbursePrint item={{...checkInfo,fdList:goodsList}}/>
+                <div>{<ReimbursePrint item={{...checkInfo,fdList:goodsList}}/>
                 }</div>
+            </Modal>
+            {/*终止流程*/}
+            <Modal open={terminateOpen} onCancel={()=>setTerminateOpen(false)} onOk={onTerminateOK} loading={spinning} title={'终止'}>
+               <Form>
+                   <Form.Item label={'终止描述'}>
+                       <Input.TextArea value={terminateTxt} onChange={(e)=>setTerminateTxt(e.target.value)}/>
+                   </Form.Item>
+               </Form>
             </Modal>
             {/*驳回弹窗*/}
             <Modal open={rejectOpen} onCancel={()=>setRejectOpen(false)} onOk={rejectOK} loading={spinning} title={'驳回'}>
-                <div>是否要驳回?</div>
+                <Form>
+                    <Form.Item label={'驳回描述'}>
+                        <Input.TextArea value={rejectTxt} onChange={(e)=>setRejectTxt(e.target.value)}/>
+                    </Form.Item>
+                </Form>
             </Modal>
             {/*打印*/}
             <Modal
