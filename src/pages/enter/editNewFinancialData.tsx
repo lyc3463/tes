@@ -339,13 +339,12 @@ const EditNewFinancialData=(props:any)=>{
             userId:0
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('查看列表',res);
                 setBillList(res.Data);
             }else {
 
             }
         })
-    }
+    };
     useEffect(() => {
         getCompanList();
         getProjectList();
@@ -359,11 +358,17 @@ const EditNewFinancialData=(props:any)=>{
         if (!accountId) return  message.error('请选择账户');
         if (!companyId) return  message.error('请选择公司');
         if (!projectId) return  message.error('请选择项目');
-        // if (moneyType==2&&!supplierId) return  message.error('请选择供应商');
-        if (goodsList.length === 0) return message.error('请增加明细记录');
-        const filteredGoodsList = goodsList.filter(item =>
-            item.subjectName.trim() !== '' || item.summary.trim() !== ''
+        const processedList = goodsList.map(item => ({
+            ...item,
+            unitPrice: !isNaN(Number(item.unitPrice)) ? Number(item.unitPrice) : 0,
+            quantity: !isNaN(Number(item.quantity)) ? Number(item.quantity) : 0,
+        }));
+
+        const filteredGoodsList = processedList.filter(item =>
+            (item.subjectName?.trim() !== '')
+            && item.amount > 0
         );
+        if (filteredGoodsList.length === 0) return message.error('报销明细科目不能为空,金额不能为0,请检查!');
         let jsonData=JSON.stringify(filteredGoodsList);
         setSpinning(true);
         props.dispatch({

@@ -593,7 +593,6 @@ const NewFinancialData=(props:any)=>{
                                     { value: 0, label: '全部' },
                                     { value: 1, label: '未审核' },
                                     { value: 2, label: '已审核' },
-
                                 ]}
                             />
                         </Space.Compact>

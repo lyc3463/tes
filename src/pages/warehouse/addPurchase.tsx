@@ -80,7 +80,6 @@ const AddPurchase=(props)=>{
                 // 核心修复：先将text转为字符串，再做空值+后缀判断
                 // 步骤1：处理非字符串类型（如null/undefined/数字），转为空字符串
                 const textStr = String(text || '');
-
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
                     ? `http://img.qhwy6.com/${textStr}`

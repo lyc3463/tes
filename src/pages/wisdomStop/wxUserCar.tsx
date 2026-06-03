@@ -50,6 +50,14 @@ const WxUserCar=(props:any)=>{
     };
     const columns =[
         {
+            title: '序号',
+            key: 'index',
+            align: 'center',
+            render: (text, record, index) => {
+                return <div>{index + 1}</div>
+            },
+        },
+        {
             title: '房号',
             dataIndex: 'unitList',
             key: 'unitList',
@@ -196,27 +204,48 @@ const WxUserCar=(props:any)=>{
             title: '剩余天数',
             dataIndex: 'remainDays',
             key: 'remainDays',
-            align:'center',
-            // 新增：动态计算剩余天数
+            align: 'center',
+            // 👇 核心：开启 AntD 自带点击排序
+            sorter: (a, b) => {
+                // 封装一个方法：把每条数据转成 剩余天数字（数字越小，过期越早）
+                const getRemainDayNumber = (record) => {
+                    const defaultTime = "0001-01-01T00:00:00";
+
+                    // 等待开通 → 数字极大，排最后
+                    if (record.endTime && record.beginTime === defaultTime) {
+                        return 99999;
+                    }
+
+                    const now = dayjs();
+                    const endTime = dayjs(record.endTime);
+
+                    // 已过期 → 数字极大，排最后
+                    if (endTime.isBefore(now)) {
+                        return 99999;
+                    }
+
+                    // 返回剩余天数（数字）
+                    return endTime.diff(now, 'day', true);
+                };
+
+                // 数字比较：AntD 会自动识别升序、降序
+                return getRemainDayNumber(a) - getRemainDayNumber(b);
+            },
             render: (text: any, record: any) => {
                 const defaultTime = "0001-01-01T00:00:00";
-                if (record.endTime&&record.beginTime === defaultTime) {
+                if (record.endTime && record.beginTime === defaultTime) {
                     return <div>等待用户开通</div>;
                 }
-                const now = dayjs(); // 当前时间
-                const endTime = dayjs(record.endTime); // 结束时间
+                const now = dayjs();
+                const endTime = dayjs(record.endTime);
 
-                // 结束时间已过期
                 if (endTime.isBefore(now)) {
                     return <div>已过期</div>;
                 }
 
-                // 计算剩余天数（返回浮点数）
                 const diffDays = endTime.diff(now, 'day', true);
-
-                // 不足1天显示"不足一天"，否则显示整数天数
                 return <div>{diffDays < 1 ? '不足一天' : `${Math.floor(diffDays)}天`}</div>;
-            }
+            },
         },
         {
             title: '状态',
@@ -342,6 +371,7 @@ const WxUserCar=(props:any)=>{
     };
     useEffect(() => {
         getCarList();
+        console.log('props',props)
     }, [page,pageSize]);
     useEffect(() => {
         getCarListfenye();

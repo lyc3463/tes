@@ -380,15 +380,17 @@ const EditInvoiceFinancialDala=(props:any)=>{
         if (!companyId) return  message.error('请选择公司');
         if (!projectId) return  message.error('请选择项目');
         if (!supplierId) return  message.error('请选择供应商');
-        if (goodsList.length === 0) return message.error('请增加明细记录');
-        const filteredGoodsList = goodsList.filter(item =>
-            item.subjectName.trim() !== '' || item.summary.trim() !== ''
-        )
-        console.log('filteredGoodsList',filteredGoodsList)
-        //     .map(item => ({
-        //     ...item,
-        //     image: Array.isArray(item.image) ? item.image.join('|') : ''
-        // }));
+        const processedList = goodsList.map(item => ({
+            ...item,
+            unitPrice: !isNaN(Number(item.unitPrice)) ? Number(item.unitPrice) : 0,
+            quantity: !isNaN(Number(item.quantity)) ? Number(item.quantity) : 0,
+        }));
+
+        const filteredGoodsList = processedList.filter(item =>
+            (item.subjectName?.trim() !== '')
+            && item.amount > 0
+        );
+        if (filteredGoodsList.length === 0) return message.error('报销明细科目不能为空,金额不能为0,请检查!');
         let jsonData=JSON.stringify(filteredGoodsList);
         let imgUrl=imgList.join("|");
         setSpinning(true);

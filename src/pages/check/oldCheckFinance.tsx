@@ -42,7 +42,6 @@ const statusMap: any = {
     13: { text: '终止', color: 'purple'},
     14: { text: '已入账', color: 'purple'},
     15: { text: '驳回', color: 'red'},
-
 }
 const OldCheckFinance=(props:any)=>{
     // 展示total
@@ -282,18 +281,7 @@ const OldCheckFinance=(props:any)=>{
         setStatus(status);
         setCheckInfo(record);
         setGoodsList(record.fdList);
-        console.log('详情',[record]);
         setIsOpen(true);
-    };
-    // 付款弹窗
-    const handlePayment=(record:any)=>{
-        setUid(record.id);
-        setPaymentOpen(true);
-        const newList = record.fdList.map((item: any) => ({
-            ...item,
-            payAmount: item.payAmount ?? 0, // 初始化
-        }));
-        setFdList(newList);
     };
     // 驳回弹窗
     const handleReject=(record:any)=>{
@@ -461,7 +449,6 @@ const OldCheckFinance=(props:any)=>{
         processConfiguration.one().then((res:TypeErrorCode)=>{
             updateStatusMap(res.Data);
             setCheckUser(res.Data);
-            // let isCok=checkAuditPermission(1,res.Data);
         })
     };
     useEffect(() => {
@@ -716,11 +703,6 @@ const OldCheckFinance=(props:any)=>{
                 </List.Item>
                 <List.Item>
                     <Space>
-                        {/*<Input*/}
-                        {/*    addonBefore="账户卡号:"*/}
-                        {/*    value={account_card}*/}
-                        {/*    onChange={changeAccount_card}*/}
-                        {/*/>*/}
                         <Input
                             addonBefore="项目:"
                             value={project_name}

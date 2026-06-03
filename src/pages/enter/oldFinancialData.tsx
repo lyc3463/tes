@@ -214,7 +214,7 @@ const OldFinancialData=(props:any)=>{
                 return(
                     <Space>
                         {
-                            record.orderStatus==15?<>
+                            record.orderStatus==15||record.orderStatus==1?<>
                                 <Button type='primary' onClick={()=>{
                                     history.push(`/enter/editInvoiceFinancialDala?id=${record.id}`);
                                 }}>编辑</Button>

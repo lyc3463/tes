@@ -11,7 +11,7 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import SalesPrint from "@/components/SalesPrint";
 import FinancialDataPrint from "@/components/FinancialDataPrint";
 
-const AddNewFinancialData=(props:any)=>{
+const NewFinancialDataInfo=(props:any)=>{
     const [spinning, setSpinning] = useState(false);
     const [printVisible,setPrintVisible]=useState(false);
     const navigate=useNavigate();
@@ -445,4 +445,4 @@ const mapStateToProps = (state: any) => {
         ProjectList: state.Project.list,
     }
 };
-export default connect(mapStateToProps)(AddNewFinancialData);
+export default connect(mapStateToProps)(NewFinancialDataInfo);
