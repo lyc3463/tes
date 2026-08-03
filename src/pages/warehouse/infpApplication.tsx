@@ -14,15 +14,14 @@ import {
     Table
 } from "antd";
 import {useEffect, useRef, useState} from "react";
-import {generate} from "@/utils/OpenTool";
-import {StaticInfo} from '@/StaticInfo'
 import {connect,useNavigate,history} from "umi";
-import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as Application from "@/services/application";
 import dayjs from "dayjs";
 import WarehousingPrint from "@/components/WarehousingPrint";
 import './print.less';
 import {AlignCenterOutlined} from "@ant-design/icons";
+import {useReactToPrint} from "react-to-print";
+import NoInventoryRequestDetailPrint from "@/components/NoInventoryRequestDetailPrint";
 
 const InfpApplication=(props)=>{
     const navigate=useNavigate();
@@ -52,6 +51,8 @@ const InfpApplication=(props)=>{
     const [user_name,setUserName]=useState('');
     // 订单物品列表
     const [goods,setGoods]=useState([]);
+    const printRef = useRef();
+
     const [printVisible,setPrintVisible]=useState(false);
     const printProps = {
         orderCode,
@@ -79,7 +80,13 @@ const InfpApplication=(props)=>{
             setUserName(data.user_name);
             setTotalAmount(data.totalAmount);
             setRemark(data.remark);
-            setGoods(data.ppList);
+            let newArr=data.ppList.map((item:any)=>{
+                return{
+                    ...item,
+                    quantity:item.quantityTotal
+                }
+            })
+            setGoods(newArr);
         }else {
             message.error(res.Data);
             setSpinning(false);
@@ -104,8 +111,8 @@ const InfpApplication=(props)=>{
 
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
-                    ? `http://img.qhwy6.com/${textStr}`
-                    : `http://img.qhwy6.com/${textStr}_X.png`;
+                    ? `${window.ServerConfig.imgServer}${textStr}`
+                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 // 步骤3：仅当字符串非空时渲染图片，否则返回空
                 return textStr ? (
                     <Image
@@ -252,12 +259,49 @@ const InfpApplication=(props)=>{
         getThingList();
     }, []);
     // 自定义打印方法（处理内容隔离和样式）
-    const handlePrint = () => {
-        setTimeout(() => {
-            // 3. 触发打印（此时已应用最新仓库名称）
-            window.print();
-        }, 0);
-    };
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,  // 使用 content 而不是 contentRef
+        pageStyle: `
+        @page {
+            size: A4;
+            margin: 2mm 20mm;
+        }
+        @media print {
+            /* 分页样式 */
+            .page-break {
+                page-break-after: always;
+            }
+            /* 防止内容被分页截断 */
+            .no-break {
+                page-break-inside: avoid;
+            }
+            /* 隐藏 Modal 相关元素 */
+            .ant-modal-wrap,
+            .ant-modal-mask {
+                display: none !important;
+            }
+            .ant-modal {
+                position: static !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            .ant-modal-content {
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+            .ant-modal-header,
+            .ant-modal-footer {
+                display: none !important;
+            }
+            .ant-modal-body {
+                padding: 0 !important;
+            }
+            body *:not(.print-only-content):not(.print-only-content *) {
+                        visibility: hidden;
+                      }
+        }
+    `,
+    });
     const isOpen=()=>{
         setPrintVisible(true);
         // 1. 动态获取仓库名称（修复硬编码）
@@ -265,44 +309,10 @@ const InfpApplication=(props)=>{
         setWarehouseName(warehouse?.warehouseName || '未知仓库');
         // 3. 动态获取供应商名称（修复硬编码）
         const supplier = props.supplierList.find(s => s.id === supplierId);
-        setSupplierName(supplier?.personName || '未知供应商');
+        setSupplierName(supplier?.supplierName || '未知供应商');
     };
     return(
         <Spin spinning={spinning}>
-            <style global>
-                {`
-                    /* 隐藏浏览器默认页眉页脚（包含路由路径） */
-                    @media print {
-                      @page {
-                        size: A4; /* 指定A4纸张 */
-                        margin: 0; /* 边距设为0，消除默认页眉页脚区域 */
-                      }
-            
-                      /* 确保打印内容有内边距（替代浏览器默认边距） */
-                      .print-only-content {
-                        padding: 20mm; /* 模拟A4标准边距（上右下左） */
-                        margin: 0 auto;
-                        width: 210mm; /* A4宽度 */
-                        min-height: 297mm; /* A4高度 */
-                        box-sizing: border-box;
-                      }
-            
-                      /* 隐藏所有非打印内容 */
-                      body *:not(.print-only-content):not(.print-only-content *) {
-                        visibility: hidden;
-                      }
-            
-                      /* 确保打印容器可见且定位正确 */
-                      .print-only-content {
-                        visibility: visible !important;
-                        position: fixed;
-                        left: 0;
-                        top: 0;
-                        background: white;
-                      }
-                    }
-                  `}
-            </style>
             <Space>
                 <Button type="primary" onClick={()=>navigate(-1)}>
                     返回
@@ -313,7 +323,7 @@ const InfpApplication=(props)=>{
                 />
             </Space>
             <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',margin:'10px 0'}}>
-                <Input addonBefore="单号:" placeholder='随机生成' value={orderCode} disabled/>
+                <Input addonBefore="单号:" placeholder='随机生成' value={orderCode}/>
                 <DatePicker placeholder={'选择采购日期'} value={dayjs(orderTime)}/>
                 <Select
                     placeholder='请选择入库仓库'
@@ -365,9 +375,22 @@ const InfpApplication=(props)=>{
                 ]}
             >
                 <div className="print-only-content">
-                    <WarehousingPrint {...printProps} />
+                    <WarehousingPrint {...printProps} ref={printRef} className="print-only-content"/>
                 </div>
             </Modal>
+            {/*<Modal*/}
+            {/*    open={printVisible}*/}
+            {/*    onCancel={()=>setPrintVisible(false)}*/}
+            {/*    width={1200}*/}
+            {/*    footer={[*/}
+            {/*        <Button key="print" type="primary" onClick={handlePrint}>打印</Button>,*/}
+            {/*        <Button key="cancel" onClick={()=>setPrintVisible(false)}>关闭</Button>*/}
+            {/*    ]}*/}
+            {/*>*/}
+            {/*    <div className="print-only-content">*/}
+            {/*        <WarehousingPrint {...printProps} ref={printRef} className="print-only-content"/>*/}
+            {/*    </div>*/}
+            {/*</Modal>*/}
         </Spin>
     )
 }

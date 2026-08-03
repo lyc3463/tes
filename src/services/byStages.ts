@@ -1,14 +1,14 @@
 import {getData, postData} from '@/network/http';
 
 export function fetch(vals:any) {
-    return getData(1270, [vals.page,vals.phone,vals.stutes,vals.startDate,vals.endDate,vals.pageSize]);
+    return getData(1270, [vals.page,vals.phone,vals.stutes,vals.startDate,vals.endDate,vals.pageSize,0]);
 }
 export function add(vals:any) {
-    return getData(1269, [vals.tenantId,vals.contractId,vals.futureRent,vals.fqStartDate,vals.fqEndDate,vals.hkStartDate,vals.hkEndDate]);
+    return getData(1269, [vals.tenantId,vals.contractId,vals.futureRent,vals.fqStartDate,vals.fqEndDate,vals.hkStartDate,vals.hkEndDate,vals.imgList]);
 }
 
 export function edit(vals:any) {
-    return getData(1508, [vals.uid,vals.futureRent,vals.fqStartDate,vals.fqEndDate,vals.hkStartDate,vals.hkEndDate]);
+    return getData(1508, [vals.uid,vals.futureRent,vals.fqStartDate,vals.fqEndDate,vals.hkStartDate,vals.hkEndDate,vals.imgList]);
 }
 export function check(vals:any) {
     return getData(1278, [vals]);

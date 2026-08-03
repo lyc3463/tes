@@ -26,15 +26,7 @@ const NewBillSum=(props)=>{
             payload:{page, numBerOrder, company_name, account_card, project_name, startDate, endDate, moneyType, pageSize,foType,subjectName}
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'NewBillSum/fenye',
-            payload:{numBerOrder, company_name, account_card, project_name, startDate, endDate, moneyType, pageSize,foType,subjectName}
-        })
-    };
-    useEffect(() => {
-        getFenye();
-    }, []);
+
     useEffect(() => {
         getList();
     }, [page,pageSize]);
@@ -240,7 +232,6 @@ const NewBillSum=(props)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     const getDcList=()=>{
         setSpinning(true);
@@ -249,7 +240,7 @@ const NewBillSum=(props)=>{
                 let headers=['日期','单号','公司','项目','账户','账户卡号','科目','摘要','收入/支持','金额'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
-                    ...res.Data.map(item => [
+                    ...res.Data.data.map(item => [
                         (dayjs(item.orderDate).format('YYYY-MM-DD')), // 提取日期部分
                         item.number,
                         item.company_name,
@@ -449,7 +440,7 @@ const NewBillSum=(props)=>{
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {props.count?props.count.money.toFixed(2):''}元
+                                {props.count?props.count.amountSum.toFixed(2):''}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

@@ -75,8 +75,8 @@ const ApplicationModel: StaffInterface = {
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(Application.edit, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
             return result;
 
         },
@@ -91,8 +91,8 @@ const ApplicationModel: StaffInterface = {
         },
         *add({ payload, callback }, { call, put, take }): any {
             const result = yield call(Application.add, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
             return result;
         },
 

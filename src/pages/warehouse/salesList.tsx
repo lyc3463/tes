@@ -12,12 +12,13 @@ const SalesList=(props)=>{
     const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/sales','SalesListWarehouseName')||'');// 仓库名称
     const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/sales','SalesListStartDate')||'2000-01-01');// 开始日期
     const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/sales','SalesListEndDate')||'2099-01-01');// 结束日期
-    const [orderStatus,setOrderStatus]=useState(0);// 订单状态
+    const [orderStatus,setOrderStatus]=useState(checkSessionStorage('/warehouse/sales','SalesListOrderStatus')||0);// 订单状态
     const [billStatus,setBillStatus]=useState(0);// 账单状态
     const [pageSize,setPageSize]=useState(10);// 每页数量
     const [orderType,setOrderType]=useState(5);// 订单类型
     const [dOpen,setDOpen]=useState(false);// 删除弹窗是否打开
     const [dId,setDId]=useState(0);// 删除的id
+    const [uName,setUName]=useState(checkSessionStorage('/warehouse/sales','SalesListUName')||'');// 申请人
     const columns = [
         {
             title: '申请时间',
@@ -90,10 +91,8 @@ const SalesList=(props)=>{
                 <Space size="small">
                     {record.orderStatus==1?
                         <>
-                            {userQx()[529]=='1'?
-                                <Button type="primary" onClick={()=>{isDleOpen(record.id)}} danger>删除</Button>:''}
-                            {userQx()[528]=='1'?
-                                <Button type="primary" onClick={()=>{history.push(`/warehouse/editSalesList?id=${record.id}`)}}>编辑</Button>:''}
+                            <Button type="primary" onClick={()=>{isDleOpen(record.id)}} danger>删除</Button>
+                            <Button type="primary" onClick={()=>{history.push(`/warehouse/editSalesList?id=${record.id}`)}}>编辑</Button>
                         </>
                         :
                         null
@@ -113,13 +112,13 @@ const SalesList=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'SalesCustomerList/fetch',
-            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     const getFenye=()=>{
         props.dispatch({
             type:'SalesCustomerList/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     useEffect(() => {
@@ -135,7 +134,7 @@ const SalesList=(props)=>{
     const onOK=()=>{
         setSpinning(true);
         props.dispatch({
-            type:'SalesList/remove',
+            type:'SalesCustomerList/remove',
             payload:dId
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
@@ -175,13 +174,21 @@ const SalesList=(props)=>{
         getList();
         getFenye();
     };
+    const changeOrderStatus=(e)=>{
+        setOrderStatus(e);
+        updateSessionStorage('/warehouse/sales','SalesListOrderStatus',e);
+    };
+    const changeUName=(e)=>{
+        setUName(e.target.value);
+        updateSessionStorage('/warehouse/sales','SalesListUName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
-                        {userQx()[527]=='1'?
-                            <Button type="primary" onClick={toadd}>新增销售</Button>:''}
+
+                            <Button type="primary" onClick={toadd}>新增销售</Button>
                     </div>
                     <Space>
                         <Input
@@ -190,10 +197,50 @@ const SalesList=(props)=>{
                             onChange={changeWarehouseName}
                         />
                         <Input
+                            addonBefore="申请人:"
+                            value={uName}
+                            onChange={changeUName}
+                        />
+                        <Input
                             addonBefore="单号:"
                             value={orderCode}
                             onChange={changeOrderCode}
                         />
+                    </Space>
+                </List.Item>
+                <List.Item>
+                    <div>
+                        <Button type="primary" onClick={sousuo}>
+                            搜索
+                        </Button>
+                    </div>
+                    <Space>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                style={{ width: 120 }}
+                                value={orderStatus}
+                                onChange={changeOrderStatus}
+                                options={[
+                                    {label:'全部',value:0},
+                                    {label:'待审核',value:1},
+                                    {label:'已审核',value:2},
+                                ]}
+                            />
+                        </Space.Compact>
                         <Space.Compact>
                             <div
                                 style={{
@@ -211,9 +258,6 @@ const SalesList=(props)=>{
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        <Button type="primary" onClick={sousuo}>
-                            搜索
-                        </Button>
                     </Space>
                 </List.Item>
             </List>
@@ -226,16 +270,16 @@ const SalesList=(props)=>{
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (
-                    <Table.Summary >
+                    <Table.Summary>
                         <Table.Summary.Row>
                             <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
-                            <Table.Summary.Cell index={7}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}

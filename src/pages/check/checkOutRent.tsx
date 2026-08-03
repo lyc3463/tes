@@ -1,8 +1,23 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Popover,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag
+} from "antd";
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import RenameType from "@/ModelTypes/TypeRename";
 const CheckOutRent=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
@@ -103,10 +118,22 @@ const CheckOutRent=(props)=>{
             title: '状态',
             dataIndex: 'renameStatus',
             key: 'renameStatus',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>{record.renameStatus==2?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}</div>
-                )
+            render: (text: any, record: RenameType) => {
+                const status = record.renameStatus;
+                let tagDom;
+                if (status === 2) {
+                    tagDom = <Tag color="green">已审核</Tag>;
+                } else if (status === 3) {
+                    // 驳回，增加气泡展示备注
+                    tagDom = (
+                        <Popover content={record.remark || '无驳回原因'} title="驳回理由">
+                            <Tag color="red">驳回？</Tag>
+                        </Popover>
+                    );
+                } else {
+                    tagDom = <Tag color="orange">未审核</Tag>;
+                }
+                return tagDom;
             }
         },
         {
@@ -175,15 +202,9 @@ const CheckOutRent=(props)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
-        fenyeinfo();
         logFenye();
     };
-    const fenyeinfo=()=>{
-        props.dispatch({
-            type:'OutRent/fenye',
-            payload:{phone,stutes,startDate,endDate,pageSize}
-        })
-    };
+
     // 审核弹窗
     const isCheck=(e:any)=>{
         setOpen(true);
@@ -207,16 +228,14 @@ const CheckOutRent=(props)=>{
             }
         })
     };
-    useEffect(() => {
-        fenyeinfo();
-    }, []);
+
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            addonBefore="原手机号:"
+                            addonBefore="手机号:"
                             onChange={changePhone}
                             value={phone}
                         />
@@ -254,12 +273,13 @@ const CheckOutRent=(props)=>{
                             </div>
                             <Select
                                 onChange={changeStutes}
-                                defaultValue={stutes}
+                                value={stutes}
                                 style={{ width: 120 }}
                                 options={[
                                     { value:0, label: '全部' },
                                     { value:1, label: '未审核' },
                                     { value:2, label: '已审核' },
+                                    { value:3, label: '驳回' },
                                 ]}
                             />
                         </Space.Compact>
@@ -274,7 +294,7 @@ const CheckOutRent=(props)=>{
                 rowKey={(columns) => columns.id}
                 pagination={false}
                 size='small'
-                scroll={{y:'70vh'}}
+                scroll={{y:'60vh'}}
                 dataSource={props.OutRentList}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'

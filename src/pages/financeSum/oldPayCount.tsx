@@ -20,6 +20,8 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, downloadFile, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import * as RechargeRateService from "@/services/rechargeRate";
 import {StaticInfo} from "@/StaticInfo";
+import MyTypeTag from "@/components/MyTypeTag";
+import ConsumptionTypeSelect from "@/components/MyConsumptionTypeSelect";
 
 const oldPayCount=(props)=>{
     // 当前页数
@@ -37,7 +39,7 @@ const oldPayCount=(props)=>{
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        fenye(pageSize);
+        // fenye(pageSize);
         logFenye(page,pageSize);
     };
     // 列表
@@ -58,7 +60,7 @@ const oldPayCount=(props)=>{
     const onChange=(e:number,pageSizez:number)=>{
         setPage(e);
         setpageSize(pageSizez);
-        fenye(pageSizez);
+        // fenye(pageSizez);
         logFenye(e,pageSizez);
     };
     useEffect(() => {
@@ -102,50 +104,9 @@ const oldPayCount=(props)=>{
             dataIndex: 'consumptionType',
             key: 'consumptionType',
             render:(_:any,item:any)=>{
-                let consumptionTypeText;
-                switch (item.consumptionType) {
-                    case 1:
-                        consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>微信充值</Tag>;
-                        break;
-                    case 2:
-                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金</Tag>;
-                        break;
-                    case 3:
-                        consumptionTypeText = <Tag style={{ color: '#2196F3' }}>电费</Tag>;
-                        break;
-                    case 4:
-                        consumptionTypeText = <Tag style={{ color: '#FFC107' }}>水费</Tag>;
-                        break;
-                    case 5:
-                        consumptionTypeText = <Tag style={{ color: '#9C27B0' }}>公共缴费</Tag>;
-                        break;
-                    case 6:
-                        consumptionTypeText = <Tag style={{ color: '#E91E63' }}>手动充值</Tag>;
-                        break;
-                    case 7:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>损耗</Tag>;
-                        break;
-                    case 8:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
-                        break;
-                    case 9:
-                        consumptionTypeText = <Tag style={{ color: '#795588' }}>月保</Tag>;
-                        break;
-                    case 10:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>大额转账</Tag>;
-                        break;
-                    case 11:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>报修</Tag>;
-                        break;
-                    case 12:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>装修押金</Tag>;
-                        break;
-                    default:
-                        consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
-                }
-                return (
-                    consumptionTypeText
-                );
+                return(
+                    <MyTypeTag type={item.consumptionType}/>
+                )
             }
         },
         {
@@ -251,25 +212,9 @@ const oldPayCount=(props)=>{
                             >
                                 类型:
                             </div>
-                            <Select
+                            <ConsumptionTypeSelect
+                                value={type}
                                 onChange={changeType}
-                                defaultValue={type}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value:0, label: '全部' },
-                                    { value:1, label: '微信充值' },
-                                    { value:2, label: '租金' },
-                                    { value:3, label: '电费' },
-                                    { value:4, label: '水费' },
-                                    { value:5, label: '公共缴费' },
-                                    { value:6, label: '手动充值' },
-                                    { value:7, label: '服务费' },
-                                    { value:8, label: '违约金' },
-                                    { value:9, label: '月保' },
-                                    { value:10, label: '大额转账' },
-                                    { value:11, label: '报修' },
-                                    { value:12, label: '装修押金' },
-                                ]}
                             />
                         </Space.Compact>
                         <Space.Compact>

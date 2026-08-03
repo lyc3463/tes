@@ -25,7 +25,6 @@ const CheckAllFp=(props)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [openId,setOpenId]=useState(0);
     const [stutes,setStutes]=useState(checkSessionStorage('/check/checkFp/','checkAllFpStutes')||0);
     const [uid,setUid]=useState(0);
     const [checkOpen,setCheckOpen]=useState(false);
@@ -95,8 +94,8 @@ const CheckAllFp=(props)=>{
         },
         {
             title: '手机号',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
         },
         {
             title: '发票抬头',
@@ -133,7 +132,7 @@ const CheckAllFp=(props)=>{
                         consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>微信充值</Tag>;
                         break;
                     case 2:
-                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金/管理费</Tag>;
+                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金</Tag>;
                         break;
                     case 3:
                         consumptionTypeText = <Tag style={{ color: '#2196F3' }}>电费</Tag>;
@@ -162,6 +161,9 @@ const CheckAllFp=(props)=>{
                     case 12:
                         consumptionTypeText = <Tag style={{ color: '#795548' }}>装修押金</Tag>;
                         break;
+                    case 13:
+                        consumptionTypeText = <Tag style={{ color: '#795548' }}>管理费</Tag>;
+                    break;
 
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
@@ -178,10 +180,18 @@ const CheckAllFp=(props)=>{
             render:(text:any,record:any,)=>{
                 return(
                     <div>
-                        {
-                            record.consumptionType==0?<span style={{fontSize:'14px',color:'red'}}>{record.sdprice.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>:
-                            <span style={{fontSize:'14px',color:'red'}}>{record.consumptionMoney.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>
+                        {record.sdprice!==0?
+                            <span style={{fontSize:'14px',color:'red'}}>
+                                {record.sdprice.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span>
+                            </span>:
+                            <span style={{fontSize:'14px',color:'red'}}>
+                                {record.consumptionMoney.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span>
+                            </span>
                         }
+                        {/*{*/}
+                        {/*    record.consumptionType==0?<span style={{fontSize:'14px',color:'red'}}>{record.sdprice.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>:*/}
+                        {/*    <span style={{fontSize:'14px',color:'red'}}>{record.consumptionMoney.toFixed(2)}<span style={{fontSize:'12px',color:'#555'}}>元</span></span>*/}
+                        {/*}*/}
                     </div>
                 )
             }
@@ -220,7 +230,6 @@ const CheckAllFp=(props)=>{
                         {record.invoiceStatus==1?(<>
                             <Button type='primary' onClick={()=>onTongguo(record)}>审核通过</Button>
                         </>):''}
-                        {/* <Button type='primary' onClick={()=>toedit(record)}>详情</Button> */}
                     </Space>
                 )
             }
@@ -235,24 +244,16 @@ const CheckAllFp=(props)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-    // 分页
-    const getfenyeInfo=()=>{
-        props.dispatch({
-            type:'CheckFp/fenye',
-            payload:{startDate,endDate,openId,stutes,pageSize,titleName,tenannName,type,phone}
-        });
-    };
+
     // 列表
     const logFenye=()=>{
         props.dispatch({
             type:"CheckFp/fetch",
-            payload:{page,startDate,endDate,openId,stutes,pageSize,titleName,tenannName,type,phone}
+            payload:{page,startDate,endDate,userId:0,stutes,pageSize,titleName,tenannName,type,phone}
         })
     };
     useEffect(() => {
         logFenye();
-        console.log('props',props);
-        
     }, [page,pageSize]);
     // 审核通过弹窗
     const onTongguo=(e:TypeCheckFp)=>{
@@ -270,7 +271,6 @@ const CheckAllFp=(props)=>{
                 message.success('审核通过');
                 setCheckOpen(false);
                 setIsLoading(false);
-                getfenyeInfo();
                 logFenye();
             }else {
                 message.error(res.Data);
@@ -299,7 +299,6 @@ const CheckAllFp=(props)=>{
     };
     const sousuo=()=>{
         setPage(1);
-        getfenyeInfo();
         logFenye();
     };
     // 发送的弹窗
@@ -332,9 +331,6 @@ const CheckAllFp=(props)=>{
     const onb64=(e)=>{
         setImgB64(e);
     };
-    useEffect(() => {
-        getfenyeInfo();
-    }, []);
     // 抬头名称
     const changTitleName=(e)=>{
         setTitleName(e.target.value);
@@ -416,6 +412,7 @@ const CheckAllFp=(props)=>{
                                     { value:8, label: '违约金' },
                                     { value:9, label: '月保' },
                                     { value:11, label: '报修' },
+                                    { value:13, label: '管理费' },
                                 ]}
                             />
                         </Space.Compact>
@@ -484,7 +481,7 @@ const CheckAllFp=(props)=>{
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {props.count?(props.count.moneySum+props.count.energyUsage).toFixed(2):''}元
+                                {props.count?(props.count.sdpriceSum).toFixed(2):''}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

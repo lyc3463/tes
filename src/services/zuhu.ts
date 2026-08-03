@@ -44,3 +44,6 @@ export function newbyzhuhu(vals:any) {
 export function newbyappuser(vals:any) {
     return getData(1423, [vals.uid,vals.tenant_phone,vals.is_deduction]);
 }
+export function unbind(vals:any) {
+    return getData(1425, [vals]);
+}

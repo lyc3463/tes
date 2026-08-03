@@ -12,9 +12,12 @@ import { fixPathname } from '@/utils/common';
 let pl={
     page:1,
     carNo:'',
-    name:'',
+    userId:0,
     stutes:0,
-    pageSize:50
+    pageSize:20,
+    userType:2,
+    uName:'',// 用户名
+    uPhone:'',// 手机号
 }
 
 export interface CarManageCountState {
@@ -52,7 +55,11 @@ const UserCarModels: CarManageInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);

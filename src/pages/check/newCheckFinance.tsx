@@ -273,13 +273,6 @@ const NewCheckFinance=(props:any)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
-    };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'NewFinancialData/fenye',
-            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,foType,supplierId,paidStatus,expenseCode}
-        })
     };
     const getList=()=>{
         setspinning(true);
@@ -288,7 +281,7 @@ const NewCheckFinance=(props:any)=>{
             payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,foType,supplierId,paidStatus,expenseCode}
         }).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
-                let newArr=newprocessBills(res.Data);
+                let newArr=newprocessBills(res.Data.data);
                 setBillList(res.Data);
             }
             setspinning(false);
@@ -304,7 +297,6 @@ const NewCheckFinance=(props:any)=>{
         })
     };
     useEffect(() => {
-        getFenye();
         getSupplierList();
     }, []);
     useEffect(()=>{
@@ -579,7 +571,7 @@ const NewCheckFinance=(props:any)=>{
                             搜索
                         </Button>
                         <Button type="primary" onClick={isPrintModalOpen}>打印</Button>
-                         <Button type="primary" danger onClick={oneClickOpen}>一键审核</Button>
+                         {/*<Button type="primary" danger onClick={oneClickOpen}>一键审核</Button>*/}
                     </Space>
                 </List.Item>
             </List>

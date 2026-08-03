@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {Button, DatePicker, Input, List, message, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {checkSessionStorage, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
-import * as RechargeRateService from "@/services/monthlyInsurance";
+import * as RechargeRateService from '@/services/rechargeRate';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 
@@ -101,7 +101,7 @@ const MonthlyInsuranceLog=(props:any)=>{
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        fenye();
+        // fenye();
         logFenye();
     };
     // 列表
@@ -112,12 +112,12 @@ const MonthlyInsuranceLog=(props:any)=>{
         })
     };
     // 分页信息
-    const fenye=()=>{
-        props.dispatch({
-            type:'MonthlyInsuranceLog/fenye',
-            payload:{name,phone,type,startDate,endDate,userID,pageSize}
-        });
-    };
+    // const fenye=()=>{
+    //     props.dispatch({
+    //         type:'MonthlyInsuranceLog/fenye',
+    //         payload:{name,phone,type,startDate,endDate,userID,pageSize}
+    //     });
+    // };
     // 监听页数
     const onChange=(e:number,pageSizez:number)=>{
         setPage(e);
@@ -127,7 +127,7 @@ const MonthlyInsuranceLog=(props:any)=>{
         logFenye();
     }, [page,pageSize]);
     useEffect(() => {
-        fenye();
+        // fenye();
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
@@ -135,10 +135,11 @@ const MonthlyInsuranceLog=(props:any)=>{
         RechargeRateService.fetch({page:1,name,phone,type,startDate,endDate,userID,pageSize:100000}).then((res:TypeErrorCode)=>{
             setspinning(true);
             if (res.ErrorCode==0){
+                console.log('res',res)
                 let headers=['日期','租户名称','手机号','类型','金额(元)'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
-                    ...res.Data.map(item => [
+                    ...res.Data.data.map(item => [
                         item.consumptionDate.split('T')[0], // 提取日期部分
                         item.user_name,
                         item.phone,
@@ -173,7 +174,7 @@ const MonthlyInsuranceLog=(props:any)=>{
                         { v: '', t: 's' },
                         { v: '', t: 's' },
                         { v: '', t: 's' },
-                        { v: props.count?props.count.moneySum:'', t: 'n' }, // 总扣费金额
+                        { v: res.Data.moneySum, t: 'n' }, // 总扣费金额
                     ]
                 ];
                 exportDataToExcel(ws_data);

@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import CableType from '@/ModelTypes/TypeCable';
 import { fixPathname } from '@/utils/common';
-import * as CheckCompanyService from "@/services/checkCompany";
 let pl={
     page:1,
     collectorId:'',
@@ -49,10 +48,15 @@ const CableModels: CableInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(CableService.fetch,payload?payload:pl);
+            console.log('res',res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -141,12 +145,12 @@ const CableModels: CableInterface = {
                 //         payload: location.state,
                 //     });
                 // }
-                if (StaticInfo.userId > 0 && pathname === '/kehu/editByzhuhu/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/kehu/editByzhuhu/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
             });
         },
     },

@@ -1,24 +1,11 @@
-import {
-    Button,
-    DatePicker,
-    Input, InputNumber,
-    List,
-    message,
-    Modal,
-    Pagination,
-    Select,
-    Space,
-    Spin,
-    Table,
-    Tag,
-    Tooltip
-} from "antd";
+import {Button, DatePicker, Dropdown, Form, Input, InputNumber, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
 import {useEffect, useState} from "react";
 import {connect,history} from "umi";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import EditWorkOrderModal from "@/pages/workOrderManage/editWorkOrder";
 const WorkOrderList=(props:any)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
@@ -39,8 +26,15 @@ const WorkOrderList=(props:any)=>{
     const [amount,setamount]=useState(0);// 修改金额
     const [workType,setWorkType]=useState(0);// 工单类型
     const [Dopen,setDopen]=useState(false);
+    const [remark,setRemark]=useState('');// 驳回、终止描述
+    const [rejectStatus,setRejectStatus]=useState(0);// 驳回状态 终止状态
+    const [rejectOpen,setRejectOpen]=useState(false);// 驳回弹窗
     // 用户权限
     const [uqx,setUqx]=useState([]);
+    const [editRecord,setEditRecord]=useState<any>({});
+    // 编辑弹窗是否可见
+    const [modalVisible, setModalVisible] = useState(false);
+
     const columns=[
         {
             title: '开始日期',
@@ -180,44 +174,92 @@ const WorkOrderList=(props:any)=>{
         },
         {
             title: '状态',
-            dataIndex: 'repair_status',
+            dataIndex: 'workStatus',
             render: (_: any, record: any) => {
                 const statusConfig = {
-                    1: {text: '未接单', color: 'red'},
-                    2: {text: '上门查看', color: 'blue'},
-                    3: {text: '待确定', color: 'orange'},
-                    4: {text: '物品采购', color: 'purple'},
-                    5: {text: '完成', color: 'green'}
+                    1: { text: '未接单', color: 'red' },
+                    2: { text: '上门查看', color: 'blue' },
+                    3: { text: '待确定', color: 'orange' },
+                    4: { text: '物品采购', color: 'purple' },
+                    5: { text: '完成', color: 'green' },
+                    6: { text: '驳回', color: 'red' },
+                    7: { text: '终止', color: 'orange' }
                 };
-                const config = statusConfig[record.workStatus] || {text: '未知状态', color: 'gray'};
-                return (
-                    <div>
-                        <Tag color={config.color}>{config.text}</Tag>
-                    </div>
-                )
+                const config = statusConfig[record.workStatus] || { text: '未知状态', color: 'gray' };
+                // 判断是否需要展示原因提示
+                const needTip = [6, 7].includes(record.workStatus) && record.rejectReason;
+                if (needTip) {
+                    return (
+                        <Tooltip title={record.rejectReason}>
+                            <Tag color={config.color}>{config.text}</Tag>
+                        </Tooltip>
+                    );
+                }
+                return <Tag color={config.color}>{config.text}</Tag>;
             }
         },
         {
             title: '操作',
             dataIndex: 'operation',
-            render: (_: any, record: any) => (
-                <Space>
-                    {/* 步骤按钮：状态不等于5时显示 */}
-                    {record.workStatus !== 5&&record.workStatus!==1 && (
-                        <Button type='primary' onClick={()=>onokOpen(record)}>步骤</Button>
-                    )}
-                    {/* 分配和接单按钮：仅状态等于1时显示 */}
-                    {record.workStatus === 1 && (
-                        <>
-                            <Button type='primary' onClick={()=>genjin(record)}>分配</Button>
-                            <Button type='primary' onClick={()=>jiedan(record)}>接单</Button>
-                        </>
-                    )}
-                    {record.workStatus === 5?'':<Button type='primary' danger onClick={()=>isDel(record)}>删除</Button>}
-                </Space>
-            ),
-        },
+            render: (_: any, record: any) => {
+                const { workStatus } = record;
+                const menuItems: any[] = [];
+                // 状态不等于1、5、6、7 展示【步骤】
+                if (workStatus !== 1 && workStatus !== 5 && workStatus !== 6 && workStatus !== 7) {
+                    menuItems.push({
+                        key: 'step',
+                        label: '步骤',
+                        onClick: () => onokOpen(record)
+                    });
+                }
+                // 状态=1 展示分配、接单
+                if (workStatus === 1) {
+                    menuItems.push(
+                        { key: 'assign', label: '分配', onClick: () => genjin(record) },
+                        { key: 'receive', label: '接单', onClick: () => jiedan(record) }
+                    );
+                }
+                // 状态=1 展示分配、接单
+                if (workStatus!==5&&workStatus!==7) {
+                    menuItems.push(
+                        { key: 'reject', label: '驳回', onClick: () => isReject(record) },
+                        { key: 'terminate', label: '终止', onClick: () => isTerminate(record) }
+                    );
+                }
+                if (workStatus == 1||workStatus == 6) {
+                    menuItems.push(
+                        {key: 'del', label: '删除', danger: true, onClick: () => isDel(record)},
+                        {key: 'edit', label: '编辑', danger: true, onClick: () => isEdit(record)},
+                    );
+                }
+                return (
+                    <Space>
+                        <Dropdown menu={{ items: menuItems }} placement="bottomRight">
+                            <Button type="primary">操作</Button>
+                        </Dropdown>
+                    </Space>
+                );
+            }
+        }
     ];
+    // 编辑弹窗
+    const isEdit=(e:any)=>{
+        setEditRecord(e);
+        setModalVisible(true);
+        setUid(e.id)
+    };
+    // 驳回弹窗
+    const isReject=(e:any)=>{
+        setUid(e.id);
+        setRejectStatus(6);
+        setRejectOpen(true);
+    };
+    // 终止
+    const isTerminate=(e:any)=>{
+        setUid(e.id);
+        setRejectStatus(7);
+        setRejectOpen(true);
+    };
     const isDel=(e:any)=>{
         setUid(e.id);
         setDopen(true);
@@ -233,10 +275,9 @@ const WorkOrderList=(props:any)=>{
             type:'WorkOrder/fenpei',
             payload:{OnId,userID}
         }).then((res:any)=>{
-            console.log('分配信息',res);
             if (res.ErrorCode==0||res.ErrorCode==9038){
                 props.dispatch({
-                    type:'WorkOrder/edit',
+                    type:'WorkOrder/editStutes',
                     payload:{OnId,step:2,amount}
                 })
                 setLoading(false);
@@ -256,13 +297,7 @@ const WorkOrderList=(props:any)=>{
             payload:{page,name,phone,stutes,userId,startDate,endDate,pageSize}
         })
     };
-    // 获取报修记录分页
-    const getListfenye=()=>{
-        props.dispatch({
-            type:'WorkOrder/fenye',
-            payload:{name,phone,stutes,userId,startDate,endDate,pageSize}
-        })
-    };
+
     // 分配跟进人弹窗
     const genjin=(e)=>{
         setIsOpen(true);
@@ -272,6 +307,7 @@ const WorkOrderList=(props:any)=>{
     };
     // 自行接单按钮
     const jiedan=(e)=>{
+        console.log('自行接单',e);
         setAcceptOrdersOpen(true);
         setOnId(e.id);
         setamount(e.workMoney);
@@ -287,7 +323,7 @@ const WorkOrderList=(props:any)=>{
     };
     // 步骤弹窗
     const onokOpen=(e:any)=>{
-        console.log('e',e);
+        console.log('步骤接单',e);
         setOnId(e.id);
         setUserID(e.gjUserId);
         setOnOpen(true);
@@ -299,13 +335,14 @@ const WorkOrderList=(props:any)=>{
     const onhandleOk=()=>{
         setLoading(true);
         props.dispatch({
-            type:'WorkOrder/edit',
+            type:'WorkOrder/editStutes',
             payload:{OnId,step:5,amount}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setLoading(false);
                 setOnOpen(false);
                 message.success('处理完成');
+                getList();
             }else {
                 setOnOpen(false);
                 setLoading(false);
@@ -320,12 +357,10 @@ const WorkOrderList=(props:any)=>{
     };
     useEffect(() => {
         getList();
-        console.log('props',props)
     }, [page,pageSize]);
     const sousuo=()=>{
         setPage(1);
         getList();
-        getListfenye();
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -349,7 +384,6 @@ const WorkOrderList=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
-        getListfenye();
         getUserList();
     }, []);
     const changeName=(e)=>{
@@ -366,7 +400,7 @@ const WorkOrderList=(props:any)=>{
     };
     const handleNext=()=>{
         props.dispatch({
-            type:'WorkOrder/edit',
+            type:'WorkOrder/editStutes',
             payload:{OnId,step:step+1,amount}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
@@ -389,7 +423,7 @@ const WorkOrderList=(props:any)=>{
                 message.success('自行接单成功');
                 setAcceptOrdersOpen(false);
                 props.dispatch({
-                    type:'WorkOrder/edit',
+                    type:'WorkOrder/editStutes',
                     payload:{OnId,step:2,amount}
                 })
             }else {
@@ -407,6 +441,19 @@ const WorkOrderList=(props:any)=>{
         }).then((res:any)=>{
             if (res.ErrorCode==0||res.ErrorCode==9038){
                 message.success('更换成功');
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
+    // 提交保存回调
+    const handleSaveOrder = async (formValues: any) => {
+        props.dispatch({
+            type:'WorkOrder/edit',
+            payload:{...formValues,uid}
+        }).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                message.success('修改成功');
             }else {
                 message.error(res.Data);
             }
@@ -487,6 +534,29 @@ const WorkOrderList=(props:any)=>{
             }
         })
     };
+    const editStutesOk=()=>{
+        rejectOk();
+    };
+    const rejectOk=()=>{
+        setLoading(true);
+        try {
+            props.dispatch({
+                type:'WorkOrder/reject',
+                payload:{uid,rejectStatus,remark}
+            }).then((res:TypeErrorCode)=>{
+                if (res.ErrorCode==0){
+                    message.success('操作成功！');
+                    getList();
+                }
+            })
+        }catch (err){
+            message.error(err);
+        }finally {
+            // 关闭弹窗
+            setLoading(false);
+            setRejectOpen(false);
+        }
+    };
     return(
         <Spin spinning={loading}>
             <List>
@@ -498,11 +568,6 @@ const WorkOrderList=(props:any)=>{
                             addonBefore="姓名:"
                             value={name}
                         />
-                        {/*<Input*/}
-                        {/*    onChange={changePhone}*/}
-                        {/*    addonBefore="手机号:"*/}
-                        {/*    value={phone}*/}
-                        {/*/>*/}
                         <Space.Compact>
                             <div
                                 style={{
@@ -553,6 +618,12 @@ const WorkOrderList=(props:any)=>{
                                 </Select.Option>
                                 <Select.Option value={5}>
                                     修理完成
+                                </Select.Option>
+                                <Select.Option value={6}>
+                                    驳回
+                                </Select.Option>
+                                <Select.Option value={7}>
+                                    终止
                                 </Select.Option>
                             </Select>
                         </Space.Compact>
@@ -668,6 +739,22 @@ const WorkOrderList=(props:any)=>{
             <Modal title='是否删除' open={Dopen} onCancel={()=>setDopen(false)} onOk={delOk} loading={loading}>
                 <div>是否要删除?</div>
             </Modal>
+            {/*驳回弹窗*/}
+            <Modal title={rejectStatus==6?'驳回':'终止'} open={rejectOpen} onCancel={() => setRejectOpen(false)} onOk={editStutesOk} loading={loading}>
+                <Form>
+                    <Form.Item label="原因">
+                        <Input.TextArea value={remark} onChange={(e) => setRemark(e.target.value)} />
+                    </Form.Item>
+                </Form>
+            </Modal>
+        {/*    编辑弹窗*/}
+            <EditWorkOrderModal
+                visible={modalVisible}
+                record={editRecord}
+                showEditBtn={false} // 隐藏内置按钮
+                onCancel={() => setModalVisible(false)}
+                onOk={handleSaveOrder}
+            />
         </Spin>
     )
 }

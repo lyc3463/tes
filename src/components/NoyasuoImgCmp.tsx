@@ -37,6 +37,7 @@ const NoyasuoImgCmp: React.FC<ImageUploadProps> = ({ onImageUpload,oldBase64 }) 
             // 返回图片地址
             PostImgServer.fetch(newBase64,isYs).then((res:TypeErrorCode)=>{
                 if (res.ErrorCode==0){
+                    console.log('图片地址',res)
                     onImageUpload(res?.Data);
                 }else {
                     onImageUpload('');

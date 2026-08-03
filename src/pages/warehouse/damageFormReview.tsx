@@ -19,6 +19,7 @@ const DamageFormReview=(props)=>{
     const [orderType,setOrderType]=useState(3);// 订单类型
     const [dOpen,setDOpen]=useState(false);// 审核弹窗是否打开
     const [dId,setDId]=useState(0);// 审核的id
+    const [uName,setUName]=useState(checkSessionStorage('/warehouse/outbound','damageFormReviewUName') || '');// 申请人
     const columns = [
         {
             title: '申请时间',
@@ -66,7 +67,7 @@ const DamageFormReview=(props)=>{
                 <Space size="small">
                     {record.orderStatus==1?
                         <>
-                            {userQx()[514]=='1'?<Button type="primary" onClick={()=>isCheckOpen(record.id)}>审核</Button>:''}
+                          <Button type="primary" onClick={()=>isCheckOpen(record.id)}>审核</Button>
                         </>
                         :
                         null
@@ -83,13 +84,13 @@ const DamageFormReview=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'DamageFormReview/fetch',
-            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     const getFenye=()=>{
         props.dispatch({
             type:'DamageFormReview/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     useEffect(() => {
@@ -129,6 +130,11 @@ const DamageFormReview=(props)=>{
         setOrderCode(e.target.value);
         updateSessionStorage('/warehouse/outbound','damageFormReviewOrderCode',e.target.value);
     };
+    // 申请人改变
+    const changeUName=(e)=>{
+        setUName(e.target.value);
+        updateSessionStorage('/warehouse/outbound','damageFormReviewUName',e.target.value);
+    };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -159,11 +165,19 @@ const DamageFormReview=(props)=>{
                 <List.Item>
                     <Space>
                         <Input
+                            style={{ width: 200 }}
                             addonBefore="仓库名称:"
                             value={warehouseName}
                             onChange={changeWarehouseName}
                         />
                         <Input
+                            style={{ width: 200 }}
+                            addonBefore="申请人:"
+                            value={uName}
+                            onChange={changeUName}
+                        />
+                        <Input
+                            style={{ width: 200 }}
                             addonBefore="单号:"
                             value={orderCode}
                             onChange={changeOrderCode}

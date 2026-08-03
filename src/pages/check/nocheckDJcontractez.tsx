@@ -4,8 +4,6 @@ import {useEffect, useRef, useState} from "react";
 import {Button, Input, InputNumber, message, Modal} from "antd";
 import * as StaffServer from "@/services/staff";
 import dayjs from "dayjs";
-import * as CustomService from "@/services/custom";
-import * as UnitService from "@/services/unit";
 import html2pdf from "html2pdf.js";
 import {connect} from 'umi';
 import {numberToRMB, getUnitNamesByIds, getUserNamesById} from "@/utils/OpenTool";

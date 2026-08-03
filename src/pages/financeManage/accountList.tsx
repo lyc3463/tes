@@ -29,11 +29,6 @@ const AccountList=(props:any)=>{
             key: 'company_name',
         },
         {
-            title: '项目',
-            dataIndex: 'project_name',
-            key: 'project_name',
-        },
-        {
             title: '余额(元)',
             dataIndex: 'balance',
             key: 'balance',

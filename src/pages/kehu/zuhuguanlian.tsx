@@ -118,7 +118,7 @@ const Zuhuguanlian=(props:any)=>{
             }
         },
         {
-            title: '公共押金(元)',
+            title: '押金总和(元)',
             dataIndex: 'deposit',
             key: 'deposit',
             sorter: (a, b) => a.deposit - b.deposit,
@@ -132,13 +132,13 @@ const Zuhuguanlian=(props:any)=>{
         },
         {
             title: '关联状态',
-            dataIndex: 'open_id',
-            key: 'open_id',
+            dataIndex: 'userId',
+            key: 'userId',
             render: (text:any, record:any) => {
                 return(
                     <Space>
                         {
-                            record.open_id?<Tag color='green'>已关联</Tag>:<Tag color='red'>用户未登录</Tag>
+                            record.userId?<Tag color='green'>已关联</Tag>:<Tag color='red'>用户未登录</Tag>
                         }
                     </Space>
                 )
@@ -169,9 +169,6 @@ const Zuhuguanlian=(props:any)=>{
     useEffect(() => {
         logFenye();
     }, [page,pagecount]);
-    useEffect(() => {
-        logFenyeInfo();
-    }, []);
     // 分页
     const logFenye=()=>{
         props.dispatch({
@@ -179,31 +176,21 @@ const Zuhuguanlian=(props:any)=>{
             payload:{page,name,phone,pagecount}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setZuhuList(res.Data);
-                setOldZuhuList(res.Data);
-            }
-        })
-    };
-    // 搜索按钮
-    const shousuo=()=>{
-        setPage(1);
-        logFenyeInfo();
-        logFenye()
-    };
-    // 查看分页记录
-    const logFenyeInfo=()=>{
-        props.dispatch({
-            type:'BYZhuhu/fenye',
-            payload:{name,phone,pagecount}
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
+                setZuhuList(res.Data.data);
+                setOldZuhuList(res.Data.data);
                 setcount(res.Data.count);
                 setbalanceSum(res.Data.balanceSum);
                 setbillMoneySum(res.Data.billMoneySum);
                 setdepositSum(res.Data.depositSum);
                 setintegralSum(res.Data.integralSum);
             }
-        });
+        })
+    };
+    // 搜索按钮
+    const shousuo=()=>{
+        setPage(1);
+        // logFenyeInfo();
+        logFenye();
     };
     const onChange=(val:number,pageSize:number)=>{
         setPage(val);

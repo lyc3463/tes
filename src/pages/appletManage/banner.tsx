@@ -70,6 +70,7 @@ const Banner=(props:any)=>{
     }, []);
     const sousuo=()=>{
         logfenye();
+        console.log('props',props);
     };
     const logfenye=()=>{
         props.dispatch({

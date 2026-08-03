@@ -919,6 +919,29 @@ export const contractsDz=(initialRent,rentItems)=>{
     });
 }
 
+export const glmanageDz=(initialRent,rentItems)=>{
+    let previousRent =(rentItems.length>0?rentItems[0].incremental/100:0/100)*initialRent+initialRent; // 用传入的初始租金作为第一年租金
+    return rentItems.map((item, index) => {
+        // 第一年直接使用初始租金
+        if (index === 0) {
+            return {
+                ...item,
+                manageFee:previousRent
+            };
+        }
+        // 后续年份用前一年的租金计算
+        const newRent = previousRent * (1 + item.incremental / 100);
+
+        // 更新前一年的租金记录（虽然数组不可变，但这里为了演示逻辑）
+        previousRent = newRent;
+
+        return {
+            ...item,
+            manageFee: newRent.toFixed(2)*1 // 保留两位小数
+        };
+    });
+}
+
 export  const groupImages = (images: string[], size: number) => {
     const groups = [];
     // 使用 for 循环，步长为 size，直到索引 i 达到或超过 images.length
@@ -1307,45 +1330,57 @@ export const userQx = () => StaticInfo.uqx.split('');
 
 // 新财务数据列表
 export function newprocessBills(data) {
-    const bills = data;
-    // 分离bill_status为0和1的账单
-    const pendingBills = bills.filter(bill => bill.orderStatus === 1);
-    const otherBills = bills.filter(bill => bill.orderStatus === 2);
+    // 深拷贝所有单据，防止污染外部原始数据
+    const originBills = JSON.parse(JSON.stringify(data));
+    // 拆分两类单据
+    const pendingBills = originBills.filter(item => item.orderStatus === 1);
+    const otherBills = originBills.filter(item => item.orderStatus === 2);
 
-    // 按account_id分组待处理的账单
-    const groupedBills = {};
-    pendingBills.reverse();
+    // 复制一份副本用来反转分组核算，不改动pendingBills展示顺序
+    const calcList = [...pendingBills];
+    calcList.reverse();
 
-    pendingBills.forEach(bill => {
-        if (!groupedBills[bill.accountId]) {
-            groupedBills[bill.accountId] = [];
+    // 按accountId分组
+    const groupMap = {};
+    calcList.forEach(item => {
+        if (!groupMap[item.accountId]) {
+            groupMap[item.accountId] = [];
         }
-        groupedBills[bill.accountId].push(bill);
+        groupMap[item.accountId].push(item);
     });
 
-    // 对每个账户进行处理
-    for (const accountId in groupedBills) {
-        const group = groupedBills[accountId];
-
-        // 获取该组的第一个balance值
-        let balance = group[0].balance;
-
-        // 遍历该组账单进行累加或减去
-        group.forEach((bill, index) => {
-            // 每次都更新当前账单的balance，依赖前一项的结果
-            if (bill.moneyType === 2) {
-                balance -= bill.paidAmount;
-            } else if (bill.moneyType === 1) {
-                balance += bill.totalAmount;
+    // 分组循环计算balance2
+    Object.values(groupMap).forEach(group => {
+        // 取本组第一条原始余额作为初始值
+        let currentBalance = group[0].balance;
+        group.forEach(bill => {
+            if (bill.moneyType === 1) {
+                currentBalance += bill.totalAmount;
+            } else if (bill.moneyType === 2) {
+                currentBalance -= bill.totalAmount;
             }
-
-            // 更新当前账单的balance
-            bill.balance2 = balance;
+            bill.balance2 = currentBalance;
         });
-    }
-    // 返回更新后的账单数据
+    });
+
+    // 最终返回：status2在前，status1保持原始传入顺序
     return {
         ErrorCode: 0,
-        Data: [...otherBills, ...pendingBills]
+        Data: [ ...pendingBills,...otherBills]
     };
 }
+/**
+ * 拼接图片地址，自动判断是否已带 .png
+ * @param url 原始图片标识
+ * @returns 完整图片地址
+ */
+export const getImgSrc = (url: string) => {
+    const prefix = window.ServerConfig.imgServer;
+    // 判断结尾是否是 .png（忽略大小写，如需严格匹配可去掉 toLowerCase()）
+    const hasPngSuffix = url.toLowerCase().endsWith('.png');
+    if (hasPngSuffix) {
+        return `${prefix}${url}`;
+    } else {
+        return `${prefix}${url}.png`;
+    }
+};

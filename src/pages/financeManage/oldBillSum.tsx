@@ -281,9 +281,8 @@ const OldBillSum=(props:any)=>{
         }).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
                 console.log('原始数据列表',res.Data);
-                let newArr=newprocessBills(res.Data);
-                // console.log('新数据列表',newArr);
-                setBillList(res.Data);
+                let newArr=newprocessBills(res.Data.data);
+                setBillList(newArr.Data);
             }
             setspinning(false);
         })
@@ -308,16 +307,9 @@ const OldBillSum=(props:any)=>{
     const sousuo=()=>{
         setPage(1);
         getList(paidStatus);
-        getFenye(paidStatus);
     };
-    const getFenye=(e)=>{
-        props.dispatch({
-            type:'NewFinancialData/fenye',
-            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus:e,expenseCode}
-        })
-    };
+
     useEffect(() => {
-        getFenye(paidStatus);
         getSupplierList();
     }, []);
     useEffect(()=>{
@@ -336,7 +328,6 @@ const OldBillSum=(props:any)=>{
         setPaidStatus(e);
         updateSessionStorage('/financeManage/billSum/','OldBillSumpaidStatus',e);
         getList(e);
-        getFenye(e);
     }
 
     const changeProject_name=(e:any)=>{
@@ -358,8 +349,8 @@ const OldBillSum=(props:any)=>{
             if (res.ErrorCode==0){
                 message.success('缴费成功');
                 setHandlePayOpen(false);
+                setPaymentAmount(0);
                 getList(paidStatus);
-                getFenye(paidStatus);
             }else {
                 message.error(res.ErrorCode + res.Data);
             }
@@ -626,7 +617,7 @@ const OldBillSum=(props:any)=>{
                 // rowSelection={rowSelection}  // 添加选择功能配置
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-            <Modal open={handlePayOpen} title={'缴费}'} loading={spinning} onCancel={()=>setHandlePayOpen(false)} onOk={handlePayOk}>
+            <Modal open={handlePayOpen} title={'缴费'} loading={spinning} onCancel={()=>setHandlePayOpen(false)} onOk={handlePayOk}>
                 <Form>
                     <Form.Item label='缴费账户'>
                         <Input value={`${paidAccountName}(${paidAccountCard})`} disabled/>

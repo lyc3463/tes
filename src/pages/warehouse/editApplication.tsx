@@ -57,7 +57,13 @@ const EditApplication=(props)=>{
             setPaidAmount(data.paidAmount);
             setTotalAmount(data.totalAmount);
             setRemark(data.remark);
-            setGoods(data.ppList);
+            let newArr=data.ppList.map((item:any)=>{
+                return{
+                    ...item,
+                    quantity:item.quantityTotal
+                }
+            })
+            setGoods(newArr);
             setPayTypeId(data.pmId);
         }else {
             message.error(res.Data);
@@ -78,6 +84,60 @@ const EditApplication=(props)=>{
         // 查找选中的物品信息
         const selectedProduct = props.thingList.find(item => item.id === productId);
         if (!selectedProduct) return;
+        console.log('大数组',selectedProduct)
+        let processedUnitsList = selectedProduct.unitsList || [];
+        if (selectedProduct.isHs === 1 && processedUnitsList.length > 0) {
+            // 1. 复制单位列表避免直接修改原数据
+            processedUnitsList = [...selectedProduct.unitsList];
+
+            // 2. 创建单位ID映射表（from_unit_id → 单位对象）
+            const unitMap = processedUnitsList.reduce((map, unit) => {
+                map[unit.from_unit_id] = unit;
+                return map;
+            }, {});
+
+            // 3. 根据大数组的unitsId定位基准单位（from_unit_id === unitsId）
+            const targetUnitId = selectedProduct.unitsId; // 大数组的unitsId
+            const targetUnit = unitMap[targetUnitId]; // 基准单位
+            if (!targetUnit) {
+                console.error(`未找到from_unit_id=${targetUnitId}的单位`);
+                return;
+            }
+            // 4. 基准单位价格初始化（新增presalePrice和retailPricce的基准值）
+            targetUnit.price = selectedProduct.costPrice || 0;
+            targetUnit.presalePrice = selectedProduct.presalePrice || 0; // 新增：基准预售价格
+            targetUnit.retailPricce = selectedProduct.retailPricce || 0; // 新增：基准控价
+
+            // 5. 向下计算小单位价格（基准单位 → 更小单位）
+            let currentUnit = targetUnit;
+            while (currentUnit.to_unit_id !== 0) {
+                const childUnit = unitMap[currentUnit.to_unit_id];
+                if (!childUnit) break;
+                // 小单位价格计算（同步更新三个价格字段）
+                childUnit.price = currentUnit.price / currentUnit.conversion_rate;
+                childUnit.presalePrice = currentUnit.presalePrice / currentUnit.conversion_rate; // 新增：预售价格换算
+                childUnit.retailPricce = currentUnit.retailPricce / currentUnit.conversion_rate; // 新增：控价换算
+                currentUnit = childUnit;
+            }
+
+            // 6. 向上计算大单位价格（基准单位 → 更大单位）
+            const parentMap = processedUnitsList.reduce((map, unit) => {
+                map[unit.to_unit_id] = unit;
+                return map;
+            }, {});
+
+            currentUnit = targetUnit;
+            while (parentMap[currentUnit.from_unit_id]) {
+                const parentUnit = parentMap[currentUnit.from_unit_id];
+                if (!parentUnit) break;
+                // 大单位价格计算（同步更新三个价格字段）
+                parentUnit.price = currentUnit.price * parentUnit.conversion_rate;
+                parentUnit.presalePrice = currentUnit.presalePrice * parentUnit.conversion_rate; // 新增：预售价格换算
+                parentUnit.retailPricce = currentUnit.retailPricce * parentUnit.conversion_rate; // 新增：控价换算
+                currentUnit = parentUnit;
+            }
+        }
+        console.log('过滤后的物品,',processedUnitsList);
         // 更新goods状态中对应记录的信息
         setGoods(goods.map(item => {
             if (item.id === recordId) {
@@ -92,16 +152,21 @@ const EditApplication=(props)=>{
                     groupId: selectedProduct.groupId || 0, // 同步物品分组
                     number: selectedProduct.number || 0, // 同步物品数量
                     presalePrice: selectedProduct.presalePrice || 0, // 同步物品预售价
-                    retailPricce: selectedProduct.retailPricce || 0, // 同步物品预售价
-                    costPrice: selectedProduct.costPrice || 0, // 同步物品预售价
+                    retailPricce: selectedProduct.retailPricce || 0, // 同步物品控价
+                    costPrice: selectedProduct.costPrice || 0, // 同步物品成本价
                     specifications: selectedProduct.specifications || '', // 同步物品规格
                     barcode: selectedProduct.barcode || '', // 同步物品条码
                     remark: selectedProduct.remark || '', // 同步物品备注
                     unitsId: selectedProduct.unitsId || 0, // 同步单位ID
                     quantity: selectedProduct.quantity || 0, // 同步物品数量
-                    price: selectedProduct.price || 0, // 同步物品预售价
-                    totalPrice: selectedProduct.quantity * selectedProduct.price || 0, // 物品总金额
-                    unitsList: selectedProduct.unitsList || [], // 同步单位列表
+                    price: selectedProduct.isHs === 0
+                        ? (selectedProduct.costPrice || 0)  // isHs=0时使用成本价
+                        : (selectedProduct.price || 0),    // 否则使用原价格字段
+                    totalPrice: selectedProduct.quantity * (selectedProduct.isHs === 0
+                        ? (selectedProduct.costPrice || 0)
+                        : (selectedProduct.price || 0)) || 0,  // 物品总金额
+                    unitsList: processedUnitsList, // 使用处理后的单位列表（含单价）
+                    isHs: selectedProduct.isHs || 0, // 是否换算
                     unitsName: selectedProduct.unitsName || '', // 同步单位名称
                 };
             }
@@ -176,8 +241,8 @@ const EditApplication=(props)=>{
 
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
-                    ? `http://img.qhwy6.com/${textStr}`
-                    : `http://img.qhwy6.com/${textStr}_X.png`;
+                    ? `${window.ServerConfig.imgServer}${textStr}`
+                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 // 步骤3：仅当字符串非空时渲染图片，否则返回空
                 return textStr ? (
                     <Image

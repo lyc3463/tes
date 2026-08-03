@@ -17,17 +17,17 @@ import {useEffect, useState} from "react";
 import {connect, history} from "umi";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {userQx} from "@/utils/OpenTool";
+import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
 
 const SalesPayment=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);// 当前页数
-    const [orderCode,setOrderCode]=useState('');// 单号
-    const [warehouseName,setWarehouseName]=useState('');// 仓库名称
-    const [startDate,setStartDate]=useState('2000-01-01');// 开始日期
-    const [endDate,setEndDate]=useState('2099-01-01');// 结束日期
+    const [orderCode,setOrderCode]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentOrderCode') || '');// 单号
+    const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentWarehouseName') || '');// 仓库名称
+    const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentStartDate') || '2000-01-01');// 开始日期
+    const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentEndDate') || '2099-01-01');// 结束日期
     const [orderStatus,setOrderStatus]=useState(2);// 订单状态
-    const [billStatus,setBillStatus]=useState(0);// 账单状态
+    const [billStatus,setBillStatus]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentBillStatus') || 0);// 账单状态
     const [pageSize,setPageSize]=useState(10);// 每页数量
     const [orderType,setOrderType]=useState(5);// 订单类型
     const [dOpen,setDOpen]=useState(false);// 缴费弹窗是否打开
@@ -36,6 +36,7 @@ const SalesPayment=(props)=>{
     const [paymentType,setPaymentType]=useState(0);// 缴费支付类型
     const [payCrderCode,setPayCrderCode]=useState('');// 缴费订单号
     const [payOrderType,setPayOrderType]=useState(0);// 缴费订单类型
+    const [uName,setUName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentUName') || '');// 提交人
     const columns = [
         {
             title: '申请时间',
@@ -68,8 +69,14 @@ const SalesPayment=(props)=>{
             },
         },
         {
-            title: '销售人',
+            title: '申请人',
             dataIndex: 'user_name',
+            ellipsis: true,
+            align:'center',
+        },
+        {
+            title: '销售人',
+            dataIndex: 'xsName',
             ellipsis: true,
             align:'center',
         },
@@ -100,8 +107,7 @@ const SalesPayment=(props)=>{
                 return(
                     <Space>
                         {record.billStatus==2?'':
-                             userQx()[544]=='1'?
-                             <Button type='primary' onClick={()=>isPayment(record)}>缴费</Button>:''
+                                <Button type='primary' onClick={()=>isPayment(record)}>缴费</Button>
                         }
                     </Space>
                 )
@@ -117,20 +123,14 @@ const SalesPayment=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'SalesPayment/fetch',
-            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'SalesPayment/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
-        })
-    };
+
     useEffect(() => {
         getList();
     }, [page,pageSize]);
     useEffect(() => {
-        getFenye();
         getPayList();
     }, []);
     const onChange=(page:number,pageSize:number)=>{
@@ -178,16 +178,58 @@ const SalesPayment=(props)=>{
             }
         })
     };
+    const sousuo=()=>{
+        setPage(1);
+        getList();
+    };
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentStartDate','2000-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentStartDate',data[0]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentEndDate',data[1]);
+        }
+    };
+    const changeBillStatus=(value)=>{
+        setBillStatus(value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentBillStatus',value);
+    };
+    const changeWarehouseName=(e)=>{
+        setWarehouseName(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentWarehouseName',e.target.value);
+    };
+    const changeOrderCode=(e)=>{
+        setOrderCode(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentOrderCode',e.target.value);
+    };
+    const changeUName=(e)=>{
+        setUName(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','salesPaymentUName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
+                            addonBefore="申请人:"
+                            value={uName}
+                            onChange={changeUName}
+                        />
+                        <Input
                             addonBefore="仓库名称:"
+                            value={warehouseName}
+                            onChange={changeWarehouseName}
                         />
                         <Input
                             addonBefore="单号:"
+                            value={orderCode}
+                            onChange={changeOrderCode}
                         />
                         <Space.Compact>
                             <div
@@ -208,6 +250,8 @@ const SalesPayment=(props)=>{
                                 style={{
                                     width: 120,
                                 }}
+                                value={billStatus}
+                                onChange={changeBillStatus}
                                 options={[
                                     {
                                         label: '全部',
@@ -239,9 +283,9 @@ const SalesPayment=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        <Button type="primary" >
+                        <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
                     </Space>

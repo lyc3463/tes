@@ -65,19 +65,9 @@ const Supplier=(props)=>{
             payload:{page, supplierName, personName, personPhone, pageSize}
         })
     };
-    // 分页信息
-    const getFenye=()=>{
-        props.dispatch({
-            type:"Supplier/fenye",
-            payload:{supplierName, personName, personPhone, pageSize}
-        })
-    };
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setPageSize(pageSize);

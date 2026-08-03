@@ -267,9 +267,9 @@ const NewFinancialData=(props:any)=>{
         }).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
                 console.log('原始数据列表',res.Data);
-                let newArr=newprocessBills(res.Data);
+                let newArr=newprocessBills(res.Data.data);
                 // console.log('新数据列表',newArr);
-                setBillList(res.Data);
+                setBillList(newArr.Data);
             }
             setspinning(false);
         })
@@ -292,16 +292,9 @@ const NewFinancialData=(props:any)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'NewFinancialData/fenye',
-            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode}
-        })
-    };
+
     useEffect(() => {
-        getFenye();
         getSupplierList();
     }, []);
     useEffect(()=>{

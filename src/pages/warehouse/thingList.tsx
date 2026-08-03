@@ -1,9 +1,14 @@
-import {Table, Tag, Space, Button, List, Input, Image, Pagination, Modal, message, Spin} from 'antd';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {Table, Space, Button, List, Input, Image, Pagination, Modal, message, Spin, Form, DatePicker, Select} from 'antd';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {history,connect} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
-import ProductImage from "@/components/ProductImage";
+import {StaticInfo} from "@/StaticInfo";
+import * as ThingListService from "@/services/thingList";
+import CryptoUtils from "@/utils/Crypto";
+import dayjs from "dayjs";
+import {CopyOutlined} from "@ant-design/icons";
+
 
 const ThingList = (props) => {
     const [page,setPage]=useState(1);
@@ -21,6 +26,26 @@ const ThingList = (props) => {
     const rowRefs = useRef<HTMLDivElement[]>([]);
     // 交叉观察器实例
     const observerRef = useRef<IntersectionObserver | null>(null);
+    // 导入
+    const [importVisible,setImportVisible]=useState(false);
+    // 导出
+    const [exportVisible,setExportVisible]=useState(false);
+    // 导出有效时间
+    const [validTime,setValidTime]=useState(5);
+    // 导出有效密码
+    const [validPassword,setValidPassword]=useState('');
+    // 导出园区
+    const [validArea,setValidArea]=useState(0);
+    // 导出成功提示框
+    const [exportSuccessVisible,setExportSuccessVisible]=useState(false);
+    // 导出成功的字符串
+    const [exportSuccessStr,setExportSuccessStr]=useState('');
+    // 导入密钥
+    const [importKey,setImportKey]=useState('');
+    // 导入密码
+    const [importPassword,setImportPassword]=useState('');
+
+
     const columns = [
         {
             title: '物品图片',
@@ -32,10 +57,9 @@ const ThingList = (props) => {
                 if (isImageLoaded && text) {
                     const textStr = String(text || '');
                     imageUrl = textStr && textStr.endsWith('.png')
-                        ? `http://img.qhwy6.com/${textStr}`
-                        : `http://img.qhwy6.com/${textStr}_X.png`;
+                        ? `${window.ServerConfig.imgServer}${textStr}`
+                        : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 }
-
                 // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）
                 return (
                     <div style={{width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -114,18 +138,10 @@ const ThingList = (props) => {
             payload:{page, pageSize, code, name},
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'ThingList/fenye',
-            payload:{pageSize, code, name},
-        })
-    };
+
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
     // 监听页数
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);
@@ -165,7 +181,6 @@ const ThingList = (props) => {
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     // 监听数据变化，重置图片加载状态
     useEffect(() => {
@@ -215,6 +230,74 @@ const ThingList = (props) => {
             }
         };
     }, []);
+    const exportOpen=()=>{
+        setExportVisible(true);
+    };
+    const importOpen=()=>{
+        setImportVisible(true);
+    };
+    const onExportOpen=()=>{
+        if (validTime==0){
+            message.error('请选择有效时间');
+            return;
+        }
+        if (validArea==0){
+            message.error('请选择园区');
+            return;
+        }
+        if (validPassword==''){
+            message.error('请输入密码');
+            return;
+        }
+        setSpinning(true);
+        let mm =CryptoUtils.md5(validPassword);
+        ThingListService.exportOk(validArea,mm,getNextTime(validTime)).then((res:TypeErrorCode)=>{
+            console.log('res',res)
+            if (res.ErrorCode==0){
+                message.success('导出成功');
+                setSpinning(false);
+                setExportVisible(false);
+                setExportSuccessStr(res.Data);
+                setExportSuccessVisible(true);
+            }else {
+                message.error('导出失败'+res.ErrorCode+res.Data);
+                setSpinning(false);
+                setExportVisible(false);
+            }
+        })
+    };
+    const  getNextTime=(minuteNum:number)=>{
+        return dayjs().add(minuteNum, 'minute').format('YYYY-MM-DD HH:mm:ss')
+    }
+    // 导入
+    const onImportOpen=()=>{
+        if (importKey==''){
+            message.error('请输入导入密钥');
+            return;
+        }
+        if (importPassword==''){
+            message.error('请输入导入密码');
+            return;
+        }
+        setSpinning(true);
+        let mm =CryptoUtils.md5(importPassword);
+        ThingListService.importOk(
+            importKey,
+            mm,
+        ).then((res:TypeErrorCode)=>{
+            console.log('res',res)
+            if (res.ErrorCode==0){
+                message.success('导入成功');
+                setSpinning(false);
+                setImportVisible(false);
+                getList();
+            }else {
+                message.error('导入失败'+res.ErrorCode+res.Data);
+                setSpinning(false);
+                setImportVisible(false);
+            }
+        })
+    }
     return (
         <Spin spinning={spinning}>
             <List>
@@ -222,6 +305,12 @@ const ThingList = (props) => {
                     <Space>
                         <Button type="primary" onClick={toAdd}>
                             新增物品
+                        </Button>
+                        <Button type="primary" onClick={exportOpen}>
+                            导出
+                        </Button>
+                        <Button type="primary" onClick={importOpen}>
+                            导入
                         </Button>
                     </Space>
                     <Space>
@@ -265,6 +354,76 @@ const ThingList = (props) => {
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal open={visible} onCancel={()=>setVisible(false)} onOk={onOK} title={'删除物品'} loading={spinning}>
                 <p>确定删除物品吗？</p>
+            </Modal>
+            {/*导出弹窗*/}
+            <Modal open={exportVisible} title={'导出物品'} onOk={onExportOpen} onCancel={()=>setExportVisible(false)} loading={spinning}>
+                <Form>
+                    <Form.Item label={'选择有效时间'}>
+                        <Select value={validTime} onChange={(e)=>setValidTime(e)}>
+                            <Select.Option value={5}>5分钟</Select.Option>
+                            <Select.Option value={15}>15分钟</Select.Option>
+                            <Select.Option value={30}>30分钟</Select.Option>
+                            <Select.Option value={60}>60分钟</Select.Option>
+                        </Select>
+                        <span>{getNextTime(validTime)}后过期</span>
+                    </Form.Item>
+                    <Form.Item label={'密码'}>
+                        <Input value={validPassword} onChange={(e)=>setValidPassword(e.target.value)}/>
+                    </Form.Item>
+                    <Form.Item label={'导入园区'}>
+                        <Select
+                            value={validArea}
+                            onChange={setValidArea}
+                        >
+                            {/*<Select.Option value={0}>任意园区</Select.Option>*/}
+                            {Array.isArray(StaticInfo.parkList) && StaticInfo.parkList.map(park => (
+                                <Select.Option
+                                    key={park.parkId}
+                                >
+                                    {park.park_name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                </Form>
+            </Modal>
+            {/*导出成功提示框*/}
+            <Modal
+                open={exportSuccessVisible}
+                onOk={() => setExportSuccessVisible(false)}
+                title={'请保存好密钥,导入时需要回填'}
+            >
+                <Input
+                    value={exportSuccessStr}
+                    suffix={
+                        <Button
+                            type="text"
+                            icon={<CopyOutlined />}
+                            onClick={async () => {
+                                try {
+                                    // 原生复制，无需依赖包
+                                    await navigator.clipboard.writeText(exportSuccessStr);
+                                    message.success('复制成功');
+                                } catch (err) {
+                                    message.error('复制失败，请手动选中文字复制');
+                                }
+                            }}
+                        >
+                            复制
+                        </Button>
+                    }
+                />
+            </Modal>
+            {/*导入弹窗*/}
+            <Modal open={importVisible} title={'导入物品'} onOk={onImportOpen} onCancel={()=>setImportVisible(false)} loading={spinning}>
+                <Form>
+                    <Form.Item label={'导入密钥'}>
+                        <Input value={importKey} onChange={(e)=>setImportKey(e.target.value)}/>
+                    </Form.Item>
+                    <Form.Item label={'密码'}>
+                        <Input value={importPassword} onChange={(e)=>setImportPassword(e.target.value)}/>
+                    </Form.Item>
+                </Form>
             </Modal>
         </Spin>
     );

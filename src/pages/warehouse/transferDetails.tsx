@@ -29,13 +29,13 @@ const TransferDetails=(props)=>{
     const [orderType,setOrderType]=useState(4);// 订单类型
     const [iskc,setIskc]=useState(1);// 0 未入库 1已入库
     const [pageSize,setPageSize]=useState(50); // 每页数量
-    const [warehouseId,setWarehouseId]=useState(checkSessionStorage('/warehouse/thingStock','TransferDetailsWarehouseId')||0);// 仓库id
+    const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/thingStock','TransferDetailsWarehouseId')||0);// 仓库id
     const [unitId,setUnitId]=useState(checkSessionStorage('/warehouse/thingStock','TransferDetailsUnitId')||0);// 单位id
     const columns=[
         {
             title:'调拨时间',
-            dataIndex:'orderTime',
-            key:'orderTime',
+            dataIndex:'created',
+            key:'created',
             align:'center',
             render:(text)=>{
                 return <div>{dayjs(text).format('YYYY-MM-DD')}</div>
@@ -78,8 +78,8 @@ const TransferDetails=(props)=>{
 
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
-                    ? `http://ckimg.dyc10.com/${textStr}`
-                    : `http://ckimg.dyc10.com/${textStr}_X.png`;
+                    ? `${window.ServerConfig.imgServer}${textStr}`
+                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 // 步骤3：仅当字符串非空时渲染图片，否则返回空
                 return textStr ? (
                     <Image
@@ -116,16 +116,10 @@ const TransferDetails=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'TransferDetails/fetch',
-            payload:{page, pageSize, orderCode, productsName, orderType, startDate,iskc, endDate,warehouseId,unitId}
+            payload:{page, pageSize, orderCode, productsName, orderType, startDate,iskc, endDate,warehouseName,unitId}
         })
     };
-    // 分页信息
-    const getFenye=()=>{
-        props.dispatch({
-            type:'TransferDetails/fenye',
-            payload:{pageSize, orderCode, productsName, orderType, startDate, iskc,endDate,warehouseId,unitId}
-        })
-    };
+
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setPageSize(pageSize);
@@ -134,7 +128,6 @@ const TransferDetails=(props)=>{
         getList();
     }, [page,pageSize]);
     useEffect(() => {
-        getFenye();
         getUnitSettingList();
         getWarehouseList();
     }, []);
@@ -173,7 +166,6 @@ const TransferDetails=(props)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     // 单位列表
     const getUnitSettingList=()=>{
@@ -190,7 +182,7 @@ const TransferDetails=(props)=>{
     // 仓库名称
     const changeWarehouse=(e)=>{
         updateSessionStorage('/warehouse/transferDetails','TransferDetailsWarehouseId',e);
-        setWarehouseId(e);
+        setWarehouseName(e);
     };
     return(
         <Spin spinning={spinning}>
@@ -225,7 +217,7 @@ const TransferDetails=(props)=>{
                             <Select
                                 style={{width:120}}
                                 placeholder='请选择调离仓库'
-                                value={warehouseId}
+                                value={warehouseName}
                                 onChange={changeWarehouse}
                                 showSearch
                                 optionFilterProp="children"

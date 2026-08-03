@@ -95,8 +95,8 @@ const CheckShuidian=(props)=>{
         },
         {
             title: '手机号',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
         },
         {
             title: '发票抬头',
@@ -220,13 +220,6 @@ const CheckShuidian=(props)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-    // 分页
-    const getfenyeInfo=()=>{
-        props.dispatch({
-            type:'CheckFpSD/fenye',
-            payload:{startDate,endDate,openId,stutes,pageSize,riseName,tenantName,type,phone}
-        });
-    };
     // 列表
     const logFenye=()=>{
         props.dispatch({
@@ -236,12 +229,8 @@ const CheckShuidian=(props)=>{
     };
     useEffect(() => {
         logFenye();
-        console.log(props);
     }, [page,pageSize]);
-    useEffect(() => {
-        getfenyeInfo();
-        // getKuHuList();
-    }, []);
+
     // 审核通过弹窗
     const onTongguo=(e:TypeCheckFp)=>{
         setCheckOpen(true);
@@ -258,7 +247,6 @@ const CheckShuidian=(props)=>{
                 message.success('审核通过');
                 setCheckOpen(false);
                 setIsLoading(false);
-                getfenyeInfo();
                 logFenye();
             }else {
                 message.error(res.Data);
@@ -287,9 +275,7 @@ const CheckShuidian=(props)=>{
     };
     const sousuo=()=>{
         setPage(1);
-        getfenyeInfo();
         logFenye();
-        console.log('props',props);
     };
     // 发送的弹窗
     const onOpen=(e:any)=>{
@@ -496,7 +482,7 @@ const CheckShuidian=(props)=>{
                             <Table.Summary.Cell
                                 index={7}
                             >
-                                {props.count?(props.count.moneySum+props.count.energyUsage).toFixed(2):''}元
+                                {props.count?(props.count.invoiceMoney+props.count.sdpriceSum).toFixed(2):''}元
                             </Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

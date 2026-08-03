@@ -73,6 +73,7 @@ const ImageUploadPng: React.FC<ImageUploadProps> = ({ onImageUpload,oldBase64 })
             }
             // 返回图片地址
             PostImgServer.fetch1078(newBase64,isYs).then((res:TypeErrorCode)=>{
+                console.log('fetch1078',res)
                 if (res.ErrorCode==0){
                     onImageUpload(res?.Data);
                 }else {
@@ -89,6 +90,7 @@ const ImageUploadPng: React.FC<ImageUploadProps> = ({ onImageUpload,oldBase64 })
     return (
         <Upload
             name="file"
+            multiple={true}
             listType="picture-card"
             className="avatar-uploader"
             showUploadList={false}

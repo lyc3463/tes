@@ -21,7 +21,8 @@ let pl={
     endDate:'2099-01-01',
     orderStatus:1,
     billStatus:1,
-    orderType:2
+    orderType:2,
+    uName:''
 }
 export interface StaffCountState {
     count: number;
@@ -56,7 +57,11 @@ const DirectPurchaseModel: StaffInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -73,8 +78,8 @@ const DirectPurchaseModel: StaffInterface = {
         },
         *add({ payload, callback }, { call, put, take }): any {
             const result = yield call(Application.addOrType, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
             return result;
 
         },

@@ -1,7 +1,6 @@
 import {Button, DatePicker, Input, List, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
-import {history} from "@@/core/history";
 import {connect} from "umi";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
@@ -98,18 +97,11 @@ const PaymentDetails=(props)=>{
             payload:{page, orderCode, warehouseName, startDate, endDate, pageSize, orderType, userName, ohType}
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'PaymentDetails/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, pageSize, orderType, userName, ohType}
-        })
-    };
+
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
+
     // 缴费类型
     const changeOhType=(e)=>{
         setOhType(e);
@@ -123,7 +115,6 @@ const PaymentDetails=(props)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{

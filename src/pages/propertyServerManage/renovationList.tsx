@@ -38,7 +38,6 @@ const RenovationList=(props)=>{
     const suosou=()=>{
         setPage(1);
         getList();
-        getListFenye();
     };
     const toadd=()=>{
         history.push('/propertyServerManage/addRenovation/');
@@ -240,7 +239,6 @@ const RenovationList=(props)=>{
         if (base64String.includes('base64,')) {
             cleanBase64 = base64String.split('base64,')[1];
         }
-
         try {
             const byteCharacters = atob(cleanBase64);
             const byteNumbers = new Array(byteCharacters.length);
@@ -249,7 +247,6 @@ const RenovationList=(props)=>{
             }
             const byteArray = new Uint8Array(byteNumbers);
             const blob = new Blob([byteArray], { type: 'application/pdf' });
-
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
@@ -258,7 +255,6 @@ const RenovationList=(props)=>{
             link.click();
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-
         } catch (error) {
             console.error('下载失败:', error);
             alert('文件下载失败');
@@ -270,18 +266,11 @@ const RenovationList=(props)=>{
             payload:{page, pageSize, name, phone, stutes, userID}
         })
     };
-    const getListFenye=()=>{
-        props.dispatch({
-            type:'ApplyRenovation/fenye',
-            payload:{pageSize, name, phone, stutes,userID}
-        })
-    };
+
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getListFenye();
-    }, []);
+
     // 删除的确定
     const onDelOk=()=>{
         setspinning(true);

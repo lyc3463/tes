@@ -1,6 +1,6 @@
 import {
     Button,
-    DatePicker, Dropdown,
+    DatePicker, Dropdown, Form,
     Input, InputNumber,
     List,
     message,
@@ -39,6 +39,10 @@ const ReportLog=(props:any)=>{
     const [amount,setamount]=useState(0);// 修改金额
     const [repairType,setrepairType]=useState(0);// 账单类型
     const [dOpen,setDopen]=useState(false); // 删除报修
+    const [rejectStatus,setRejectStatus]=useState(0);// 驳回状态 终止状态
+    const [remark,setRemark]=useState('');// 驳回、终止描述
+    const [rejectOpen,setRejectOpen]=useState(false);// 驳回弹窗
+
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const columns=[
@@ -79,7 +83,6 @@ const ReportLog=(props:any)=>{
                     if (diffMs < 3600000) {
                         return <div>少于一小时</div>;
                     }
-
                     // 转换为天、时、分（仅用于超过一小时的情况）
                     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
@@ -136,7 +139,6 @@ const ReportLog=(props:any)=>{
                     // 获取 a 和 b 的 unitList 中第一个 unit_name
                     const aUnitName = a.unitList[0]?.unit_name || '';
                     const bUnitName = b.unitList[0]?.unit_name || '';
-
                     // 比较 unit_name
                     if (aUnitName < bUnitName) return -1;
                     if (aUnitName > bUnitName) return 1;
@@ -267,67 +269,90 @@ const ReportLog=(props:any)=>{
         },
         {
             title: '状态',
-            align:'center',
-            fixed:'right',
-            dataIndex: 'repair_status',
-            width:100,
+            dataIndex: 'workStatus',
             render: (_: any, record: any) => {
                 const statusConfig = {
-                    1: {text: '未接单', color: 'red'},
-                    2: {text: '上门查看', color: 'blue'},
-                    3: {text: '待确定', color: 'orange'},
-                    4: {text: '物品采购', color: 'purple'},
-                    5: {text: '完成', color: 'green'}
+                    1: { text: '未接单', color: 'red' },
+                    2: { text: '上门查看', color: 'blue' },
+                    3: { text: '待确定', color: 'orange' },
+                    4: { text: '物品采购', color: 'purple' },
+                    5: { text: '完成', color: 'green' },
+                    6: { text: '驳回', color: 'red' },
+                    7: { text: '终止', color: 'orange' }
                 };
-                const config = statusConfig[record.repair_status] || {text: '未知状态', color: 'gray'};
-                return (
-                    <div>
-                        <Tag color={config.color}>{config.text}</Tag>
-                    </div>
-                )
+                const config = statusConfig[record.repair_status] || { text: '未知状态', color: 'gray' };
+                // 判断是否需要展示原因提示
+                const needTip = [6, 7].includes(record.repair_status) && record.rejectReason;
+
+                if (needTip) {
+                    return (
+                        <Tooltip title={record.rejectReason}>
+                            <Tag color={config.color}>{config.text}</Tag>
+                        </Tooltip>
+                    );
+                }
+                return <Tag color={config.color}>{config.text}</Tag>;
             }
         },
         {
             title: '操作',
-            align:'center',
             dataIndex: 'operation',
-            fixed:'right',
-            render: (text:any, record:any) => {
-                const menuItems = [];
-                if (record.repair_status !=5&&record.repair_status !=1) {
+            render: (_: any, record: any) => {
+                const { repair_status } = record;
+                const menuItems: any[] = [];
+                // 状态不等于1、5、6、7 展示【步骤】
+                if (repair_status !== 1 && repair_status !== 5 && repair_status !== 6 && repair_status !== 7) {
                     menuItems.push({
                         key: 'step',
                         label: '步骤',
                         onClick: () => onokOpen(record)
                     });
                 }
-                if (record.repair_status === 1 && uqx[298] === '1') {
-                    menuItems.push({
-                        key: 'allocate',
-                        label: '分配',
-                        onClick: () => genjin(record)
-                    });
-                    menuItems.push({
-                        key: 'accept',
-                        label: '接单',
-                        onClick: () => jiedan(record)
-                    });
+                // 状态=1 展示分配、接单
+                if (repair_status === 1) {
+                    menuItems.push(
+                        { key: 'assign', label: '分配', onClick: () => genjin(record) },
+                        { key: 'receive', label: '接单', onClick: () => jiedan(record) }
+                    );
                 }
-                if (record.repair_status !=5) {
+                // 状态=1 展示分配、接单
+                if (repair_status!==5&&repair_status!==7) {
+                    menuItems.push(
+                        { key: 'reject', label: '驳回', onClick: () => isReject(record) },
+                        { key: 'terminate', label: '终止', onClick: () => isTerminate(record) }
+                    );
+                }
+                // 状态不等于5、6、7 展示删除
+                if (repair_status == 1||repair_status !== 5) {
                     menuItems.push({
                         key: 'del',
                         label: '删除',
+                        danger: true,
                         onClick: () => del(record)
                     });
                 }
                 return (
-                    <Dropdown menu={{ items: menuItems }} placement="bottomRight">
-                        <Button type="primary">操作</Button>
-                    </Dropdown>
-                )
-            },
-        },
+                    <Space>
+                        <Dropdown menu={{ items: menuItems }} placement="bottomRight">
+                            <Button type="primary">操作</Button>
+                        </Dropdown>
+                    </Space>
+                );
+            }
+        }
     ];
+    // 驳回弹窗
+    const isReject=(e:any)=>{
+        setUid(e.id);
+        setRejectStatus(6);
+        setRejectOpen(true);
+    };
+    // 终止
+    const isTerminate=(e:any)=>{
+        setUid(e.id);
+        setRejectStatus(7);
+        setRejectOpen(true);
+    };
     const del=(e)=>{
         setUid(e.id);
         setDopen(true);
@@ -364,13 +389,6 @@ const ReportLog=(props:any)=>{
           type:'Report/fetch',
           payload:{page,name,phone,state,openID,startDate,endDate,pageSize}
       })
-    };
-    // 获取报修记录分页
-    const getListfenye=()=>{
-        props.dispatch({
-            type:'Report/fenye',
-            payload:{name,phone,state,openID,startDate,endDate,pageSize}
-        })
     };
     // 分配跟进人弹窗
     const genjin=(e)=>{
@@ -430,7 +448,7 @@ const ReportLog=(props:any)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getListfenye();
+        console.log('props',props)
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -454,7 +472,6 @@ const ReportLog=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
-        getListfenye();
         getUserList();
     }, []);
     const changeName=(e)=>{
@@ -468,7 +485,6 @@ const ReportLog=(props:any)=>{
     const handlePrevious = () => {
         // 上一步逻辑：step减1
         setStep(prev => prev - 1);
-
     };
     const handleNext=()=>{
         props.dispatch({
@@ -589,6 +605,29 @@ const ReportLog=(props:any)=>{
     };
     useEffect(() => {
     }, [step]);
+    const editStutesOk=()=>{
+        rejectOk();
+    };
+    const rejectOk=()=>{
+        setLoading(true);
+        try {
+            props.dispatch({
+                type:'Report/reject',
+                payload:{uid,rejectStatus,remark}
+            }).then((res:TypeErrorCode)=>{
+                if (res.ErrorCode==0){
+                    message.success('操作成功！');
+                    getList();
+                }
+            })
+        }catch (err){
+            message.error(err);
+        }finally {
+            // 关闭弹窗
+            setLoading(false);
+            setRejectOpen(false);
+        }
+    };
     return(
         <Spin spinning={loading}>
             <List>
@@ -655,6 +694,12 @@ const ReportLog=(props:any)=>{
                                 <Select.Option value={5}>
                                     修理完成
                                 </Select.Option>
+                                <Select.Option value={6}>
+                                    驳回
+                                </Select.Option>
+                                <Select.Option value={7}>
+                                    终止
+                                </Select.Option>
                             </Select>
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
@@ -691,7 +736,7 @@ const ReportLog=(props:any)=>{
                 >
                     {props.UsersList&&props.UsersList.length>0?props.UsersList.map((item:any,index:any)=>{
                         return(
-                            <Select.Option value={item.id} key={index}>
+                            <Select.Option value={item.id} key={index}>·
                                 {item.user_name}
                             </Select.Option>
                         )
@@ -767,6 +812,14 @@ const ReportLog=(props:any)=>{
             </Modal>
             <Modal title='删除' open={dOpen} onCancel={()=>setDopen(false)} onOk={delOk} loading={loading}>
                 <div>确定要删除吗?</div>
+            </Modal>
+            {/*驳回弹窗*/}
+            <Modal title={rejectStatus==6?'驳回':'终止'} open={rejectOpen} onCancel={() => setRejectOpen(false)} onOk={editStutesOk} loading={loading}>
+                <Form>
+                    <Form.Item label="原因">
+                        <Input.TextArea value={remark} onChange={(e) => setRemark(e.target.value)} />
+                    </Form.Item>
+                </Form>
             </Modal>
         </Spin>
     )

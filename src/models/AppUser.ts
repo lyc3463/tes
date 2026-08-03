@@ -46,9 +46,14 @@ const AppUserModels: AppUserInterface = {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(AppUserService.fetch, payload?payload:pl);
             if (res.ErrorCode == 0) {
+                console.log('小程序列表',res);
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -98,18 +103,6 @@ const AppUserModels: AppUserInterface = {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
 
-                if (StaticInfo.userId > 0 && pathname === '/kehu/wcxuserlist/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/kehu/wcxuserlist/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
 
 
             });

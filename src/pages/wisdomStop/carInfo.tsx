@@ -19,10 +19,12 @@ const  CarInfo=(props)=>{
         setspinning(true);
         CarManageService.one(e).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('res',res)
                 formRef.current.setFieldsValue(res.Data);
                 setspinning(false);
-                setdriverLicenseBase64(res.Data.driverLicenseBase64);
-                setdrivingLicenseBase64(res.Data.drivingLicenseBase64);
+
+                setdriverLicenseBase64(res.Data.driverLicense);
+                setdrivingLicenseBase64(res.Data.drivingLicense);
                 setcarNoColor(res.Data.carNoColor);
                 setcarType(res.Data.carType);
             }else {
@@ -104,10 +106,10 @@ const  CarInfo=(props)=>{
                     {carTypeList(carType)}
                 </Form.Item>
                 <Form.Item label='驾驶证'>
-                    <Image src={driverLicenseBase64} style={{height:'80px',width:'80px'}}/>
+                    <Image src={`${window.ServerConfig.imgServer}${driverLicenseBase64}.png` } style={{height:'80px',width:'80px'}}/>
                 </Form.Item>
                 <Form.Item label='行驶证'>
-                    <Image src={drivingLicenseBase64} style={{height:'80px',width:'80px'}}/>
+                    <Image src={`${window.ServerConfig.imgServer}${drivingLicenseBase64}.png` } style={{height:'80px',width:'80px'}}/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" onClick={toList}>

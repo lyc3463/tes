@@ -32,11 +32,12 @@ export interface HireInterface {
     state: Object;
     effects: {
         fetch: Effect;
-        fenye:Effect;
+        reject:Effect;
         add:Effect;
         edit:Effect;
         remove:Effect;
         fenpei:Effect;
+        editStutes:Effect;
     };
     reducers: {
         list: Reducer<WaterRateType[]>;
@@ -51,20 +52,11 @@ const WorkOrderModel: HireInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(WorkOrderService.fetch,payload?payload: pl);
-            console.log(res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
                 });
-            } else {
-                message.error(res.ErrorCode + res.Data);
-            }
-            return res;
-        },
-        *fenye({ type, payload }, { put, call, select }): any {
-            const res = yield call(WorkOrderService.fenye,payload?payload: pl);
-            if (res.ErrorCode == 0) {
                 yield put({
                     type: 'count',
                     payload: { count: res.Data },
@@ -72,6 +64,11 @@ const WorkOrderModel: HireInterface = {
             } else {
                 message.error(res.ErrorCode + res.Data);
             }
+            return res;
+        },
+        *reject({ type, payload }, { put, call, select }): any {
+            const result = yield call(WorkOrderService.reject, payload);
+            return result
         },
         *add({ payload, callback }, { call, put, take }): any {
             const result = yield call(WorkOrderService.add, payload);
@@ -87,6 +84,12 @@ const WorkOrderModel: HireInterface = {
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(WorkOrderService.edit, payload);
+            yield put({ type: 'fetch', payload: pl });
+            yield take('fetch/@@end');
+            return result
+        },
+        *editStutes({ payload, callback }, { call, put, take }): any {
+            const result = yield call(WorkOrderService.editStutes, payload);
             yield put({ type: 'fetch', payload: pl });
             yield take('fetch/@@end');
             return result

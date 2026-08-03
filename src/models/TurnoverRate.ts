@@ -49,7 +49,11 @@ const TurnoverRateModel: StaffInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);

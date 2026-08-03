@@ -2,8 +2,6 @@ import {Button, Form, Input, List, message, Modal, Pagination, Space, Spin, Tabl
 import {connect,history} from 'umi'
 import {checkSessionStorage, getRandomNumber, updateSessionStorage} from "@/utils/OpenTool";
 import {useEffect, useState} from "react";
-import * as HouseBillService from '@/services/houseBill';
-import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 
 const Water=(props:any)=>{
@@ -23,38 +21,6 @@ const Water=(props:any)=>{
             title: '采集器',
             dataIndex: 'collectorid',
             key: 'collectorid',
-        },
-        {
-            title: '电池状态',
-            dataIndex: 'battery_state',
-            key: 'battery_state',
-            render:(_:any,record:any)=>{
-                return(
-                    <>
-                        {record.battery_state==0?<Tag color='green'>正常</Tag>:<Tag color='red'>电池低电压</Tag>}
-                    </>
-                )
-            }
-        },
-        {
-            title: '通讯质量',
-            dataIndex: 'zhiliang',
-            key: 'zhiliang',
-            render:(_:any,record:any)=>{
-                let quality;
-                if (mathNumber <= 3) {
-                    quality =<Tag color='red'>差</Tag>;
-                } else if (mathNumber <= 6) {
-                    quality = <Tag color='gold'>良</Tag>;
-                } else {
-                    quality = <Tag color='green'>好</Tag>;
-                }
-                return(
-                    <>
-                        {quality}
-                    </>
-                )
-            }
         },
         {
             title: '水表地址',
@@ -88,6 +54,11 @@ const Water=(props:any)=>{
             title: '备注',
             dataIndex: 'remark',
             key: 'remark',
+        },
+        {
+            title: '单元',
+            dataIndex: 'unit_name',
+            key: 'unit_name',
         },
         {
             title: '开阀状态',
@@ -199,22 +170,15 @@ const Water=(props:any)=>{
     };
     const sousuo=()=>{
         setPage(1);
-        getFenyeInfo();
         getWater();
     };
-    const getFenyeInfo=()=>{
-        props.dispatch({
-            type:'Watert/fenye',
-            payload:{waterAddress,name,remark,pageSize}
-        });
-    };
+
     useEffect(() => {
         getWater();
     }, [page,pageSize]);
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
-        getFenyeInfo();
     }, []);
     const changeWaterAddress=(e)=>{
         setwaterAddress(e.target.value);

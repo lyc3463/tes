@@ -26,26 +26,6 @@ const Cable=(props:any)=>{
             key: 'collectorid',
         },
         {
-            title: '通讯质量',
-            dataIndex: 'communicate_quality',
-            key: 'communicate_quality',
-            render:(_:any,record:any)=>{
-                let quality;
-                if (getRandomNumber(1,10) <= 1) {
-                    quality =<Tag color='red'>差</Tag>;
-                } else if (getRandomNumber(1,10) <= 2) {
-                    quality = <Tag color='gold'>良</Tag>;
-                } else {
-                    quality = <Tag color='green'>好</Tag>;
-                }
-                return(
-                    <>
-                        {quality}
-                    </>
-                )
-            }
-        },
-        {
             title: '通讯地址',
             dataIndex: 'address',
             key: 'address',
@@ -98,6 +78,11 @@ const Cable=(props:any)=>{
             title: '描述',
             dataIndex: 'remark',
             key: 'remark',
+        },
+        {
+            title: '单元',
+            dataIndex: 'unit_name',
+            key: 'unit_name',
         },
         {
             title: '积累用电量',
@@ -179,15 +164,9 @@ const Cable=(props:any)=>{
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        getFenyeInfo();
         logFenye();
     };
-    const getFenyeInfo=()=>{
-        props.dispatch({
-            type:"Cable/fenye",
-            payload:{collectorId,name,remark,pageSize}
-        })
-    };
+
     // 监听采集器输入框
     const changeCollectorId=(e)=>{
         setCollectorId(e.target.value);
@@ -218,7 +197,6 @@ const Cable=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
-        getFenyeInfo();
     }, []);
     const changeRemark=(e)=>{
         setremark(e.target.value);
@@ -240,7 +218,6 @@ const Cable=(props:any)=>{
                             onChange={changeCollectorId}
                             addonBefore="电表地址:"
                             value={collectorId}
-
                         />
                         <Input
                             onChange={changeRemark}

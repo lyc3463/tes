@@ -275,15 +275,15 @@ const OutZu=(props:any)=>{
     };
     const sousuo=()=>{
         setPage(1);
-        logFney();
+        // logFney();
         getList();
     };
-    const logFney=()=>{
-      props.dispatch({
-          type:'OutZu/fenye',
-          payload:{name,phone,startDate,endDate,pageSize}
-      })
-    };
+    // const logFney=()=>{
+    //   props.dispatch({
+    //       type:'OutZu/fenye',
+    //       payload:{name,phone,startDate,endDate,pageSize}
+    //   })
+    // };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -306,9 +306,6 @@ const OutZu=(props:any)=>{
     useEffect(() => {
         getList();
     }, [page]);
-    useEffect(() => {
-        logFney();
-    }, []);
     const changeName=(e)=>{
         setName(e.target.value);
         updateSessionStorage('/billLog/monthlyBill/','outZuName',e.target.value);

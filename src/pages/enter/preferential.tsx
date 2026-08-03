@@ -206,21 +206,12 @@ const Preferential=(props)=>{
     useEffect(() => {
         logFenye();
     }, [page,pageSize]);
-    useEffect(() => {
-        fenyeinfo();
-    }, []);
     // 搜索
     const suosou=()=>{
         setPage(1);
-        fenyeinfo();
         logFenye();
     };
-    const fenyeinfo=()=>{
-        props.dispatch({
-            type:'Preferential/fenye',
-            payload:{phone,stutes,startDate,endDate,pageSize}
-        })
-    };
+
     const IsDelOpen=(e)=>{
         setdid(e);
         setDopen(true);
@@ -269,6 +260,33 @@ const Preferential=(props)=>{
                                 日期:
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={changeStutes}
+                                value={stutes}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '未审核' },
+                                    { value:2, label: '已审核' },
+                                    { value:3, label: '驳回' },
+                                ]}
+                            />
                         </Space.Compact>
                         <Button type="primary" onClick={suosou}>
                             搜索

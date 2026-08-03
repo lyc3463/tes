@@ -15,8 +15,8 @@ export function one(id:string) {
 export function fetch(vals:any) {
     return getData(1641, [vals.page,vals.name,vals.phone,vals.startDate,vals.endDate,vals.status,vals.pageSize,vals.userID]);
 }
-export function fenye(vals:any) {
-    return getData(1642, [vals.name,vals.phone,vals.startDate,vals.endDate,vals.status,vals.pageSize,vals.userID]);
+export function reject(vals:any) {
+    return postData(1642, [vals.uid,vals.rejectStatus,vals.remark],'');
 }
 export function check(vals:any) {
     return getData(1639, [vals,2]);

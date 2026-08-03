@@ -2,12 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import * as StaffServer from "@/services/staff";
 import dayjs from "dayjs";
 import { connect } from "umi";
-import {Form, Input, InputNumber, message, Select, DatePicker, Button, Table, Image, Modal, Space,Radio} from "antd";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import {message, Button, Table, Image, Modal, Space,Radio} from "antd";
 import styles from "@/pages/contract/endContran.less";
 import * as ContractTypeService from "@/services/contractType";
-import * as CustomService from "@/services/custom";
 import * as UnitService from "@/services/unit";
 import html2pdf from "html2pdf.js";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -17,8 +14,12 @@ import {
     getUserNamesById,
     calculateTotalRentalDays,
     getUseraddNameById,
-    getUserphoneById, calculateYearsAndMonths, getUseraddRessById, getunitTypeById, contractsDz, groupImages
-
+    getUserphoneById,
+    calculateYearsAndMonths,
+    getUseraddRessById,
+    getunitTypeById,
+    contractsDz,
+    groupImages
 } from "@/utils/OpenTool";
 import * as CheckCompanyService from "@/services/checkCompany";
 const NocheckZScontractez=(props)=>{
@@ -150,39 +151,37 @@ const NocheckZScontractez=(props)=>{
     const getOneStaff= (id:string)=>{
         StaffServer.one(id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('合同内容详情',res);
-                setEndDate(dayjs(res.Data[0].endTime).format('YYYY-MM-DD'));
-                setStartDate(dayjs(res.Data[0].beginTime).format('YYYY-MM-DD'));
-                sethouseId(res.Data[0].houseId);
-                setFormItems(contractsDz(res.Data[0].zuMoney,res.Data[2]));
-                setmzFormItems(res.Data[1]);
-                setlegalPerson2(res.Data[0].legalPerson)
-                setcustomCard(res.Data[0].customCard)
-                setzuMoney(res.Data[0].zuMoney);
-                setdepositFee(res.Data[0].depositFee);
-                setdecorationCost(res.Data[0].decorationCost);
-                setdispatchName(res.Data[0].dispatchName);
-                setdispatchCard(res.Data[0].dispatchCard);
-                setmanageFee(res.Data[0].manageFee);
-                setmanageFeeRent(res.Data[0].manageFeeRent);
-                setdeposit(res.Data[0].deposit);
-                let documentBase64Split=res.Data[0].documentBase64.split('|');
+                setEndDate(dayjs(res.Data.endTime).format('YYYY-MM-DD'));
+                setStartDate(dayjs(res.Data.beginTime).format('YYYY-MM-DD'));
+                sethouseId(res.Data.houseId);
+                setFormItems(contractsDz(res.Data.zuMoney,res.Data.contractDzList));
+                setmzFormItems(res.Data.contractRentList);
+                setlegalPerson2(res.Data.legalPerson)
+                setcustomCard(res.Data.customCard)
+                setzuMoney(res.Data.zuMoney);
+                setdepositFee(res.Data.depositFee);
+                setdecorationCost(res.Data.decorationCost);
+                setdispatchName(res.Data.dispatchName);
+                setdispatchCard(res.Data.dispatchCard);
+                setmanageFee(res.Data.manageFee);
+                setmanageFeeRent(res.Data.manageFeeRent);
+                setdeposit(res.Data.deposit);
+                let documentBase64Split=res.Data.documentBase64.split('|');
                 let newczB64=groupImages(documentBase64Split, 1);
                 setczB64(newczB64);
-                let unitBase64Split=res.Data[0].unitBase64.split('|');
+                let unitBase64Split=res.Data.unitBase64.split('|');
                 let newunitB64=groupImages(unitBase64Split, 4);
                 setuintB64(newunitB64);
-                setDeliveryDate(res.Data[0].deliveryDate);
-                setbusinessEntity(res.Data[0].businessEntity);
-                setbusinessScope(res.Data[0].businessScope);
-                let jsonList=JSON.parse(res.Data[0].goodsJson);
+                setDeliveryDate(res.Data.deliveryDate);
+                setbusinessEntity(res.Data.businessEntity);
+                setbusinessScope(res.Data.businessScope);
+                let jsonList=JSON.parse(res.Data.goodsJson);
                 setwupinList(jsonList);
-                let joinImageB64=res.Data[0].addBase64.split('|');
+                let joinImageB64=res.Data.addBase64.split('|');
                 setxyimgb64(joinImageB64);
-                setUnitarrList(res.Data[3]);
-                setclientId(res.Data[0].clientId);
-                // changecontractType(res.Data[0].contractType);
-                let mzqSum=calculateTotalRentalDays(res.Data[1]);
+                setUnitarrList(res.Data.unitList.map(item=>item.id));
+                setclientId(res.Data.clientId);
+                let mzqSum=calculateTotalRentalDays(res.Data.contractRentList);
                 setMzq(mzqSum);
             }else {
                 message.error(res.Data);
@@ -1190,7 +1189,7 @@ const NocheckZScontractez=(props)=>{
                         9．落实专人负责办公时间结束后的安全检查。
                     </p>
                     <p className={styles.linheP}  >
-                        10．广州汉银广场内严禁吸烟及动用明火（除按规定办理了临时动火许可证外）。
+                        10．本广场内严禁吸烟及动用明火（除按规定办理了临时动火许可证外）。
                     </p>
                     <p className={styles.linheP}  >
                         11．严禁擅自动用、拆装、移位、阻挡租赁区域内及公共区域的消防设施及器材，或将消防设施和器材挪作他用；不得破坏消防标志。
@@ -2307,7 +2306,7 @@ const NocheckZScontractez=(props)=>{
                                 9．落实专人负责办公时间结束后的安全检查。
                             </p>
                             <p className={styles.linheP}  >
-                                10．广州汉银广场内严禁吸烟及动用明火（除按规定办理了临时动火许可证外）。
+                                10．本广场内严禁吸烟及动用明火（除按规定办理了临时动火许可证外）。
                             </p>
                             <p className={styles.linheP}  >
                                 11．严禁擅自动用、拆装、移位、阻挡租赁区域内及公共区域的消防设施及器材，或将消防设施和器材挪作他用；不得破坏消防标志。

@@ -13,6 +13,7 @@ const Collector=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
+    const [fyInfo,setFyInfo]=useState([]);
     // 用户权限
     const [uqx,setUqx]=useState([]);
     const toedit=(e)=>{
@@ -23,31 +24,6 @@ const Collector=(props:any)=>{
             title: '采集器ID',
             dataIndex: 'collectorid',
             key: 'collectorid',
-            render:(text:any,record:any)=>{
-                return(
-                    <Button type='link' onClick={()=>toedit(record.id)}>{text}</Button>
-                )
-            }
-        },
-        {
-            title: '连接质量',
-            dataIndex: 'linkQuality',
-            key: 'linkQuality',
-            render:(_:any,record:any)=>{
-                let quality;
-                if (getRandomNumber(1,10) <= 1) {
-                    quality =<Tag color='red'>差</Tag>;
-                } else if (getRandomNumber(1,10) <= 2) {
-                    quality = <Tag color='gold'>良</Tag>;
-                } else {
-                    quality = <Tag color='green'>好</Tag>;
-                }
-                return(
-                    <>
-                        {quality}
-                    </>
-                )
-            }
         },
         {
             title: '备注',
@@ -91,13 +67,14 @@ const Collector=(props:any)=>{
         setUid(e);
         setIsOpen(true);
     };
-    // 分页
+    // 列表
     const logFenye=()=>{
         props.dispatch({
             type:"Collector/fetch",
             payload:{page,collector_number,stutes,pageSize}
         })
     };
+
     // 监听页数
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);
@@ -147,6 +124,7 @@ const Collector=(props:any)=>{
         setUqx(uq);
         getFyInfo();
     }, []);
+
     return(
         <Spin spinning={spinning}>
             <List>
@@ -160,32 +138,6 @@ const Collector=(props:any)=>{
                             addonBefore="采集器ID:"
                             value={collector_number}
                         />
-                        {/*<Space.Compact>*/}
-                        {/*    <div*/}
-                        {/*        style={{*/}
-                        {/*            borderRadius: '6px',*/}
-                        {/*            borderStartEndRadius: 0,*/}
-                        {/*            borderEndEndRadius: 0,*/}
-                        {/*            padding: '0 11px',*/}
-                        {/*            border: '1px solid #d9d9d9',*/}
-                        {/*            display: 'flex',*/}
-                        {/*            alignItems: 'center',*/}
-                        {/*            borderInlineEnd: 0,*/}
-                        {/*        }}*/}
-                        {/*    >*/}
-                        {/*        连接状态:*/}
-                        {/*    </div>*/}
-                        {/*    <Select*/}
-                        {/*        onChange={changeStutes}*/}
-                        {/*        defaultValue={stutes}*/}
-                        {/*        style={{ width: 120 }}*/}
-                        {/*        options={[*/}
-                        {/*            { value: 2, label: '全部' },*/}
-                        {/*            { value: 1, label: '未连接' },*/}
-                        {/*            { value: 0, label: '已连接' },*/}
-                        {/*        ]}*/}
-                        {/*    />*/}
-                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>

@@ -5,12 +5,12 @@ export function fetch(vals:any) {
 }
 // 添加特色
 export function add(vals:any) {
-    return getData(1011, [vals.account_name,vals.account_card,vals.balance,vals.account_type,vals.company_id,vals.project_id]);
+    return getData(1011, [vals.account_name,vals.account_card,vals.balance,vals.account_type,vals.company_id]);
 }
 
 
 export function edit(vals:any) {
-    return getData(1014, [vals.uid,vals.account_name,vals.account_card,vals.balance,vals.account_type,vals.company_id,vals.project_id]);
+    return getData(1014, [vals.uid,vals.account_name,vals.account_card,vals.balance,vals.account_type,vals.company_id]);
 }
 
 export function remove(vals:any) {

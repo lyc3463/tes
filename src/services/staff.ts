@@ -12,6 +12,7 @@ export function adddj(vals:any) {
 }
 
 export function editzs(vals:any) {
+    console.log(vals.jsonDate)
     return postData(1236, [vals.uid,vals.identifier,vals.clientId,vals.customCard,vals.unit_id,vals.zuMoney,vals.manageFee,vals.deposit,vals.contractTypeid,vals.startDate,vals.endDate,vals.businessEntity,vals.businessScope,vals.deliveryDate,vals.decorationCost,vals.documentImage,vals.dispatchName,vals.dispatchCard,vals.unitImage,vals.imgs,vals.remark,vals.manageFeeRent,vals.house_id,vals.prepayment,vals.depositFee,vals.legalPerson],vals.jsonDate);
 }
 export function editdj(vals:any) {

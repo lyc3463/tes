@@ -1,18 +1,4 @@
-import {
-    Button,
-    DatePicker,
-    Input,
-    List,
-    message,
-    Modal,
-    Pagination,
-    Select,
-    Space,
-    Spin,
-    Table,
-    Tag,
-    Tooltip
-} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";

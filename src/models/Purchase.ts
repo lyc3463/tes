@@ -20,7 +20,8 @@ let pl={
     endDate:'2099-01-01',
     orderStatus:2,
     billStatus:0,
-    orderType:1
+    orderType:1,
+    uName:''
 }
 export interface StaffCountState {
     count: number;
@@ -59,7 +60,11 @@ const PurchaseModel: StaffInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -104,8 +109,8 @@ const PurchaseModel: StaffInterface = {
         },
         *addWarehousing({ payload, callback }, { call, put, take }): any {
             const result = yield call(Application.addWarehousing, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
             return result;
 
         },

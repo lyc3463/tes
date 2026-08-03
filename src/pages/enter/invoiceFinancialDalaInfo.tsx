@@ -1,15 +1,31 @@
-import {Button, DatePicker, Image, Input, InputNumber, message, Modal, Radio, Select, Space, Spin, Table} from "antd";
+import {
+    Button, Card,
+    DatePicker,
+    Image,
+    Input,
+    InputNumber,
+    message,
+    Modal,
+    Popconfirm,
+    Radio,
+    Select,
+    Space,
+    Spin,
+    Table
+} from "antd";
 import {useEffect, useState} from "react";
 import {connect,history,useNavigate} from "umi";
 import dayjs from "dayjs";
 import {generate, getCurrentDate} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
-import {AlignCenterOutlined, ClearOutlined} from "@ant-design/icons";
+import {AlignCenterOutlined, ClearOutlined, DeleteOutlined, FilePdfOutlined} from "@ant-design/icons";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as ProjectService from "@/services/project";
 import ImageUploadPng from "@/components/ImageUploadPng";
 import * as NewFinancialDataService from "@/services/newFinancialData";
 import ReimbursePrint from "@/components/MyReimbursePrint";
+import {getImgSrc} from "@/utils/OpenTool";
+import PdfUpload from "@/components/PdfUpload";
 
 const EditInvoiceFinancialDala=(props:any)=>{
     const [spinning, setSpinning] = useState(false);
@@ -44,6 +60,8 @@ const EditInvoiceFinancialDala=(props:any)=>{
     // 图片列表
     const [imgList,setImgList]=useState([]);
     const [oneInfo,setOneInfo]=useState({});
+    const [pdfFileName, setPdfFileName] = useState([]);
+
 
     const getOneInfo=(id:any)=>{
         NewFinancialDataService.one(id).then((res:TypeErrorCode)=>{
@@ -62,7 +80,23 @@ const EditInvoiceFinancialDala=(props:any)=>{
                 setPaidAmount(res.Data.paidAmount);
                 setRemark(res.Data.remark);
                 setSupplierId(res.Data.supplierId);
-                setImgList(res.Data.foImage.split("|"));
+                const foImage = res.Data.foImage || '';
+                const allFiles = foImage.split('|').filter(Boolean);
+                // 区分 pdf 和图片
+                const imgArr: string[] = [];
+                const pdfArr: string[] = [];
+
+                allFiles.forEach(fileName => {
+                    // 判断后缀 .pdf，不区分大小写
+                    if (/\.pdf$/i.test(fileName)) {
+                        pdfArr.push(fileName);
+                    } else {
+                        imgArr.push(fileName);
+                    }
+                });
+                // 赋值state
+                setImgList(imgArr);
+                setPdfFileName(pdfArr);
             }else {
                 message.error(res.Data);
             }
@@ -555,15 +589,61 @@ const EditInvoiceFinancialDala=(props:any)=>{
                 </Space.Compact>
                 <div  style={{ display: 'flex'}}>
                     {/*<ImageUploadPng onImageUpload={(base64)=>onImageUpload(base64)}/>*/}
-                    {imgList.length>0?imgList.map((item:any,index:number)=>{
-                        return(
-                            <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
-                                <Image src={`${window.ServerConfig.imgServer}${item}`} style={{ width: '50px', height: '50px' }} />
-                            </div>
-                        )
-                    }):''}
+                    <Image.PreviewGroup>
+
+                        {imgList.map((item: any, index: number) => {
+                            // 内部调用拼接方法
+                            const imgUrl = getImgSrc(item);
+                            return (
+                                <div
+                                    key={index}
+                                    style={{
+                                        display: 'inline-block',
+                                        position: 'relative',
+                                        margin: '5px',
+                                    }}
+                                >
+                                    {/* 小图（点击放大预览） */}
+                                    <Image
+                                        width={50}
+                                        height={50}
+                                        style={{ objectFit: 'cover' }}
+                                        src={imgUrl}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </Image.PreviewGroup>
                 </div>
             </Space>
+            <Card>
+                <Space>
+                    {pdfFileName.length > 0 && (
+                        <div style={{ marginTop: 16 }}>
+                            {pdfFileName.map((name, idx) => (
+                                <div
+                                    key={idx}
+                                    style={{
+                                        marginBottom:6,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px'
+                                    }}
+                                >
+                                    <FilePdfOutlined style={{ color: '#f5222d' }} />
+                                    <a
+                                        href={`${window.ServerConfig.imgServer}/${name}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {name}
+                                    </a>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Space>
+            </Card>
             <Table
                 columns={columnsz}
                 dataSource={goodsList} // 添加数据源绑定
@@ -585,7 +665,15 @@ const EditInvoiceFinancialDala=(props:any)=>{
                 ]}
             >
                 <div className="print-only-content">
-                    <ReimbursePrint item={{...oneInfo,fdList:goodsList}}/>
+                    <ReimbursePrint
+                        item={{
+                            printItem: {
+                                ...oneInfo,
+                                fdList: goodsList
+                            }
+                        }}
+                    />
+                    {/*<ReimbursePrint item={{...oneInfo,fdList:goodsList}}/>*/}
                 </div>
             </Modal>
         </Spin>

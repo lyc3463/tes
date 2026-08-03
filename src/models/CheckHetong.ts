@@ -46,14 +46,14 @@ const CheckHetongModels: CheckHetongInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(CheckHetongService.fetch, payload?payload:pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -99,67 +99,6 @@ const CheckHetongModels: CheckHetongInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/contract/contractList/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                // if (StaticInfo.userId > 0 && pathname === '/enter/afterSales/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                if (StaticInfo.userId > 0 && pathname === '/contract/contractList/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
-                // if (StaticInfo.userId > 0 && pathname === '/enter/addRename/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                //
-                // if (StaticInfo.userId > 0 && pathname === '/enter/addTransference/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                // if (StaticInfo.userId > 0 && pathname === '/enter/editRename/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                // if (StaticInfo.userId > 0 && pathname === '/enter/addRenew/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                // if (StaticInfo.userId > 0 && pathname === '/enter/addOutRent/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                // if (StaticInfo.userId > 0 && pathname === '/enter/addPreferential/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
-                // if (StaticInfo.userId > 0 && pathname === '/enter/AddByStages/') {
-                //     dispatch({
-                //         type: 'fetch',
-                //         payload: location.state,
-                //     });
-                // }
             });
         },
     },

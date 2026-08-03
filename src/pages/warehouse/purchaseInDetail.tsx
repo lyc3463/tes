@@ -17,8 +17,10 @@ import {
 import {connect, history} from "umi";
 import {useCallback, useEffect, useRef, useState} from "react";
 import dayjs from "dayjs";
-import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import {useReactToPrint} from "react-to-print";
+import WarehousingOrderPrint from "@/components/WarehousingOrderPrint";
+
 const PurchaseInDetail=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);  // 当前页数
@@ -27,19 +29,35 @@ const PurchaseInDetail=(props)=>{
     const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailStartDate')||'2000-01-01');// 开始时间
     const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailEndDate')||'2099-01-01');// 结束日期
     const [orderType,setOrderType]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailOrderType')||0);// 订单类型 1 采购订单 2 直接入库
-    const [iskc,setIskc]=useState(1);// 0 未入库 1已入库
+    const [iskc,setIskc]=useState(2);// 0 未入库 1已入库
     const [pageSize,setPageSize]=useState(50); // 每页数量
     const [warehouseId,setWarehouseId]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailwarehouseId')||0);// 仓库id
     const [unitId,setUnitId]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','unitId')||0);// 单位id
+    const [supplierName,setSupplierName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','supplierName')||'');// 供应商名称
     // 新增：存储已加载图片的行ID（避免重复加载）
     const [loadedImageIds, setLoadedImageIds] = useState<Set<string>>(new Set());
     // 行ref数组
     const rowRefs = useRef<HTMLDivElement[]>([]);
     // 交叉观察器实例
     const observerRef = useRef<IntersectionObserver | null>(null);
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const [printData, setPrintData] = useState<any[]>([]);
+    const [printModalOpen,setPrintModalOpen]=useState(false);
+    const printRef = useRef();
+    const [startDate1,setStartDate1]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailStartDate1')||'2000-01-01');// 开始时间
+    const [endDate1,setEndDate1]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailEndDate1')||'2099-01-01');// 结束日期
     const columns=[
         {
-            title:'入库时间',
+            title:'采购日期',
+            dataIndex:'orderTime',
+            key:'orderTime',
+            align:'center',
+            render:(text)=>{
+                return <div>{dayjs(text).format('YYYY-MM-DD')}</div>
+            }
+        },
+        {
+            title:'入库日期',
             dataIndex:'rkTime',
             key:'rkTime',
             align:'center',
@@ -52,7 +70,12 @@ const PurchaseInDetail=(props)=>{
             dataIndex:'orderCode',
             key:'orderCode',
             align:'center',
-            ellipsis:true,
+        },
+        {
+            title:'供应商',
+            dataIndex:'supplierName',
+            key:'supplierName',
+            align:'center',
         },
         {
             title:'物品编号',
@@ -78,10 +101,9 @@ const PurchaseInDetail=(props)=>{
                 if (isImageLoaded && text) {
                     const textStr = String(text || '');
                     imageUrl = textStr && textStr.endsWith('.png')
-                        ? `http://img.qhwy6.com/${textStr}`
-                        : `http://img.qhwy6.com/${textStr}_X.png`;
+                        ? `${window.ServerConfig.imgServer}${textStr}`
+                        : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 }
-
                 // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）
                 return (
                     <div style={{width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -89,7 +111,6 @@ const PurchaseInDetail=(props)=>{
                             src={imageUrl || 'https://placeholder.pics/svg/50x50/EEEEEE/999999/加载中...'}
                             style={{width: '100%', height: '100%', objectFit: 'cover'}}
                             alt="物品图片"
-                            // 原生懒加载属性（正确用法：字符串值 'lazy'）
                             loading="lazy"
                             // fallback 逻辑：图片加载失败时显示占位图
                             onError={(e) => {
@@ -108,9 +129,15 @@ const PurchaseInDetail=(props)=>{
             ellipsis:true,
         },
         {
+            title:'总数量',
+            dataIndex:'quantityTotal',
+            key:'quantityTotal',
+            align:'center',
+        },
+        {
             title:'入库数量',
-            dataIndex:'quantity',
-            key:'quantity',
+            dataIndex:'quantitySum',
+            key:'quantitySum',
             align:'center',
         },
         {
@@ -131,7 +158,7 @@ const PurchaseInDetail=(props)=>{
             key:'totalAmount',
             align:'center',
             render:(text,record)=>{
-                return <span>{(record.quantity*record.price).toFixed(3)}</span>
+                return <span>{(record.quantityTotal*record.price).toFixed(3)}</span>
             }
         },
         {
@@ -143,30 +170,24 @@ const PurchaseInDetail=(props)=>{
                 return <Tag color={text===1?'green':'blue'}>{text===1?'采购入库':'直接入库'}</Tag>
             }
         },
-        {
-            title:'入库状态',
-            dataIndex:'iskc',
-            key:'iskc',
-            align:'center',
-            render:(text,record)=>{
-                return <Tag color={text===1?'green':'red'}>{text===1?'已入库':'未入库'}</Tag>
-            }
-        },
+        // {
+        //     title:'入库状态',
+        //     dataIndex:'iskc',
+        //     key:'iskc',
+        //     align:'center',
+        //     render:(text,record)=>{
+        //         return <Tag color={text===1?'green':'red'}>{text===1?'已入库':'未入库'}</Tag>
+        //     }
+        // },
     ];
     // 列表信息
     const getList=()=>{
         props.dispatch({
             type:'PurchaseInDetail/fetch',
-            payload:{page, pageSize, orderCode, productsName, orderType, startDate,iskc, endDate,warehouseId,unitId}
+            payload:{page, pageSize, orderCode, productsName, orderType, startDate,iskc, endDate,warehouseId,unitId,supplierName,startDate1,endDate1}
         })
     };
-    // 分页信息
-    const getFenye=()=>{
-        props.dispatch({
-            type:'PurchaseInDetail/fenye',
-            payload:{pageSize, orderCode, productsName, orderType, startDate, iskc,endDate,warehouseId,unitId}
-        })
-    };
+
     // 单位列表
     const getUnitSettingList=()=>{
         props.dispatch({
@@ -187,13 +208,26 @@ const PurchaseInDetail=(props)=>{
         getList();
     }, [page,pageSize]);
     useEffect(() => {
-        getFenye();
         getUnitSettingList();
         getWarehouseList();
     }, []);
     const changeOrderCode=(e)=>{
         setOrderCode(e.target.value);
         updateSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailOrderCode',e.target.value);
+    };
+    // 监听日期
+    const changeDate1=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate1('2000-01-01');
+            setEndDate1('2099-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailStartDate1','2000-01-01');
+            updateSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailEndDate1','2099-01-01');
+        } else {
+            setStartDate1(data[0]);
+            setEndDate1(data[1]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailStartDate1',data[0]);
+            updateSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailEndDate1',data[1]);
+        }
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -228,10 +262,14 @@ const PurchaseInDetail=(props)=>{
         updateSessionStorage('/warehouse/checkPurchaseRequest','purchaseInDetailwarehouseId',e);
         setWarehouseId(e);
     };
+    // 供应商名称
+    const changeSupplierName=(e)=>{
+        updateSessionStorage('/warehouse/checkPurchaseRequest','supplierName',e.target.value);
+        setSupplierName(e.target.value);
+    };
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     // 监听数据变化，重置图片加载状态
     useEffect(() => {
@@ -281,6 +319,67 @@ const PurchaseInDetail=(props)=>{
             }
         };
     }, []);
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (selectedKeys: React.Key[], selectedRows: any[]) => {
+            setSelectedRowKeys(selectedKeys);
+        },
+        type: 'checkbox',  // 复选框类型
+    };
+    const isPrintModalOpen = () => {
+        if (selectedRowKeys.length === 0) {
+            message.error('请选择要打印的数据');
+            return;
+        }
+        const selectedIds = selectedRowKeys.map(key => Number(key));
+        const printData = props.list.filter(item => selectedIds.includes(item.id));
+        setPrintData(printData);
+        setPrintModalOpen(true);
+    };
+    // 修改打印方法，使用useReactToPrint的完整功能
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,  // 使用 content 而不是 contentRef
+        pageStyle: `
+        @page {
+            size: A4;
+            margin: 2mm 20mm;
+        }
+        @media print {
+            /* 分页样式 */
+            .page-break {
+                page-break-after: always;
+            }
+            /* 防止内容被分页截断 */
+            .no-break {
+                page-break-inside: avoid;
+            }
+            /* 隐藏 Modal 相关元素 */
+            .ant-modal-wrap,
+            .ant-modal-mask {
+                display: none !important;
+            }
+            .ant-modal {
+                position: static !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            .ant-modal-content {
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+            .ant-modal-header,
+            .ant-modal-footer {
+                display: none !important;
+            }
+            .ant-modal-body {
+                padding: 0 !important;
+            }
+            body *:not(.print-only-content):not(.print-only-content *) {
+                        visibility: hidden;
+                      }
+        }
+    `,
+    });
     return(
         <Spin spinning={spinning}>
             <List>
@@ -334,6 +433,28 @@ const PurchaseInDetail=(props)=>{
                         value={productsName}
                         onChange={changeProductsName}
                     />
+                    <Input
+                        addonBefore="供应商:"
+                        value={supplierName}
+                        onChange={changeSupplierName}
+                    />
+                    <Space.Compact>
+                        <div
+                            style={{
+                                borderRadius: '6px',
+                                borderStartEndRadius: 0,
+                                borderEndEndRadius: 0,
+                                padding: '0 11px',
+                                border: '1px solid #d9d9d9',
+                                display: 'flex',
+                                alignItems: 'center',
+                                borderInlineEnd: 0,
+                            }}
+                        >
+                            入库日期:
+                        </div>
+                        {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
+                    </Space.Compact>
                 </Space>
                 <List.Item>
                     <Space>
@@ -389,9 +510,9 @@ const PurchaseInDetail=(props)=>{
                                     borderInlineEnd: 0,
                                 }}
                             >
-                                日期:
+                                采购日期:
                             </div>
-                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
+                            {startDate1=='2000-01-01'&&endDate1=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate1}/>:<DatePicker.RangePicker onChange={changeDate1} defaultValue={[dayjs(startDate1),dayjs(endDate1)]}/>}
                         </Space.Compact>
                         <Space.Compact>
                             <div
@@ -430,10 +551,10 @@ const PurchaseInDetail=(props)=>{
                                 onChange={changeOrderType}
                             />
                         </Space.Compact>
-
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
+                        <Button type="primary" onClick={isPrintModalOpen}>打印</Button>
                     </Space>
                 </List.Item>
             </List>
@@ -441,38 +562,60 @@ const PurchaseInDetail=(props)=>{
                 columns={columns}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
-                scroll={{y:'60vh',x:1500}}
+                scroll={{y:'60vh'}}
                 dataSource={props.list}
                 rowKey={(columns) => columns.id}
                 size='small'
                 onRow={(record, index) => ({
                     ref: (el) => {
                         if (el) {
-                            el.dataset.rowId = record.id; // 存储行ID
+                            el.dataset.rowId = record.id;
                             rowRefs.current[index] = el;
                             // 观察该行元素
                             observerRef.current?.observe(el);
                         }
                     },
                 })}
+                rowSelection={rowSelection}
                 summary={(columns) => (
                     <Table.Summary >
                         <Table.Summary.Row>
-                            <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
-                            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={1}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}>统计</Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.quantitySum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}></Table.Summary.Cell>
                             <Table.Summary.Cell index={7}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={8}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.priceSum:0}</div></Table.Summary.Cell>
-                            <Table.Summary.Cell index={9}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={9}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={10}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.quantityTotal:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={11}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.quantitySum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={12}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={13}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.priceSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={14}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+            <Modal
+                width={1000}
+                open={printModalOpen}
+                onCancel={()=>setPrintModalOpen(false)}
+                footer={[
+                    <Button key="print" type="primary" onClick={handlePrint}>打印</Button>,
+                    <Button key="cancel" type="primary" onClick={()=>setPrintModalOpen(false)}>关闭</Button>
+                ]}
+            >
+                <div className="print-only-content">
+                    <WarehousingOrderPrint
+                        ref={printRef}
+                        printList={printData}
+                        className="print-only-content"
+                    />
+                </div>
+            </Modal>
         </Spin>
     )
 }

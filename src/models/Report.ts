@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
 import ReportType from '@/ModelTypes/TypeReport';
 import { fixPathname } from '@/utils/common';
-import {fenpei} from "@/services/report";
 let pl={
     page:1,
     name:'',
@@ -37,8 +36,8 @@ export interface ReportInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
-        fenye: Effect;
         fenpei: Effect;
+        reject: Effect;
     };
     reducers: {
         list: Reducer<ReportType[]>;
@@ -56,7 +55,11 @@ const ReportModels: ReportInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -89,17 +92,10 @@ const ReportModels: ReportInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *fenye({ type, payload }, { put, call, select }): any {
-            const res = yield call(ReportService.fenye, payload?payload:pl);
-            if (res.ErrorCode == 0) {
-                yield put({
-                    type: 'count',
-                    payload: { count: res.Data },
-                });
-            } else {
-                message.error(res.ErrorCode + res.Data);
-            }
-            return res
+        *reject({ type, payload }, { put, call, select }): any {
+            const result = yield call(ReportService.reject, payload);
+
+            return result
         },
         *fenpei({ payload, callback }, { call, put, take }): any {
             const result = yield call(ReportService.fenpei, payload);
@@ -132,18 +128,18 @@ const ReportModels: ReportInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/propertyServerManage/reportLog/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/propertyServerManage/reportLog/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/propertyServerManage/reportLog/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/propertyServerManage/reportLog/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
 
             });
         },

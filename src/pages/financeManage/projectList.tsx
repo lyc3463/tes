@@ -33,6 +33,11 @@ const ProjectList=(props:any)=>{
             key: 'company_name',
         },
         {
+            title: '账户',
+            dataIndex: 'account_name',
+            key: 'account_name',
+        },
+        {
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',

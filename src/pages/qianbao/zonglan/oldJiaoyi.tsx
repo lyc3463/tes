@@ -1,7 +1,22 @@
 import {connect} from "umi";
-import {Button, DatePicker, Image, Input, List, message, Pagination, Select, Space, Spin, Table, Tabs, Tag} from "antd";
+import {
+    Button,
+    DatePicker,
+    Image,
+    Input,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tabs,
+    Tag
+} from "antd";
 import dayjs from "dayjs";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {
     calculateSums,
     checkSessionStorage, downloadFile,
@@ -12,6 +27,9 @@ import {
 import * as RechargeRateService from '@/services/alljiaoyi';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
+import AllFinancialDataPrint from "@/components/AllFinancialDataPrint";
+import {useReactToPrint} from "react-to-print";
+import MyReceipt from "@/components/MyReceipt";
 
 const OldJiaoyi=(props)=>{
     // 当前页数
@@ -29,6 +47,52 @@ const OldJiaoyi=(props)=>{
     const [unitName,setunitName]=useState('');
     const [moneySum,setmoneySum]=useState(0);
     const [uqx,setUqx]=useState([]);
+    const [printModalOpen,setPrintModalOpen]=useState(false);
+    const [printList,setPrintList]=useState([]);
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const printRef = useRef();
+    const isPrintModalOpen=()=>{
+        if(selectedRowKeys.length===0){
+            message.error('请选择要打印的报销数据');
+            return;
+        }
+        const selectedIds = selectedRowKeys.map(key => Number(key));
+        // 筛选出选中的财务数据，并处理fdList不足7条的情况
+        const printList = dataSource
+            .filter(item => selectedIds.includes(item.id))
+            .map(item => {
+                const fdList = item.fdList || []; // 获取当前项目的fdList，默认空数组
+                const currentLength = fdList.length;
+
+                // 如果已达到或超过7条，直接返回原数据
+                if (currentLength >= 7) {
+                    return item;
+                }
+
+                // 计算需要补充的空记录数量
+                const neededCount = 7 - currentLength;
+                // 获取当前fdList中的最大ID，用于生成新记录ID
+                const maxId = currentLength > 0
+                    ? Math.max(...fdList.map(item => item.id))
+                    : 0;
+
+                // 生成补充的空记录
+                const newArr = Array.from({ length: neededCount }, (_, i) => ({
+                    id: maxId + i + 1,       // 自增ID
+                    phone: '',         // 手机号
+                    consumptionType:0,             // 空摘要
+                    consumptionMoney: 0                // 金额0
+                }));
+
+                // 返回包含补充记录的新对象（不修改原数据）
+                return {
+                    ...item,
+                    fdList: [...fdList, ...newArr]
+                };
+            });
+        setPrintList(printList);
+        setPrintModalOpen(true);
+    };
     // 搜索
     const sousuo=()=>{
         setPage(1);
@@ -54,6 +118,7 @@ const OldJiaoyi=(props)=>{
             payload:{page:pagez,name,phone,type,startDate,endDate,userID,pageSize:pageSizez}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('res',res)
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -217,6 +282,56 @@ const OldJiaoyi=(props)=>{
             }
         })
     };
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,  // 使用 content 而不是 contentRef
+        pageStyle: `
+        @page {
+            size: A4;
+            margin: 2mm 20mm;
+        }
+        @media print {
+            /* 分页样式 */
+            .page-break {
+                page-break-after: always;
+            }
+            /* 防止内容被分页截断 */
+            .no-break {
+                page-break-inside: avoid;
+            }
+            /* 隐藏 Modal 相关元素 */
+            .ant-modal-wrap,
+            .ant-modal-mask {
+                display: none !important;
+            }
+            .ant-modal {
+                position: static !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            .ant-modal-content {
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+            .ant-modal-header,
+            .ant-modal-footer {
+                display: none !important;
+            }
+            .ant-modal-body {
+                padding: 0 !important;
+            }
+            body *:not(.print-only-content):not(.print-only-content *) {
+                        visibility: hidden;
+                      }
+        }
+    `,
+    });
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (selectedKeys: React.Key[], selectedRows: any[]) => {
+            setSelectedRowKeys(selectedKeys);
+        },
+        type: 'checkbox',  // 复选框类型
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -288,6 +403,7 @@ const OldJiaoyi=(props)=>{
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
+                        <Button type="primary" onClick={isPrintModalOpen}>打印</Button>
                         <Button type="primary" onClick={upDload}>
                             下载
                         </Button>
@@ -319,9 +435,10 @@ const OldJiaoyi=(props)=>{
                             <Table.Summary.Cell
                                 index={1}
                             >
-                                统计
+
                             </Table.Summary.Cell>
-                            <Table.Summary.Cell index={0}>
+                            <Table.Summary.Cell index={2}>
+                                统计
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
@@ -339,8 +456,27 @@ const OldJiaoyi=(props)=>{
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
+                rowSelection={rowSelection}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+            <Modal
+                width={1000}
+                open={printModalOpen}
+                onCancel={()=>setPrintModalOpen(false)}
+                footer={[
+                    <Button key="print" type="primary" onClick={handlePrint}>打印</Button>,
+                    <Button key="cancel" type="primary" onClick={()=>setPrintModalOpen(false)}>关闭</Button>
+                ]}
+            >
+                <div className="print-only-content">
+                    {/* 确保传递printList给打印组件 */}
+                    <MyReceipt
+                        ref={printRef}
+                        printList={printList}
+                        className="print-only-content"
+                    />
+                </div>
+            </Modal>
         </Spin>
     )
 };

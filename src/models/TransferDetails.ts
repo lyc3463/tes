@@ -18,7 +18,9 @@ let pl={
     startDate:'2000-01-01',
     endDate:'2099-01-01',
     orderType:4,
-    iskc:1
+    iskc:1,
+    warehouseName:'',
+    unitId:0
 }
 export interface StaffCountState {
     count: number;
@@ -51,7 +53,11 @@ const TransferDetailsModel: StaffInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);

@@ -75,7 +75,10 @@ const CableJournaling=(props)=>{
     const getWaterList=()=>{
         WatertService.fetch({page,name,waterAddress,remark,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setwaterList(res.Data);
+                setwaterList(res.Data.data);
+                settotal_used_amount(res.Data.total_used_amount);
+                setwaterNumSum(res.Data.waterNumSum);
+                setcount(res.Data.count)
             }else {
                 message.error(res.Data);
             }
@@ -95,15 +98,15 @@ const CableJournaling=(props)=>{
     };
     const sousuo=()=>{
         setPage(1);
-        getWaterListfenye();
+        // getWaterListfenye();
         getWaterList();
     };
     useEffect(() => {
         getWaterList()
     }, [page,pageSize]);
-    useEffect(() => {
-        getWaterListfenye();
-    }, []);
+    // useEffect(() => {
+    //     getWaterListfenye();
+    // }, []);
     const onChange=(e,pageSize)=>{
       setPage(e);
       setPageSize(pageSize);

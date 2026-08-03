@@ -1,25 +1,10 @@
-import {
-    Button,
-    DatePicker,
-    Form,
-    Input,
-    InputNumber,
-    List,
-    message,
-    Modal,
-    Pagination,
-    Select,
-    Space,
-    Table,
-    Tag
-} from "antd";
+import {Button, DatePicker, List, message, Modal, Pagination, Space, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {connect} from 'umi'
 import {cropDateStringToYearMonth, getCurrentDate} from "@/utils/OpenTool";
 import dayjs from "dayjs";
 import * as SumHounsBliiService from '@/services/sumHounsBlii';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {one} from "@/services/sumHounsBlii";
 
 interface DateList{
     rent:number,
@@ -50,41 +35,22 @@ const SumHounsBlii=(props:any)=>{
     const [username,setusername]=useState('');
     // 账单周期
     const [zhangdanzhouqi,setzhangdanzhouqi]=useState('');
+    const [tenantName,settenantName]=useState('');
     // 总租户数量
     const [total,settotal]=useState(0);
     // 账单对象
     const [dateList,setDateList]=useState<DateList>({});
     // 获取列表
     const getBillList=()=>{
-        SumHounsBliiService.fenye(startDate).then((res:TypeErrorCode)=>{
+        SumHounsBliiService.fenye(tenantName).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('列表',res.Data);
                 settenntrList(res.Data);
             }else {
                 message.error(res.Data);
             }
         })
     };
-    // 获取汇总
-    const getBillsum=()=>{
-        SumHounsBliiService.fetch(startDate).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setbillMoneySum(res.Data.billMoneySum);
-                setpayBillMoneySum(res.Data.payBillMoneySum);
-                setzhangdanzhouqi(startDate);
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
-    // 获取分页信息
-    const getfyBillsum=()=>{
-        SumHounsBliiService.one().then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                settotal(res.Data.count);
-            }
-        })
-    };
+
     const columns =[
         {
             title: '单元名称',
@@ -118,76 +84,63 @@ const SumHounsBlii=(props:any)=>{
             }
         },
         {
-            title: '合同周期',
-            dataIndex: 'unit_name',
-            key: 'unit_name',
-            render: (text:any, record:any) => {
-                return(
-                    <div>
-                        {dayjs(record.beginTime).format("YYYY-MM-DD")}至{dayjs(record.endTime).format("YYYY-MM-DD")}
-                    </div>
-                )
-            }
+            title: '租户手机号',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
+            width:300,
         },
         {
-            title: '房屋账单',
-            dataIndex: 'payBillMoneySum',
-            key: 'payBillMoneySum',
-            render: (text:any, record:any) => {
-                return(
-                    <div>
-                        {record.tenantBill.billMoney}元
+            title: '合同列表',
+            dataIndex: 'coutractList',
+            key: 'coutractList',
+            render: (text,record) => {
+                // 空/空数组 → 不渲染
+                if (!text || !Array.isArray(text) || text.length === 0) {
+                    return '';
+                }
+                // 有值 → 渲染可点击的合同编号（每个独立点击）
+                return text.map((item, index) => (
+                    <div
+                        key={index}
+                        onClick={() => handleContractClick(item,record)} // 点击事件
+                        style={{
+                            color: '#1890ff',
+                            cursor: 'pointer',
+                            margin: '3px 0',
+                        }}
+                    >
+                        {item.identifier || '-'}
                     </div>
-                )
-            }
-        },
-        {
-            title: '缴费状态',
-            dataIndex: 'tenantBill',
-            key: 'tenantBill',
-            render: (text:any, record:any) => {
-                return(
-                    <div>
-                        {record.tenantBill.billStatus==1?<Tag color='red'>未交</Tag>:<Tag color='green'>已交</Tag>}
-                    </div>
-                )
-            }
-        },
-        {
-            title: '详情',
-            dataIndex: 'info',
-            key: 'info',
-            render: (text:any, record:any) => {
-                return(
-                    <div>
-                       <Button type='primary' onClick={()=>toInfo(record)}>详情</Button>
-                    </div>
-                )
-            }
+                ));
+            },
         },
     ];
     useEffect(() => {
         setstartDate(getCurrentDate());
         setzhangdanzhouqi(getCurrentDate());
         getBillList();
-        getBillsum();
-        getfyBillsum();
+        // getfyBillsum();
 
     }, []);
     const changeDate=(_:any,item:any)=>{
         setstartDate(item);
     };
     // 详情
-    const  toInfo=(e:any)=>{
+    const  handleContractClick=(e:any,record:any)=>{
+        console.log('e',e);
+        console.log('record',record);
         setOpen(true);
-        setUid(e.id);
-        setusername(e.tenant_name);
-        setDateList(e.tenantBill);
+        getCouTractBill(startDate,record.tenantId,e.contractId);
+    };
+    const getCouTractBill=(startDate:string,tenantId:number,coutRactId:number)=>{
+        SumHounsBliiService.one(startDate,tenantId,coutRactId).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setDateList(res.Data);
+            }
+        })
     };
     const sousuo=()=>{
         getBillList();
-        getBillsum();
-        getfyBillsum();
     };
     const onChange=(e)=>{
       setpage(e);
@@ -250,30 +203,27 @@ const SumHounsBlii=(props:any)=>{
             </List>
             <Table
                 columns={columns}
-                rowKey={(columns) => columns.index}
+                rowKey={(columns) => columns.tenantId}
                 pagination={false}
                 size='small'
                 scroll={{y:'60vh'}}
                 dataSource={tenntrList}
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
-                summary={(columns) => (
-                    <Table.Summary fixed>
-                        <Table.Summary.Row>
-                            <Table.Summary.Cell
-                                index={1}
-                            >
-                                统计
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell index={0}>
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell
-                                index={2}
-                            >
-                                {payBillMoneySum}元
-                            </Table.Summary.Cell>
-                        </Table.Summary.Row>
-                    </Table.Summary>
-                )}
+                // summary={(columns) => (
+                //     <Table.Summary fixed>
+                //         <Table.Summary.Row>
+                //             <Table.Summary.Cell
+                //                 index={1}
+                //             >
+                //                 统计
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={0}>
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={0}>
+                //             </Table.Summary.Cell>
+                //         </Table.Summary.Row>
+                //     </Table.Summary>
+                // )}
             />
             <Pagination total={total} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
 

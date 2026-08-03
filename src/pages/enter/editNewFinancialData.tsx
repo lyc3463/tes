@@ -42,6 +42,8 @@ const EditNewFinancialData=(props:any)=>{
     const [bxId,setBxId]=useState(0);
     const [imgUrl,setImgUrl]=useState('');
     const [supplierId,setSupplierId]=useState(0);
+    const [caigou,setCaigou]=useState([]);
+
     useEffect(()=>{
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
@@ -339,7 +341,7 @@ const EditNewFinancialData=(props:any)=>{
             userId:0
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setBillList(res.Data);
+                setBillList(res.Data.data);
             }else {
 
             }
@@ -369,7 +371,12 @@ const EditNewFinancialData=(props:any)=>{
             && item.amount > 0
         );
         if (filteredGoodsList.length === 0) return message.error('报销明细科目不能为空,金额不能为0,请检查!');
-        let jsonData=JSON.stringify(filteredGoodsList);
+        let jsonfd=JSON.stringify(filteredGoodsList);
+        let jsonCaigou=JSON.stringify(caigou);
+        let caigouFd={fd:jsonfd,caigou:jsonCaigou};
+        let jsonData=JSON.stringify(caigouFd);
+        // let jsonData = JSON.stringify(filteredGoodsList);
+
         setSpinning(true);
         props.dispatch({
             type:'NewFinancialData/edit',

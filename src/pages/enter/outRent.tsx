@@ -5,7 +5,7 @@ import {
     List,
     message,
     Modal,
-    Pagination,
+    Pagination, Popover,
     Select,
     Space,
     Spin,
@@ -18,6 +18,7 @@ import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import RenameType from "@/ModelTypes/TypeRename";
 const OutRent=(props:any)=>{
     // 当前页数
     const [page,setPage]=useState(1);
@@ -27,8 +28,8 @@ const OutRent=(props:any)=>{
     // 手机号
     const [phone,setPhone]=useState(checkSessionStorage('/enter/afterSales/','outRentPhone')||'');
     const [spinning,setspinning]=useState(false);
-    // 状态 0全部，1未审核，2审核通过
-    const [stutes,setStutes]=useState(1);
+    // 状态 0全部，1未审核，2审核通过，3驳回
+    const [stutes,setStutes]=useState(Number(checkSessionStorage('/enter/afterSales/','outRentStutes')||0));
     // 开始时间
     const [startDate,setStartDate]=useState(checkSessionStorage('/enter/afterSales/','outRentStartDate')||'2000-01-01');
     // 结束时间
@@ -132,10 +133,22 @@ const OutRent=(props:any)=>{
             title: '状态',
             dataIndex: 'renameStatus',
             key: 'renameStatus',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>{record.renameStatus==2?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}</div>
-                )
+            render: (text: any, record: RenameType) => {
+                const status = record.renameStatus;
+                let tagDom;
+                if (status === 2) {
+                    tagDom = <Tag color="green">已审核</Tag>;
+                } else if (status === 3) {
+                    // 驳回，增加气泡展示备注
+                    tagDom = (
+                        <Popover content={record.remark || '无驳回原因'} title="驳回理由">
+                            <Tag color="red">驳回？</Tag>
+                        </Popover>
+                    );
+                } else {
+                    tagDom = <Tag color="orange">未审核</Tag>;
+                }
+                return tagDom;
             }
         },
         {
@@ -195,6 +208,7 @@ const OutRent=(props:any)=>{
     // 监听状态
     const changeStutes=(e:number)=>{
         setStutes(e);
+        updateSessionStorage('/enter/afterSales/','outRentStutes',String(e));
     };
     // 分页
     const logFenye=()=>{
@@ -206,20 +220,11 @@ const OutRent=(props:any)=>{
     useEffect(() => {
         logFenye();
     }, [page,pageSize]);
-    useEffect(() => {
-        fenyeinfo();
-    }, []);
+
     // 搜索
     const suosou=()=>{
         setPage(1);
-        fenyeinfo();
         logFenye();
-    };
-    const fenyeinfo=()=>{
-        props.dispatch({
-            type:'OutRent/fenye',
-            payload:{phone,stutes,startDate,endDate,pageSize}
-        })
     };
     const toedit=(e:number)=>{
         history.push(`/enter/editOutRent?id=${e}`);
@@ -238,6 +243,7 @@ const OutRent=(props:any)=>{
                 message.success('删除成功');
                 setspinning(false);
                 setOpen(false);
+                logFenye();
             }else {
                 message.error(res.Data);
                 setspinning(false);
@@ -257,7 +263,7 @@ const OutRent=(props:any)=>{
                     </Space>
                     <Space>
                         <Input
-                            addonBefore="原手机号:"
+                            addonBefore="手机号:"
                             onChange={changePhone}
                             value={phone}
                         />
@@ -277,6 +283,33 @@ const OutRent=(props:any)=>{
                                 日期:
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={changeStutes}
+                                value={stutes}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '未审核' },
+                                    { value:2, label: '已审核' },
+                                    { value:3, label: '驳回' },
+                                ]}
+                            />
                         </Space.Compact>
                         <Button type="primary" onClick={suosou}>
                             搜索

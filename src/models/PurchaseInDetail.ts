@@ -21,6 +21,9 @@ let pl={
     iskc:1,
     warehouseId:0,
     unitId:0,
+    supplierName:'',
+    startDate1:'2000-01-01',
+    endDate1:'2099-01-01'
 }
 export interface StaffCountState {
     count: number;
@@ -53,7 +56,11 @@ const PurchaseInDetailModel: StaffInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);

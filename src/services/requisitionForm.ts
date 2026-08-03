@@ -1,7 +1,7 @@
 import {getData, postData} from '@/network/http';
 
 export function fetch(vals:any) {
-    return getData(1750, [vals.page,vals.orderCode,vals.warehouseName,vals.startDate,vals.endDate,vals.orderStatus,vals.billStatus,vals.pageSize,vals.orderType]);
+    return getData(1750, [vals.page,vals.orderCode,vals.warehouseName,vals.startDate,vals.endDate,vals.orderStatus,vals.billStatus,vals.pageSize,vals.orderType,vals.uName]);
 }
 export function fenye(vals:any) {
     return getData(1751, [vals.orderCode,vals.warehouseName,vals.startDate,vals.endDate,vals.orderStatus,vals.billStatus,vals.pageSize,vals.orderType]);
@@ -24,10 +24,10 @@ export function addDamage(vals:any) {
 }
 // 添加销售单
 export function addSales(vals:any) {
-    return postData(1762, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.remark,vals.paidAmount,vals.totalAmount,vals.customerType,vals.customerId,vals.discountRate,vals.discountPrice,vals.pmId,vals.salesperson],vals.jsonData);
+    return postData(1762, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.remark,vals.paidAmount,vals.totalAmount,vals.customerId,vals.discountRate,vals.discountPrice,vals.pmId,vals.salesperson],vals.jsonData);
 }
 export function edit(vals:any) {
-    return postData(1747, [vals.uid,vals.orderCode,vals.orderTime,vals.warehouseId,vals.paidAmount,vals.totalAmount,vals.remark,vals.warehouseId2,vals.customerType,vals.customerId,vals.discountRate,vals.discountPrice,vals.pmId,vals.salesperson],vals.jsonData);
+    return postData(1747, [vals.uid,vals.orderCode,vals.orderTime,vals.warehouseId,vals.paidAmount,vals.totalAmount,vals.remark,vals.warehouseId2,vals.customerId,vals.discountRate,vals.discountPrice,vals.pmId,vals.salesperson],vals.jsonData);
 }
 
 export function remove(vals:any) {

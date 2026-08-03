@@ -80,6 +80,9 @@ const OtherInvoiceNotIssued = () => {
                     case 11:
                         consumptionTypeText = <Tag style={{ color: '#795558' }}>报修</Tag>;
                         break;
+                    case 13:
+                        consumptionTypeText = <Tag style={{ color: '#795558' }}>管理费</Tag>;
+                        break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
@@ -126,6 +129,7 @@ const OtherInvoiceNotIssued = () => {
     const getList=()=>{
         UnopenedFpListService.otherfetch(page,name,phone,userId,type,stutes,pageSize,startDate,endDate).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('res',res)
                 setZuhuList(res.Data);
             }else {
                 message.error(res.Data);
@@ -243,6 +247,7 @@ const OtherInvoiceNotIssued = () => {
                                     { value:8, label: '违约金' },
                                     { value:9, label: '月保' },
                                     { value:11, label: '报修' },
+                                    { value:13, label: '管理费' },
                                 ]}
                             />
                         </Space.Compact>
@@ -267,6 +272,8 @@ const OtherInvoiceNotIssued = () => {
                                 index={1}
                             >
                                 统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>

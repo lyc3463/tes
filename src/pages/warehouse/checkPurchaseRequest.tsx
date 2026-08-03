@@ -1,5 +1,4 @@
 import {Tabs} from "antd";
-import PurchaseRequest from "@/pages/warehouse/purchaseRequest";
 import PurchaseRequestCheck from "@/pages/warehouse/purchaseRequestCheck";
 import Purchase from "@/pages/warehouse/purchase";
 import DirectPurchase from "@/pages/warehouse/directPurchase";

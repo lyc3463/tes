@@ -48,7 +48,7 @@ const AddTenantInfo=(props)=>{
     const logFenye=()=>{
         ZuhuService.fetch({page,name,phone,pagecount}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setList(res.Data);
+                setList(res.Data.data);
             }else {
                 message.error(res.Data);
             }

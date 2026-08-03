@@ -1,9 +1,10 @@
 import {useEffect, useState} from "react";
 import {connect, history,useNavigate} from "umi";
-import {Button, DatePicker, Form, Input, InputNumber, message, Radio, Space, Spin} from "antd";
+import {Button, DatePicker, Form, Image, Input, InputNumber, message, Radio, Space, Spin} from "antd";
 import * as Preferential from '@/services/preferential';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
+import ImageUpload from "@/components/ImageUploader";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -23,6 +24,8 @@ const EditPreferential=(props)=>{
     const [startDate,setStartDate]=useState('2000-01-01');
     // 优惠结束月份
     const [endDate,setEndDate]=useState('2000-02-01');
+    const [imgB64, setImgB64] = useState<string[]>([]);
+    const [imgName,setImgName]=useState<string[]>([]);
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
@@ -32,6 +35,7 @@ const EditPreferential=(props)=>{
     const getInfo=(id:string)=>{
         setspinning(true);
         Preferential.one(id).then((res:TypeErrorCode)=>{
+            console.log('res',res);
             if (res.ErrorCode==0){
                 setspinning(false);
                 setpreRen(res.Data.preRen);
@@ -41,6 +45,9 @@ const EditPreferential=(props)=>{
                 settenant_phone(res.Data.tenant_phone);
                 setStartDate(res.Data.preBeginTime);
                 setEndDate(res.Data.preEndTime);
+                setImgName(res.Data.pdfImage.split("|"));
+                setImgB64(res.Data.pdfImageBase64.split("|"));
+
             }else {
                 setspinning(false);
                 message.error(res.Data);
@@ -49,9 +56,10 @@ const EditPreferential=(props)=>{
     };
     const onOK=()=>{
         setspinning(true)
+        const imgList=imgName.join('|');
         props.dispatch({
             type:'Preferential/edit',
-            payload:{uid,preRen,startDate,endDate,preType}
+            payload:{uid,preRen,startDate,endDate,preType,imgList}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setspinning(false);
@@ -71,6 +79,22 @@ const EditPreferential=(props)=>{
             setStartDate(dayjs(data[0]).format('YYYY-MM-DD'));
             setEndDate(dayjs(data[1]).format('YYYY-MM-DD'));
         }
+    };
+    // 图片base64
+    const onImageUpload=(base64:any)=>{
+        setImgName([...imgName,base64]);
+    };
+    const oldBase64=(base64:any)=>{
+        setImgB64([...imgB64,base64]);
+    };
+    // 删除租户证件图片
+    const handleDeletezuhu = (index: number) => {
+        const newImages = [...imgB64];
+        newImages.splice(index, 1);
+        setImgB64(newImages);
+        const newB64 = [...imgName];
+        newB64.splice(index, 1);
+        setImgName(newB64);
     };
   return(
       <Spin spinning={spinning}>
@@ -105,8 +129,32 @@ const EditPreferential=(props)=>{
                       <Radio value={1}>满合同优惠</Radio>
                   </Radio.Group>
               </Form.Item>
-              <Form.Item label='注意'>
-                 <span style={{color:'#555',fontSize:"12px"}}>满合同优惠，中途退租，合同未到期，历史优惠金额算到账单一起出</span>
+              <Form.Item label='图片'>
+                  <ImageUpload onImageUpload={onImageUpload} oldBase64={oldBase64}/>
+                  {/* 有图片才渲染预览区域 */}
+                  {imgB64.length > 0 && (
+                      <Space wrap size={10} style={{ marginTop: 10 }}>
+                          {imgB64.map((item, index) => (
+                              <div key={index} style={{ position: "relative" }}>
+                                  <Image
+                                      src={item}
+                                      width={70}
+                                      height={70}
+                                      style={{ borderRadius: 6, objectFit: "cover" }}
+                                      preview
+                                  />
+                                  <Button
+                                      danger
+                                      size="small"
+                                      style={{ position: "absolute", top: 2, right: 2, width: 22, height: 22, padding: 0 }}
+                                      onClick={() => handleDeletezuhu(index)}
+                                  >
+                                      ×
+                                  </Button>
+                              </div>
+                          ))}
+                      </Space>
+                  )}
               </Form.Item>
               <Form.Item {...tailLayout}>
                   <Space>

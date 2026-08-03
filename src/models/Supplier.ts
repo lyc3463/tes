@@ -48,11 +48,15 @@ const SupplierModel: StaffInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(ThingListvice.fetch, payload?payload:pl);
-            console.log(res);
+            console.log('res',res);
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);

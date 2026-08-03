@@ -116,7 +116,6 @@ const TurnoverRate=(props)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     // 监听页数
     const onChange=(page:number,pageSize:number)=>{
@@ -129,18 +128,11 @@ const TurnoverRate=(props)=>{
           payload:{page, orderCode, productsName, startDate, endDate, pageSize}
       })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'TurnoverRate/fenye',
-            payload:{orderCode, productsName, startDate, endDate, pageSize}
-        })
-    };
+
     useEffect(() => {
         getList()
     }, [page,pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
+
     return(
         <Spin spinning={spinning}>
             <List>

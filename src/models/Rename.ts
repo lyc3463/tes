@@ -36,8 +36,8 @@ export interface RenameInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
-        fenye:Effect;
         check:Effect;
+        translation:Effect;
     };
     reducers: {
         list: Reducer<RenameType[]>;
@@ -53,9 +53,14 @@ const RenameModel: RenameInterface = {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(RenameService.fetch, payload?payload:pl);
             if (res.ErrorCode == 0) {
+                console.log(res);
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -78,32 +83,27 @@ const RenameModel: RenameInterface = {
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(RenameService.edit, payload);
-            yield put({ type: 'fetch', payload:pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload:pl });
+            // yield take('fetch/@@end');
             return result
         },
         *remove({ payload }, { call, put,take}): any {
             const result = yield call(RenameService.remove, payload);
-            yield put({ type: 'fetch', payload:pl});
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload:pl});
+            // yield take('fetch/@@end');
             return result
         },
         *check({ payload }, { call, put,take}): any {
             const result = yield call(RenameService.check, payload);
-            yield put({ type: 'fetch', payload:pl});
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload:pl});
+            // yield take('fetch/@@end');
             return result
         },
-        *fenye({ type, payload }, { put, call, select }): any {
-            const res = yield call(RenameService.fenye,payload?payload:pl);
-            if (res.ErrorCode == 0) {
-                yield put({
-                    type: 'count',
-                    payload: { count: res.Data },
-                });
-            } else {
-                message.error(res.ErrorCode + res.Data);
-            }
+        *translation({ payload }, { call, put,take}): any {
+            const result = yield call(RenameService.translation, payload);
+            // yield put({ type: 'fetch', payload:pl});
+            // yield take('fetch/@@end');
+            return result
         },
     },
     reducers: {

@@ -87,8 +87,8 @@ const EditRequisitionForm=(props)=>{
 
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
-                    ? `http://img.qhwy6.com/${textStr}`
-                    : `http://img.qhwy6.com/${textStr}_X.png`;
+                    ? `${window.ServerConfig.imgServer}${textStr}_X`
+                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 // 步骤3：仅当字符串非空时渲染图片，否则返回空
                 return textStr ? (
                     <Image
@@ -111,23 +111,25 @@ const EditRequisitionForm=(props)=>{
                     optionFilterProp="children"
                     placeholder="搜索物品名称"
                     style={{ width: 120 }}
-                    onChange={(value) => handleProductSelect(record.id, value)}
+                    value={text || undefined}
+                    onChange={(value,label) => handleProductSelect(record.id,label)}
                     filterOption={(input, option) => {
                         if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) {
                             return false;
                         }
-                        // 查找匹配productsCode的物品 (使用productsCode代替id)
-                        const item = thingStockInfoList.find(unit => unit.productsCode == option.value);
+                        // 🔹 这里也要用拼接 value 查找
+                        const item = thingStockInfoList.find(
+                            unit => `${unit.productsCode}${unit.productsName}` === option.value
+                        );
                         if (!item) return false;
                         const searchInput = input.toLowerCase();
-                        // 仍按名称搜索，但基于productsCode匹配的物品
                         return item.productsName?.toLowerCase().includes(searchInput);
                     }}
                     // 选项值使用productsCode代替id (唯一非int标识符)
                     options={Array.isArray(thingStockInfoList)
                         ? thingStockInfoList.map(item => ({
                             label: `${item.productsName}`,
-                            value: item.productsCode // 改为使用productsCode作为value
+                            value: `${item.productsCode+item.productsName}`
                         }))
                         : []}
                 />
@@ -354,10 +356,10 @@ const EditRequisitionForm=(props)=>{
         setDisplayData([...displayData, ...newRecords]);
     };
     // 处理物品选择变更 - 更新物品名称及相关信息
-    const handleProductSelect = (recordId, productCode) => {
+    const handleProductSelect = (recordId,label) => {
         // 查找选中的物品信息
-        const selectedProduct = thingStockInfoList.find(item => item.productsCode === productCode);
-        ThingStockInfoServer.productsNameQuery(warehouseId,selectedProduct.productsName).then((res:TypeErrorCode)=>{
+        const selectedProduct = thingStockInfoList.find(item => item.productsName === label.label);
+        ThingStockInfoServer.productsNameQuery(warehouseId,selectedProduct.productsCode).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 console.log('物品名称',res);
                 setDisplayData(displayData.map(item => {
@@ -389,7 +391,6 @@ const EditRequisitionForm=(props)=>{
                             isZk: 1,
                             discountRateDp: 100,
                             discountPriceDp: 0,
-                            poId:uid
                         };
                     }
                     return item;
@@ -399,22 +400,7 @@ const EditRequisitionForm=(props)=>{
             }
         })
     };
-    // useEffect(() => {
-    //     if (thingStockInfoList.length === 0) return; // 库存为空时不处理
-    //     setDisplayData(prevData =>
-    //         prevData.map(displayItem => {
-    //             // 查找库存中productsCode匹配的项
-    //             const matchedStockItem = thingStockInfoList.find(
-    //                 stockItem => stockItem.productsCode === displayItem.productsCode
-    //             );
-    //             console.log('matchedStockItem',matchedStockItem);
-    //             // 若找到匹配项，更新iList；否则保留原iList
-    //             return matchedStockItem
-    //                 ? { ...displayItem, iList: matchedStockItem.iList || [] }
-    //                 : displayItem;
-    //         })
-    //     );
-    // }, [thingStockInfoList]);
+
     return(
         <Spin spinning={spinning}>
             <Space>

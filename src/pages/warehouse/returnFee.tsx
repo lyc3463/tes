@@ -36,6 +36,7 @@ const ReturnFee=(props)=>{
     const [paymentType,setPaymentType]=useState(0);// 缴费支付类型
     const [payCrderCode,setPayCrderCode]=useState('');// 缴费订单号
     const [payOrderType,setPayOrderType]=useState(0);// 缴费订单类型
+    const [uName,setUName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','ReturnFeeUName')||'');// 申请人
     const columns = [
         {
             title: '申请时间',
@@ -69,7 +70,7 @@ const ReturnFee=(props)=>{
             },
         },
         {
-            title: '退货人',
+            title: '申请人',
             dataIndex: 'user_name',
             ellipsis: true,
             align:'center',
@@ -101,8 +102,8 @@ const ReturnFee=(props)=>{
                 return(
                     <Space>
                         {record.billStatus==2?'':
-                            userQx()[561]=='1'?
-                            <Button type='primary' onClick={()=>isPayment(record)}>缴费</Button>:''
+
+                                <Button type='primary' onClick={()=>isPayment(record)}>缴费</Button>
                         }
                     </Space>
                 )
@@ -118,20 +119,14 @@ const ReturnFee=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'ReturnFee/fetch',
-            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'ReturnFee/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
-        })
-    };
+
     useEffect(() => {
         getList();
     }, [page,pageSize]);
     useEffect(() => {
-        getFenye();
         getPayList();
     }, []);
     const onChange=(page:number,pageSize:number)=>{
@@ -206,16 +201,24 @@ const ReturnFee=(props)=>{
         setBillStatus(e);
         updateSessionStorage('/warehouse/checkPurchaseRequest','ReturnFeeBillStatus',e);
     };
+    const changeUName=(e)=>{
+        setUName(e.target.value);
+        updateSessionStorage('/warehouse/checkPurchaseRequest','ReturnFeeUName',e.target.value);
+    };
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
+                        <Input
+                            addonBefore="申请人:"
+                            value={uName}
+                            onChange={changeUName}
+                        />
                         <Input
                             addonBefore="仓库名称:"
                             value={warehouseName}

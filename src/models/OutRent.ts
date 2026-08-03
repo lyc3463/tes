@@ -35,7 +35,6 @@ export interface OutRentInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
-        fenye: Effect;
         check: Effect;
     };
     reducers: {
@@ -51,14 +50,15 @@ const OutRentModel: OutRentInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(outRentService.fetch, payload?payload:pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
+            console.log('res',res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -75,39 +75,29 @@ const OutRentModel: OutRentInterface = {
         },
         *add({ payload, callback }, { call, put, take }): any {
             const result = yield call(outRentService.add, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(outRentService.edit, payload);
-            yield put({ type: 'fetch', payload:pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload:pl });
+            // yield take('fetch/@@end');
             return result
         },
         *remove({ payload }, { call, put,take}): any {
             const result = yield call(outRentService.remove, payload);
-            yield put({ type: 'fetch', payload:pl});
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload:pl});
+            // yield take('fetch/@@end');
             return result
         },
         *check({ payload }, { call, put,take}): any {
             const result = yield call(outRentService.check, payload);
-            yield put({ type: 'fetch', payload:pl});
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload:pl});
+            // yield take('fetch/@@end');
             return result
         },
-        *fenye({ type, payload }, { put, call, select }): any {
-            const res = yield call(outRentService.fenye,payload?payload:pl);
-            if (res.ErrorCode == 0) {
-                yield put({
-                    type: 'count',
-                    payload: { count: res.Data },
-                });
-            } else {
-                message.error(res.ErrorCode + res.Data);
-            }
-        },
+
     },
     reducers: {
         list(state, action) {

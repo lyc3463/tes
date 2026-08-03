@@ -870,32 +870,32 @@ const EndContran=()=>{
                             2、出租方证照文件
                         </h4>
                         <NoyasuoImgCmp onImageUpload={imgName} oldBase64={base64z}/>
-                        {/*<Space style={{display:'flex',flexWrap:'wrap'}}>*/}
-                        {/*    <Space style={{display:'flex',flexWrap:'wrap',marginTop:'25px'}}>*/}
-                        {/*        {b64.length>0?b64.map((item:any,index:number)=>{*/}
-                        {/*            return(*/}
-                        {/*                <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>*/}
-                        {/*                    <Image src={item} style={{ width: '80px', height: '80px' }} />*/}
-                        {/*                    <Button*/}
-                        {/*                        type="primary"*/}
-                        {/*                        danger*/}
-                        {/*                        onClick={() => handleDelete(index)}*/}
-                        {/*                        style={{*/}
-                        {/*                            position: 'absolute',*/}
-                        {/*                            top: '0',*/}
-                        {/*                            left: '0',*/}
-                        {/*                            zIndex: 1,*/}
-                        {/*                            padding: '2px 4px',*/}
-                        {/*                            transform: 'translate(-50%, -50%)',*/}
-                        {/*                        }}*/}
-                        {/*                    >*/}
-                        {/*                        删除*/}
-                        {/*                    </Button>*/}
-                        {/*                </div>*/}
-                        {/*            )*/}
-                        {/*        }):''}*/}
-                        {/*    </Space>*/}
-                        {/*</Space>*/}
+                        <Space style={{display:'flex',flexWrap:'wrap'}}>
+                            <Space style={{display:'flex',flexWrap:'wrap',marginTop:'25px'}}>
+                                {b64.length>0?b64.map((item:any,index:number)=>{
+                                    return(
+                                        <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
+                                            <Image src={item} style={{ width: '80px', height: '80px' }} />
+                                            <Button
+                                                type="primary"
+                                                danger
+                                                onClick={() => handleDelete(index)}
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: '0',
+                                                    left: '0',
+                                                    zIndex: 1,
+                                                    padding: '2px 4px',
+                                                    transform: 'translate(-50%, -50%)',
+                                                }}
+                                            >
+                                                删除
+                                            </Button>
+                                        </div>
+                                    )
+                                }):''}
+                            </Space>
+                        </Space>
                     </p>
                     <p style={{marginLeft:'50px'}}>
                         <h3>

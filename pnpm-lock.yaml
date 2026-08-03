@@ -11,6 +11,9 @@ importers:
       '@ant-design/icons':
         specifier: 5.4.0
         version: 5.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@fingerprintjs/fingerprintjs':
+        specifier: ^5.2.0
+        version: 5.2.0
       antd:
         specifier: 5.20.1
         version: 5.20.1(moment@2.30.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -32,6 +35,9 @@ importers:
       html2pdf.js:
         specifier: ^0.10.2
         version: 0.10.2
+      js-cookie:
+        specifier: ^3.0.8
+        version: 3.0.8
       jsencrypt:
         specifier: 3.3.2
         version: 3.3.2
@@ -901,6 +907,9 @@ packages:
   '@eslint/js@8.57.0':
     resolution: {integrity: sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@fingerprintjs/fingerprintjs@5.2.0':
+    resolution: {integrity: sha512-j+2nInkwCQNTJcNhOjvkGM/nLRTuGJTC6xai4quqvUpjob2ssrGwBZjS7k55nOmKvge7qvJT2nS3i/IRvQSTQA==}
 
   '@floating-ui/core@0.6.2':
     resolution: {integrity: sha512-jktYRmZwmau63adUG3GKOAVCofBXkk55S/zQ94XOorAHhwqFIOFAy1rSp2N0Wp6/tGbe9V3u/ExlGZypyY17rg==}
@@ -3636,6 +3645,9 @@ packages:
 
   jpeg-exif@1.1.4:
     resolution: {integrity: sha512-a+bKEcCjtuW5WTdgeXFzswSrdqi0jk4XlEtZlx5A94wCoBpFjfFTbo/Tra5SpNCl/YFZPvcV1dJc+TAYeg6ROQ==}
+
+  js-cookie@3.0.8:
+    resolution: {integrity: sha512-yeJd4aNAdYZQjaon2bpD/Gb0B/omw7HQOsynXXcOiWVCacbBcPlgn8S/d1X6blFSaHao7ozqtW7NZW19xpCtIw==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -6905,6 +6917,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.57.0': {}
+
+  '@fingerprintjs/fingerprintjs@5.2.0': {}
 
   '@floating-ui/core@0.6.2': {}
 
@@ -10524,6 +10538,8 @@ snapshots:
       supports-color: 8.1.1
 
   jpeg-exif@1.1.4: {}
+
+  js-cookie@3.0.8: {}
 
   js-tokens@4.0.0: {}
 

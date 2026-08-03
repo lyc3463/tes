@@ -111,7 +111,7 @@ const Bywater=(props)=>{
             type:'Watert/fetch'
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setWatertList(res.Data);
+                setWatertList(res.Data.data);
             }
         })
     };

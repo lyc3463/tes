@@ -16,10 +16,10 @@ export function remove(vals:any) {
     return getData(1204, [vals]);
 }
 export function one(vals:any) {
-    // return getData(1090, [vals]);
+    return getData(1205, [vals]);
 }
-export function fenye(vals:any) {
-    return getData(1207, [vals.name,vals.phone,vals.state,vals.openID,vals.startDate,vals.endDate,vals.pageSize]);
+export function reject(vals:any) {
+    return getData(1207, [vals.uid,vals.rejectStatus,vals.remark]);
 }
 export function fenpei(vals:any) {
     return getData(1288, [vals.OnId,vals.userID]);

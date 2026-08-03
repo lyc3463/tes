@@ -15,7 +15,7 @@ let pl={
     startDate:'2000-01-01',
     endDate:'2099-01-01',
     stutes:0,
-    openId:0,
+    userId:0,
     pageSize:50,
     titleName:'',
     tenannName:'',
@@ -52,9 +52,14 @@ const CheckFpModels: CheckFpInterface = {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(CheckFpService.fetch, payload?payload:pl);
             if (res.ErrorCode == 0) {
+                console.log('res',res)
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);

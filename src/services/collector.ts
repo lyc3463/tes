@@ -25,3 +25,6 @@ export function fenye(vals:any) {
 export function fetchCtr() {
     return getData(1505, []);
 }
+export function CollectorStutes() {
+    return getData(1836, []);
+}

@@ -7,7 +7,6 @@ import {
 import * as TousuService from '@/services/tousu';
 import { message } from 'antd';
 import _ from 'lodash';
-import { StaticInfo } from '@/StaticInfo';
 import TousuType from '@/ModelTypes/TypeTousu';
 import { fixPathname } from '@/utils/common';
 let pl={
@@ -17,7 +16,7 @@ let pl={
     state:0,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    openID:0,
+    userId:0,
     pageSize:50
 };
 
@@ -55,7 +54,11 @@ const TousuModel: TousuInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -132,12 +135,12 @@ const TousuModel: TousuInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/propertyServerManage/complaint/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/propertyServerManage/complaint/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
 
             });
         },

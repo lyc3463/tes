@@ -53,3 +53,7 @@ export function repairInvoiceList(vals:any) {
 export function repairInvoiceFenye(vals:any) {
     return getData(1623, [vals.name,vals.startDate,vals.endDate,vals.stutes,vals.tenandId,vals.pageSize]);
 }
+//租金缴费列表分页
+export function managementFee(vals:any) {
+    return getData(1434, [vals.page,vals.name,vals.phone,vals.startDate,vals.endDate,vals.stutes,vals.tenandId,vals.pageSize]);
+}

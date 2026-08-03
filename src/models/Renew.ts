@@ -7,10 +7,8 @@ import {
 import * as RenewService from '@/services/renew';
 import { message } from 'antd';
 import _ from 'lodash';
-import { StaticInfo } from '@/StaticInfo';
 import RenewType from '@/ModelTypes/TypeRenew';
 import { fixPathname } from '@/utils/common';
-import * as RenameService from "@/services/rename";
 let pl={
     page:1,
     phone:'',
@@ -36,8 +34,8 @@ export interface RenewInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
-        fenye: Effect;
         check: Effect;
+        translation: Effect;
     };
     reducers: {
         list: Reducer<RenewType[]>;
@@ -51,16 +49,16 @@ const RenewModel: RenewInterface = {
     state: {},
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
-
             const res = yield call(RenewService.fetch, payload?payload:pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
             if (res.ErrorCode == 0) {
+                console.log('res',res);
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -77,39 +75,35 @@ const RenewModel: RenewInterface = {
         },
         *add({ payload, callback }, { call, put, take }): any {
             const result = yield call(RenewService.add, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(RenewService.edit, payload);
-            yield put({ type: 'fetch', payload:pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload:pl });
+            // yield take('fetch/@@end');
+            return result
+        },
+        *translation({ payload, callback }, { call, put, take }): any {
+            const result = yield call(RenewService.translation, payload);
+            // yield put({ type: 'fetch', payload:pl });
+            // yield take('fetch/@@end');
             return result
         },
         *check({ payload, callback }, { call, put, take }): any {
             const result = yield call(RenewService.check, payload);
-            yield put({ type: 'fetch', payload:pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload:pl });
+            // yield take('fetch/@@end');
             return result
         },
         *remove({ payload }, { call, put,take}): any {
             const result = yield call(RenewService.remove, payload);
-            yield put({ type: 'fetch', payload:pl});
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload:pl});
+            // yield take('fetch/@@end');
             return result
         },
-        *fenye({ type, payload }, { put, call, select }): any {
-            const res = yield call(RenewService.fenye,payload?payload:pl);
-            if (res.ErrorCode == 0) {
-                yield put({
-                    type: 'count',
-                    payload: { count: res.Data },
-                });
-            } else {
-                message.error(res.ErrorCode + res.Data);
-            }
-        },
+
     },
     reducers: {
         list(state, action) {

@@ -8,5 +8,6 @@ export function get1166(page:number,name:string,phone:string,stutes:number) {
 }
 // 切换园区
 export function swPark(e) {
-    return getData(1820, [e])
+    // return getData(1820, [e])
+    return getData(1831, [e])
 }

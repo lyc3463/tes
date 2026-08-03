@@ -113,7 +113,7 @@ const Zuhulist=(props:any)=>{
             }
         },
         {
-            title: '公共押金(元)',
+            title: '押金总和(元)',
             dataIndex: 'deposit',
             key: 'deposit',
             sorter: (a, b) => a.deposit - b.deposit,
@@ -129,9 +129,7 @@ const Zuhulist=(props:any)=>{
     useEffect(() => {
         logFenye();
     }, [page,pagecount]);
-    useEffect(() => {
-        logFenyeInfo();
-    }, []);
+
     // 分页
     const logFenye=()=>{
         props.dispatch({
@@ -139,35 +137,26 @@ const Zuhulist=(props:any)=>{
             payload:{page,name,phone,pagecount}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setZuhuList(res.Data);
-                setOldZuhuList(res.Data);
-            }
-        })
-    };
-    // 搜索按钮
-    const shousuo=()=>{
-        setPage(1);
-        logFenyeInfo();
-        logFenye()
-    };
-    const onChange=(val:number,pageSize:number)=>{
-        setPage(val);
-        setpagecount(pageSize);
-    };
-    // 查看分页记录
-    const logFenyeInfo=()=>{
-        props.dispatch({
-            type:'Zuhu/fenye',
-            payload:{name,phone,pagecount}
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
+                console.log('res',res);
+                setZuhuList(res.Data.data);
+                setOldZuhuList(res.Data.data);
                 setcount(res.Data.count);
                 setbalanceSum(res.Data.balanceSum);
                 setbillMoneySum(res.Data.billMoneySum);
                 setdepositSum(res.Data.depositSum);
                 setintegralSum(res.Data.integralSum);
             }
-        });
+        })
+    };
+    // 搜索按钮
+    const shousuo=()=>{
+        setPage(1);
+        logFenye();
+        console.log('props',props);
+    };
+    const onChange=(val:number,pageSize:number)=>{
+        setPage(val);
+        setpagecount(pageSize);
     };
     const chaxundanyuan=()=>{
         let a=fuzzySearch(oldZuhuList,unitName);

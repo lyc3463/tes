@@ -12,7 +12,8 @@ import UsersType from '@/ModelTypes/TypeUsers';
 import { fixPathname } from '@/utils/common';
 let pl={
     page:1,
-    phone:''
+    phone:'',
+    is_zb:1
 }
 
 export interface UsersCountState {

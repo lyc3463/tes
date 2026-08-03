@@ -4,7 +4,7 @@ import {
     Subscription,
     history as UmiHistorty,
 } from 'umi';
-import * as RechargeRateService from '@/services/monthlyInsurance';
+import * as RechargeRateService from '@/services/rechargeRate';
 import { message } from 'antd';
 import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
@@ -48,9 +48,14 @@ const MonthlyInsuranceLogModel: QuestionnaireInterface = {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(RechargeRateService.fetch, payload?payload:pl);
             if (res.ErrorCode == 0) {
+                console.log('res',res)
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);

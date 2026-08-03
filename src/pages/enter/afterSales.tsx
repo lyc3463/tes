@@ -7,6 +7,9 @@ import Preferential from "@/pages/enter/preferential";
 import ByStages from "@/pages/enter/byStages";
 import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
+import Damages from "@/pages/enter/damages";
+import ChangeWeChat from "@/pages/enter/changeWeChat";
+import RequestARefund from "@/pages/enter/requestARefund";
 const AfterSales=()=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('activeTabKey1') || '1');
     // 用户权限
@@ -20,30 +23,35 @@ const AfterSales=()=>{
         setUqx(uq);
     }, []);
     return(
-        <div>
-            <Tabs activeKey={activeKey} onChange={onChange}>
-                {uqx[219]=='1'? <Tabs.TabPane tab='更名录入' key='1'>
-                                    <Rename/>
-                                </Tabs.TabPane>
-                    :''}
-                {uqx[221]=='1'?<Tabs.TabPane tab='续租录入' key='3'>
-                                    <Renew/>
-                                </Tabs.TabPane>
-                    :''}
-                {uqx[222]=='1'?<Tabs.TabPane tab='退租录入' key='4'>
-                                    <OutRent/>
-                                </Tabs.TabPane>
-                    :''}
-                {uqx[223]=='1'?<Tabs.TabPane tab='优惠录入' key='5'>
-                                    <Preferential/>
-                                </Tabs.TabPane>
-                    :''}
-                {uqx[223]=='1'?<Tabs.TabPane tab='分期录入' key='6'>
-                                    <ByStages/>
-                                </Tabs.TabPane>
-                    :''}
-            </Tabs>
-        </div>
+        <Tabs activeKey={activeKey} onChange={onChange}>
+            <Tabs.TabPane tab='更名录入' key='1'>
+                <Rename/>
+            </Tabs.TabPane>
+
+            <Tabs.TabPane tab='续租录入' key='3'>
+                <Renew/>
+            </Tabs.TabPane>
+
+            <Tabs.TabPane tab='退租录入' key='4'>
+                <OutRent/>
+            </Tabs.TabPane>
+
+            <Tabs.TabPane tab='优惠录入' key='5'>
+                <Preferential/>
+            </Tabs.TabPane>
+
+            <Tabs.TabPane tab='分期录入' key='6'>
+                <ByStages/>
+            </Tabs.TabPane>
+
+            <Tabs.TabPane tab='违约金免除' key='7'>
+                <Damages/>
+            </Tabs.TabPane>
+
+            <Tabs.TabPane tab='更改微信号' key='8'>
+                <ChangeWeChat/>
+            </Tabs.TabPane>
+        </Tabs>
     )
 }
 export default AfterSales

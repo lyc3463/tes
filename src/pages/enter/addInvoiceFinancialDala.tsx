@@ -1,80 +1,207 @@
-import {Button, DatePicker, Image, Input, InputNumber, message, Radio, Select, Space, Spin, Table} from "antd";
-import {useEffect, useState} from "react";
-import {connect,history,useNavigate} from "umi";
+import {
+    Badge,
+    Button, Card,
+    DatePicker,
+    Image,
+    Input,
+    InputNumber,
+    message,
+    Modal, Popconfirm,
+    Radio,
+    Select,
+    Space,
+    Spin,
+    Table
+} from "antd";
+import { useEffect, useState, useCallback } from "react";
+import { connect, useNavigate } from "umi";
 import dayjs from "dayjs";
-import {generate, getCurrentDate} from "@/utils/OpenTool";
-import {StaticInfo} from "@/StaticInfo";
-import {ClearOutlined} from "@ant-design/icons";
+import {generate, getCurrentDate, getImgSrc} from "@/utils/OpenTool";
+import { StaticInfo } from "@/StaticInfo";
+import {ClearOutlined, DeleteOutlined, FilePdfOutlined} from "@ant-design/icons";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import * as AccountService from "@/services/account";
 import * as ProjectService from "@/services/project";
 import ImageUploadPng from "@/components/ImageUploadPng";
+import FilteredProcurementList from "@/components/FilteredProcurementList";
+import CaigouTagList from "@/components/CaigouTagListProps";
+import PdfUpload from "@/components/PdfUpload";
 
-const AddInvoiceFinancialDala=(props:any)=>{
+// 缓存key
+const CACHE_KEY = "AddInvoiceFinancialDala_form_cache";
+
+// 默认初始值
+const getDefaultState = () => ({
+    orderDate: getCurrentDate(),
+    orderCode: "",
+    goodsList: [],
+    accountType: 0,
+    totalAmount: 0,
+    paidAmount: 0,
+    companyId: 0,
+    accountId: 0,
+    projectId: 0,
+    moneyType: 3,
+    supplierId: 0,
+    remark: "",
+    imgList: [],
+    caigou: [],
+    pdfFileName: [],
+});
+
+const AddInvoiceFinancialDala = (props: any) => {
     const [spinning, setSpinning] = useState(false);
-    const navigate=useNavigate();
-    // 账单日期
-    const [orderDate,setOrderDate]=useState(getCurrentDate());
-    // 订单号
-    const [orderCode,setOrderCode]=useState('');
-    // 添加的物品列表
-    const [goodsList,setGoodsList]=useState([]);
-    // 1公账，0私账
-    const [accountType,setAccountType]=useState(0);
-    // 总金额
+    const navigate = useNavigate();
+    // 恢复分散独立state，和你原始结构一致，监听不会失效
+    const [orderDate, setOrderDate] = useState(getCurrentDate());
+    const [orderCode, setOrderCode] = useState('');
+    const [goodsList, setGoodsList] = useState<any[]>([]);
+    const [accountType, setAccountType] = useState(0);
     const [totalAmount, setTotalAmount] = useState(0);
-    // 已付金额
     const [paidAmount, setPaidAmount] = useState(0);
-    // 公司id
-    const [companyId,setCompanyId]=useState(0);
-    // 账户id
-    const [accountId,setAccountId]=useState(0);
-    // 项目id
-    const [projectId,setProjectId]=useState(0);
-    // 收入支出类型
-    const [moneyType,setMoneyType]=useState(3);
-    // 供应商id
-    const [supplierId,setSupplierId]=useState(0);
-    // 备注
-    const [remark,setRemark]=useState('');
-    // 图片列表
-    const [imgList,setImgList]=useState([]);
-    const columnsz=[
+    const [companyId, setCompanyId] = useState(0);
+    const [accountId, setAccountId] = useState(0);
+    const [projectId, setProjectId] = useState(0);
+    const [moneyType, setMoneyType] = useState(3);
+    const [supplierId, setSupplierId] = useState(0);
+    const [remark, setRemark] = useState('');
+    const [imgList, setImgList] = useState<string[]>([]);
+    const [caigou, setCaigou] = useState<any[]>([]);
+    const [isOpenprocurement, setIsOpenprocurement] = useState(false);
+    const [isOpenInfo, setIsOpenInfo] = useState(false);
+    const [pdfFileName, setPdfFileName] = useState([]);
+
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存全部表单到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            orderDate,
+            orderCode,
+            goodsList,
+            accountType,
+            totalAmount,
+            paidAmount,
+            companyId,
+            accountId,
+            projectId,
+            moneyType,
+            supplierId,
+            remark,
+            imgList,
+            caigou,
+            pdfFileName
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    }, [
+        orderDate, orderCode, goodsList, accountType, totalAmount, paidAmount,
+        companyId, accountId, projectId, moneyType, supplierId, remark, imgList, caigou,pdfFileName
+    ]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 页面初始化：加载缓存回填所有state
+    useEffect(() => {
+        const cache = loadCache();
+        if (cache) {
+            setOrderDate(cache.orderDate);
+            setOrderCode(cache.orderCode);
+            setGoodsList(cache.goodsList);
+            setAccountType(cache.accountType);
+            setTotalAmount(cache.totalAmount);
+            setPaidAmount(cache.paidAmount);
+            setCompanyId(cache.companyId);
+            setAccountId(cache.accountId);
+            setProjectId(cache.projectId);
+            setMoneyType(cache.moneyType);
+            setSupplierId(cache.supplierId);
+            setRemark(cache.remark);
+            setImgList(cache.imgList);
+            setCaigou(cache.caigou);
+            setPdfFileName(cache.pdfFileName);
+            // 有缓存，判断明细行数，不足7行补齐
+            const needNum = 7 - cache.goodsList.length;
+            if (needNum > 0) {
+                generateMultipleRecords(needNum);
+            }
+        } else {
+            // 无缓存，初始化单号+7条空明细
+            const code = generate(StaticInfo.park_name);
+            setOrderCode(code);
+            generateMultipleRecords(7);
+        }
+        // 加载基础下拉数据
+        getCompanList();
+        getProjectList(0);
+        getSupplierList();
+        getSubjectList();
+    }, []);
+
+    // 【核心】任意表单字段变动，自动存入缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+
+    // 【原样保留你原来的明细汇总逻辑，goodsList监听完全不受影响】
+    useEffect(() => {
+        const sum = goodsList.reduce((acc, item) => acc + (Number(item.amount) || 0), 0);
+        setTotalAmount(Number(sum.toFixed(2)));
+    }, [goodsList]);
+
+    // 生成空明细行
+    const generateMultipleRecords = (count: number) => {
+        const maxId = goodsList.length > 0 ? Math.max(...goodsList.map(i => i.id)) : 0;
+        const newRows = Array.from({ length: count }, (_, i) => ({
+            id: maxId + i + 1,
+            subjectName: '',
+            summary: '',
+            amount: 0,
+            quantity: 0,
+            unit: '',
+            unitPrice: 0,
+        }));
+        setGoodsList(prev => [...prev, ...newRows]);
+    };
+
+    // 表格列
+    const columnsz = [
         {
-            title:'科目',
-            dataIndex:'subject',
-            key:'subject',
+            title: '科目',
+            dataIndex: 'subject',
+            key: 'subject',
             render: (text: string, record: any) => (
                 <Select
                     style={{ width: '120px' }}
-                    // 修改onChange，获取value和option对象，传递label
                     onChange={(value, option) => handleSubjectChange(record.id, value, option.label)}
                     showSearch
                     filterOption={(input, option) => {
-                        // 假设每个 option 都有一个与数据项对应的 value 属性
-                        const item = props.SubjectList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                        const item = props.SubjectList.find(unit => unit.id == option.value);
                         return item?.subject_name?.toLowerCase().includes(input.toLowerCase());
                     }}
                     options={Array.isArray(props.SubjectList)
-                        ? props.SubjectList.map((item: any) => ({
-                            label: item.subject_name,
-                            value: item.id
-                        }))
+                        ? props.SubjectList.map((item: any) => ({ label: item.subject_name, value: item.id }))
                         : []}
                 />
             )
         },
+        { title: '科目名称', dataIndex: 'subjectName', key: 'subjectName' },
         {
-            title:'科目',
-            dataIndex:'subjectName',
-            key:'subjectName',
-        },
-        {
-            title:'用途',
-            dataIndex:'summary',
-            key:'summary',
-            width:'300px',
-            align:'center',
+            title: '用途',
+            dataIndex: 'summary',
+            key: 'summary',
+            width: '300px',
+            align: 'center',
             render: (text: string, record: any) => (
                 <Input
                     style={{ width: '100%' }}
@@ -84,57 +211,56 @@ const AddInvoiceFinancialDala=(props:any)=>{
             )
         },
         {
-            title:'数量',
-            dataIndex:'quantity',
-            key:'quantity',
+            title: '数量',
+            dataIndex: 'quantity',
+            key: 'quantity',
             render: (text: number, record: any) => (
                 <InputNumber
                     value={text}
                     min={0}
-                    onChange={(value) =>{
-                        setGoodsList(prev =>
-                            prev.map(item =>
-                                item.id === record.id ? { ...item, quantity: value,amount:((value*record.unitPrice).toFixed(2) *1) } : item
-                            )
-                        );
+                    onChange={(value) => {
+                        setGoodsList(prev => prev.map(item =>
+                            item.id === record.id
+                                ? { ...item, quantity: value, amount: Number((value * record.unitPrice).toFixed(2)) }
+                                : item
+                        ));
                     }}
                 />
             )
         },
         {
-            title:'单位',
-            dataIndex:'unit',
-            key:'unit',
+            title: '单位',
+            dataIndex: 'unit',
+            key: 'unit',
             render: (text: string, record: any) => (
                 <Input
                     value={text}
-                    min={0}
                     onChange={(e) => handleUnitChange(record.id, e.target.value)}
                 />
             )
         },
         {
-            title:'单价',
-            dataIndex:'unitPrice',
-            key:'unitPrice',
+            title: '单价',
+            dataIndex: 'unitPrice',
+            key: 'unitPrice',
             render: (text: number, record: any) => (
                 <InputNumber
                     value={text}
                     min={0}
-                    onChange={(value) =>{
-                        setGoodsList(prev =>
-                            prev.map(item =>
-                                item.id === record.id ? { ...item, unitPrice: value,amount:((value*record.quantity).toFixed(2))*1 } : item
-                            )
-                        );
+                    onChange={(value) => {
+                        setGoodsList(prev => prev.map(item =>
+                            item.id === record.id
+                                ? { ...item, unitPrice: value, amount: Number((value * record.quantity).toFixed(2)) }
+                                : item
+                        ));
                     }}
                 />
             )
         },
         {
-            title:'金额(元)',
-            dataIndex:'amount',
-            key:'amount',
+            title: '金额(元)',
+            dataIndex: 'amount',
+            key: 'amount',
             render: (text: number, record: any) => (
                 <InputNumber
                     value={text}
@@ -143,48 +269,11 @@ const AddInvoiceFinancialDala=(props:any)=>{
                 />
             )
         },
-        // {
-        //     title:'图片',
-        //     dataIndex:'image',
-        //     key:'image',
-        //     render: (text: any, record: any) => {
-        //         return (
-        //             <>
-        //                 <ImageUploadPng onImageUpload={(base64)=>onImageUpload(base64,record.id)}/>
-        //                 <div  style={{ display: 'flex'}}>
-        //                     {text.length>0?text.map((item:any,index:number)=>{
-        //                         return(
-        //                             <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
-        //                                 <Image src={item} style={{ width: '50px', height: '50px' }} />
-        //                                 <Button
-        //                                     type="primary"
-        //                                     danger
-        //                                     // onClick={() => handleDeleteunitImg(index)}
-        //                                     style={{
-        //                                         position: 'absolute',
-        //                                         top: '0',
-        //                                         left: '0',
-        //                                         zIndex: 1,
-        //                                         padding: '2px 4px',
-        //                                         transform: 'translate(-50%, -50%)',
-        //                                     }}
-        //                                 >
-        //                                     删除
-        //                                 </Button>
-        //                             </div>
-        //                         )
-        //                     }):''}
-        //                 </div>
-        //
-        //             </>
-        //         )
-        //     }
-        // },
         {
             title: '操作',
             key: 'action',
             width: '100px',
-            render: (_, record: any) => (
+            render: (_: any, record: any) => (
                 <Button
                     type="text"
                     icon={<ClearOutlined />}
@@ -193,420 +282,357 @@ const AddInvoiceFinancialDala=(props:any)=>{
             )
         }
     ];
-    // 上传图片
-    const onImageUpload = (imgName: string) => {
-        setImgList(prev => [...prev, imgName]);
-    };
-    // 单位
-    const handleUnitChange=(id:number,value:string)=>{
-         setGoodsList(prev =>
-            prev.map(item =>
-                item.id === id ? { ...item, unit: value } : item
-            )
-        );
-    };
 
-    const generateMultipleRecords = (count: number) => {
-        // 计算起始ID（当前最大ID + 1，若为空则从1开始）
-        const maxId = goodsList.length > 0
-            ? Math.max(...goodsList.map(item => item.id))
-            : 0;
-        // 生成指定数量的新记录
-        const newRecords = Array.from({ length: count }, (_, i) => ({
-            id: maxId + i + 1,
-            subjectName: '', // 科目
-            summary: '', // 摘要
-            amount: 0,    // 金额
-            quantity:0, // 数量
-            unit:'', // 单位
-            unitPrice:0, // 单价
-            // image:[], // 图片
-        }));
-
-        // 添加到现有列表
-        setGoodsList(prevGoodsList => [...prevGoodsList, ...newRecords]);
+    // 明细操作函数（全部恢复原生setGoodsList，无闭包延迟）
+    const handleUnitChange = (id: number, value: string) => {
+        setGoodsList(prev => prev.map(item => item.id === id ? { ...item, unit: value } : item));
     };
-    useEffect(() => {
-        // 仅当现有记录不足7条时才补充生成
-        const neededCount = 7 - goodsList.length;
-        if (neededCount > 0) {
-            generateMultipleRecords(neededCount);
-        }
-    }, []);
-    // 处理科目变更
     const handleSubjectChange = (id: number, value: string, label: string) => {
-        setGoodsList(prev =>
-            prev.map(item =>
-                item.id === id
-                    ? {
-                        ...item,
-                        subjectName: label    // 存储科目名称（label）
-                    }
-                    : item
-            )
-        );
+        setGoodsList(prev => prev.map(item => item.id === id ? { ...item, subjectName: label } : item));
     };
-    // 处理摘要变更
     const handleSummaryChange = (id: number, value: string) => {
-        setGoodsList(prev =>
-            prev.map(item =>
-                item.id === id ? { ...item, summary: value } : item
-            )
-        );
+        setGoodsList(prev => prev.map(item => item.id === id ? { ...item, summary: value } : item));
+    };
+    const handleAmountChange = (id: number, value: number) => {
+        setGoodsList(prev => prev.map(item => item.id === id ? { ...item, amount: value } : item));
+    };
+    const handleClearRow = (id: number) => {
+        setGoodsList(prev => prev.map(item => item.id === id ? {
+            ...item, subjectName: '', summary: '', amount: 0, quantity: 0, unit: '', unitPrice: 0
+        } : item));
     };
 
-    // 处理金额变更
-    const handleAmountChange = (id: number, value: number) => {
-        setGoodsList(prev =>
-            prev.map(item =>
-                item.id === id ? { ...item, amount: value } : item
-            )
-        );
-    };
-    // 添加清空行处理函数
-    const handleClearRow = (id: number) => {
-        setGoodsList(prev =>
-            prev.map(item =>
-                item.id === id
-                    ? {
-                        ...item,
-                        subjectName: '', // 清空科目名称
-                        summary: '',     // 清空摘要
-                        amount: 0 ,       // 清空金额
-                        quantity:0, // 清空数量
-                        unit:'', // 单位
-                        unitPrice:0, // 单价
-                        // image:[], // 图片
-                    }
-                    : item
-            )
-        );
-    };
-    useEffect(() => {
-        // 累加所有金额，处理可能的空值
-        const sum = goodsList.reduce((acc, item) => acc + (Number(item.amount) || 0), 0);
-        // 四舍五入保留两位小数
-        setTotalAmount(Number(sum.toFixed(2)));
-    }, [goodsList]);
-    const changePaidAmount=(e)=>{
-        setPaidAmount(e);
-    };
-    // 收入支出
-    const changeMoneyType=(e)=>{
-        setMoneyType(e.target.value);
-    };
-    // 公司id
-    const changeCompanyId=(e)=>{
-        setCompanyId(e);
+    // 基础表单变更
+    const changePaidAmount = (val: number) => setPaidAmount(val);
+    const changeMoneyType = (e: any) => setMoneyType(e.target.value);
+    const changeCompanyId = (val: number) => {
+        setCompanyId(val);
         setProjectId(0);
         setAccountId(0);
-        getProjectList(e);
+        getProjectList(val);
     };
-    // 日期选择
-    const changeData=(_,item)=>{
-        setOrderDate(item)
+    const changeData = (_: any, dateStr: string) => setOrderDate(dateStr);
+    const getOrderCode = () => setOrderCode(generate(StaticInfo.park_name));
+    const changeSupplierId = (val: number) => setSupplierId(val);
+    const changeProjectId = (val: number) => {
+        setProjectId(val);
+        ProjectService.one(val).then((res: any) => setCompanyId(res.Data.company_id));
     };
-    // 随机获取单号
-    const getOrderCode=async ()=>{
-        setOrderCode(generate(StaticInfo.park_name));
+    const changeRemark = (e: any) => setRemark(e.target.value);
+
+    // 图片
+    const onImageUpload = (imgName: string) => setImgList(prev => [...prev, imgName]);
+    const handleDeleteunitImg = (index: number) => setImgList(prev => prev.filter((_, i) => i !== index));
+    // 只接收fileName，不需要base64
+    const handleUploadSuccess = (fileName: string) => {
+        console.log('上传的文件',fileName);
+        setPdfFileName(prev => [fileName, ...pdfFileName]);
     };
-    // 供应商id
-    const changeSupplierId=(e)=>{
-        setSupplierId(e);
+    // 删除文件
+    const handleDeleteFile = (index: number) => {
+        const newList = pdfFileName.filter((_, i) => i !== index);
+        setPdfFileName(newList);
     };
-    // 项目id
-    const changeProjectId=(e)=>{
-        console.log('项目id',e);
-        setProjectId(e);
-        ProjectService.one(e).then((res:any)=>{
-            console.log('项目详情',res.Data);
-            setCompanyId(res.Data.company_id);
-            // getAccountListInfo(e);
-            // setAccountId(0);
-        })
+    const handleUploadError = (err: any) => {
+        console.error('上传失败', err);
     };
-    // 获取公司列表
-    const getCompanList=()=>{
-        props.dispatch({
-            type:'Compan/fetch',
-        })
+    // 采购勾选
+    const onSelectionChange = (newSelectedRows: any[]) => {
+        if (newSelectedRows.length === 0) {
+            setCaigou([]);
+            return;
+        }
+        setCaigou(prev => {
+            const existIds = new Set(prev.map(i => i.id));
+            const newRows = newSelectedRows.filter(i => !existIds.has(i.id));
+            return [...prev, ...newRows];
+        });
     };
-    // 获取项目列表
-    const getProjectList=(e)=>{
-        props.dispatch({
-            type:'Project/fetch',
-            payload:{name:'', companyId:e, pageSize:1000}
-        })
-    };
-    const getAccountListInfo=(e)=>{
-        props.dispatch({
-            type:'Account/projectOrAccount',
-            payload:e,
-        })
-    };
-    // 获取账户列表
-    const getAccountList=()=>{
-        props.dispatch({
-            type:'Account/fetch',
-        })
-    };
-    // 获取科目列表
-    const getSubjectList=()=>{
-        props.dispatch({
-            type:'Subject/fetch',
-        })
-    };
-    // 备注
-    const changeRemark=(e)=>{
-        setRemark(e.target.value);
-    };
-    useEffect(() => {
-        getOrderCode();
-        getCompanList();
-        getProjectList(0);
-        // getAccountList();
-        getSupplierList();
-        getSubjectList();
-    }, []);
-    const onOK=()=>{
-        if (!orderDate) return  message.error('请选择日期');
-        // if (!accountId) return  message.error('请选择账户');
-        if (!companyId) return  message.error('请选择公司');
-        if (!projectId) return  message.error('请选择项目');
-        if (!supplierId) return  message.error('请选择供应商');
+    const handleRemoveCaigou = (delId: number) => setCaigou(prev => prev.filter(i => i.id !== delId));
+
+    // 接口请求
+    const getCompanList = () => props.dispatch({ type: 'Compan/fetch' });
+    const getProjectList = (e: number) => props.dispatch({ type: 'Project/fetch', payload: { name: '', companyId: e, pageSize: 1000 } });
+    const getSubjectList = () => props.dispatch({ type: 'Subject/fetch' });
+    const getSupplierList = () => props.dispatch({ type: "Supplier/fetch" });
+
+    // 提交
+    const onOK = () => {
+        if (!orderDate) return message.error('请选择日期');
+        if (!companyId) return message.error('请选择公司');
+        if (!projectId) return message.error('请选择项目');
+        if (!supplierId) return message.error('请选择供应商');
+
         const processedList = goodsList.map(item => ({
             ...item,
             unitPrice: !isNaN(Number(item.unitPrice)) ? Number(item.unitPrice) : 0,
             quantity: !isNaN(Number(item.quantity)) ? Number(item.quantity) : 0,
         }));
-
         const filteredGoodsList = processedList.filter(item =>
-            (item.subjectName?.trim() !== '')
-            && item.amount > 0
+            (item.subjectName?.trim() || item.summary?.trim()) && item.amount > 0
         );
-        if (filteredGoodsList.length === 0) return message.error('报销明细科目不能为空,金额不能为0,请检查!');
-        let jsonData=JSON.stringify(filteredGoodsList);
-        let imgUrl=imgList.join("|");
+        if (filteredGoodsList.length === 0) return message.error('请完善明细科目、用途、金额字段');
+
+        const jsonfd = JSON.stringify(filteredGoodsList);
+        const mapCaigou = caigou.map(item => ({ ...item, poId: item.id || 0, number: item.orderCode || '' }));
+        const jsonCaigou = JSON.stringify(mapCaigou);
+        const jsonData = JSON.stringify({ fd: jsonfd, caigou: jsonCaigou });
+        const allFileList = [...imgList, ...pdfFileName];
+        const imgUrl = allFileList.join("|");
         setSpinning(true);
         props.dispatch({
-            type:'Bill/add',
-            payload:{orderCode, orderDate, accountId,projectId, companyId, paidAmount, totalAmount, moneyType, jsonData,remark,supplierId,imgUrl,bxId:0}
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode == 0||res.ErrorCode == 9038) {
+            type: 'Bill/add',
+            payload: { orderCode, orderDate, accountId, projectId, companyId, paidAmount, totalAmount, moneyType, jsonData, remark, supplierId, imgUrl, bxId: 0 }
+        }).then((res: TypeErrorCode) => {
+            setSpinning(false);
+            if (res.ErrorCode === 0 || res.ErrorCode === 9038) {
                 message.success('添加成功');
-                setOrderCode(generate(StaticInfo.park_name));
-                setSpinning(false);
+                clearCache();
+                // 重置所有状态
+                const init = getDefaultState();
+                const newCode = generate(StaticInfo.park_name);
+                setOrderDate(init.orderDate);
+                setOrderCode(newCode);
+                setGoodsList([]);
+                setAccountType(init.accountType);
+                setTotalAmount(init.totalAmount);
+                setPaidAmount(init.paidAmount);
+                setCompanyId(init.companyId);
+                setAccountId(init.accountId);
+                setProjectId(init.projectId);
+                setMoneyType(init.moneyType);
+                setSupplierId(init.supplierId);
+                setRemark(init.remark);
+                setImgList([]);
+                setCaigou([]);
+                setPdfFileName([]);
             } else {
-                message.error(res.ErrorCode + res.Data);
-                setOrderCode(generate(StaticInfo.park_name));
-                setSpinning(false);
+                message.error(`${res.ErrorCode} ${res.Data}`);
+                getOrderCode();
             }
         })
     };
-    const getSupplierList=()=>{
-        props.dispatch({
-            type:"Supplier/fetch",
-        })
-    };
-    const handleDeleteunitImg = (index: number) => {
-        setImgList((prev: any[]) =>
-            prev.filter((_, i) => i !== index)
-        );
 
+    const openProcurementClick = () => setIsOpenprocurement(true);
+    const openInfoClick = () => setIsOpenInfo(true);
+    // 新增重置表单+清空缓存统一方法
+    const resetAllFormData = () => {
+        // 1. 删除本地缓存
+        sessionStorage.removeItem(CACHE_KEY);
+        // 2. 重置所有表单state到初始值
+        setOrderDate(getCurrentDate());
+        setOrderCode(generate(StaticInfo.park_name));
+        setCompanyId(0);
+        setProjectId(0);
+        setSupplierId(0);
+        setRemark('');
+        setImgList([]);
+        setPdfFileName([]);
+        setPaidAmount(0);
+        setMoneyType(3);
+        setAccountId(0);
+        setAccountType(0);
+        setCaigou([]);
+        setPdfFileName([]);
+        // 3. 表格恢复7条空行
+        const newRecords = Array.from({ length: 7 }, (_, i) => ({
+            id: i + 1,
+            subjectName: '',
+            summary: '',
+            amount: 0,
+            quantity: 0,
+            unit: '',
+            unitPrice: 0,
+        }));
+        setGoodsList(newRecords);
     };
-    return(
+    return (
         <Spin spinning={spinning}>
             <Space>
-                <Button type="primary" onClick={()=>navigate(-1)}>
-                    返回
-                </Button>
-                <Button type="primary" htmlType="submit" onClick={onOK}>
-                    确定
-                </Button>
+                <Button type="primary" onClick={() => navigate(-1)}>返回</Button>
+                <Button type="primary" onClick={onOK}>确定</Button>
+                <Button danger onClick={() => {
+                    resetAllFormData();
+                }}>清空草稿</Button>
             </Space>
-            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
-                <Input addonBefore="单号:" placeholder='随机生成' style={{width:'300px'}} value={orderCode} disabled/>
+            <Space style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginTop: '10px' }}>
+                <Input addonBefore="单号:" placeholder='随机生成' style={{ width: '300px' }} value={orderCode} disabled />
                 <Space.Compact>
-                    <div
-                        style={{
-                            borderRadius: '6px',
-                            borderStartEndRadius: 0,
-                            borderEndEndRadius: 0,
-                            padding: '0 11px',
-                            border: '1px solid #d9d9d9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderInlineEnd: 0,
-                        }}
-                    >
-                        日期:
-                    </div>
-                    <DatePicker placeholder={'请选择日期'} defaultValue={dayjs(orderDate)} onChange={changeData}/>
+                    <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>日期:</div>
+                    <DatePicker value={dayjs(orderDate)} onChange={changeData} />
                 </Space.Compact>
-                <InputNumber addonBefore="总金额:" placeholder='总金额' disabled value={totalAmount}/>
-                {/*<InputNumber addonBefore="已收/已付:" placeholder='已收/已付金额' value={paidAmount} onChange={changePaidAmount}/>*/}
-                <Input addonBefore="备注:" placeholder='备注' value={remark} onChange={changeRemark}/>
+                <InputNumber addonBefore="总金额:" disabled value={totalAmount} />
+                <Input addonBefore="备注:" value={remark} onChange={changeRemark} />
                 <Radio.Group value={moneyType} onChange={changeMoneyType}>
-                    {/*<Radio value={1}>收入</Radio>*/}
-                    {/*<Radio value={2}>支出</Radio>*/}
                     <Radio value={3}>报销</Radio>
                 </Radio.Group>
+                <Button onClick={openProcurementClick}>采购单</Button>
+                <Badge count={caigou.length}>
+                    <Button onClick={openInfoClick}>详情</Button>
+                </Badge>
             </Space>
-            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
+            <Space style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginTop: '10px' }}>
                 <Space.Compact>
-                    <div
-                        style={{
-                            borderRadius: '6px',
-                            borderStartEndRadius: 0,
-                            borderEndEndRadius: 0,
-                            padding: '0 11px',
-                            border: '1px solid #d9d9d9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderInlineEnd: 0,
-                        }}
-                    >
-                        公司:
-                    </div>
+                    <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>公司:</div>
                     <Select
-                        style={{width:'250px'}}
+                        style={{ width: 250 }}
                         showSearch
                         value={companyId}
                         onChange={changeCompanyId}
-                        placeholder='公司'
                         filterOption={(input, option) => {
-                            // 假设每个 option 都有一个与数据项对应的 value 属性
-                            const item = props.CompanList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                            const item = props.CompanList.find(u => u.id === option.value);
                             return item?.company_name?.toLowerCase().includes(input.toLowerCase());
                         }}
-                        options={Array.isArray(props.CompanList) && props.CompanList.length > 0
-                            ? props.CompanList.map((item:any)=>({
-                                label:item.company_name,
-                                value:item.id,
-                            }))
-                            : []}
+                        options={Array.isArray(props.CompanList) ? props.CompanList.map(i => ({ label: i.company_name, value: i.id })) : []}
                     />
                 </Space.Compact>
                 <Space.Compact>
-                    <div
-                        style={{
-                            borderRadius: '6px',
-                            borderStartEndRadius: 0,
-                            borderEndEndRadius: 0,
-                            padding: '0 11px',
-                            border: '1px solid #d9d9d9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderInlineEnd: 0,
-                        }}
-                    >
-                        项目:
-                    </div>
+                    <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>项目:</div>
                     <Select
-                        style={{width:'250px'}}
+                        style={{ width: 250 }}
                         showSearch
-                        onChange={changeProjectId}
                         value={projectId}
-                        placeholder='项目'
+                        onChange={changeProjectId}
                         filterOption={(input, option) => {
-                            // 假设每个 option 都有一个与数据项对应的 value 属性
-                            const item = props.ProjectList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                            const item = props.ProjectList.find(u => u.id === option.value);
                             return item?.project_name?.toLowerCase().includes(input.toLowerCase());
                         }}
-                        options={Array.isArray(props.ProjectList) && props.ProjectList.length > 0
-                            ? props.ProjectList.map((item:any)=>({
-                                label:item.project_name,
-                                value:item.id,
-                            }))
-                            : []}
+                        options={Array.isArray(props.ProjectList) ? props.ProjectList.map(i => ({ label: i.project_name, value: i.id })) : []}
                     />
                 </Space.Compact>
                 <Space.Compact>
-                    <div
-                        style={{
-                            borderRadius: '6px',
-                            borderStartEndRadius: 0,
-                            borderEndEndRadius: 0,
-                            padding: '0 11px',
-                            border: '1px solid #d9d9d9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderInlineEnd: 0,
-                        }}
-                    >
-                        供应商:
-                    </div>
+                    <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>供应商:</div>
                     <Select
-                        style={{width:'250px'}}
+                        style={{ width: 250 }}
                         showSearch
-                        onChange={changeSupplierId}
-                        placeholder='供应商'
                         value={supplierId}
+                        onChange={changeSupplierId}
                         filterOption={(input, option) => {
-                            // 假设每个 option 都有一个与数据项对应的 value 属性
-                            const item = props.SupplierList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                            const item = props.SupplierList.find(u => u.id === option.value);
                             return item?.supplier_name?.toLowerCase().includes(input.toLowerCase());
                         }}
-                        options={Array.isArray(props.SupplierList) && props.SupplierList.length > 0
-                            ? props.SupplierList.map((item:any)=>({
-                                label:item.supplierName,
-                                value:item.id,
-                            }))
-                            : []}
+                        options={Array.isArray(props.SupplierList) ? props.SupplierList.map(i => ({ label: i.supplierName, value: i.id })) : []}
                     />
                 </Space.Compact>
-                {/*<Radio.Group value={accountType} style={{display:'flex'}} disabled>*/}
-                {/*    <Radio value={1} style={{width:'80px'}}>公账</Radio>*/}
-                {/*    <Radio value={0} style={{width:'80px'}}>私账</Radio>*/}
-                {/*</Radio.Group>*/}
                 <div  style={{ display: 'flex'}}>
-                <ImageUploadPng onImageUpload={(base64)=>onImageUpload(base64)}/>
-                    {imgList.length>0?imgList.map((item:any,index:number)=>{
-                        return(
-                            <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
-                                <Image src={`${window.ServerConfig.imgServer}${item}`} style={{ width: '50px', height: '50px' }} />
-                                <Button
-                                    type="primary"
-                                    danger
-                                    onClick={() => handleDeleteunitImg(index)}
+                    <ImageUploadPng onImageUpload={(base64)=>onImageUpload(base64)}/>
+                    <Image.PreviewGroup>
+                        {imgList.map((item: any, index: number) => {
+                            // 内部调用拼接方法
+                            const imgUrl = getImgSrc(item);
+                            return (
+                                <div
+                                    key={index}
                                     style={{
-                                        position: 'absolute',
-                                        top: '0',
-                                        left: '0',
-                                        zIndex: 1,
-                                        padding: '2px 4px',
-                                        transform: 'translate(-50%, -50%)',
+                                        display: 'inline-block',
+                                        position: 'relative',
+                                        margin: '5px',
                                     }}
                                 >
-                                    删除
-                                </Button>
-                            </div>
-                        )
-                    }):''}
+                                    {/* 小图（点击放大预览） */}
+                                    <Image
+                                        width={50}
+                                        height={50}
+                                        style={{ objectFit: 'cover' }}
+                                        src={imgUrl}
+                                    />
+
+                                    {/* 小图右上角删除按钮 */}
+                                    <Button
+                                        danger
+                                        type="primary"
+                                        size="small"
+                                        onClick={() => handleDeleteunitImg(index)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            right: 0,
+                                            zIndex: 1,
+                                            padding: '0 4px',
+                                            fontSize: '10px',
+                                        }}
+                                    >
+                                        ×
+                                    </Button>
+                                </div>
+                            );
+                        })}
+                    </Image.PreviewGroup>
                 </div>
             </Space>
+            <Card title="PDF上传">
+                <Space>
+                    <PdfUpload
+                        apiUrl="/api/upload/pdf"
+                        maxCount={5}
+                        maxSize={10 * 1024 * 1024}
+                        onSuccess={handleUploadSuccess}
+                        onError={handleUploadError}
+                    />
+
+                    {pdfFileName.length > 0 && (
+                        <div style={{ marginTop: 16 }}>
+                            {pdfFileName.map((name, idx) => (
+                                <div
+                                    key={idx}
+                                    style={{
+                                        marginBottom:6,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px'
+                                    }}
+                                >
+                                    <FilePdfOutlined style={{ color: '#f5222d' }} />
+                                    <a
+                                        href={`${window.ServerConfig.imgServer}/${name}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {name}
+                                    </a>
+                                    {/* Popconfirm 二次确认删除 */}
+                                    <Popconfirm
+                                        title="确定删除该文件？"
+                                        onConfirm={() => handleDeleteFile(idx)}
+                                        okText="确认"
+                                        cancelText="取消"
+                                    >
+                                        <Button
+                                            danger
+                                            size="small"
+                                            icon={<DeleteOutlined />}
+                                        >
+                                            删除
+                                        </Button>
+                                    </Popconfirm>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Space>
+            </Card>
             <Table
                 columns={columnsz}
-                dataSource={goodsList} // 添加数据源绑定
-                rowKey={(record) => record.id} // 使用id作为唯一键
+                dataSource={goodsList}
+                rowKey="id"
                 pagination={false}
-                size='small'
-                scroll={{y:'55vh'}}
-                rowClassName={(record, index) =>
-                    index % 2 === 1 ? 'tbodd' : 'tbeven'
-                }
+                scroll={{ y: '55vh' }}
             />
+            <Modal open={isOpenprocurement} title="采购单" width={1200} footer={null} onCancel={() => setIsOpenprocurement(false)}>
+                <FilteredProcurementList onSelectionChange={onSelectionChange} />
+            </Modal>
+            <Modal open={isOpenInfo} title="勾选详情" width={1200} onCancel={() => setIsOpenInfo(false)}>
+                <CaigouTagList list={caigou} onRemove={handleRemoveCaigou} />
+            </Modal>
         </Spin>
     )
-}
-const mapStateToProps = (state: any) => {
-    return {
-        SubjectList: state.Subject.list,
-        AccountList: state.Account.list,
-        CompanList: state.Compan.list,
-        ProjectList: state.Project.list,
-        SupplierList: state.Supplier.list,
-
-    }
 };
+
+const mapStateToProps = (state: any) => ({
+    SubjectList: state.Subject.list,
+    AccountList: state.Account.list,
+    CompanList: state.Compan.list,
+    ProjectList: state.Project.list,
+    SupplierList: state.Supplier.list,
+});
 export default connect(mapStateToProps)(AddInvoiceFinancialDala);

@@ -3,15 +3,15 @@ import {history,connect} from "umi";
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {userQx} from "@/utils/OpenTool";
+import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
 
 const InventoryAudit=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);// 当前页数
-    const [orderCode,setOrderCode]=useState('');// 单号
-    const [warehouseName,setWarehouseName]=useState('');// 仓库名称
-    const [startDate,setStartDate]=useState('2000-01-01');// 开始日期
-    const [endDate,setEndDate]=useState('2099-01-01');// 结束日期
+    const [orderCode,setOrderCode]=useState(checkSessionStorage('/warehouse/inventory','inventoryAuditOrderCode') || '');// 单号
+    const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/inventory','inventoryAuditWarehouseName') || '');// 仓库名称
+    const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/inventory','inventoryAuditStartDate') || '2000-01-01');// 开始日期
+    const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/inventory','inventoryAuditEndDate') || '2099-01-01');// 结束日期
     const [orderStatus,setOrderStatus]=useState(0);// 订单状态
     const [pageSize,setPageSize]=useState(10);// 每页数量
     const [dOpen,setDOpen]=useState(false);// 删除弹窗是否打开
@@ -32,7 +32,7 @@ const InventoryAudit=(props)=>{
             key:'stockCode',
             ellipsis:true,
             render:(text,record)=>{
-                return <Button type='link' onClick={()=>{history.push(`/warehouse/inventoryRequestDetail?id=${record.id}`)}}>{text}</Button>
+                return <Button type='link' onClick={()=>{history.push(`/warehouse/inventoryRequestDetail?id=${record.id}&stockStutes=${3}`)}}>{text}</Button>
             }
         },
         {
@@ -63,10 +63,7 @@ const InventoryAudit=(props)=>{
             render:(text,record)=>{
                 return(
                     <>
-                        {record.stockStatus==1?
-                            userQx()[524]=='1'?
-                            <Button onClick={()=>isCheckOpen(record.id)} type='primary'>审核</Button>:''
-                            :null}
+                        {record.stockStatus==1?<Button onClick={()=>isCheckOpen(record.id)} type='primary'>审核</Button> :null}
                     </>
                 )
             }
@@ -86,22 +83,14 @@ const InventoryAudit=(props)=>{
             payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, pageSize}
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'InventoryAudit/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, pageSize}
-        })
-    };
+
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
+
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     const onOK=()=>{
         setSpinning(true);
@@ -120,6 +109,27 @@ const InventoryAudit=(props)=>{
             }
         })
     };
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/warehouse/inventory','inventoryAuditStartDate','2000-01-01');
+            updateSessionStorage('/warehouse/inventory','inventoryAuditEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/warehouse/inventory','inventoryAuditStartDate',data[0]);
+            updateSessionStorage('/warehouse/inventory','inventoryAuditEndDate',data[1]);
+        }
+    };
+    const changeWarehouseName=(e:any)=>{
+        setWarehouseName(e.target.value);
+        updateSessionStorage('/warehouse/inventory','inventoryAuditWarehouseName',e.target.value);
+    };
+    const changeOrderCode=(e:any)=>{
+        setOrderCode(e.target.value);
+        updateSessionStorage('/warehouse/inventory','inventoryAuditOrderCode',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -128,12 +138,12 @@ const InventoryAudit=(props)=>{
                         <Input
                             addonBefore="仓库名称:"
                             value={warehouseName}
-                            onChange={(e)=>{setWarehouseName(e.target.value)}}
+                            onChange={changeWarehouseName}
                         />
                         <Input
                             addonBefore="单号:"
                             value={orderCode}
-                            onChange={(e)=>{setOrderCode(e.target.value)}}
+                            onChange={changeOrderCode}
                         />
                         <Space.Compact>
                             <div
@@ -150,7 +160,7 @@ const InventoryAudit=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

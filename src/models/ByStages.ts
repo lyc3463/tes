@@ -35,7 +35,6 @@ export interface ByStagesInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
-        fenye: Effect;
         check: Effect;
     };
     reducers: {
@@ -50,16 +49,15 @@ const ByStagesModel: ByStagesInterface = {
     state: {},
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
-
             const res = yield call(ByStagesService.fetch, payload?payload:pl);
-            // const resc = yield call(
-            //   GongsiService.fetchcount,
-            //   _.omit(pl, ['page']),
-            // );
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -98,17 +96,7 @@ const ByStagesModel: ByStagesInterface = {
             yield take('fetch/@@end');
             return result
         },
-        *fenye({ type, payload }, { put, call, select }): any {
-            const res = yield call(ByStagesService.fenye,payload?payload:pl);
-            if (res.ErrorCode == 0) {
-                yield put({
-                    type: 'count',
-                    payload: { count: res.Data },
-                });
-            } else {
-                message.error(res.ErrorCode + res.Data);
-            }
-        },
+
     },
     reducers: {
         list(state, action) {

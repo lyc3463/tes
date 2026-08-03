@@ -25,9 +25,7 @@ import {
     numberToRMB,
     updateSessionStorageValue
 } from "@/utils/OpenTool";
-const tailLayout = {
-    wrapperCol: { offset: 4 },
-};
+
 const AddChongzhi=(props:any)=>{
     const navigate=useNavigate();
     // 充值类型
@@ -40,90 +38,96 @@ const AddChongzhi=(props:any)=>{
     const [addbalance,setaddbalance]=useState(checkSessionStoragevalue('/billLog/addChongzhi','balance')||0);
     // 弹窗输入充值的金额
     const [openBalance,setopenBalance]=useState(0);
-    // 用户头像
-    const [appUser_image,setappUser_image]=useState('');
-    // 用户昵称
-    const [appUser_name,setappUser_name]=useState('');
-    // 用户手机号
-    const [tenant_phone,settenant_phone]=useState('');
-    // 公司名称
-    const [tenantCompany,settenantCompany]=useState('');
-    // 用户余额
-    const [balance,setbalance]=useState(0);
-    // 用户id
-    const [userId,setUserId]=useState(0);
     // 点击充值的弹窗
     const [open,setOpen]=useState(false);
     // 备注
     const [remark,setremark]=useState('');
+    // 用户列表数组
+    const [userForm,setUserForm]=useState<any[]>([]);
+    // 当前选中要充值的用户ID
+    const [currentSelectUserId, setCurrentSelectUserId] = useState<number>(0);
+    // 当前选中用户信息（弹窗展示）
+    const [currentUserInfo, setCurrentUserInfo] = useState<any>(null);
+
+    // 确认充值提交
     const onFinish=()=>{
         setspinning(true);
-        if (addbalance!=openBalance){
-            message.error('输入不一致');
+        if (addbalance != openBalance){
+            message.error('输入充值金额与弹窗金额不一致');
             setspinning(false);
-        }else {
-            props.dispatch({
-                type:'ManualRecharge/add',
-                payload:{addbalance,userId,handType,remark}
-            }).then((res:any)=>{
-                if (res.ErrorCode==0){
-                    message.success('添加成功');
-                    setspinning(false);
-                    setOpen(false);
-                    deleteSessionStorageRoutevalue('/billLog/addChongzhi');
-                    history.push('/billLog/manualRecharge');
-                }else {
-                    message.error(res.Data);
-                    setspinning(false);
-                    setOpen(false);
-                }
-            })
+            return;
         }
+        props.dispatch({
+            type:'ManualRecharge/add',
+            payload:{
+                addbalance,
+                userId: currentSelectUserId,
+                handType,
+                remark
+            }
+        }).then((res:any)=>{
+            if (res.ErrorCode === 0){
+                message.success('充值添加成功');
+                setspinning(false);
+                setOpen(false);
+                setremark(''); // 清空备注
+                deleteSessionStorageRoutevalue('/billLog/addChongzhi');
+                history.push('/billLog/manualRecharge');
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+                setOpen(false);
+            }
+        })
     };
+
     const changeHandAmount=(e)=>{
-        // console.log();
         setHandType(e.target.value);
     };
-    // 搜索输入的手机号
+
+    // 搜索用户
     const sousuo=()=>{
         setspinning(true);
-        if (userPhone==''){
+        if (!userPhone){
             setspinning(false);
             setisxianshi(false);
+            setUserForm([]);
             return ;
-        }else {
-            AppUserService.userInfo(userPhone).then((res:TypeErrorCode)=>{
-                if (res.ErrorCode==0){
-                    if (res.Data.userId==0){
-                        message.warning('未能查询到该用户');
-                        setspinning(false);
-                        setisxianshi(false);
-                    }else {
-                        setappUser_image(res.Data.appUser_image);
-                        setappUser_name(res.Data.appUser_name);
-                        setbalance(res.Data.balance);
-                        settenant_phone(res.Data.tenant_phone);
-                        setUserId(res.Data.userId);
-                        settenantCompany(res.Data.tenant_name);
-                        setspinning(false);
-                        setisxianshi(true);
-                    }
-                }else {
-                    message.error(res.Data);
+        }
+        AppUserService.userInfo(userPhone).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode === 0){
+                console.log('res',res)
+                if (!Array.isArray(res.Data) || res.Data.length === 0) {
+                    message.warning('未能查询到该用户');
                     setspinning(false);
                     setisxianshi(false);
+                    setUserForm([]);
+                }else {
+                    setUserForm(res.Data)
+                    setspinning(false);
+                    setisxianshi(true);
                 }
-            })
-        }
+            }else {
+                message.error(res.Data);
+                setspinning(false);
+                setisxianshi(false);
+                setUserForm([]);
+            }
+        })
+    };
 
-    };
-    const chongzhiOpen=()=>{
-        if (addbalance==0){
-            message.warning('请输入充值金额');
-        }else {
-            setOpen(true);
+    // 单条用户充值按钮点击事件，传入当前行完整数据
+    const chongzhiOpen = (item: any) => {
+        if (addbalance === 0){
+            message.warning('请先填写充值金额');
+            return;
         }
+        // 缓存当前操作用户
+        setCurrentSelectUserId(item.userId);
+        setCurrentUserInfo(item);
+        setOpen(true);
     };
+
     const changePhone=(e)=>{
         setUserPhone(e.target.value);
         updateSessionStorageValue('/billLog/addChongzhi','phone',e.target.value);
@@ -132,9 +136,13 @@ const AddChongzhi=(props:any)=>{
         setaddbalance(e);
         updateSessionStorageValue('/billLog/addChongzhi','balance',e);
     };
+
     useEffect(() => {
         sousuo();
     }, []);
+
+    const isEmptyData = !Array.isArray(userForm) || userForm.length === 0;
+
     return(
         <Spin spinning={spinning}>
             <List>
@@ -145,30 +153,17 @@ const AddChongzhi=(props:any)=>{
                             onChange={changePhone}
                             value={userPhone}
                         />
-                        <Button type="primary" onClick={sousuo}>
-                            搜索
-                        </Button>
+                        <Button type="primary" onClick={sousuo}>搜索</Button>
                         <Space.Compact>
-                            <div
-                                style={{
-                                    // borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    // border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
+                            <div style={{padding: '0 11px',display: 'flex',alignItems: 'center',borderInlineEnd: 0}}>
                                 充值类型:
                             </div>
                             <Radio.Group defaultValue={handType} onChange={changeHandAmount}>
-                                {/*<Radio value={0}>积分</Radio>*/}
                                 <Radio value={1}>余额</Radio>
                             </Radio.Group>
                         </Space.Compact>
-                        <InputNumber min={0}
+                        <InputNumber
+                            min={0}
                             addonBefore="充值量(元):"
                             onChange={changeBalance}
                             value={addbalance}
@@ -178,44 +173,95 @@ const AddChongzhi=(props:any)=>{
                 </List.Item>
             </List>
             {
-                !isxianshi?'':<>
-                    <form className={styles.gridForm1} >
-                        <div className={styles.gridItem}>用户头像</div>
-                        <div className={styles.gridItem}>微信昵称</div>
-                        <div className={styles.gridItem}>用户手机号</div>
-                        <div className={styles.gridItem}>租户姓名</div>
-                        <div className={styles.gridItem}>余额</div>
-                        <div className={styles.gridItem}><Image style={{width:'50px',height:'50px'}} src={appUser_image}/></div>
-                        <div className={styles.gridItem}>{appUser_name}</div>
-                        <div className={styles.gridItem}>{tenant_phone}</div>
-                        <div className={styles.gridItem}>{tenantCompany}</div>
-                        <div className={styles.gridItem}>{balance}</div>
-                    </form>
-                    <div style={{marginTop:'20px',textAlign:'center',width:'1000px'}}>
-                        <Space>
-                            <Button type='primary' onClick={chongzhiOpen}>充值</Button>
-                        </Space>
-                    </div>
-                </>
+                !isxianshi ? null : (
+                    <>
+                        <form className={styles.gridForm1} >
+                            <div className={styles.gridItem}>用户头像</div>
+                            <div className={styles.gridItem}>用户姓名</div>
+                            <div className={styles.gridItem}>用户手机号</div>
+                            <div className={styles.gridItem}>租户姓名</div>
+                            <div className={styles.gridItem}>余额</div>
+                            <div className={styles.gridItem}>操作</div>
+                        </form>
+                        {
+                            isEmptyData ? (
+                                <div style={{padding:'20px',textAlign:'center'}}>暂无匹配用户数据</div>
+                            ) : (
+                                userForm.map((item) => {
+                                    const {
+                                        userId,
+                                        userImage,
+                                        userName,
+                                        tenant_phone,
+                                        tenant_name,
+                                        balance
+                                    } = item;
+                                    return (
+                                        <form key={userId} className={styles.gridForm1}>
+                                            <div className={styles.gridItem}>
+                                                {userImage ? (
+                                                    <Image
+                                                        style={{width:'50px',height:'50px'}}
+                                                        src={`${window.ServerConfig.imgServer}${userImage}.png`}
+                                                        fallback="/avatar-default.png"
+                                                    />
+                                                ) : (
+                                                    <div style={{width:50,height:50,background:'#eee',textAlign:'center',lineHeight:'50px'}}>无头像</div>
+                                                )}
+                                            </div>
+                                            <div className={styles.gridItem}>{userName ?? '-'}</div>
+                                            <div className={styles.gridItem}>{tenant_phone ?? '-'}</div>
+                                            <div className={styles.gridItem}>{tenant_name ?? '-'}</div>
+                                            <div className={styles.gridItem}>{balance}</div>
+                                            <div className={styles.gridItem}>
+                                                <Button type="primary" size="small" onClick={()=>chongzhiOpen(item)}>充值</Button>
+                                            </div>
+                                        </form>
+                                    )
+                                })
+                            )
+                        }
+                    </>
+                )
             }
-            <Modal open={open} onCancel={()=>setOpen(false)} title='请确定' onOk={onFinish} loading={spinning}>
+
+            {/* 充值弹窗 */}
+            <Modal
+                open={open}
+                onCancel={()=>{
+                    setOpen(false);
+                    setremark(''); // 关闭弹窗清空备注
+                }}
+                title='确认充值'
+                onOk={onFinish}
+                loading={spinning}
+            >
                 <Form>
                     <Form.Item label='选择的类型'>
                         <Radio.Group value={handType}>
-                            {/*<Radio value={0}>积分</Radio>*/}
                             <Radio value={1}>余额</Radio>
                         </Radio.Group>
                     </Form.Item>
                     <Form.Item label='手机号'>
-                        <Input  value={tenant_phone}/>
+                        {/* 展示当前点击充值行的手机号 */}
+                        <Input value={currentUserInfo?.tenant_phone ?? ''} disabled />
                     </Form.Item>
                     <Form.Item label='充值量'>
-                        <InputNumber min={0}  onChange={(e)=>setopenBalance(e)} value={openBalance}/>
+                        <InputNumber
+                            min={0}
+                            onChange={(e)=>setopenBalance(e)}
+                            value={openBalance}
+                            style={{width:'100%'}}
+                        />
                     </Form.Item>
                     <Form.Item label='备注'>
-                        <Input.TextArea value={remark} onChange={(e)=>setremark(e.target.value)}/>
+                        <Input.TextArea
+                            value={remark}
+                            onChange={(e)=>setremark(e.target.value)}
+                            rows={3}
+                        />
                     </Form.Item>
-                    <Form.Item label='大写'>
+                    <Form.Item label='大写金额'>
                         <span style={{color:'red',fontWeight:'600'}}>{numberToRMB(addbalance)}</span>
                     </Form.Item>
                 </Form>

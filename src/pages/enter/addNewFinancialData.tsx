@@ -39,6 +39,8 @@ const AddNewFinancialData=(props:any)=>{
     const [imgUrl,setImgUrl]=useState('');
     // 备注
     const [remark,setRemark]=useState('');
+    const [caigou,setCaigou]=useState([]);
+
     const columnsz=[
         {
             title:'科目',
@@ -191,8 +193,8 @@ const AddNewFinancialData=(props:any)=>{
             userId:0
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('查看列表',res)
-                setBillList(res.Data);
+                console.log('查看列表',res);
+                setBillList(res.Data.data);
             }else {
 
             }
@@ -310,19 +312,18 @@ const AddNewFinancialData=(props:any)=>{
     // 账户id
     const changeAccountId=(e)=>{
         setAccountId(e);
-        AccountService.one(e).then((res:any)=>{
-            setCompanyId(res.Data.company_id);
-            setProjectId(res.Data.project_id);
-            setAccountType(res.Data.account_type);
-        })
+        // AccountService.one(e).then((res:any)=>{
+        //     setCompanyId(res.Data.company_id);
+        //     setAccountType(res.Data.account_type);
+        // })
     };
     // 项目id
     const changeProjectId=(e)=>{
         setProjectId(e);
         ProjectService.one(e).then((res:any)=>{
+            console.log('res',res)
             setCompanyId(res.Data.company_id);
-            getAccountListInfo(e);
-            setAccountId(0);
+            setAccountId(res.Data.accountId);
         })
     };
     // 获取公司列表
@@ -380,18 +381,24 @@ const AddNewFinancialData=(props:any)=>{
         if (!accountId) return  message.error('请选择账户');
         if (!companyId) return  message.error('请选择公司');
         if (!projectId) return  message.error('请选择项目');
+        if (paidAmount==0&&moneyType==2) return  message.error('已付金额不能未0');
         const processedList = goodsList.map(item => ({
             ...item,
             unitPrice: !isNaN(Number(item.unitPrice)) ? Number(item.unitPrice) : 0,
             quantity: !isNaN(Number(item.quantity)) ? Number(item.quantity) : 0,
         }));
-
         const filteredGoodsList = processedList.filter(item =>
             (item.subjectName?.trim() !== '')
             && item.amount > 0
         );
         if (filteredGoodsList.length === 0) return message.error('报销明细科目不能为空,金额不能为0,请检查!');
-        let jsonData=JSON.stringify(filteredGoodsList);
+        let jsonfd=JSON.stringify(filteredGoodsList);
+        let jsonCaigou=JSON.stringify(caigou);
+        let caigouFd={
+            fd:jsonfd,
+            caigou:jsonCaigou
+        };
+        let jsonData=JSON.stringify(caigouFd);
         setSpinning(true);
         props.dispatch({
             type:'NewFinancialData/add',
@@ -410,7 +417,6 @@ const AddNewFinancialData=(props:any)=>{
     };
     const changeBillId=(e)=>{
         const result = billList.find(item => item.id === e);
-        console.log('报销单详情',result);
         setGoodsList(result.fdList);
         setCompanyId(result.companyId);
         setProjectId(result.projectId);
@@ -454,7 +460,7 @@ const AddNewFinancialData=(props:any)=>{
                     <DatePicker placeholder={'请选择日期'} defaultValue={dayjs(orderDate)} onChange={changeData}/>
                 </Space.Compact>
                 <InputNumber addonBefore="总金额:" placeholder='总金额' disabled value={totalAmount}/>
-                {moneyType==2?<InputNumber addonBefore="已付:" placeholder='已付金额' value={paidAmount} onChange={changePaidAmount} min={0}/>:null}
+                {moneyType==2?<InputNumber addonBefore="已付:" placeholder='已付金额' value={paidAmount} onChange={changePaidAmount} min={0} max={totalAmount}/>:null}
                 <Space.Compact>
                     <div
                         style={{
@@ -606,10 +612,10 @@ const AddNewFinancialData=(props:any)=>{
                     <Radio value={1}>收入</Radio>
                     <Radio value={2}>支出</Radio>
                 </Radio.Group>
-                <Radio.Group value={accountType} style={{display:'flex'}} disabled>
-                    <Radio value={1} style={{width:'80px'}}>公账</Radio>
-                    <Radio value={0} style={{width:'80px'}}>私账</Radio>
-                </Radio.Group>
+                {/*<Radio.Group value={accountType} style={{display:'flex'}} disabled>*/}
+                {/*    <Radio value={1} style={{width:'80px'}}>公账</Radio>*/}
+                {/*    <Radio value={0} style={{width:'80px'}}>私账</Radio>*/}
+                {/*</Radio.Group>*/}
             </Space>
             <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
                 {moneyType==2?

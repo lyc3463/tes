@@ -22,6 +22,8 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as RequisitionForm from "@/services/requisitionForm";
 import {PlusOutlined} from "@ant-design/icons";
 import * as ThingStockInfoServer from "@/services/thingStockInfo";
+import * as ThingListvice from "@/services/unitCalculation";
+import * as AppPzService from "@/services/appPz";
 
 const editSalesList=(props)=>{
     const navigate=useNavigate();
@@ -49,13 +51,14 @@ const editSalesList=(props)=>{
     const [discountPrice,setDiscountPrice]=useState(0);
     // 折扣率
     const [discountRate,setDiscountRate]=useState(100);
-    // 客户类型
-    const [customerType,setCustomerType]=useState(0);
     // 客户id
     const [customerId,setCustomerId]=useState(0);
     const [pmId ,setPayTypeId]=useState(0);
     const [uid,setUid]=useState(0);
-    const [salesperson,setSalesPerson]=useState(0);
+    // 销售人
+    const [salesperson,setSalesPerson]=useState('');
+    const [parkIdDB,setParkIdDB]=useState(0);
+    const [mixDiscountRate ,setMixDiscountRate]=useState(0);
 
     const getOne=async (id:string)=>{
         setSpinning(true);
@@ -73,9 +76,9 @@ const editSalesList=(props)=>{
             setPayTypeId(data.pmId);
             setDiscountRate(data.discountRate);
             setDiscountPrice(data.discountPrice);
-            setCustomerType(data.customerType);
             setCustomerId(data.customerId);
             getList(data.warehouseId);
+            setParkIdDB(data.parkIdDB);
             setSalesPerson(data.salesperson);
             if (data.customerType==1){
                 getwxUserList();
@@ -93,15 +96,21 @@ const editSalesList=(props)=>{
             setSpinning(false);
         }
     };
-    // 销售人
-    const changeSalesPerson=(e)=>{
-        setSalesPerson(e);
+    const getThenBuckleSttings=()=>{
+        AppPzService.thenBuckleOne().then((res:TypeErrorCode)=>{
+            if (res.ErrorCode === 0 && res.Data !== null){
+                setMixDiscountRate(res.Data.discount);
+            }else {
+                setMixDiscountRate(0);
+            }
+        })
     };
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
         setUid(id*1);
         getOne(id);
+        getThenBuckleSttings();
     }, []);
     const columnsz = [
         {
@@ -115,8 +124,8 @@ const editSalesList=(props)=>{
 
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
-                    ? `http://img.qhwy6.com/${textStr}`
-                    : `http://img.qhwy6.com/${textStr}_X.png`;
+                    ? `${window.ServerConfig.imgServer}${textStr}`
+                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 // 步骤3：仅当字符串非空时渲染图片，否则返回空
                 return textStr ? (
                     <Image
@@ -139,23 +148,25 @@ const editSalesList=(props)=>{
                     optionFilterProp="children"
                     placeholder="搜索物品名称"
                     style={{ width: 120 }}
-                    onChange={(value) => handleProductSelect(record.id, value)}
+                    value={text || undefined}
+                    onChange={(value,label) => handleProductSelect(record.id,label)}
                     filterOption={(input, option) => {
                         if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) {
                             return false;
                         }
-                        // 查找匹配productsCode的物品 (使用productsCode代替id)
-                        const item = thingStockInfoList.find(unit => unit.productsCode == option.value);
+                        // 🔹 这里也要用拼接 value 查找
+                        const item = thingStockInfoList.find(
+                            unit => `${unit.productsCode}${unit.productsName}` === option.value
+                        );
                         if (!item) return false;
                         const searchInput = input.toLowerCase();
-                        // 仍按名称搜索，但基于productsCode匹配的物品
                         return item.productsName?.toLowerCase().includes(searchInput);
                     }}
                     // 选项值使用productsCode代替id (唯一非int标识符)
                     options={Array.isArray(thingStockInfoList)
                         ? thingStockInfoList.map(item => ({
                             label: `${item.productsName}`,
-                            value: item.productsCode // 改为使用productsCode作为value
+                            value: `${item.productsCode+item.productsName}`
                         }))
                         : []}
                 />
@@ -217,8 +228,9 @@ const editSalesList=(props)=>{
             key:'discountRateDp',
             render:(text, record) => (
                 <InputNumber
-                    min={0}
+                    min={mixDiscountRate}
                     value={text}
+                    max={100}
                     // 当"是否打折"为"否"(0)时禁用输入框，仅"是"(1)时可编辑
                     disabled={record.isZk === 0}
                     onChange={(value) => changeDiscount(value, record.id)}
@@ -233,6 +245,7 @@ const editSalesList=(props)=>{
                 <InputNumber
                     min={0}
                     value={text}
+                    disabled
                 />
             )
         },
@@ -260,61 +273,12 @@ const editSalesList=(props)=>{
             }
         },
     ];
-    // 删除物品
-    const isDel=(id:number)=>{
-        setDisplayData(displayData.filter((item)=>item.id!==id));
-    };
-    // 处理物品选择变更 - 更新物品名称及相关信息
-    const handleProductSelect = (recordId, productCode) => {
-        // 查找选中的物品信息
-        const selectedProduct = thingStockInfoList.find(item => item.productsCode === productCode);
-        ThingStockInfoServer.productsNameQuery(warehouseId,selectedProduct.productsName).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                console.log('物品名称',res);
-                setDisplayData(displayData.map(item => {
-                    if (item.id === recordId) {
-                        return {
-                            ...item,
-                            productsImageBase64: res.Data.productsImageBase64 || '', // 同步物品图片
-                            productsImage: res.Data.productsImage || '', // 物品图片名称
-                            productsName: selectedProduct.productsName || '', // 物品名称
-                            iList: res.Data.iList || [],
-                            brandId:0,
-                            abbreviation:'',
-                            barcode:'',
-                            costPrice:0,
-                            groupId:0,
-                            inventoryId:0,
-                            number:0,
-                            presalePrice:0,
-                            price:0,
-                            priceKc:0,
-                            productsCode:'',
-                            quantity:0,
-                            quantityKc:0,
-                            retailPricce:0,
-                            specifications:'',
-                            totalPrice:0,
-                            unitsId:0,
-                            unitsName:'',
-                            isZk: 1,
-                            discountRateDp: 100,
-                            discountPriceDp: 0,
-                        };
-                    }
-                    return item;
-                }));
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
     // 选择单位
     const handleUnitSelect = (recordId, unitId) => {
         const currentRecord = displayData.find(item => item.id === recordId);
         if (!currentRecord || !Array.isArray(currentRecord.iList)) return;
         const selectedUnit = currentRecord.iList.find(unit => unit.unitsId === unitId);
-        console.log('选择的单位',selectedUnit)
+        console.log('选择的单位',selectedUnit);
         if (!selectedUnit) return;
         setDisplayData(displayData.map(item => {
             if (item.id === recordId) {
@@ -328,7 +292,7 @@ const editSalesList=(props)=>{
                     inventoryId: selectedUnit.id || 0, // 物品id
                     number: selectedUnit.number || 0, // 警告数量
                     presalePrice: selectedUnit.presalePrice || 0, // 警告数量
-                    price: selectedUnit.price || 0, // 零售价(元)
+                    price: selectedUnit.retailPricce || 0, // 零售价(元)
                     priceKc: selectedUnit.priceKc || 0, // 零售价(元)
                     productsCode: selectedUnit.productsCode || '', // 物品编号
                     quantity: 0, // 出库数量
@@ -337,7 +301,7 @@ const editSalesList=(props)=>{
                     specifications: selectedUnit.specifications || '',
                     totalPrice: selectedUnit.totalPrice || 0,
                     unitsId: selectedUnit.unitsId || 0,
-                    unitsName: selectedUnit.unitsName || 0,
+                    unitsName: selectedUnit.unitsName || '',
                     isZk: selectedUnit.isZk || 1,
                     discountRateDp: selectedUnit.discountRateDp || 100,
                     discountPriceDp: selectedUnit.discountPriceDp || 0,
@@ -345,6 +309,120 @@ const editSalesList=(props)=>{
             }
             return item;
         }));
+    };
+    // 删除物品
+    const isDel=(id:number)=>{
+        setDisplayData(displayData.filter((item)=>item.id!==id));
+    };
+    const  setPresalePrice=(data, conversions) =>{
+        const presaleMap = {};
+        const retailMap = {};
+
+        const baseUnitId = data.unitsId;
+
+        function fix(num) {
+            return Number(num.toFixed(2));
+        }
+
+        // 当前单位价格固定
+        presaleMap[baseUnitId] = fix(data.presalePrice);
+        retailMap[baseUnitId] = fix(data.retailPricce);
+
+        function calculate(unitId) {
+            const currentPresale = presaleMap[unitId];
+            const currentRetail = retailMap[unitId];
+
+            // 向上找
+            conversions
+                .filter(item => item.to_unit_id === unitId)
+                .forEach(item => {
+                    if (presaleMap[item.from_unit_id] == null) {
+                        presaleMap[item.from_unit_id] = fix(
+                            currentPresale * item.conversion_rate
+                        );
+                        retailMap[item.from_unit_id] = fix(
+                            currentRetail * item.conversion_rate
+                        );
+
+                        calculate(item.from_unit_id);
+                    }
+                });
+
+            // 向下找
+            conversions
+                .filter(item => item.from_unit_id === unitId)
+                .forEach(item => {
+                    if (item.to_unit_id !== 0 && presaleMap[item.to_unit_id] == null) {
+                        presaleMap[item.to_unit_id] = fix(
+                            currentPresale / item.conversion_rate
+                        );
+                        retailMap[item.to_unit_id] = fix(
+                            currentRetail / item.conversion_rate
+                        );
+
+                        calculate(item.to_unit_id);
+                    }
+                });
+        }
+        calculate(baseUnitId);
+        data.iList.forEach(item => {
+            item.presalePrice = presaleMap[item.unitsId] ?? 0;
+            item.retailPricce = retailMap[item.unitsId] ?? 0;
+        });
+
+        return data.iList;
+    }
+    // 处理物品选择变更 - 更新物品名称及相关信息
+    const handleProductSelect = (recordId,label) => {
+        // 查找选中的物品信息
+        const selectedProduct = thingStockInfoList.find(item => item.productsName === label.label);
+        ThingStockInfoServer.productsNameQuery(warehouseId,selectedProduct.productsCode).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                let groupList=[];
+                ThingListvice.one(res.Data.groupId).then((groupRes:TypeErrorCode)=>{
+                    if(groupRes.ErrorCode===0){
+                        groupList=groupRes.Data.unitsList||[];
+                        let newarr=setPresalePrice(res.Data,groupRes.Data.unitsList);
+                        console.log(res.Data.iList)
+                        setDisplayData(displayData.map(item => {
+                            if (item.id === recordId) {
+                                return {
+                                    ...item,
+                                    productsImageBase64: res.Data.productsImageBase64 || '', // 同步物品图片
+                                    productsImage: res.Data.productsImage || '', // 物品图片名称
+                                    productsName: selectedProduct.productsName || '', // 物品名称
+                                    iList: res.Data.iList || [],
+                                    brandId:0,
+                                    abbreviation:'',
+                                    barcode:'',
+                                    costPrice:0,
+                                    groupId:0,
+                                    inventoryId:0,
+                                    number:0,
+                                    presalePrice:res.Data.presalePrice,
+                                    price:0,
+                                    priceKc:0,
+                                    productsCode:0,
+                                    quantity:0,
+                                    quantityKc:0,
+                                    retailPricce:res.Data.retailPricce,
+                                    specifications:'',
+                                    totalPrice:0,
+                                    unitsId:0,
+                                    unitsName:0,
+                                    isZk: 1,
+                                    discountRateDp: 100,
+                                    discountPriceDp: 0,
+                                };
+                            }
+                            return item;
+                        }));
+                    }
+                })
+            }else {
+                message.error(res.Data);
+            }
+        })
     };
     // 已付金额
     const changePaidAmount=(e)=>{
@@ -362,7 +440,6 @@ const editSalesList=(props)=>{
                 const minPrice = quantity * (item.presalePrice || 0);
                 // 3. 取两者最大值作为最终折后金额（兜底控价）
                 const totalPrice = Math.max(discountedPrice, minPrice);
-
                 return {
                     ...item,
                     quantity: quantity, // 更新数量
@@ -406,8 +483,10 @@ const editSalesList=(props)=>{
     // 获取库存
     const getList=(e)=>{
         setSpinning(true);
-        ThingStockInfoServer.selectFetch(e).then((res:TypeErrorCode)=>{
-            console.log('库存明细',res)
+        props.dispatch({
+            type:'ThingStockInfo/fetch',
+            payload:{page:1, pageSize:10000, warehouseId:e, productsName:'', startDate:'2000-01-01', endDate:'2099-01-01',unitId:0}
+        }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setThingStockInfoList(res.Data);
             }
@@ -425,38 +504,37 @@ const editSalesList=(props)=>{
     // 仓库id
     const changeWarehouse=(e)=>{
         setWarehouseId(e);
-        setDisplayData(prevDisplayData => prevDisplayData.filter(item => item.productsName === ''));
         getList(e);
     };
-    // 获取用户列表
-    const getUserList=()=>{
+    const getConpentList=()=>{
         props.dispatch({
-            type:"Users/fetch",
+            type:'ConpentList/fetch',
+            payload:{page:1,pageSize:300,uName:'',uPhone:'',balance:0}
         })
     };
     useEffect(() => {
         getWarehouseList();
         getPayList();
         getUserList();
+        getAppUserList();
     }, []);
     const onOK=()=>{
         if (orderTime==='') return message.warning('请选择申请时间');
-        if (customerType===0) return message.warning('请选择客户类型');
         if (customerId===0) return message.warning('请选择客户');
         if (pmId===0) return message.warning('请选择支付类型');
+        if (salesperson==='') return message.warning('请选择销售人');
         const filteredData = displayData.filter(item => item.unitsId !== 0);
         if (filteredData.length === 0) return message.warning('请选择有效的物品信息');
         const hasInvalidQuantity = filteredData.some(item => item.quantity <= 0);
         if (hasInvalidQuantity) {
             return message.warning('请输入销售数量');
         }
-        console.log('selectedItems',filteredData);
+
         let jsonData = JSON.stringify(filteredData);
-        console.log('打印数组',jsonData);
         setSpinning(true);
         props.dispatch({
             type:'SalesList/edit',
-            payload:{uid,warehouseId, orderCode, orderTime, jsonData, paidAmount, totalAmount,discountPrice, remark,pmId,customerType,customerId,discountRate,warehouseId2:0,salesperson}
+            payload:{uid,warehouseId, orderCode, orderTime, jsonData, paidAmount, totalAmount,discountPrice, remark,pmId,customerId,discountRate,warehouseId2:0,parkIdDB,salesperson}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('编辑成功');
@@ -471,15 +549,6 @@ const editSalesList=(props)=>{
     // 备注
     const changeRemark=(e)=>{
         setRemark(e.target.value);
-    };
-    const changeCustomerType=(e)=>{
-        setCustomerType(e);
-        setCustomerId(0);
-        if (e==1){
-            getwxUserList();
-        }else {
-            getKeList();
-        }
     };
     // 客户id
     const changeCustomerId=(e)=>{
@@ -578,11 +647,24 @@ const editSalesList=(props)=>{
             })
         );
     };
+    // 获取用户列表
+    const getUserList=()=>{
+        props.dispatch({
+            type:"Users/fetch",
+        })
+    };
+    // 用户列表接口
+    const getAppUserList = () => {
+        props.dispatch({
+            type:'AppUser/fetch',
+        })
+    };
     const getPayList=()=>{
         props.dispatch({
             type:'PayType/fetch',
         })
     };
+
     // 支付方式
     const changePayType=(e)=>{
         setPayTypeId(e);
@@ -608,8 +690,8 @@ const editSalesList=(props)=>{
             presalePrice:0,
             price:0,
             priceKc:0,
-            productsCode:0,
-            productsImage:0,
+            productsCode:'',
+            productsImage:'',
             productsName:'',
             quantity:0,
             quantityKc:0,
@@ -617,7 +699,7 @@ const editSalesList=(props)=>{
             specifications:'',
             totalPrice:0,
             unitsId:0,
-            unitsName:0,
+            unitsName:'',
             warehouseName:0,
             isZk: 1,
             discountRateDp: 100,
@@ -626,6 +708,10 @@ const editSalesList=(props)=>{
         }));
         // 添加到现有记录中
         setDisplayData([...displayData, ...newRecords]);
+    };
+    // 销售人
+    const changeSalesPerson=(e)=>{
+        setSalesPerson(e);
     };
     return(
         <Spin spinning={spinning}>
@@ -700,84 +786,6 @@ const editSalesList=(props)=>{
                             borderInlineEnd: 0,
                         }}
                     >
-                        选择客户类型:
-                    </div>
-                    <Select
-                        placeholder='客户类型'
-                        onChange={changeCustomerType}
-                        style={{width:120}}
-                        value={customerType}
-                        options={[
-                            {
-                                label:'小程序用户',
-                                value:1,
-                            },
-                            {
-                                label:'客户',
-                                value:2,
-                            },
-                        ]}
-                    />
-                </Space.Compact>
-                {(customerType === 1 || customerType === 2) && (
-                    <Space.Compact>
-                        <div
-                            style={{
-                                borderRadius: '6px',
-                                borderStartEndRadius: 0,
-                                borderEndEndRadius: 0,
-                                padding: '0 11px',
-                                border: '1px solid #d9d9d9',
-                                display: 'flex',
-                                alignItems: 'center',
-                                borderInlineEnd: 0,
-                            }}
-                        >
-                            客户:
-                        </div>
-                        <Select
-                            showSearch  // 启用搜索
-                            optionFilterProp="label"  // 搜索匹配label字段
-                            placeholder="请选择客户"
-                            style={{ width: 120 }}
-                            value={customerId}
-                            onChange={changeCustomerId}
-                            // 搜索过滤逻辑（不区分大小写）
-                            filterOption={(input, option) =>
-                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                            }
-                            // 动态生成选项（根据客户类型切换数据源）
-                            options={
-                                customerType === 1
-                                    ? (Array.isArray(props.AppUserList)
-                                        ? props.AppUserList.map(item => ({
-                                            label: item.appUser_phone,  // 小程序用户显示手机号
-                                            value: item.id
-                                        }))
-                                        : [])
-                                    : (Array.isArray(props.CheckCompanyList)
-                                        ? props.CheckCompanyList.map(item => ({
-                                            label: item.custom_name,  // 客户显示名称
-                                            value: item.id
-                                        }))
-                                        : [])
-                            }
-                        />
-                    </Space.Compact>
-                )}
-                <Space.Compact>
-                    <div
-                        style={{
-                            borderRadius: '6px',
-                            borderStartEndRadius: 0,
-                            borderEndEndRadius: 0,
-                            padding: '0 11px',
-                            border: '1px solid #d9d9d9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderInlineEnd: 0,
-                        }}
-                    >
                         支付方式:
                     </div>
                     <Select
@@ -796,12 +804,44 @@ const editSalesList=(props)=>{
                             : []}
                     />
                 </Space.Compact>
+                <Space.Compact>
+                    <div
+                        style={{
+                            borderRadius: '6px',
+                            borderStartEndRadius: 0,
+                            borderEndEndRadius: 0,
+                            padding: '0 11px',
+                            border: '1px solid #d9d9d9',
+                            display: 'flex',
+                            alignItems: 'center',
+                            borderInlineEnd: 0,
+                        }}
+                    >
+                        客户:
+                    </div>
+                    <Select
+                        style={{width:150}}
+                        showSearch
+                        placeholder='客户'
+                        onChange={changeCustomerId}
+                        value={customerId}
+                        filterOption={(input, option) => {
+                            const item = props.AppUserList.find(unit => unit.userId == option.value);
+                            return item?.userName?.toLowerCase().includes(input.toLowerCase());
+                        }}
+                        options={Array.isArray(props.AppUserList) && props.AppUserList.length > 0
+                            ? props.AppUserList.map((item: any) => ({
+                                label: item.userName,
+                                value: item.userId,
+                            }))
+                            : []}
+                    />
+                </Space.Compact>
                 <Input placeholder='备注' value={remark} onChange={changeRemark}  maxLength={50} showCount/>
-
             </Space>
             <Space style={{marginTop:'10px'}}>
                 <InputNumber addonBefore="总金额(元):" placeholder='总金额' min={0} disabled value={discountPrice}/>
-                <InputNumber addonBefore="折扣%:" placeholder='折扣%' min={0} max={100} value={discountRate} onChange={changeDiscountRate}/>
+                <InputNumber addonBefore="折扣%:" placeholder='折扣%' min={mixDiscountRate} max={100} value={discountRate} onChange={changeDiscountRate}/>
                 <InputNumber addonBefore="折后金额:" placeholder='折后金额' min={0}  value={totalAmount} disabled/>
                 <InputNumber addonBefore="实收金额(元):" placeholder='实收金额' min={0} value={paidAmount} onChange={changePaidAmount}/>
                 <Space.Compact>
@@ -863,9 +903,7 @@ const editSalesList=(props)=>{
 const mapStateToProps = (state: any) => ({
     ThingStockInfoList: state.ThingStockInfo.list,
     WarehouseList: state.WarehouseList.list,
-    AppUserList: state.AppUser.list,
-    CheckCompanyList: state.CheckCompany.list,
     PayTypeList: state.PayType.list,
-    UsersList: state.Users.list,
+    AppUserList: state.AppUser.list
 });
 export default connect(mapStateToProps)(editSalesList);

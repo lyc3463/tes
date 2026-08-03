@@ -11,7 +11,7 @@ const WorkOrderAdd=(props)=>{
     const [form] = Form.useForm();
     const [workGood,setWorkGood]=useState('');// 工单名称
     const [workMoney,setWorkMoney]=useState(0);// 工单金额
-    const [workType,setWorkType]=useState(0);// 工单金额
+    const [workType,setWorkType]=useState(0);// 工单类型
     const [goodsList,setGoodsList]=useState([]);
     const onFinish=(values)=>{
         if (!workGood) return message.warning('请选择物品');

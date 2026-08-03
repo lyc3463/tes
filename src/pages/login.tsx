@@ -1,45 +1,25 @@
 import React, { Component, useEffect, useRef, useState } from 'react';
 import { history, Link } from 'umi';
-import {
-  Button,
-  Form,
-  Input,
-  Tabs,
-  Space,
-  Switch,
-  InputNumber,
-  Alert,
-  Spin,
-  message,
-  Modal,
-} from 'antd';
+import {Button, Form, Input, message, Modal,} from 'antd';
 import { StaticInfo } from '@/StaticInfo';
 import { EventMgr } from '@/Event/EventMgr';
 import { info_event } from '@/Event/EventEnum';
 import styles from './login.less';
-import Captcha from 'react-captcha-code';
 import moment from 'moment';
 import { canvasRefProps } from 'react-captcha-code/build/types/captcha';
-import Loading from '@/loading';
-import Wlcw from '@/components/wlcw';
 import * as CommonService from '@/services/common';
 import * as LoginService from '@/services/login';
 import CryptoUtils from '@/utils/Crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { sleep } from '@/utils/common';
-import {phonePattern, pwdPattern, replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
+import {phonePattern, pwdPattern} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import ver from '../../public/ver.json';
+import FingerprintJS from '@fingerprintjs/fingerprintjs'
+import Cookies from 'js-cookie'
 
 type Fnc = () => void;
 const noop = () => { };
-
-const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
-};
-const tailLayout = {
-  wrapperCol: { offset: 3, span: 18 },
-};
 
 export default function Login() {
   const [form] = Form.useForm();
@@ -82,13 +62,36 @@ export default function Login() {
   const [mmOpen,setmmOpen]=useState(false);
   // 找回密码验证码弹窗
   const [isyzmOpen,setIsyzmOpen]=useState(false);
+  const [deviceId,setDeviceId]=useState('');
+  const [isSms,setIsSms]=useState(0);
   useEffect(() => {
     didmount();
-    console.log('看看csx是什么',StaticInfo.csx);
+    getDeviceId();
     return () => {
       unmount();
     }
   }, []);
+  // 登录时获取设备id
+  const getDeviceId = async () => {
+    // 先读取cookie中的deviceId
+    const cacheId = Cookies.get('deviceId');
+    // 初始化指纹库，生成当前浏览器设备标识
+    const fp = await FingerprintJS.load()
+    const result = await fp.get()
+    const deviceId = result.visitorId;
+    setDeviceId(deviceId);
+    // 判断cookie是否不存在
+    if (!cacheId) {
+      setIsSms(1);
+    } else {
+      // cookie存在，和新生成的deviceId对比
+      if (cacheId === deviceId) {
+        setIsSms(0);
+      } else {
+        setIsSms(1);
+      }
+    }
+  };
   useEffect(() => {
     if (inited == 1) {
       if (localStorage.getItem('pwd')) {
@@ -172,7 +175,7 @@ export default function Login() {
     let res: any = await CommonService.get1001();
     let bd = moment().valueOf();
     if (res.ErrorCode == 0) {
-      StaticInfo.csx = res.Data - bd;
+      StaticInfo.csx = res.Data.datetime1 - bd;
       return Promise.resolve().then(function () {
         return true;
       });
@@ -190,6 +193,7 @@ export default function Login() {
     setErrorstr('');
   }
   const login = (values: any) => {
+    let loginYzm=yzm;
     if (values.username === '') {
       EventMgr.event(info_event.Error, '请填写账号');
       return;
@@ -198,19 +202,22 @@ export default function Login() {
       EventMgr.event(info_event.Error, '请填写密码');
       return;
     }
-    if (yzm === '') {
+    if (isSms==1 && loginYzm === '') {
       message.error('请填写验证码')
       return;
+    }
+    if (isSms==0 && loginYzm == '') {
+      loginYzm='888'
     }
     EventMgr.event(info_event.showWait);
     let mm =CryptoUtils.md5(values.password);
     LoginService.login(
         values.username,
         mm,
-        'shebie',
+        deviceId,
         1,
-        yzm,
-        1
+        loginYzm,
+        isSms
     ).then((res: TypeErrorCode) => {
       if (res.ErrorCode == 0) {
         console.log('登录信息',res.Data);
@@ -240,6 +247,14 @@ export default function Login() {
         sessionStorage.setItem('isTask',data.isTask);
         sessionStorage.setItem('parkList',JSON.stringify(data.parkList));
         history.push('/');
+        setCookie('deviceId', deviceId);
+      }else if(res.ErrorCode == -8888){
+        setIsSms(1);
+        Cookies.remove('deviceId', { path: '/' })
+      }else if(res.ErrorCode == -7777){
+        setIsSms(1);
+        Cookies.remove('deviceId', { path: '/' });
+        message.error('账户或密码错误');
       } else {
         message.error(res.ErrorCode + res.Data)
         if (res.ErrorCode == -1013) {
@@ -284,26 +299,20 @@ export default function Login() {
   const handleErrorClose = () => {
     setShowError(false);
   }
-
   const zhuce = () => {
     history.push('/editPassword/')
   }
-  // const getyzm=async ()=>{
-  //
-  //   console.log(res)
-  // }
   const getyzm = async () => {
-    // if (phonePattern.test(valPhone)) return true
-    // let name=replaceEnglishCommasWithChinese(values.username);
-    // console.log("name",name);
+    if (!phonePattern.test(valPhone)){
+      return message.error('请输入正确的手机号!')
+    };
     let type=1;
-    let shebei='设备'
+    let shebei=deviceId;
     let res=await LoginService.loginYzm(valPhone,type,shebei,1);
     if (res.ErrorCode==0){
       message.success('验证码已发送，请留意');
     }else {
       message.error(res.Data);
-      return false
     }
     // 假设这里有一个发送验证码的请求
     // 这里我们仅模拟倒计时
@@ -328,7 +337,7 @@ export default function Login() {
       return false
     }
     let type=1;
-    let shebei='设备'
+    let shebei=deviceId;
     let res:any=await LoginService.loginYzm(editpwdPhone,type,shebei,1);
     if (res.ErrorCode==0){
       message.success('验证码已发送，请留意');
@@ -388,6 +397,12 @@ export default function Login() {
     }
     return Promise.resolve();
   };
+
+  // 设置4小时Cookie
+  const setCookie=(deviceIdName:string, value:string)=> {
+    const time = new Date(Date.now() + 4 * 60 * 60 * 1000)
+    document.cookie = `${encodeURIComponent(deviceIdName)}=${encodeURIComponent(value)};expires=${time.toUTCString()};path=/`
+  };
   return (
     <>
       <div className={styles.loginCs}>
@@ -410,26 +425,30 @@ export default function Login() {
               <Form.Item name="password" rules={[{ required: true, message: '请输入密码'}]}>
                 <Input.Password placeholder='请输入密码'/>
               </Form.Item>
-              <Form.Item>
-                <Input placeholder='验证码' style={{width:'10vw',marginRight:'5px'}} onChange={(e)=>setYzm(e.target.value)}/>
-                <a
-                    href="#"
-                    className={styles.yzmBtn}
-                    onClick={isDisabled ? undefined : getyzm}
-                    style={{ pointerEvents: isDisabled ? 'none' : 'auto', cursor: isDisabled ? 'not-allowed' : 'pointer' }}
-                >
-                {countdown > 0 ? `${countdown}秒后重新获取` : '获取验证码'}
-                </a>
-              </Form.Item>
+              {isSms==1?
+                <>
+                  <Form.Item>
+                    <Input placeholder='验证码' style={{width:'10vw',marginRight:'5px'}} onChange={(e)=>setYzm(e.target.value)}/>
+                    <a
+                        href="#"
+                        className={styles.yzmBtn}
+                        onClick={isDisabled ? undefined : getyzm}
+                        style={{ pointerEvents: isDisabled ? 'none' : 'auto', cursor: isDisabled ? 'not-allowed' : 'pointer' }}
+                    >
+                      {countdown > 0 ? `${countdown}秒后重新获取` : '获取验证码'}
+                    </a>
+                  </Form.Item>
+                </>:''
+              }
+
               <Form.Item>
                 <div  className={styles.loginBox}>
                   <Button  type='primary' htmlType="submit"  className={styles.btn}>登录</Button>
                   <a type='primary' className={styles.yzmBtn} onClick={()=>setIsyzmOpen(true)}>忘记密码</a>
-                  <p style={{fontSize:'12px',color:'#999'}}>版本:3.1.5</p>
+                  <p style={{fontSize:'12px',color:'#999'}}>版本:{ver.version}</p>
                 </div>
               </Form.Item>
             </Form>
-            {/*<Input placeholder='输入验证码' style={{margin:'20px 0',width:'10vw'}}/>*/}
           </div>
         </div>
       </div>
@@ -485,121 +504,6 @@ export default function Login() {
           </Form.Item>
         </Form>
       </Modal>
-      {/*<Spin spinning={loading} fullscreen />*/}
-      {/*<div className={styles.loginbg}>*/}
-      {/*  <div className={styles.panel}>*/}
-      {/*    <h2 className={styles.title}>物业管理后台</h2>*/}
-      {/*    <Form*/}
-      {/*        {...layout}*/}
-      {/*        name="loginForm"*/}
-      {/*        form={form}*/}
-      {/*        onFinish={login}*/}
-      {/*    >*/}
-      {/*      <Form.Item*/}
-      {/*          label="账号"*/}
-      {/*          name="username"*/}
-      {/*          labelCol={{ span: 6 }}*/}
-      {/*          wrapperCol={{ span: 18 }}*/}
-      {/*          rules={[*/}
-      {/*            { required: true, message: 'Please input your username!' },*/}
-      {/*          ]}*/}
-      {/*      >*/}
-      {/*        <Input style={{ width: '100%' }} />*/}
-      {/*      </Form.Item>*/}
-      {/*      <Form.Item*/}
-      {/*          label="密码"*/}
-      {/*          name="password"*/}
-      {/*          labelCol={{ span: 6 }}*/}
-      {/*          wrapperCol={{ span: 18 }}*/}
-      {/*          rules={[*/}
-      {/*            { required: true, message: 'Please input your password!' },*/}
-      {/*          ]}*/}
-      {/*      >*/}
-      {/*        <Input.Password />*/}
-      {/*      </Form.Item>*/}
-      {/*      <Form.Item*/}
-      {/*          label='验证码'*/}
-      {/*          name="yzm"*/}
-      {/*          labelCol={{ span: 6 }}*/}
-      {/*          wrapperCol={{ span: 18 }}*/}
-      {/*          rules={[*/}
-      {/*            { required: true, message: 'Please input your password!' },*/}
-      {/*          ]}*/}
-      {/*      >*/}
-      {/*        <Input.Password/>*/}
-      {/*      </Form.Item>*/}
-      {/*      {yzvsi ? (*/}
-      {/*          <Form.Item*/}
-      {/*              label="验证码"*/}
-      {/*              name='cacode'*/}
-      {/*              labelCol={{ span: 6 }}*/}
-      {/*              wrapperCol={{ span: 18 }}*/}
-      {/*              rules={[*/}
-      {/*                { required: yzvsi, message: 'Please input captcha code!' },*/}
-      {/*              ]}*/}
-      {/*          >*/}
-      {/*            <div style={{ display: 'flex' }}>*/}
-      {/*              <Input*/}
-      {/*                  value={yzmval}*/}
-      {/*                  onChange={yzminputcg}*/}
-      {/*                  style={{ marginRight: '8px' }}*/}
-      {/*              />*/}
-      {/*              <Captcha*/}
-      {/*                  ref={captchaRef}*/}
-      {/*                  height={32}*/}
-      {/*                  charNum={4}*/}
-      {/*                  onChange={yzmcg}*/}
-      {/*              />*/}
-      {/*            </div>*/}
-      {/*          </Form.Item>*/}
-      {/*      ) : (*/}
-      {/*          ''*/}
-      {/*      )}*/}
-      {/*      <Form.Item {...tailLayout}>*/}
-      {/*        <Button type="primary" htmlType="submit" block>*/}
-      {/*          登录*/}
-      {/*        </Button>*/}
-      {/*      </Form.Item>*/}
-      {/*    </Form>*/}
-      {/*    <div style={{ padding: '0px 36px' }}>*/}
-      {/*      <Button block onClick={zhuce}>*/}
-      {/*        注册*/}
-      {/*      </Button>*/}
-      {/*    </div>*/}
-
-      {/*    <div*/}
-      {/*        style={{*/}
-      {/*          textAlign: 'center',*/}
-      {/*          bottom: '1rem',*/}
-      {/*          position: 'absolute',*/}
-      {/*          width: 'calc(100% - 2rem)',*/}
-      {/*          fontSize: '12px',*/}
-      {/*          color: '#666666'*/}
-      {/*        }}*/}
-      {/*    >*/}
-      {/*      /!* CloudPay ©{new Date().getFullYear()} *!/*/}
-      {/*    </div>*/}
-      {/*  </div>*/}
-      {/*</div>*/}
-      {/*{showError ? (*/}
-      {/*    <div*/}
-      {/*        style={{*/}
-      {/*          width: '50%',*/}
-      {/*          marginLeft: 'auto',*/}
-      {/*          marginRight: 'auto',*/}
-      {/*          paddingTop: '1rem',*/}
-      {/*        }}*/}
-      {/*    >*/}
-      {/*      <Alert*/}
-      {/*          message="登录失败"*/}
-      {/*          description="请检查用户名和密码是否正确！"*/}
-      {/*          type="error"*/}
-      {/*          showIcon*/}
-      {/*          closable*/}
-      {/*          afterClose={handleErrorClose}*/}
-      {/*      />*/}
-      {/*    </div>*/}
-      {/*) : null}*/}
     </>
   );
 }

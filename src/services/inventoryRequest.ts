@@ -1,7 +1,7 @@
 import {getData, postData} from '@/network/http';
 
 export function fetch(vals:any) {
-    return getData(1759, [vals.page,vals.orderCode,vals.warehouseName,vals.startDate,vals.endDate,vals.orderStatus,vals.pageSize]);
+    return getData(1759, [vals.page,vals.orderCode,vals.warehouseName,vals.startDate,vals.endDate,vals.orderStatus,vals.pageSize,vals.uName]);
 }
 export function fenye(vals:any) {
     return getData(1760, [vals.orderCode,vals.warehouseName,vals.startDate,vals.endDate,vals.orderStatus,vals.pageSize]);

@@ -3,19 +3,21 @@ import {history,connect} from "umi";
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {userQx} from "@/utils/OpenTool";
+import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
 
 const InventoryRequest=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);// 当前页数
-    const [orderCode,setOrderCode]=useState('');// 单号
-    const [warehouseName,setWarehouseName]=useState('');// 仓库名称
-    const [startDate,setStartDate]=useState('2000-01-01');// 开始日期
-    const [endDate,setEndDate]=useState('2099-01-01');// 结束日期
+    const [orderCode,setOrderCode]=useState(checkSessionStorage('/warehouse/inventory','inventoryRequestOrderCode') || '');// 单号
+    const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/outbound','returnReviewFormWarehouseName') || '');// 仓库名称
+    const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/inventory','inventoryRequestStartDate') || '2000-01-01');// 开始日期
+    const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/inventory','inventoryRequestEndDate') || '2099-01-01');// 结束日期
     const [orderStatus,setOrderStatus]=useState(1);// 订单状态
     const [pageSize,setPageSize]=useState(10);// 每页数量
     const [dOpen,setDOpen]=useState(false);// 删除弹窗是否打开
     const [dId,setDId]=useState(0);// 删除的id
+    const [uName,setUName]=useState(checkSessionStorage('/warehouse/inventory','inventoryRequestUserName') || '');// 申请人
+
     const columns=[
         {
             title:'申请日期',
@@ -27,7 +29,7 @@ const InventoryRequest=(props)=>{
             }
         },
         {
-            title:'提交人',
+            title:'申请人',
             dataIndex:'user_name',
             key:'user_name',
             ellipsis:true,
@@ -38,7 +40,7 @@ const InventoryRequest=(props)=>{
             key:'stockCode',
             ellipsis:true,
             render:(text,record)=>{
-                return <Button type='link' onClick={()=>{history.push(`/warehouse/noInventoryRequestDetail?id=${record.id}`)}}>{text}</Button>
+                return <Button type='link' onClick={()=>{history.push(`/warehouse/inventoryRequestDetail?id=${record.id}&stockStutes=${1}`)}}>{text}</Button>
             }
         },
         {
@@ -71,8 +73,8 @@ const InventoryRequest=(props)=>{
                 return <Space>
                     {
                         record.stockStatus==1?<>
-                            {userQx()[517]=='1'?<Button type='primary' onClick={()=>{history.push(`/warehouse/editInventoryRequest?id=${record.id}`)}}>编辑</Button>:''}
-                            {userQx()[518]=='1'?<Button type='primary' danger onClick={()=>isDelOpen(record.id)}>删除</Button>:''}
+                          <Button type='primary' onClick={()=>{history.push(`/warehouse/editInventoryRequest?id=${record.id}`)}}>编辑</Button>
+                          <Button type='primary' danger onClick={()=>isDelOpen(record.id)}>删除</Button>
                         </>:''
                     }
                 </Space>
@@ -80,8 +82,8 @@ const InventoryRequest=(props)=>{
         },
     ];
     const isDelOpen=(e)=>{
-       setDId(e);
-       setDOpen(true);
+        setDId(e);
+        setDOpen(true);
     };
     const toAdd=()=>{
         history.push('/warehouse/addInventoryRequest');
@@ -110,44 +112,52 @@ const InventoryRequest=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'InventoryRequest/fetch',
-            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, pageSize}
-        })
-    };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'InventoryRequest/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, pageSize}
+            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, pageSize,uName}
         })
     };
     useEffect(() => {
         getList();
     }, [page,pageSize]);
 
-    useEffect(() => {
-        getFenye();
-    }, []);
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     const changeOrderCode=(e)=>{
         setOrderCode(e.target.value);
+        updateSessionStorage('/warehouse/inventory','inventoryRequestOrderCode',e.target.value);
+    };
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/warehouse/inventory','inventoryRequestStartDate','2000-01-01');
+            updateSessionStorage('/warehouse/inventory','inventoryRequestEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/warehouse/inventory','inventoryRequestStartDate',data[0]);
+            updateSessionStorage('/warehouse/inventory','inventoryRequestEndDate',data[1]);
+        }
+    };
+    const changeWarehouseName=(e)=>{
+        setWarehouseName(e.target.value);
+        updateSessionStorage('/warehouse/inventory','inventoryRequestWarehouseName',e.target.value);
     };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
-                        {userQx()[516]=='1'?<Button type="primary" onClick={toAdd}>
+                       <Button type="primary" onClick={toAdd}>
                             申请盘点
-                        </Button>:''}
+                        </Button>
                     </Space>
                     <Space>
                         <Input
                             addonBefore="仓库名称:"
                             value={warehouseName}
-                            onChange={(e)=>{setWarehouseName(e.target.value)}}
+                            onChange={changeWarehouseName}
                         />
                         <Input
                             addonBefore="单号:"
@@ -169,7 +179,7 @@ const InventoryRequest=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

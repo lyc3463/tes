@@ -76,8 +76,8 @@ const OutboundDetail=(props)=>{
                 if (isImageLoaded && text) {
                     const textStr = String(text || '');
                     imageUrl = textStr && textStr.endsWith('.png')
-                        ? `http://img.qhwy6.com/${textStr}`
-                        : `http://img.qhwy6.com/${textStr}_X.png`;
+                        ? `${window.ServerConfig.imgServer}${textStr}`
+                        : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 }
 
                 // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）

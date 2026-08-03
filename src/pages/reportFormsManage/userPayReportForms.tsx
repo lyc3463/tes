@@ -382,9 +382,7 @@ const userPayReportForms=(props)=>{
         logFenye();
         console.log('porps',props);
     };
-    // useEffect(() => {
-    //     logFenye();
-    // }, [page,pageSize]);
+
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {

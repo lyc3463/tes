@@ -2,11 +2,20 @@ import {connect,useLocation,history,useNavigate} from 'umi'
 import {Button, Form, Input, InputNumber, message, Radio, Select, Space, Spin, Tag} from "antd";
 import {useEffect, useRef, useState} from "react";
 import * as CableServer from "@/services/cable";
-import {filterAndUpdateList} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import * as UnitService from "@/services/unit";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
+let defaultValues={
+    page:1,
+    name: '',
+    beginRents:0,
+    endRents:9999999999,
+    status:0,
+    house_id:0,
+    pageSize:100000
+}
 const EditCable=(props:any)=>{
     const navigate=useNavigate();
     const location=useLocation();
@@ -24,11 +33,24 @@ const EditCable=(props:any)=>{
     const [priceType,setPriceType]=useState(0);
     // 1水价 2电价 0全部
     const [we_type,setwe_type]=useState(2);
+    // 单元列表
+    const [unitList,setUnitList]=useState([]);
+    // 单元id
+    const [unitid,setUnitid]=useState(0);
+    const getUnitList=()=>{
+        UnitService.fetch(defaultValues).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setUnitList(res.Data);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
     const onFinish=async (values)=>{
         setspinning(true);
         let res=await props.dispatch({
             type:'Cable/edit',
-            payload:{...values,uid}
+            payload:{...values,uid,unitid}
         })
         if (res.ErrorCode==0){
             setspinning(false);
@@ -43,7 +65,8 @@ const EditCable=(props:any)=>{
     const getOneCable=async (id:string)=>{
         let res=await  CableServer.one(id);
         if (res?.ErrorCode==0){
-            formRef.current.setFieldsValue(res?.Data)
+            formRef.current.setFieldsValue(res?.Data);
+            setUnitid(res?.Data.unitId);
         }else {
             message.error(res.Data);
         }
@@ -55,7 +78,8 @@ const EditCable=(props:any)=>{
         const id = searchParams.get('id');
         setUid(id);
         getOneCable(id);
-        getPriceList()
+        getPriceList();
+        getUnitList();
     },[]);
     // 价格列表
     const getPriceList=()=>{
@@ -69,6 +93,10 @@ const EditCable=(props:any)=>{
                 message.error(res.Data)
             }
         })
+    };
+    // 选择单元
+    const changeUnit=(e)=>{
+        setUnitid(e);
     };
     return(
         <Spin spinning={spinning}>
@@ -141,6 +169,27 @@ const EditCable=(props:any)=>{
                 </Form.Item>
                 <Form.Item label='电表备注' name='remark'   rules={[{required: true, message: '必须填表备注'}]}>
                     <Input placeholder='电表备注(不能为空)'/>
+                </Form.Item>
+                <Form.Item label='单元'>
+                    <Select
+                        onChange={changeUnit}
+                        showSearch
+                        value={unitid}
+                        optionFilterProp="children"
+                        filterOption={(input, option) => {
+                            // 假设每个 option 都有一个与数据项对应的 value 属性
+                            const item = unitList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                            return item?.unit_name?.toLowerCase().includes(input.toLowerCase());
+                        }}
+                    >
+                        {unitList.map((item:any,index:any)=>{
+                            return(
+                                <Select.Option value={item.id} key={index}>
+                                    {item.house_name}-{item.unit_name}
+                                </Select.Option>
+                            )
+                        })}
+                    </Select>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Space>

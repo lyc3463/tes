@@ -1,81 +1,145 @@
-import {
-    Button,
-    DatePicker,
-    Form,
-    Image,
-    Input,
-    InputNumber,
-    List,
-    message,
-    Modal,
-    Select,
-    Space,
-    Spin,
-    Table
-} from "antd";
-import {useNavigate,history,connect} from "umi";
-import {useEffect, useState} from "react";
-import {generate, getCurrentDate} from "@/utils/OpenTool";
-import {StaticInfo} from "@/StaticInfo";
+import {Button, DatePicker, Image, Input, InputNumber, message, Select, Space, Spin, Table} from "antd";
+import { useNavigate, history, connect } from "umi";
+import { useEffect, useState, useCallback } from "react";
+import { generate, getCurrentDate } from "@/utils/OpenTool";
+import { StaticInfo } from "@/StaticInfo";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {PlusOutlined} from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import * as ThingStockInfoServer from '@/services/thingStockInfo';
 
-const AddRequisitionForm=(props)=>{
-    const navigate=useNavigate();
+// 缓存唯一标识
+const CACHE_KEY = "AddRequisitionForm_draft_cache";
+// 表单默认空草稿
+const getEmptyDraft = () => ({
+    orderCode: "",
+    orderTime: getCurrentDate(),
+    warehouseId: 0,
+    remark: "",
+    displayData: [],
+    paidAmount: 0,
+    totalAmount: 0
+});
+
+const AddRequisitionForm = (props) => {
+    const navigate = useNavigate();
     const [spinning, setSpinning] = useState(false);
-    const [form] = Form.useForm();
     // 随机单号
-    const [orderCode,setOrderCode]=useState('');
+    const [orderCode, setOrderCode] = useState('');
     // 备注
-    const [remark,setRemark]=useState('');
+    const [remark, setRemark] = useState('');
     // 获取当前时间
     const [orderTime, setOrderTime] = useState(getCurrentDate());
     // 仓库id
-    const [warehouseId,setWarehouseId]=useState(0);
+    const [warehouseId, setWarehouseId] = useState(0);
     // 添加领用的物品
     const [displayData, setDisplayData] = useState([]);
     // 库存的物品
-    const [thingStockInfoList,setThingStockInfoList]=useState([]);
+    const [thingStockInfoList, setThingStockInfoList] = useState([]);
     // 已付金额
-    const [paidAmount,setPaidAmount]=useState(0);
+    const [paidAmount, setPaidAmount] = useState(0);
     // 总金额
-    const [totalAmount,setTotalAmount]=useState(0);
-    useEffect(() => {
-        setOrderCode(generate(StaticInfo.park_name));
-        addEmptyRecords(5);
+    const [totalAmount, setTotalAmount] = useState(0);
+
+    // ====================== 缓存工具函数 ======================
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (err) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
     }, []);
+
+    // 保存全部表单草稿到缓存
+    const saveCache = useCallback(() => {
+        const draft = {
+            orderCode,
+            orderTime,
+            warehouseId,
+            remark,
+            displayData,
+            paidAmount,
+            totalAmount
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(draft));
+    }, [orderCode, orderTime, warehouseId, remark, displayData, paidAmount, totalAmount]);
+
+    // 清空缓存 + 重置全部表单
+    const clearAllDraft = useCallback(() => {
+        sessionStorage.removeItem(CACHE_KEY);
+        const empty = getEmptyDraft();
+        const newCode = generate(StaticInfo.park_name);
+        // 重置状态
+        setOrderCode(newCode);
+        setOrderTime(empty.orderTime);
+        setWarehouseId(empty.warehouseId);
+        setRemark(empty.remark);
+        setDisplayData([]);
+        setPaidAmount(empty.paidAmount);
+        setTotalAmount(empty.totalAmount);
+        // 初始化5条空行
+        addEmptyRecords(5);
+        message.info("已清空草稿");
+    }, []);
+
+    // ====================== 页面初始化 读取缓存回填 ======================
+    useEffect(() => {
+        const cache = loadCache();
+        if (cache) {
+            // 回填缓存数据
+            setOrderCode(cache.orderCode);
+            setOrderTime(cache.orderTime);
+            setWarehouseId(cache.warehouseId);
+            setRemark(cache.remark);
+            setDisplayData(cache.displayData);
+            setPaidAmount(cache.paidAmount);
+            setTotalAmount(cache.totalAmount);
+            // 缓存有仓库则加载对应库存列表
+            if (cache.warehouseId > 0) {
+                getList(cache.warehouseId);
+            }
+        } else {
+            // 无缓存，初始化单号+5条空明细
+            const newCode = generate(StaticInfo.park_name);
+            setOrderCode(newCode);
+            addEmptyRecords(5);
+        }
+        // 加载仓库下拉列表
+        getWarehouseList();
+    }, [loadCache]);
+
+    // 表单任意状态变更自动保存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+
     const columnsz = [
         {
             title: '物品图片',
             dataIndex: 'productsImage',
             ellipsis: true,
             render: (text: string, record: any) => {
-                // 核心修复：先将text转为字符串，再做空值+后缀判断
-                // 步骤1：处理非字符串类型（如null/undefined/数字），转为空字符串
                 const textStr = String(text || '');
-
-                // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
-                    ? `http://img.qhwy6.com/${textStr}`
-                    : `http://img.qhwy6.com/${textStr}_X.png`;
-                // 步骤3：仅当字符串非空时渲染图片，否则返回空
+                    ? `${window.ServerConfig.imgServer}${textStr}`
+                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 return textStr ? (
                     <Image
                         src={imageUrl}
-                        style={{width:'50px',height:'50px'}}
+                        style={{ width: '50px', height: '50px' }}
                         fallback="https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片"
                     />
-                ) : (
-                    ''
-                );
+                ) : '';
             }
         },
         {
-            title: '物品名称',
+            title: '物品选择',
             dataIndex: 'productsName',
-            key:'productsName',
+            key: 'selectProducts',
             render: (text, record) => (
                 <Select
                     showSearch
@@ -83,23 +147,18 @@ const AddRequisitionForm=(props)=>{
                     placeholder="搜索物品名称"
                     style={{ width: 120 }}
                     value={text || undefined}
-                    onChange={(value) => handleProductSelect(record.id, value)}
+                    onChange={(value, label) => handleProductSelect(record.id, label)}
                     filterOption={(input, option) => {
-                        if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) {
-                            return false;
-                        }
-                        // 查找匹配productsCode的物品 (使用productsCode代替id)
-                        const item = thingStockInfoList.find(unit => unit.productsCode == option.value);
+                        if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) return false;
+                        const item = thingStockInfoList.find(unit => `${unit.productsCode}${unit.productsName}` === option.value);
                         if (!item) return false;
                         const searchInput = input.toLowerCase();
-                        // 仍按名称搜索，但基于productsCode匹配的物品
                         return item.productsName?.toLowerCase().includes(searchInput);
                     }}
-                    // 选项值使用productsCode代替id (唯一非int标识符)
                     options={Array.isArray(thingStockInfoList)
                         ? thingStockInfoList.map(item => ({
                             label: `${item.productsName}`,
-                            value: item.productsCode // 改为使用productsCode作为value
+                            value: `${item.productsCode + item.productsName}`
                         }))
                         : []}
                 />
@@ -108,12 +167,12 @@ const AddRequisitionForm=(props)=>{
         {
             title: '物品名称',
             dataIndex: 'productsName',
-            key:'productsName',
+            key: 'productsName',
         },
         {
             title: '物品编号',
             dataIndex: 'productsCode',
-            key:'productsCode',
+            key: 'productsCode',
         },
         {
             title: '单位',
@@ -123,14 +182,14 @@ const AddRequisitionForm=(props)=>{
                 <Select
                     showSearch
                     optionFilterProp="children"
-                    placeholder="选择单位"  // Fix placeholder text
+                    placeholder="选择单位"
                     style={{ width: 120 }}
                     value={text || undefined}
                     onChange={(value) => handleUnitSelect(record.id, value)}
                     options={Array.isArray(record.iList)
                         ? record.iList.map(item => ({
-                            label: item.unitsName || '',  // Unit name as label
-                            value: item.unitsId || 0      // Unit ID as value (adjust if using unitsCode)
+                            label: item.unitsName || '',
+                            value: item.unitsId || 0
                         }))
                         : []}
                 />
@@ -139,12 +198,11 @@ const AddRequisitionForm=(props)=>{
         {
             title: '领用数量',
             dataIndex: 'quantity',
-            key:'quantity',
-            render:(text, record) => (
+            key: 'quantity',
+            render: (text, record) => (
                 <InputNumber
                     min={0}
                     value={text}
-                    // 使用onChange事件捕获值变化，传递新值和记录ID
                     onChange={(value) => changproductsNum(value, record.id)}
                 />
             )
@@ -152,41 +210,41 @@ const AddRequisitionForm=(props)=>{
         {
             title: '库存数量',
             dataIndex: 'quantityKc',
-            key:'quantityKc',
+            key: 'quantityKc',
         },
         {
             title: '操作',
             dataIndex: 'delete',
-            key:'delete',
-            render:(text,record)=>{
-                return <Button type='primary' danger onClick={()=>isDel(record.id)}>删除</Button>
+            key: 'delete',
+            render: (text, record) => {
+                return <Button type='primary' danger onClick={() => isDel(record.id)}>删除</Button>
             }
         },
     ];
+
     // 选择单位
     const handleUnitSelect = (recordId, unitId) => {
         const currentRecord = displayData.find(item => item.id === recordId);
         if (!currentRecord || !Array.isArray(currentRecord.iList)) return;
         const selectedUnit = currentRecord.iList.find(unit => unit.unitsId === unitId);
-        console.log('选择的单位',selectedUnit);
         if (!selectedUnit) return;
         setDisplayData(displayData.map(item => {
             if (item.id === recordId) {
                 return {
                     ...item,
-                    brandId: selectedUnit.brandId || 0, // 同步物品品牌
-                    abbreviation: selectedUnit.abbreviation || '', // 同步物品助查码
-                    barcode: selectedUnit.barcode || '', // 同步物品条码
-                    costPrice: selectedUnit.costPrice || 0, // 同步物品成本价
-                    groupId: selectedUnit.groupId || 0, // 物品分组
-                    inventoryId: selectedUnit.id || 0, // 物品id
-                    number: selectedUnit.number || 0, // 警告数量
-                    presalePrice: selectedUnit.presalePrice || 0, // 警告数量
-                    price: selectedUnit.price || 0, // 零售价(元)
-                    priceKc: selectedUnit.priceKc || 0, // 零售价(元)
-                    productsCode: selectedUnit.productsCode || '', // 物品编号
-                    quantity: 0, // 出库数量
-                    quantityKc: selectedUnit.quantity || 0, // 库存数量
+                    brandId: selectedUnit.brandId || 0,
+                    abbreviation: selectedUnit.abbreviation || '',
+                    barcode: selectedUnit.barcode || '',
+                    costPrice: selectedUnit.costPrice || 0,
+                    groupId: selectedUnit.groupId || 0,
+                    inventoryId: selectedUnit.id || 0,
+                    number: selectedUnit.number || 0,
+                    presalePrice: selectedUnit.presalePrice || 0,
+                    price: selectedUnit.price || 0,
+                    priceKc: selectedUnit.priceKc || 0,
+                    productsCode: selectedUnit.productsCode || '',
+                    quantity: 0,
+                    quantityKc: selectedUnit.quantity || 0,
                     retailPricce: selectedUnit.retailPricce || 0,
                     specifications: selectedUnit.specifications || '',
                     totalPrice: selectedUnit.totalPrice || 0,
@@ -200,51 +258,53 @@ const AddRequisitionForm=(props)=>{
             return item;
         }));
     };
-    // 修改对应id 的数量
+
+    // 修改领用数量
     const changproductsNum = (value, recordId) => {
-        if (value === null) return; // 处理输入框清空的情况
-        // 更新对应商品的出库数量和总价
+        if (value === null) return;
         const updatedData = displayData.map(item => {
             if (item.id === recordId) {
                 const quantity = value;
-                const totalPrice = quantity * item.price; // 计算商品总价
+                const totalPrice = quantity * item.price;
                 return { ...item, quantity, totalPrice };
             }
             return item;
         });
         setDisplayData(updatedData);
     };
-    const changeDate=(date:dayjs.Dayjs,item:string)=>{
+
+    // 日期切换
+    const changeDate = (date: dayjs.Dayjs, item: string) => {
         setOrderTime(item);
     };
-    // 获取库存
-    const getList=(e)=>{
+
+    // 获取库存物品列表
+    const getList = (e) => {
         setSpinning(true);
-        ThingStockInfoServer.selectFetch(e).then((res:TypeErrorCode)=>{
-            console.log('库存明细',res)
-            if (res.ErrorCode==0){
+        ThingStockInfoServer.selectFetch(e).then((res: TypeErrorCode) => {
+            if (res.ErrorCode == 0) {
                 setThingStockInfoList(res.Data);
             }
             setSpinning(false);
         })
     };
-    // 仓库列表
-    const getWarehouseList=()=>{
-        props.dispatch({
-            type:"WarehouseList/fetch",
-        })
+
+    // 获取仓库下拉
+    const getWarehouseList = () => {
+        props.dispatch({ type: "WarehouseList/fetch" })
     };
-    // 仓库id
-    const changeWarehouse=(e)=>{
+
+    // 切换仓库
+    const changeWarehouse = (e) => {
         setWarehouseId(e);
+        // 只保留空行，清空已选物品
         setDisplayData(prevDisplayData => prevDisplayData.filter(item => item.productsName === ''));
         getList(e);
     };
-    useEffect(() => {
-        getWarehouseList();
-    }, []);
-    const onOK=()=>{
-        if (orderTime==='') return message.warning('请选择申请时间');
+
+    // 提交表单
+    const onOK = () => {
+        if (orderTime === '') return message.warning('请选择申请时间');
         const filteredData = displayData.filter(item => item.productsCode !== '' && item.unitsId > 0);
         if (filteredData.length === 0) return message.warning('请选择有效的物品信息');
         const hasInvalidQuantity = filteredData.some(item => item.quantity <= 0);
@@ -252,140 +312,136 @@ const AddRequisitionForm=(props)=>{
             return message.warning('请输入领用数量');
         }
         let jsonData = JSON.stringify(filteredData);
-        console.log('filteredData',filteredData);
         setSpinning(true);
+
         props.dispatch({
-            type:'RequisitionForm/add',
-            payload:{warehouseId, orderCode,orderTime, jsonData, paidAmount, totalAmount, remark,warehouseId2:0,customerType:0,customerId:0}
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
+            type: 'RequisitionForm/add',
+            payload: { warehouseId, orderCode, orderTime, jsonData, paidAmount, totalAmount, remark, warehouseId2: 0, customerType: 0, customerId: 0 }
+        }).then((res: TypeErrorCode) => {
+            setSpinning(false);
+            if (res.ErrorCode == 0) {
                 message.success('添加成功');
-                setSpinning(false);
+                clearAllDraft(); // 提交成功清空草稿缓存
                 history.push('/warehouse/outbound');
-            }else {
+            } else {
                 message.error(res.Data);
-                setSpinning(false);
             }
         })
     };
-    // 备注
-    const changeRemark=(e)=>{
+
+    // 修改备注
+    const changeRemark = (e) => {
         setRemark(e.target.value);
     };
-    // 删除物品
-    const isDel=(id:number)=>{
-        setDisplayData(displayData.filter((item)=>item.id!==id));
+
+    // 删除单行物品
+    const isDel = (id: number) => {
+        setDisplayData(displayData.filter((item) => item.id !== id));
     };
-    // 添加10条空记录的处理函数
+
+    // 新增1行空记录
     const addTenEmptyRecords = () => {
-        // 获取当前最大ID，不存在则从1开始
         const maxId = displayData.length > 0
             ? Math.max(...displayData.map(item => item.id))
             : 0;
-
-        // 生成10条空记录，ID递增
-        const newRecords = Array.from({length: 1}, (_, i) => ({
+        const newRecords = Array.from({ length: 1 }, (_, i) => ({
             id: maxId + i + 1,
-            productsImageBase64: '', // 同步物品图片
-            brandId:0,
-            abbreviation:'',
-            barcode:'',
-            costPrice:0,
-            groupId:0,
-            inventoryId:0,
-            number:0,
-            presalePrice:0,
-            price:0,
-            priceKc:0,
-            productsCode:0,
-            productsImage:0,
-            productsName:'',
-            quantity:0,
-            quantityKc:0,
-            retailPricce:0,
-            specifications:'',
-            totalPrice:0,
-            unitsId:0,
-            unitsName:0,
-            isZk: 1,
-            discountRateDp: 100,
-            discountPriceDp: 0,
-            iList:[],
-        }));
-        // 添加到现有记录中
-        setDisplayData([...displayData, ...newRecords]);
-    };
-    const addEmptyRecords = (count:number) => {
-        // 获取当前最大ID，不存在则从1开始
-        const maxId = displayData.length > 0
-            ? Math.max(...displayData.map(item => item.id))
-            : 0;
-
-        // 生成指定数量的空记录，ID递增
-        const newRecords = Array.from({length: count}, (_, i) => ({
-            id: maxId + i + 1,
-            productsImageBase64: '', // 同步物品图片
-            brandId:0,
-            abbreviation:'',
-            barcode:'',
-            costPrice:0,
-            groupId:0,
-            inventoryId:0,
-            number:0,
-            presalePrice:0,
-            price:0,
-            priceKc:0,
-            productsCode:0,
-            productsImage:0,
-            productsName:'',
-            quantity:0,
-            quantityKc:0,
-            retailPricce:0,
-            specifications:'',
-            totalPrice:0,
-            unitsId:0,
-            unitsName:0,
+            productsImageBase64: '',
+            brandId: 0,
+            abbreviation: '',
+            barcode: '',
+            costPrice: 0,
+            groupId: 0,
+            inventoryId: 0,
+            number: 0,
+            presalePrice: 0,
+            price: 0,
+            priceKc: 0,
+            productsCode: 0,
+            productsImage: 0,
+            productsName: '',
+            quantity: 0,
+            quantityKc: 0,
+            retailPricce: 0,
+            specifications: '',
+            totalPrice: 0,
+            unitsId: 0,
+            unitsName: 0,
             isZk: 1,
             discountRateDp: 100,
             discountPriceDp: 0,
             iList: [],
         }));
-        // 添加到现有记录中
         setDisplayData([...displayData, ...newRecords]);
     };
-    // 处理物品选择变更 - 更新物品名称及相关信息
-    const handleProductSelect = (recordId, productCode) => {
-        // 查找选中的物品信息
-        const selectedProduct = thingStockInfoList.find(item => item.productsCode === productCode);
-        ThingStockInfoServer.productsNameQuery(warehouseId,selectedProduct.productsName).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                console.log('物品名称',res);
+
+    // 批量生成空行
+    const addEmptyRecords = (count: number) => {
+        const maxId = displayData.length > 0
+            ? Math.max(...displayData.map(item => item.id))
+            : 0;
+        const newRecords = Array.from({ length: count }, (_, i) => ({
+            id: maxId + i + 1,
+            productsImageBase64: '',
+            brandId: 0,
+            abbreviation: '',
+            barcode: '',
+            costPrice: 0,
+            groupId: 0,
+            inventoryId: 0,
+            number: 0,
+            presalePrice: 0,
+            price: 0,
+            priceKc: 0,
+            productsCode: 0,
+            productsImage: 0,
+            productsName: '',
+            quantity: 0,
+            quantityKc: 0,
+            retailPricce: 0,
+            specifications: '',
+            totalPrice: 0,
+            unitsId: 0,
+            unitsName: 0,
+            isZk: 1,
+            discountRateDp: 100,
+            discountPriceDp: 0,
+            iList: [],
+        }));
+        setDisplayData([...displayData, ...newRecords]);
+    };
+
+    // 选择物品回填明细
+    const handleProductSelect = (recordId, label) => {
+        const selectedProduct = thingStockInfoList.find(item => item.productsName === label.label);
+        ThingStockInfoServer.productsNameQuery(warehouseId, selectedProduct.productsCode).then((res: TypeErrorCode) => {
+            if (res.ErrorCode == 0) {
                 setDisplayData(displayData.map(item => {
                     if (item.id === recordId) {
                         return {
                             ...item,
-                            productsImageBase64: res.Data.productsImageBase64 || '', // 同步物品图片
-                            productsImage: res.Data.productsImage || '', // 物品图片名称
-                            productsName: selectedProduct.productsName || '', // 物品名称
+                            productsImageBase64: res.Data.productsImageBase64 || '',
+                            productsImage: res.Data.productsImage || '',
+                            productsName: selectedProduct.productsName || '',
                             iList: res.Data.iList || [],
-                            brandId:0,
-                            abbreviation:'',
-                            barcode:'',
-                            costPrice:0,
-                            groupId:0,
-                            inventoryId:0,
-                            number:0,
-                            presalePrice:0,
-                            price:0,
-                            priceKc:0,
-                            productsCode:0,
-                            quantity:0,
-                            quantityKc:0,
-                            retailPricce:0,
-                            specifications:'',
-                            totalPrice:0,
-                            unitsId:0,
-                            unitsName:0,
+                            brandId: 0,
+                            abbreviation: '',
+                            barcode: '',
+                            costPrice: 0,
+                            groupId: 0,
+                            inventoryId: 0,
+                            number: 0,
+                            presalePrice: 0,
+                            price: 0,
+                            priceKc: 0,
+                            productsCode: 0,
+                            quantity: 0,
+                            quantityKc: 0,
+                            retailPricce: 0,
+                            specifications: '',
+                            totalPrice: 0,
+                            unitsId: 0,
+                            unitsName: 0,
                             isZk: 1,
                             discountRateDp: 100,
                             discountPriceDp: 0,
@@ -393,78 +449,55 @@ const AddRequisitionForm=(props)=>{
                     }
                     return item;
                 }));
-            }else {
+            } else {
                 message.error(res.Data);
             }
         })
     };
-    return(
+
+    return (
         <Spin spinning={spinning}>
             <Space>
-                <Button type="primary" onClick={()=>navigate(-1)}>
+                <Button type="primary" onClick={() => navigate(-1)}>
                     返回
                 </Button>
                 <Button type="primary" onClick={onOK}>
                     确定
                 </Button>
+                <Button danger onClick={clearAllDraft}>清空草稿</Button>
             </Space>
-            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
-                <Input addonBefore="单号:" placeholder='随机生成' value={orderCode} disabled/>
+            <Space style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginTop: '10px' }}>
+                <Input addonBefore="单号:" placeholder='随机生成' value={orderCode} disabled />
                 <Space.Compact>
-                    <div
-                        style={{
-                            borderRadius: '6px',
-                            borderStartEndRadius: 0,
-                            borderEndEndRadius: 0,
-                            padding: '0 11px',
-                            border: '1px solid #d9d9d9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderInlineEnd: 0,
-                        }}
-                    >
+                    <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>
                         时间:
                     </div>
-                    <DatePicker defaultValue={dayjs(orderTime)} onChange={changeDate}/>
+                    <DatePicker value={dayjs(orderTime)} onChange={changeDate} />
                 </Space.Compact>
                 <Space.Compact>
-                    <div
-                        style={{
-                            borderRadius: '6px',
-                            borderStartEndRadius: 0,
-                            borderEndEndRadius: 0,
-                            padding: '0 11px',
-                            border: '1px solid #d9d9d9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderInlineEnd: 0,
-                        }}
-                    >
+                    <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>
                         仓库:
                     </div>
                     <Select
                         placeholder='请选择仓库'
+                        value={warehouseId || undefined}
                         onChange={changeWarehouse}
                         options={Array.isArray(props.WarehouseList) && props.WarehouseList.length > 0
-                            ? props.WarehouseList.map((item:any)=>({
-                                label:item.warehouseName,
-                                value:item.id,
+                            ? props.WarehouseList.map((item: any) => ({
+                                label: item.warehouseName,
+                                value: item.id,
                             }))
                             : []}
                     />
                 </Space.Compact>
-                <Input placeholder='备注' value={remark} onChange={changeRemark}  maxLength={50} showCount/>
-            </Space>
-            <Space style={{marginTop:'10px'}}>
-                {/*<InputNumber addonBefore="已付(元):" placeholder='已付金额' min={0} value={paidAmount} onChange={changePaidAmount}/>*/}
-                {/*<InputNumber addonBefore="总金额(元):" placeholder='总金额' min={0} value={totalAmount} onChange={changeTotalAmount}/>*/}
+                <Input placeholder='备注' value={remark} onChange={changeRemark} maxLength={50} showCount />
             </Space>
             <Table
                 columns={columnsz}
                 rowKey='id'
                 pagination={false}
                 size='small'
-                scroll={{y:'55vh'}}
+                scroll={{ y: '55vh' }}
                 dataSource={displayData}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
@@ -475,14 +508,12 @@ const AddRequisitionForm=(props)=>{
                 onClick={addTenEmptyRecords}
                 style={{ marginTop: '10px' }}
             >
-                <PlusOutlined />
+                <PlusOutlined /> 新增一行
             </Button>
         </Spin>
     )
 }
 const mapStateToProps = (state: any) => ({
-    ThingStockInfoList: state.ThingStockInfo.list,
     WarehouseList: state.WarehouseList.list,
-
 });
 export default connect(mapStateToProps)(AddRequisitionForm);

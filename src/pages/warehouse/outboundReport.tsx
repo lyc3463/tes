@@ -16,8 +16,6 @@ import {
     Table,
     Tag
 } from "antd";
-import {history} from "@@/core/history";
-import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const OutboundReport=(props:any)=>{
@@ -39,12 +37,28 @@ const OutboundReport=(props:any)=>{
             ellipsis: true,
         },
         {
-            title:'物品图片',
-            dataIndex:'productsImageBase64',
-            key:'productsImageBase64',
-            align:'center',
-            render:(text)=>{
-                return <Image src={text} alt="" style={{width:'50px',height:'50px'}}/>
+            title: '物品图片',
+            dataIndex: 'productsImage',
+            ellipsis: true,
+            render: (text: string, record: any) => {
+                // 核心修复：先将text转为字符串，再做空值+后缀判断
+                // 步骤1：处理非字符串类型（如null/undefined/数字），转为空字符串
+                const textStr = String(text || '');
+
+                // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
+                const imageUrl = textStr && textStr.endsWith('.png')
+                    ? `${window.ServerConfig.imgServer}${textStr}`
+                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
+                // 步骤3：仅当字符串非空时渲染图片，否则返回空
+                return textStr ? (
+                    <Image
+                        src={imageUrl}
+                        style={{width:'50px',height:'50px'}}
+                        fallback="https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片"
+                    />
+                ) : (
+                    ''
+                );
             }
         },
         {
@@ -130,23 +144,7 @@ const OutboundReport=(props:any)=>{
                             value={itemName}
                             onChange={changeItemName}
                         />
-                        <Space.Compact>
-                            <div
-                                style={{
-                                    borderRadius: '6px',
-                                    borderStartEndRadius: 0,
-                                    borderEndEndRadius: 0,
-                                    padding: '0 11px',
-                                    border: '1px solid #d9d9d9',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    borderInlineEnd: 0,
-                                }}
-                            >
-                                日期:
-                            </div>
-                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
-                        </Space.Compact>
+
                         <Button type="primary" onClick={()=>getList()}>
                             搜索
                         </Button>

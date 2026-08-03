@@ -1,9 +1,25 @@
 import dayjs from "dayjs";
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker, Dropdown,
+    Input,
+    List,
+    Menu,
+    message,
+    Modal,
+    Pagination,
+    Popover,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag
+} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
-import {StaticInfo} from "@/StaticInfo";
+import type { MenuProps } from 'antd';
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import RenameType from "@/ModelTypes/TypeRename";
 
 const CheckRename=(props:any)=>{
     // 当前页数
@@ -24,6 +40,11 @@ const CheckRename=(props:any)=>{
     // id
     const [uid,setUid]=useState(0);
     const [spinning, setSpinning] = useState(false);
+    // 驳回弹窗
+    const [openTranslation,setOpenTranslation]=useState(false);
+    const [tenant_name,setTenant_name]=useState('');
+    // 驳回原因
+    const [remark,setRemark]=useState('');
     const columns =[
         {
             title: '单元名称',
@@ -43,7 +64,7 @@ const CheckRename=(props:any)=>{
                 multiple: 1,
             },
             width:200,
-            render: (text:any, record:any) => {
+            render: (text:any, record:RenameType) => {
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
                     <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
@@ -60,7 +81,7 @@ const CheckRename=(props:any)=>{
             title: '申请日期',
             dataIndex: 'created',
             key: 'created',
-            render:(_:any,record:any)=>(
+            render:(_:any,record:RenameType)=>(
                 <div>
                     {dayjs(record.created).format("YYYY-MM-DD")}
                 </div>
@@ -105,25 +126,65 @@ const CheckRename=(props:any)=>{
             title: '状态',
             dataIndex: 'renameStatus',
             key: 'renameStatus',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>{record.renameStatus==2?<Tag color='green'>已通过</Tag>:<Tag color='red'>未审核</Tag>}</div>
-                )
+            render: (text: any, record: RenameType) => {
+                const status = record.renameStatus;
+                let tagDom;
+                if (status === 2) {
+                    tagDom = <Tag color="green">已审核</Tag>;
+                } else if (status === 3) {
+                    // 驳回，增加气泡展示备注
+                    tagDom = (
+                        <Popover content={record.remark || '无驳回原因'} title="驳回理由">
+                            <Tag color="red">驳回？</Tag>
+                        </Popover>
+                    );
+                } else {
+                    tagDom = <Tag color="orange">未审核</Tag>;
+                }
+                return tagDom;
             }
         },
         {
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',
-            render:(text:any,record:any,)=>{
-                return(
-                    <Space>
-                        {record.renameStatus==2?'':<Space><Button type='primary' onClick={()=>{isCheck(record)}}>确定审核</Button></Space>}
-                    </Space>
-                )
+            render: (text: any, record: RenameType) => {
+                // 下拉菜单配置
+                const menuItems: MenuProps['items'] = [
+                    {
+                        key: 'info',
+                        label: '详情',
+                        onClick: () => toInfo(record)
+                    }
+                ];
+                // 状态不等于2（未审核/驳回），追加审核、驳回
+                if (record.renameStatus !== 2) {
+                    menuItems.push(
+                        {
+                            key: 'check',
+                            label: '审核',
+                            onClick: () => isCheck(record)
+                        },
+                        {
+                            key: 'reject',
+                            danger: true,
+                            label: '驳回',
+                            onClick: () => isTranslation(record)
+                        }
+                    );
+                }
+                const menu = <Menu items={menuItems} />;
+                return (
+                    <Dropdown overlay={menu} trigger={['click']}>
+                        <Button>操作</Button>
+                    </Dropdown>
+                );
             }
         }
-    ];
+    ]
+    const toInfo=(e:RenameType)=>{
+        history.push(`/enter/editRename?id=${e.id}&renameStatus=${2}`);
+    };
     // 监听页数
     const onChange=(e:number,pageSize:number)=>{
         setPage(e);
@@ -142,6 +203,11 @@ const CheckRename=(props:any)=>{
             updateSessionStorage('/check/checkAfterSales/','CheckRenameStartDate',data[0]);
             updateSessionStorage('/check/checkAfterSales/','CheckRenameEndDate',data[1]);
         }
+    };
+    const isTranslation=(e:RenameType)=>{
+        setUid(e.id);
+        setOpenTranslation(true);
+        setTenant_name(e.tenant_name);
     };
     // 监听姓名
     const changePhone=(e)=>{
@@ -166,21 +232,15 @@ const CheckRename=(props:any)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
-        fenyeinfo();
         logFenye();
+    };
 
-    };
-    const fenyeinfo=()=>{
-        props.dispatch({
-            type:'Rename/fenye',
-            payload:{phone,stutes,startDate,endDate,pageSize}
-        })
-    };
     // 审核弹窗
-    const isCheck=(e:any)=>{
+    const isCheck=(e:RenameType)=>{
         setOpen(true);
         setUid(e.id);
-        setUphone(e.tenant_phone)
+        setUphone(e.tenant_phone);
+        setTenant_name(e.tenant_name);
     };
     const onOk=()=>{
         setSpinning(true);
@@ -192,6 +252,7 @@ const CheckRename=(props:any)=>{
                 message.success('审核通过');
                 setOpen(false);
                 setSpinning(false);
+                logFenye();
             }else {
                 message.error(res.Data);
                 setOpen(false);
@@ -199,9 +260,24 @@ const CheckRename=(props:any)=>{
             }
         })
     };
-    useEffect(() => {
-        fenyeinfo();
-    }, []);
+    const onTranslationOk=()=>{
+        setSpinning(true);
+        props.dispatch({
+            type:'Rename/translation',
+            payload:{uid,remark}
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('驳回成功');
+                setOpenTranslation(false);
+                setSpinning(false);
+                logFenye();
+            }else {
+                message.error(res.Data);
+                setOpenTranslation(false);
+                setSpinning(false);
+            }
+        })
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -246,12 +322,13 @@ const CheckRename=(props:any)=>{
                             </div>
                             <Select
                                 onChange={changeStutes}
-                                defaultValue={stutes}
+                                value={stutes}
                                 style={{ width: 120 }}
                                 options={[
                                     { value:0, label: '全部' },
                                     { value:1, label: '未审核' },
                                     { value:2, label: '已审核' },
+                                    { value:3, label: '驳回' },
                                 ]}
                             />
                         </Space.Compact>
@@ -273,9 +350,18 @@ const CheckRename=(props:any)=>{
                 dataSource={props.RenameList}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-        {/*    审核弹窗*/}
+            {/*审核弹窗*/}
             <Modal open={isOpen} onOk={onOk} onCancel={()=>setOpen(false)} title='审核更名' loading={spinning}>
-                <span>是否审核通过手机号:<span style={{color:'red'}}>{uphone}</span>的用户吗?</span>
+                <span>是否审核通过手机号:<span style={{color:'red'}}>{`${uphone}(${tenant_name})`}</span>的更名吗?</span>
+            </Modal>
+            {/*驳回弹窗*/}
+            <Modal open={openTranslation} onOk={onTranslationOk} onCancel={()=>setOpenTranslation(false)} title='驳回更名' loading={spinning}>
+                <span>是否驳回手机号:<span style={{color:'red'}}>{`${uphone}(${tenant_name})`}</span>的更名吗?</span>
+                <Input.TextArea
+                    placeholder="请输入驳回原因"
+                    onChange={(e:any)=>setRemark(e.target.value)}
+                    value={remark}
+                />
             </Modal>
         </Spin>
     )

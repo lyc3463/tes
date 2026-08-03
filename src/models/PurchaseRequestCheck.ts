@@ -20,7 +20,8 @@ let pl={
     endDate:'2099-01-01',
     orderStatus:0,
     billStatus:0,
-    orderType:1
+    orderType:1,
+    uName:'',
 }
 export interface StaffCountState {
     count: number;
@@ -58,7 +59,11 @@ const PurchaseRequestCheckModel: StaffInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -82,8 +87,8 @@ const PurchaseRequestCheckModel: StaffInterface = {
         },
         *remove({ payload, callback }, { call, put, take }): any {
             const result = yield call(Application.remove, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('fetch/@@end');
             return result;
 
         },
@@ -96,10 +101,10 @@ const PurchaseRequestCheckModel: StaffInterface = {
         },
         *check({ payload, callback }, { call, put, take }): any {
             const result = yield call(Application.check, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield put({ type: 'Application/fetch', payload: {page:1, orderCode:'', warehouseName:'', supplierName:'', pageSize:50, startDate:'2000-01-01', endDate:'2099-01-01', orderStatus:1, billStatus:1, orderType:1} });
-            yield take('fetch/@@end');
-            yield take('Application/fetch/@@end');
+            // yield put({ type: 'fetch', payload: pl });
+            // yield put({ type: 'Application/fetch', payload: {page:1, orderCode:'', warehouseName:'', supplierName:'', pageSize:50, startDate:'2000-01-01', endDate:'2099-01-01', orderStatus:1, billStatus:1, orderType:1} });
+            // yield take('fetch/@@end');
+            // yield take('Application/fetch/@@end');
             return result;
 
         },

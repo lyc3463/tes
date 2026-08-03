@@ -41,6 +41,7 @@ const LiquidatedDamagesList=()=>{
     const getzujinList=()=>{
         ArrearsBillService.weiyueList({page,name,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('res',res)
                 setdataSource(res.Data);
             }else {
                 message.error(res.Data);
@@ -146,6 +147,11 @@ const LiquidatedDamagesList=()=>{
                     </div>
                 )
             }
+        },
+        {
+            title: '免除金额',
+            dataIndex: 'exemptAmount',
+            key: 'exemptAmount',
         },
         {
             title: '状态',

@@ -6,6 +6,11 @@ import CheckPreferential from "@/pages/check/checkPreferential";
 import CheckByStages from "@/pages/check/checkByStages";
 import {useState} from "react";
 import CheckDeept from "@/pages/check/checkDeept";
+import Damages from "@/pages/enter/damages";
+import ChangeWeChat from "@/pages/enter/changeWeChat";
+import CheckDamages from "@/pages/check/checkDamages";
+import CheckChangeWeChat from "@/pages/check/checkChangeWeChat";
+import CheckRefund from "@/pages/check/checkRefund";
 
 
 const CheckAfterSales=()=>{
@@ -34,6 +39,15 @@ const CheckAfterSales=()=>{
                 </Tabs.TabPane>
                 <Tabs.TabPane tab='押金审核' key='7'>
                     <CheckDeept/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='免除审核' key='9'>
+                    <CheckDamages/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='微信号审核' key='10'>
+                    <CheckChangeWeChat/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='退款审核' key='11'>
+                    <CheckRefund/>
                 </Tabs.TabPane>
             </Tabs>
         </div>

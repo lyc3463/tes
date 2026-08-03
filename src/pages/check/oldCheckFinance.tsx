@@ -116,7 +116,6 @@ const OldCheckFinance=(props:any)=>{
             title: '单号',
             dataIndex: 'number',
             key: 'number',
-            ellipsis: true,
             render:(text:any,record:any)=>{
                 return(
                     <span style={{color:'#1890FF'}} onClick={()=>{
@@ -129,19 +128,16 @@ const OldCheckFinance=(props:any)=>{
             title: '公司',
             dataIndex: 'company_name',
             key: 'company_name',
-            ellipsis: true,
         },
         {
             title: '项目',
             dataIndex: 'project_name',
             key: 'project_name',
-            ellipsis: true,
         },
         {
             title: '供应商',
             dataIndex: 'supplierName',
             key: 'supplierName',
-            ellipsis: true,
         },
         {
             title: '类型',
@@ -371,7 +367,7 @@ const OldCheckFinance=(props:any)=>{
         }).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
                 console.log('rees',res)
-                setBillList(res.Data);
+                setBillList(res.Data.data);
             }
             setspinning(false);
         })
@@ -395,15 +391,8 @@ const OldCheckFinance=(props:any)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
-        console.log(billList)
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'Bill/fenye',
-            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode,userId:0}
-        })
-    };
+
     const updateStatusMap=(data)=> {
         const statusKeys = [1,3,4,5,6,7,8,9,10,11];
         // 先清空
@@ -452,7 +441,6 @@ const OldCheckFinance=(props:any)=>{
         })
     };
     useEffect(() => {
-        getFenye();
         getAccountList();
         getReviewer();
         getSupplierList();
@@ -742,7 +730,7 @@ const OldCheckFinance=(props:any)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 dataSource={billList}
-                scroll={{y:'60vh'}}
+                scroll={{y:'60vh',x:1500}}
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (
@@ -774,7 +762,14 @@ const OldCheckFinance=(props:any)=>{
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*审核流程*/}
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOK} loading={spinning} width={1000} height={800}>
-                <div>{<ReimbursePrint item={{...checkInfo,fdList:goodsList}}/>
+                <div>{<ReimbursePrint
+                    item={{
+                        printItem: {
+                            ...checkInfo,
+                            fdList: goodsList
+                        }
+                    }}
+                />
                 }</div>
             </Modal>
             {/*终止流程*/}

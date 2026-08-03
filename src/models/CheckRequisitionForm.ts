@@ -19,7 +19,8 @@ let pl={
     endDate:'2099-01-01',
     orderStatus:0,
     billStatus:0,
-    orderType:1
+    orderType:1,
+    uName:''
 }
 export interface StaffCountState {
     count: number;
@@ -57,7 +58,11 @@ const CheckRequisitionFormModel: StaffInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -95,14 +100,12 @@ const CheckRequisitionFormModel: StaffInterface = {
         },
         *check({ payload, callback }, { call, put, take }): any {
             const result = yield call(RequisitionForm.check, payload);
-            yield put({ type: 'RequisitionForm/fetch', payload: {page:1, orderCode:'', warehouseName:'', pageSize:50, startDate:'2000-01-01', endDate:'2099-01-01', orderStatus:1, billStatus:0, orderType:1} });
-            yield put({ type: 'fetch', payload: pl });
-            yield take('RequisitionForm/fetch/@@end');
-            yield take('fetch/@@end');
+            // yield put({ type: 'RequisitionForm/fetch', payload: {page:1, orderCode:'', warehouseName:'', pageSize:50, startDate:'2000-01-01', endDate:'2099-01-01', orderStatus:1, billStatus:0, orderType:1} });
+            // yield put({ type: 'fetch', payload: pl });
+            // yield take('RequisitionForm/fetch/@@end');
+            // yield take('fetch/@@end');
             return result;
-
         },
-
         *fenye({ type, payload }, { put, call, select }): any {
             const res = yield call(RequisitionForm.fenye,payload?payload:pl);
             if (res.ErrorCode == 0) {

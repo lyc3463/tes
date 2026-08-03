@@ -196,18 +196,29 @@ class MainPage extends Component<any> {
           }
       }
   };
-  tuichu() {
-    LoginService.outLogin(StaticInfo.userId).then((res:any)=>{
-      if (res.ErrorCode==0){
-        message.success('退出成功');
-        sessionStorage.clear();
-        location.pathname = '/login';
-      }else {
-        sessionStorage.clear();
-        location.pathname = '/login';
-      }
-    })
-  };
+    tuichu() {
+        LoginService.outLogin().then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('退出成功');
+                sessionStorage.clear();
+                localStorage.clear();
+                location.pathname = '/login';
+            }else {
+                sessionStorage.clear();
+                localStorage.clear();
+                location.pathname = '/login';
+            }
+        })
+    }
+    test1870=()=>{
+        LoginService.test1870().then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('测试成功');
+            }else {
+                message.error(res.Data);
+            }
+        })
+    }
   // editPawword=()=>{
   //   UmiHistory.push('/EditPassword')
   // };
@@ -262,7 +273,6 @@ class MainPage extends Component<any> {
                 sessionStorage.setItem('park_id',e);
                 sessionStorage.setItem('park_name',parkList.children);
                 UmiHistory.push('/');
-                window.location.reload();
             }else {
                 message.error(res.Data);
             }
@@ -475,6 +485,7 @@ class MainPage extends Component<any> {
                     />
                     <NotificationList/>
                     <Button type="link" onClick={this.tuichu}>退出</Button>
+                    {/*<Button type="link" onClick={this.test1870}>测试</Button>*/}
                 </Space>
               </div>
             </Header>

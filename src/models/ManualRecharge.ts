@@ -49,9 +49,14 @@ const ManualRechargeModel: ManualRechargeInterface = {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(ManualRechargeService.fetch,payload?payload: pl);
             if (res.ErrorCode == 0) {
+                console.log('res',res)
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data.count },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -118,18 +123,18 @@ const ManualRechargeModel: ManualRechargeInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/billLog/manualRecharge/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/billLog/manualRecharge/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/billLog/manualRecharge/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/billLog/manualRecharge/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
 
             });
         },

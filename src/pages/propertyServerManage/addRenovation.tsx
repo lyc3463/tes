@@ -38,7 +38,7 @@ const AddRenovation=(props)=>{
             payload:{page:1,name:'',phone:'',pagecount:1000}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setZhuhuList(res.Data);
+                setZhuhuList(res.Data.data);
             }
         })
     };

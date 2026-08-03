@@ -57,7 +57,6 @@ const EditInventoryRequest=(props)=>{
         if (observerRef.current) {
             observerRef.current.disconnect();
         }
-
         // 创建新的观察器：元素进入可视区域时加载图片
         observerRef.current = new IntersectionObserver(
             (entries) => {
@@ -134,8 +133,8 @@ const EditInventoryRequest=(props)=>{
                 if (isImageLoaded && text) {
                     const textStr = String(text || '');
                     imageUrl = textStr && textStr.endsWith('.png')
-                        ? `http://ckimg.dyc10.com/${textStr}`
-                        : `http://ckimg.dyc10.com/${textStr}_X.png`;
+                        ? `${window.ServerConfig.imgServer}${textStr}`
+                        : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 }
 
                 // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）
@@ -232,7 +231,7 @@ const EditInventoryRequest=(props)=>{
             payload:{page:1, pageSize:10000, warehouseId:e, productsName:'', startDate:'2000-01-01', endDate:'2099-01-01',unitId:0}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setThingStockInfoList(res.Data);
+                setThingStockInfoList(res.Data.data);
                 setSpinning(false);
             }else {
                 message.error(res.Data);
@@ -422,7 +421,7 @@ const EditInventoryRequest=(props)=>{
                     >
                         时间:
                     </div>
-                    <DatePicker defaultValue={dayjs(stockTime)} onChange={changeDate}/>
+                    <DatePicker value={dayjs(stockTime)} onChange={changeDate}/>
                 </Space.Compact>
                 <Space.Compact>
                     <div

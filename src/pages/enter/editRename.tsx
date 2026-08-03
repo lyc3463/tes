@@ -1,9 +1,10 @@
-import {Button, Form, Input, message, Select, Space, Spin} from "antd";
+import {Button, Form, Image, Input, message, Select, Space, Spin} from "antd";
 import {filterAndUpdateList, phonePattern} from "@/utils/OpenTool";
 import {connect,history,useNavigate} from 'umi'
 import {useEffect, useRef, useState} from "react";
 import * as RenameService from '@/services/rename';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import ImageUploadPng from "@/components/ImageUploadPng";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -11,6 +12,7 @@ const EditRename=(props)=>{
     const navigate=useNavigate();
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
+    const [renameStatus,setRenameStatus]=useState<number|undefined>();
     const formRef=useRef();
     const [form] = Form.useForm();
     // 原名字
@@ -19,15 +21,19 @@ const EditRename=(props)=>{
     const [oldPhone,setOldPhone]=useState('');
     const [customCard,setcustomCard]=useState('');
     const [spinning,setspinning]=useState(false);
+    const [imgB64, setImgB64] = useState<string[]>([]);
+    const [imgName,setImgName]=useState<string[]>([]);
     const getInfo=(e)=>{
         RenameService.one(e).then((res:TypeErrorCode)=>{
             setspinning(true);
             if (res.ErrorCode==0){
-                console.log("详细信息",res)
+                console.log("详细信息",res);
+                setUid(res.Data.id);
                 setOldName(res.Data.tenant_name);
                 setOldPhone(res.Data.tenant_phone);
                 setcustomCard(res.Data.customCard);
                 formRef.current.setFieldsValue(res.Data);
+                setImgName(res.Data.pdfImage.split("|"));
                 setspinning(false);
             }else {
                 setspinning(false);
@@ -38,14 +44,16 @@ const EditRename=(props)=>{
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
-        setUid(id);
+        const renameStatus = searchParams.get('renameStatus');
+        setRenameStatus(Number(renameStatus));
         getInfo(id);
     }, []);
     const onFinish=(val)=>{
         setspinning(true);
+        const imgList=imgName.join('|');
         props.dispatch({
             type:"Rename/edit",
-            payload:{uid,...val}
+            payload:{uid,...val,imgList}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('修改成功');
@@ -56,6 +64,19 @@ const EditRename=(props)=>{
                 setspinning(false);
             }
         })
+    };
+    // 图片base64
+    const onImageUpload=(base64:any)=>{
+        setImgName([...imgName,base64]);
+    };
+    const oldBase64=(base64:any)=>{
+        setImgB64([...imgB64,base64]);
+    };
+    // 删除租户证件图片
+    const handleDeletezuhu=(index:number)=>{
+        const newB64 = [...imgName];
+        newB64.splice(index, 1);
+        setImgName(newB64);
     };
     return(
         <Spin spinning={spinning}>
@@ -87,11 +108,38 @@ const EditRename=(props)=>{
                 <Form.Item label='更改后的手机号' name='rephone' rules={[ {required: true, message: '请填写更改后的手机号'},{pattern: phonePattern, message: '请输入有效的手机号'}]}>
                     <Input placeholder='更改后的手机号'/>
                 </Form.Item>
+                <Form.Item label='图片'>
+                    <ImageUploadPng onImageUpload={onImageUpload} oldBase64={oldBase64}/>
+                    {/* 有图片才渲染预览区域 */}
+                    {imgName.length > 0 && (
+                        <Space wrap size={10} style={{ marginTop: 10 }}>
+                            {imgName.map((item, index) => (
+                                <div key={index} style={{ position: "relative" }}>
+                                    <Image
+                                        src={`${window.ServerConfig.imgServer}${item}.png`}
+                                        width={70}
+                                        height={70}
+                                        style={{ borderRadius: 6, objectFit: "cover" }}
+                                        preview
+                                    />
+                                    <Button
+                                        danger
+                                        size="small"
+                                        style={{ position: "absolute", top: 2, right: 2, width: 22, height: 22, padding: 0 }}
+                                        onClick={() => handleDeletezuhu(index)}
+                                    >
+                                        ×
+                                    </Button>
+                                </div>
+                            ))}
+                        </Space>
+                    )}
+                </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Space>
-                        <Button type="primary" htmlType="submit">
-                            确定编辑
-                        </Button>
+                        {
+                            renameStatus!==2? <Button type="primary" htmlType="submit">确定编辑</Button>:''
+                        }
                         <Button type="primary" onClick={()=>navigate(-1)}>
                             返回
                         </Button>

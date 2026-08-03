@@ -54,7 +54,7 @@ const WatertModels: ZuhuInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -151,30 +151,30 @@ const WatertModels: ZuhuInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/kehu/zuhulist/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/kehu/zuhulist/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/kehu/zuhuguanlian/') {
-                    dispatch({
-                        type: 'fetch',
-                        payload: location.state,
-                    });
-                }
-                if (StaticInfo.userId > 0 && pathname === '/kehu/zuhuguanlian/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+                // if (StaticInfo.userId > 0 && pathname === '/kehu/zuhulist/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/kehu/zuhulist/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/kehu/zuhuguanlian/') {
+                //     dispatch({
+                //         type: 'fetch',
+                //         payload: location.state,
+                //     });
+                // }
+                // if (StaticInfo.userId > 0 && pathname === '/kehu/zuhuguanlian/') {
+                //     dispatch({
+                //         type: 'fenye',
+                //         payload: location.state,
+                //     });
+                // }
             });
         },
     },

@@ -1,83 +1,170 @@
 import {
     Button,
     DatePicker,
-    Form,
     Image,
     Input,
     InputNumber,
-    List,
     message,
-    Modal,
     Select,
     Space,
     Spin,
     Table
 } from "antd";
-import {useNavigate,history,connect} from "umi";
-import {useEffect, useState} from "react";
-import {generate, getCurrentDate} from "@/utils/OpenTool";
-import {StaticInfo} from "@/StaticInfo";
+import { useNavigate, history, connect } from "umi";
+import { useEffect, useState, useCallback } from "react";
+import { generate, getCurrentDate } from "@/utils/OpenTool";
+import { StaticInfo } from "@/StaticInfo";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {PlusOutlined} from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import * as ThingStockInfoServer from "@/services/thingStockInfo";
 
-const addReturnForm=(props)=>{
-    const navigate=useNavigate();
+// 缓存唯一key
+const CACHE_KEY = "addReturnForm_draft_cache";
+// 空草稿默认值
+const getEmptyDraft = () => ({
+    orderCode: "",
+    orderTime: getCurrentDate(),
+    warehouseId: 0,
+    pmId: 0,
+    remark: "",
+    paidAmount: 0,
+    totalAmount: 0,
+    displayData: []
+});
+
+const addReturnForm = (props) => {
+    const navigate = useNavigate();
     const [spinning, setSpinning] = useState(false);
-    const [form] = Form.useForm();
     // 随机单号
-    const [orderCode,setOrderCode]=useState('');
+    const [orderCode, setOrderCode] = useState('');
     // 备注
-    const [remark,setRemark]=useState('');
+    const [remark, setRemark] = useState('');
     // 获取当前时间
     const [orderTime, setOrderTime] = useState(getCurrentDate());
     // 仓库id
-    const [warehouseId,setWarehouseId]=useState(0);
+    const [warehouseId, setWarehouseId] = useState(0);
     // 添加退货的物品
     const [displayData, setDisplayData] = useState([]);
     // 库存的物品
-    const [thingStockInfoList,setThingStockInfoList]=useState([]);
+    const [thingStockInfoList, setThingStockInfoList] = useState([]);
     // 已付金额
-    const [paidAmount,setPaidAmount]=useState(0);
+    const [paidAmount, setPaidAmount] = useState(0);
     // 总金额
-    const [totalAmount,setTotalAmount]=useState(0);
-    const [pmId ,setPayTypeId]=useState(0);
+    const [totalAmount, setTotalAmount] = useState(0);
+    // 支付方式ID
+    const [pmId, setPayTypeId] = useState(0);
 
-    useEffect(() => {
-        setOrderCode(generate(StaticInfo.park_name));
-        addEmptyRecords(5);
+    // ====================== 缓存工具 ======================
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (err) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
     }, []);
+
+    // 保存完整草稿
+    const saveCache = useCallback(() => {
+        const draft = {
+            orderCode,
+            orderTime,
+            warehouseId,
+            pmId,
+            remark,
+            paidAmount,
+            totalAmount,
+            displayData
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(draft));
+    }, [orderCode, orderTime, warehouseId, pmId, remark, paidAmount, totalAmount, displayData]);
+
+    // 清空缓存+重置全部表单
+    const clearAllDraft = useCallback(() => {
+        sessionStorage.removeItem(CACHE_KEY);
+        const empty = getEmptyDraft();
+        const newCode = generate(StaticInfo.park_name);
+        setOrderCode(newCode);
+        setOrderTime(empty.orderTime);
+        setWarehouseId(empty.warehouseId);
+        setPayTypeId(empty.pmId);
+        setRemark(empty.remark);
+        setPaidAmount(empty.paidAmount);
+        setTotalAmount(empty.totalAmount);
+        setDisplayData([]);
+        addEmptyRecords(5);
+        message.info("已清空草稿");
+    }, []);
+
+    // ====================== 初始化加载缓存 ======================
+    useEffect(() => {
+        const cache = loadCache();
+        if (cache) {
+            // 回填缓存所有状态
+            setOrderCode(cache.orderCode);
+            setOrderTime(cache.orderTime);
+            setWarehouseId(cache.warehouseId);
+            setPayTypeId(cache.pmId);
+            setRemark(cache.remark);
+            setPaidAmount(cache.paidAmount);
+            setTotalAmount(cache.totalAmount);
+            setDisplayData(cache.displayData);
+            // 缓存存在仓库则加载对应库存物品
+            if (cache.warehouseId > 0) {
+                getList(cache.warehouseId);
+            }
+        } else {
+            // 无缓存：生成单号 + 5条空明细
+            const newCode = generate(StaticInfo.park_name);
+            setOrderCode(newCode);
+            addEmptyRecords(5);
+        }
+        // 加载基础下拉
+        getWarehouseList();
+        getPayList();
+    }, [loadCache]);
+
+    // 任意表单状态变更自动保存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+
+    // 表格自动合计总金额
+    useEffect(() => {
+        const totalSum = displayData.reduce((acc, item) => {
+            const itemTotal = (item.quantity || 0) * (item.price || 0);
+            return acc + itemTotal;
+        }, 0);
+        setTotalAmount(totalSum);
+    }, [displayData]);
+
     const columnsz = [
         {
             title: '物品图片',
             dataIndex: 'productsImage',
             ellipsis: true,
             render: (text: string, record: any) => {
-                // 核心修复：先将text转为字符串，再做空值+后缀判断
-                // 步骤1：处理非字符串类型（如null/undefined/数字），转为空字符串
                 const textStr = String(text || '');
-
-                // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
-                    ? `http://img.qhwy6.com/${textStr}`
-                    : `http://img.qhwy6.com/${textStr}_X.png`;
-                // 步骤3：仅当字符串非空时渲染图片，否则返回空
+                    ? `${window.ServerConfig.imgServer}${textStr}`
+                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 return textStr ? (
                     <Image
                         src={imageUrl}
-                        style={{width:'50px',height:'50px'}}
+                        style={{ width: '50px', height: '50px' }}
                         fallback="https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片"
                     />
-                ) : (
-                    ''
-                );
+                ) : '';
             }
         },
         {
-            title: '物品名称',
+            title: '选择物品',
             dataIndex: 'productsName',
-            key:'productsName',
+            key: 'selectProducts',
             render: (text, record) => (
                 <Select
                     showSearch
@@ -85,23 +172,18 @@ const addReturnForm=(props)=>{
                     placeholder="搜索物品名称"
                     style={{ width: 120 }}
                     value={text || undefined}
-                    onChange={(value) => handleProductSelect(record.id, value)}
+                    onChange={(value, label) => handleProductSelect(record.id, label)}
                     filterOption={(input, option) => {
-                        if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) {
-                            return false;
-                        }
-                        // 查找匹配productsCode的物品 (使用productsCode代替id)
-                        const item = thingStockInfoList.find(unit => unit.productsCode == option.value);
+                        if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) return false;
+                        const item = thingStockInfoList.find(unit => `${unit.productsCode}${unit.productsName}` === option.value);
                         if (!item) return false;
                         const searchInput = input.toLowerCase();
-                        // 仍按名称搜索，但基于productsCode匹配的物品
                         return item.productsName?.toLowerCase().includes(searchInput);
                     }}
-                    // 选项值使用productsCode代替id (唯一非int标识符)
                     options={Array.isArray(thingStockInfoList)
                         ? thingStockInfoList.map(item => ({
                             label: `${item.productsName}`,
-                            value: item.productsCode // 改为使用productsCode作为value
+                            value: `${item.productsCode + item.productsName}`
                         }))
                         : []}
                 />
@@ -110,12 +192,12 @@ const addReturnForm=(props)=>{
         {
             title: '物品名称',
             dataIndex: 'productsName',
-            key:'productsName',
+            key: 'productsName',
         },
         {
             title: '物品编号',
             dataIndex: 'productsCode',
-            key:'productsCode',
+            key: 'productsCode',
         },
         {
             title: '单位',
@@ -125,14 +207,14 @@ const addReturnForm=(props)=>{
                 <Select
                     showSearch
                     optionFilterProp="children"
-                    placeholder="选择单位"  // Fix placeholder text
+                    placeholder="选择单位"
                     style={{ width: 120 }}
                     value={text || undefined}
                     onChange={(value) => handleUnitSelect(record.id, value)}
                     options={Array.isArray(record.iList)
                         ? record.iList.map(item => ({
-                            label: item.unitsName || '',  // Unit name as label
-                            value: item.unitsId || 0      // Unit ID as value (adjust if using unitsCode)
+                            label: item.unitsName || '',
+                            value: item.unitsId || 0
                         }))
                         : []}
                 />
@@ -141,12 +223,11 @@ const addReturnForm=(props)=>{
         {
             title: '退货数量',
             dataIndex: 'quantity',
-            key:'quantity',
-            render:(text, record) => (
+            key: 'quantity',
+            render: (text, record) => (
                 <InputNumber
                     min={0}
                     value={text}
-                    // 使用onChange事件捕获值变化，传递新值和记录ID
                     onChange={(value) => changproductsNum(value, record.id)}
                 />
             )
@@ -154,83 +235,80 @@ const addReturnForm=(props)=>{
         {
             title: '单价(元)',
             dataIndex: 'price',
-            key:'price',
+            key: 'price',
         },
         {
             title: '总价钱(元)',
             dataIndex: 'totalPrice',
-            key:'totalPrice',
+            key: 'totalPrice',
         },
         {
             title: '库存数量',
             dataIndex: 'quantityKc',
-            key:'quantityKc',
+            key: 'quantityKc',
         },
         {
             title: '操作',
             dataIndex: 'delete',
-            key:'delete',
-            render:(text,record)=>{
-                return <Button type='primary' danger onClick={()=>isDel(record.id)}>删除</Button>
+            key: 'delete',
+            render: (text, record) => {
+                return <Button type='primary' danger onClick={() => isDel(record.id)}>删除</Button>
             }
         },
     ];
+
     // 已付金额
-    const changePaidAmount=(e)=>{
+    const changePaidAmount = (e) => {
         setPaidAmount(e);
     };
-    // 总金额
-    const changeTotalAmount=(e)=>{
+    // 总金额手动修改
+    const changeTotalAmount = (e) => {
         setTotalAmount(e);
     };
-    // 修改对应id 的数量
+
+    // 修改退货数量
     const changproductsNum = (value, recordId) => {
-        if (value === null) return; // 处理输入框清空的情况
-        // 更新对应商品的出库数量和总价
+        if (value === null) return;
         const updatedData = displayData.map(item => {
             if (item.id === recordId) {
-                const quantity = value; // 新数量
-                // 1. 计算折扣后金额（数量 × 单价 × 折扣率 ÷ 100）
-                const discountedPrice = quantity * item.priceKc ;
-                // 2. 计算控价金额（数量 × 控价，控价默认为0）
+                const quantity = value;
+                const discountedPrice = quantity * item.priceKc;
                 const minPrice = quantity * (item.price || 0);
-                // 3. 取两者最大值作为最终折后金额（兜底控价）
                 const totalPrice = Math.max(discountedPrice, minPrice);
                 return {
                     ...item,
-                    quantity: quantity, // 更新数量
-                    totalPrice: totalPrice // 使用兜底后的折后金额
+                    quantity: quantity,
+                    totalPrice: totalPrice
                 };
             }
             return item;
         });
-        console.log('')
         setDisplayData(updatedData);
     };
-    // 选择单位
+
+    // 切换单位
     const handleUnitSelect = (recordId, unitId) => {
         const currentRecord = displayData.find(item => item.id === recordId);
         if (!currentRecord || !Array.isArray(currentRecord.iList)) return;
         const selectedUnit = currentRecord.iList.find(unit => unit.unitsId === unitId);
-        console.log('选择的单位',selectedUnit)
         if (!selectedUnit) return;
         setDisplayData(displayData.map(item => {
             if (item.id === recordId) {
                 return {
                     ...item,
-                    brandId: selectedUnit.brandId || 0, // 同步物品品牌
-                    abbreviation: selectedUnit.abbreviation || '', // 同步物品助查码
-                    barcode: selectedUnit.barcode || '', // 同步物品条码
-                    costPrice: selectedUnit.costPrice || 0, // 同步物品成本价
-                    groupId: selectedUnit.groupId || 0, // 物品分组
-                    inventoryId: selectedUnit.id || 0, // 物品id
-                    number: selectedUnit.number || 0, // 警告数量
-                    presalePrice: selectedUnit.presalePrice || 0, // 警告数量
-                    price: selectedUnit.price || 0, // 零售价(元)
-                    priceKc: selectedUnit.priceKc || 0, // 零售价(元)
-                    productsCode: selectedUnit.productsCode || '', // 物品编号
-                    quantity: 0, // 出库数量
-                    quantityKc: selectedUnit.quantity || 0, // 库存数量
+                    brandId: selectedUnit.brandId || 0,
+                    abbreviation: selectedUnit.abbreviation || '',
+                    barcode: selectedUnit.barcode || '',
+                    costPrice: selectedUnit.costPrice || 0,
+                    groupId: selectedUnit.groupId || 0,
+                    inventoryId: selectedUnit.id || 0,
+                    number: selectedUnit.number || 0,
+                    presalePrice: selectedUnit.presalePrice || 0,
+                    price: selectedUnit.price || 0,
+                    priceKc: selectedUnit.priceKc || 0,
+                    productsCode: selectedUnit.productsCode || '',
+                    quantity: 0,
+                    quantityKc: selectedUnit.quantity || 0,
                     retailPricce: selectedUnit.retailPricce || 0,
                     specifications: selectedUnit.specifications || '',
                     totalPrice: selectedUnit.totalPrice || 0,
@@ -244,39 +322,38 @@ const addReturnForm=(props)=>{
             return item;
         }));
     };
-    // 处理物品选择变更 - 更新物品名称及相关信息
-    const handleProductSelect = (recordId, productCode) => {
-        // 查找选中的物品信息
-        const selectedProduct = thingStockInfoList.find(item => item.productsCode === productCode);
-        ThingStockInfoServer.productsNameQuery(warehouseId,selectedProduct.productsName).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                console.log('物品名称',res);
+
+    // 选择物品回填明细
+    const handleProductSelect = (recordId, label) => {
+        const selectedProduct = thingStockInfoList.find(item => item.productsName === label.label);
+        ThingStockInfoServer.productsNameQuery(warehouseId, selectedProduct.productsCode).then((res: TypeErrorCode) => {
+            if (res.ErrorCode == 0) {
                 setDisplayData(displayData.map(item => {
                     if (item.id === recordId) {
                         return {
                             ...item,
-                            productsImageBase64: res.Data.productsImageBase64 || '', // 同步物品图片
-                            productsImage: res.Data.productsImage || '', // 物品图片名称
-                            productsName: selectedProduct.productsName || '', // 物品名称
+                            productsImageBase64: res.Data.productsImageBase64 || '',
+                            productsImage: res.Data.productsImage || '',
+                            productsName: selectedProduct.productsName || '',
                             iList: res.Data.iList || [],
-                            brandId:0,
-                            abbreviation:'',
-                            barcode:'',
-                            costPrice:0,
-                            groupId:0,
-                            inventoryId:0,
-                            number:0,
-                            presalePrice:0,
-                            price:0,
-                            priceKc:0,
-                            productsCode:'',
-                            quantity:0,
-                            quantityKc:0,
-                            retailPricce:0,
-                            specifications:'',
-                            totalPrice:0,
-                            unitsId:0,
-                            unitsName:'',
+                            brandId: 0,
+                            abbreviation: '',
+                            barcode: '',
+                            costPrice: 0,
+                            groupId: 0,
+                            inventoryId: 0,
+                            number: 0,
+                            presalePrice: 0,
+                            price: 0,
+                            priceKc: 0,
+                            productsCode: 0,
+                            quantity: 0,
+                            quantityKc: 0,
+                            retailPricce: 0,
+                            specifications: '',
+                            totalPrice: 0,
+                            unitsId: 0,
+                            unitsName: 0,
                             isZk: 1,
                             discountRateDp: 100,
                             discountPriceDp: 0,
@@ -284,50 +361,48 @@ const addReturnForm=(props)=>{
                     }
                     return item;
                 }));
-            }else {
+            } else {
                 message.error(res.Data);
             }
         })
     };
-    const changeDate=(date:dayjs.Dayjs,item:string)=>{
+
+    // 日期切换
+    const changeDate = (date: dayjs.Dayjs, item: string) => {
         setOrderTime(item);
     };
-    // 获取库存
-    const getList=(e)=>{
+
+    // 获取库存物品
+    const getList = (e) => {
         setSpinning(true);
-        ThingStockInfoServer.selectFetch(e).then((res:TypeErrorCode)=>{
-            console.log('库存明细',res)
-            if (res.ErrorCode==0){
+        ThingStockInfoServer.selectFetch(e).then((res: TypeErrorCode) => {
+            if (res.ErrorCode == 0) {
                 setThingStockInfoList(res.Data);
             }
             setSpinning(false);
         })
     };
-    // 仓库列表
-    const getWarehouseList=()=>{
-        props.dispatch({
-            type:"WarehouseList/fetch",
-        })
+
+    // 仓库下拉
+    const getWarehouseList = () => {
+        props.dispatch({ type: "WarehouseList/fetch" })
     };
-    // 支付方式列表
-    const getPayList=()=>{
-        props.dispatch({
-            type:'PayType/fetch',
-        })
+    // 支付方式下拉
+    const getPayList = () => {
+        props.dispatch({ type: 'PayType/fetch' })
     };
-    // 仓库id
-    const changeWarehouse=(e)=>{
+
+    // 切换仓库
+    const changeWarehouse = (e) => {
         setWarehouseId(e);
         setDisplayData(prevDisplayData => prevDisplayData.filter(item => item.productsName === ''));
         getList(e);
     };
-    useEffect(() => {
-        getWarehouseList();
-        getPayList();
-    }, []);
-    const onOK=()=>{
-        if (orderTime==='') return message.warning('请选择申请时间');
-        if (pmId===0) return message.warning('请选择支付方式');
+
+    // 提交表单
+    const onOK = () => {
+        if (orderTime === '') return message.warning('请选择申请时间');
+        if (pmId === 0) return message.warning('请选择支付方式');
         const filteredData = displayData.filter(item => item.productsCode !== '' && item.unitsId > 0);
         if (filteredData.length === 0) return message.warning('请选择有效的物品信息');
         const hasInvalidQuantity = filteredData.some(item => item.quantity <= 0);
@@ -337,212 +412,172 @@ const addReturnForm=(props)=>{
         let jsonData = JSON.stringify(filteredData);
         setSpinning(true);
         props.dispatch({
-            type:'ReturnForm/add',
-            payload:{warehouseId, orderCode, orderTime, jsonData, paidAmount, totalAmount, remark,pmId}
-        }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
+            type: 'ReturnForm/add',
+            payload: { warehouseId, orderCode, orderTime, jsonData, paidAmount, totalAmount, remark, pmId }
+        }).then((res: TypeErrorCode) => {
+            setSpinning(false);
+            if (res.ErrorCode == 0) {
                 message.success('添加成功');
-                setSpinning(false);
+                clearAllDraft(); // 提交成功清空草稿缓存
                 history.push('/warehouse/outbound');
-            }else {
+            } else {
                 message.error(res.Data);
-                setSpinning(false);
             }
         })
     };
-    // 备注
-    const changeRemark=(e)=>{
+
+    // 修改备注
+    const changeRemark = (e) => {
         setRemark(e.target.value);
     };
-    // 支付方式
-    const changePayType=(e)=>{
+    // 切换支付方式
+    const changePayType = (e) => {
         setPayTypeId(e);
     };
-    // 删除物品
-    const isDel=(id:number)=>{
-        setDisplayData(displayData.filter((item)=>item.id!==id));
+    // 删除单行物品
+    const isDel = (id: number) => {
+        setDisplayData(displayData.filter((item) => item.id !== id));
     };
-    // 添加10条空记录的处理函数
+
+    // 新增一行
     const addTenEmptyRecords = () => {
-        // 获取当前最大ID，不存在则从1开始
         const maxId = displayData.length > 0
             ? Math.max(...displayData.map(item => item.id))
             : 0;
-
-        // 生成10条空记录，ID递增
-        const newRecords = Array.from({length: 1}, (_, i) => ({
+        const newRecords = Array.from({ length: 1 }, (_, i) => ({
             id: maxId + i + 1,
-            productsImageBase64: '', // 同步物品图片
-            brandId:0,
-            abbreviation:'',
-            barcode:'',
-            costPrice:0,
-            groupId:0,
-            inventoryId:0,
-            number:0,
-            presalePrice:0,
-            price:0,
-            priceKc:0,
-            productsCode:'',
-            productsImage:'',
-            productsName:'',
-            quantity:0,
-            quantityKc:0,
-            retailPricce:0,
-            specifications:'',
-            totalPrice:0,
-            unitsId:0,
-            unitsName:'',
+            productsImageBase64: '',
+            brandId: 0,
+            abbreviation: '',
+            barcode: '',
+            costPrice: 0,
+            groupId: 0,
+            inventoryId: 0,
+            number: 0,
+            presalePrice: 0,
+            price: 0,
+            priceKc: 0,
+            productsCode: '',
+            productsImage: '',
+            productsName: '',
+            quantity: 0,
+            quantityKc: 0,
+            retailPricce: 0,
+            specifications: '',
+            totalPrice: 0,
+            unitsId: 0,
+            unitsName: '',
             isZk: 1,
             discountRateDp: 100,
             discountPriceDp: 0,
-            iList:[],
+            iList: [],
         }));
-        // 添加到现有记录中
         setDisplayData([...displayData, ...newRecords]);
     };
-    const addEmptyRecords = (count:number) => {
-        // 获取当前最大ID，不存在则从1开始
+
+    // 批量新增空行
+    const addEmptyRecords = (count: number) => {
         const maxId = displayData.length > 0
             ? Math.max(...displayData.map(item => item.id))
             : 0;
-
-        // 生成指定数量的空记录，ID递增
-        const newRecords = Array.from({length: count}, (_, i) => ({
+        const newRecords = Array.from({ length: count }, (_, i) => ({
             id: maxId + i + 1,
-            productsImageBase64: '', // 同步物品图片
-            brandId:0,
-            abbreviation:'',
-            barcode:'',
-            costPrice:0,
-            groupId:0,
-            inventoryId:0,
-            number:0,
-            presalePrice:0,
-            price:0,
-            priceKc:0,
-            productsCode:0,
-            productsImage:0,
-            productsName:'',
-            quantity:0,
-            quantityKc:0,
-            retailPricce:0,
-            specifications:'',
-            totalPrice:0,
-            unitsId:0,
-            unitsName:0,
+            productsImageBase64: '',
+            brandId: 0,
+            abbreviation: '',
+            barcode: '',
+            costPrice: 0,
+            groupId: 0,
+            inventoryId: 0,
+            number: 0,
+            presalePrice: 0,
+            price: 0,
+            priceKc: 0,
+            productsCode: 0,
+            productsImage: 0,
+            productsName: '',
+            quantity: 0,
+            quantityKc: 0,
+            retailPricce: 0,
+            specifications: '',
+            totalPrice: 0,
+            unitsId: 0,
+            unitsName: 0,
             isZk: 1,
             discountRateDp: 100,
             discountPriceDp: 0,
-            iList:[],
+            iList: [],
         }));
-        // 添加到现有记录中
         setDisplayData([...displayData, ...newRecords]);
     };
-    useEffect(() => {
-        const totalSum = displayData.reduce((acc, item) => {
-            const itemTotal = (item.quantity || 0) * (item.price || 0); // 单个物品原始金额（数量 × 单价）
-            return acc + itemTotal;
-        }, 0);
-        setTotalAmount(totalSum);
-    }, [displayData]);
-    return(
+
+    return (
         <Spin spinning={spinning}>
             <Space>
-                <Button type="primary" onClick={()=>navigate(-1)}>
+                <Button type="primary" onClick={() => navigate(-1)}>
                     返回
                 </Button>
                 <Button type="primary" onClick={onOK}>
                     确定
                 </Button>
+                <Button danger onClick={clearAllDraft}>清空草稿</Button>
             </Space>
-            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
-                <Input addonBefore="单号:" placeholder='随机生成' value={orderCode} disabled/>
+            <Space style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginTop: '10px' }}>
+                <Input addonBefore="单号:" placeholder='随机生成' value={orderCode} disabled />
                 <Space.Compact>
-                    <div
-                        style={{
-                            borderRadius: '6px',
-                            borderStartEndRadius: 0,
-                            borderEndEndRadius: 0,
-                            padding: '0 11px',
-                            border: '1px solid #d9d9d9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderInlineEnd: 0,
-                        }}
-                    >
+                    <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>
                         时间:
                     </div>
-                    <DatePicker defaultValue={dayjs(orderTime)} onChange={changeDate}/>
+                    <DatePicker value={dayjs(orderTime)} onChange={changeDate} />
                 </Space.Compact>
                 <Space.Compact>
-                    <div
-                        style={{
-                            borderRadius: '6px',
-                            borderStartEndRadius: 0,
-                            borderEndEndRadius: 0,
-                            padding: '0 11px',
-                            border: '1px solid #d9d9d9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderInlineEnd: 0,
-                        }}
-                    >
+                    <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>
                         仓库:
                     </div>
                     <Select
                         placeholder='请选择入库仓库'
+                        value={warehouseId || undefined}
                         onChange={changeWarehouse}
                         options={Array.isArray(props.WarehouseList) && props.WarehouseList.length > 0
-                            ? props.WarehouseList.map((item:any)=>({
-                                label:item.warehouseName,
-                                value:item.id,
+                            ? props.WarehouseList.map((item: any) => ({
+                                label: item.warehouseName,
+                                value: item.id,
                             }))
                             : []}
                     />
                 </Space.Compact>
                 <Space.Compact>
-                    <div
-                        style={{
-                            borderRadius: '6px',
-                            borderStartEndRadius: 0,
-                            borderEndEndRadius: 0,
-                            padding: '0 11px',
-                            border: '1px solid #d9d9d9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderInlineEnd: 0,
-                        }}
-                    >
+                    <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>
                         支付方式:
                     </div>
                     <Select
                         showSearch
                         placeholder='支付方式'
+                        value={pmId || undefined}
                         onChange={changePayType}
                         filterOption={(input, option) =>
                             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                         }
                         options={Array.isArray(props.PayTypeList) && props.PayTypeList.length > 0
-                            ? props.PayTypeList.map((item:any)=>({
-                                label:item.pmName,
-                                value:item.id,
+                            ? props.PayTypeList.map((item: any) => ({
+                                label: item.pmName,
+                                value: item.id,
                             }))
                             : []}
                     />
                 </Space.Compact>
             </Space>
-            <Space style={{marginTop:'10px'}}>
-                <InputNumber addonBefore="已付(元):" placeholder='已付金额' min={0} value={paidAmount} onChange={changePaidAmount}/>
-                <InputNumber addonBefore="总金额(元):" placeholder='总金额' min={0} value={totalAmount} disabled/>
-                <Input placeholder='备注' value={remark} onChange={changeRemark}  maxLength={50} showCount/>
+            <Space style={{ marginTop: '10px' }}>
+                <InputNumber addonBefore="已付(元):" placeholder='已付金额' min={0} value={paidAmount} onChange={changePaidAmount} />
+                <InputNumber addonBefore="总金额(元):" placeholder='总金额' min={0} value={totalAmount} disabled />
+                <Input placeholder='备注' value={remark} onChange={changeRemark} maxLength={50} showCount />
             </Space>
             <Table
                 columns={columnsz}
-                rowKey="id"  // 简化rowKey写法
+                rowKey="id"
                 pagination={false}
                 size='small'
-                scroll={{y:'55vh'}}
+                scroll={{ y: '55vh' }}
                 dataSource={displayData}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
@@ -553,15 +588,13 @@ const addReturnForm=(props)=>{
                 onClick={addTenEmptyRecords}
                 style={{ marginTop: '10px' }}
             >
-                <PlusOutlined />
+                <PlusOutlined /> 新增一行
             </Button>
         </Spin>
     )
 }
 const mapStateToProps = (state: any) => ({
-    ThingStockInfoList: state.ThingStockInfo.list,
     WarehouseList: state.WarehouseList.list,
     PayTypeList: state.PayType.list,
-
 });
 export default connect(mapStateToProps)(addReturnForm);

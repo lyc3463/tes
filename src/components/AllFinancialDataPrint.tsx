@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useState} from 'react';
 import dayjs from 'dayjs';
 import { numberToRMB } from "@/utils/OpenTool";
+import {Modal} from "antd";
 
 interface PrintProps {
     printList: Array<{
@@ -628,6 +629,7 @@ const AllFinancialDataPrint = React.forwardRef<HTMLDivElement, PrintProps>(({ pr
                     })
                 }
             </div>
+
         </div>
     );
 });

@@ -13,12 +13,13 @@ const TransferForm=(props)=>{
     const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/thingStock','transferFormWarehouseName')||'');// 仓库名称
     const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/thingStock','transferFormStartDate')||'2000-01-01');// 开始日期
     const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/thingStock','transferFormEndDate')||'2099-01-01');// 结束日期
-    const [orderStatus,setOrderStatus]=useState(1);// 订单状态
+    const [orderStatus,setOrderStatus]=useState(checkSessionStorage('/warehouse/thingStock','transferFormOrderStatus')||0);// 订单状态
     const [billStatus,setBillStatus]=useState(0);// 账单状态
     const [pageSize,setPageSize]=useState(10);// 每页数量
     const [orderType,setOrderType]=useState(4);// 订单类型
     const [dOpen,setDOpen]=useState(false);// 删除弹窗是否打开
     const [dId,setDId]=useState(0);// 删除的id
+    const [uName,setUName]=useState(checkSessionStorage('/warehouse/thingStock','transferFormUserName')||'');// 申请人
     const columns = [
         {
             title: '申请时间',
@@ -79,8 +80,8 @@ const TransferForm=(props)=>{
                 <Space size="small">
                     {record.orderStatus==1?
                         <>
-                            {userQx()[536]=='1'?<Button type="primary" onClick={()=>{isDleOpen(record.id)}} danger>删除</Button>:''}
-                            {userQx()[535]=='1'?<Button type="primary" onClick={()=>{history.push(`/warehouse/editTransferForm?id=${record.id}`)}}>编辑</Button>:''}
+                            <Button type="primary" onClick={()=>{isDleOpen(record.id)}} danger>删除</Button>
+                            <Button type="primary" onClick={()=>{history.push(`/warehouse/editTransferForm?id=${record.id}`)}}>编辑</Button>
                         </>
                         :
                         null
@@ -100,13 +101,13 @@ const TransferForm=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'ReviewTransferForm/fetch',
-            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     const getFenye=()=>{
         props.dispatch({
             type:'ReviewTransferForm/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     useEffect(() => {
@@ -122,7 +123,7 @@ const TransferForm=(props)=>{
     const onOK=()=>{
         setSpinning(true);
         props.dispatch({
-            type:'TransferForm/remove',
+            type:'ReviewTransferForm/remove',
             payload:dId
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
@@ -162,18 +163,31 @@ const TransferForm=(props)=>{
         getList();
         getFenye();
     };
+    const changeOrderStatus=(e)=>{
+        setOrderStatus(e);
+        updateSessionStorage('/warehouse/thingStock','transferFormOrderStatus',e);
+    };
+    const changeUName=(e)=>{
+        setUName(e.target.value);
+        updateSessionStorage('/warehouse/thingStock','transferFormUserName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
-                        {userQx()[534]=='1'?<Button type="primary" onClick={toadd}>申请调拨</Button>:''}
+                       <Button type="primary" onClick={toadd}>申请调拨</Button>
                     </div>
                     <Space>
                         <Input
-                            addonBefore="仓库名称:"
+                            addonBefore="调离仓库:"
                             value={warehouseName}
                             onChange={changeWarehouseName}
+                        />
+                        <Input
+                            addonBefore="申请人:"
+                            value={uName}
+                            onChange={changeUName}
                         />
                         <Input
                             addonBefore="单号:"
@@ -196,6 +210,32 @@ const TransferForm=(props)=>{
                                 日期:
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                style={{ width: 120 }}
+                                value={orderStatus}
+                                onChange={changeOrderStatus}
+                                options={[
+                                    {label:'全部',value:0},
+                                    {label:'待审核',value:1},
+                                    {label:'已审核',value:2},
+                                ]}
+                            />
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

@@ -3,6 +3,7 @@ import {history,connect} from "umi";
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import {updateSessionStorage} from "@/utils/OpenTool";
 
 const LossRecord=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -70,22 +71,27 @@ const LossRecord=(props)=>{
             payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, pageSize}
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'LossRecord/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, pageSize}
-        })
-    };
+
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
+
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
+    };
+    const changeDate=(_:any,data:string[])=>{
+        if (data.length === 2 && data[0] === '' && data[1] === '') {
+            setStartDate('2000-01-01');
+            setEndDate('2099-01-01');
+            updateSessionStorage('/warehouse/inventory','lossRecordStartDate','2000-01-01');
+            updateSessionStorage('/warehouse/inventory','lossRecordEndDate','2099-01-01');
+        } else {
+            setStartDate(data[0]);
+            setEndDate(data[1]);
+            updateSessionStorage('/warehouse/inventory','lossRecordStartDate',data[0]);
+            updateSessionStorage('/warehouse/inventory','lossRecordEndDate',data[1]);
+        }
     };
     return(
         <Spin spinning={spinning}>
@@ -117,7 +123,7 @@ const LossRecord=(props)=>{
                             >
                                 日期:
                             </div>
-                            <DatePicker.RangePicker/>
+                            {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

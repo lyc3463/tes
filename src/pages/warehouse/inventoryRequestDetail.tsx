@@ -46,6 +46,7 @@ const InventoryRequestDetail=(props)=>{
     const rowRefs = useRef<HTMLDivElement[]>([]);
     // 新增：存储已加载图片的行ID（避免重复加载）
     const [loadedImageIds, setLoadedImageIds] = useState<Set<string>>(new Set());
+    const [stockStutes, setStockStutes] = useState(0);
     // 交叉观察器实例
     const observerRef = useRef<IntersectionObserver | null>(null);
     const printProps = {
@@ -56,7 +57,8 @@ const InventoryRequestDetail=(props)=>{
         displayData,
         stockStatus,
         type:1,
-        title: '盘点单'
+        title: '盘点单',
+        stockStutes:stockStutes
     };
     // 监听数据变化，重置图片加载状态
     useEffect(() => {
@@ -118,8 +120,8 @@ const InventoryRequestDetail=(props)=>{
                 if (isImageLoaded && text) {
                     const textStr = String(text || '');
                     imageUrl = textStr && textStr.endsWith('.png')
-                        ? `http://ckimg.dyc10.com/${textStr}`
-                        : `http://ckimg.dyc10.com/${textStr}_X.png`;
+                        ? `${window.ServerConfig.imgServer}${textStr}`
+                        : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 }
 
                 // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）
@@ -155,32 +157,34 @@ const InventoryRequestDetail=(props)=>{
             dataIndex: 'unitsName',
             key:'unitsName',
         },
-        {
-            title:'盘点数量',
-            dataIndex:'quantity',
-            key:'quantity',
-            ellipsis:true,
-        },
-        {
-            title:'库存数量',
-            dataIndex:'qq',
-            key:'qq',
-            ellipsis:true,
-            render:(text,record)=>(
-                <div>
-                    {stockStatus==1?record.quantityKc2:record.quantityKc}
-                </div>
-            )
-        },
-        {
-            title:'差异',
-            dataIndex:'diffQuantity',
-            key:'diffQuantity',
-            ellipsis:true,
-            render:(text,record)=>{
-                return stockStatus==1?record.quantity-record.quantityKc2:record.quantity-record.quantityKc
+        ...(stockStutes === 2||stockStutes === 3 ? [
+            {
+                title:'盘点数量',
+                dataIndex:'quantity',
+                key:'quantity',
+                ellipsis:true,
+            },
+        ]:[]),
+        ...(stockStutes === 3 ? [
+            {
+                title: '库存数量',
+                dataIndex: 'qq',
+                key: 'qq',
+                ellipsis: true,
+                render: (text, record) => (
+                    <div>{record.quantityKc2}</div>
+                )
+            },
+            {
+                title: '差异',
+                dataIndex: 'diffQuantity',
+                key: 'diffQuantity',
+                ellipsis: true,
+                render: (text, record) => {
+                    return record.quantity - record.quantityKc2;
+                }
             }
-        },
+        ] : []),
     ];
 
     // 仓库列表
@@ -212,6 +216,8 @@ const InventoryRequestDetail=(props)=>{
         getWarehouseList();
         const searchParams = new URLSearchParams(location.search);
         const id = searchParams.get('id');
+        const stockStutes = Number(searchParams.get('stockStutes'));
+        setStockStutes(stockStutes);
         getOne(id);
     }, []);
     const isOpen=()=>{
@@ -328,7 +334,7 @@ const InventoryRequestDetail=(props)=>{
                     >
                         时间:
                     </div>
-                    <DatePicker defaultValue={dayjs(stockTime)} />
+                    <DatePicker value={dayjs(stockTime)} />
                 </Space.Compact>
                 <Space.Compact>
                     <div

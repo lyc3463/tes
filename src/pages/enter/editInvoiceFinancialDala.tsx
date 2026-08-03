@@ -1,14 +1,31 @@
-import {Button, DatePicker, Image, Input, InputNumber, message, Radio, Select, Space, Spin, Table} from "antd";
+import {
+    Badge,
+    Button, Card,
+    DatePicker,
+    Image,
+    Input,
+    InputNumber,
+    message,
+    Modal, Popconfirm,
+    Radio,
+    Select,
+    Space,
+    Spin,
+    Table
+} from "antd";
 import {useEffect, useState} from "react";
 import {connect,history,useNavigate} from "umi";
 import dayjs from "dayjs";
-import {generate, getCurrentDate} from "@/utils/OpenTool";
+import {generate, getCurrentDate, getImgSrc} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
-import {ClearOutlined} from "@ant-design/icons";
+import {ClearOutlined, DeleteOutlined, FilePdfOutlined} from "@ant-design/icons";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as ProjectService from "@/services/project";
 import ImageUploadPng from "@/components/ImageUploadPng";
 import * as NewFinancialDataService from "@/services/newFinancialData";
+import FilteredProcurementList from "@/components/FilteredProcurementList";
+import CaigouTagList from "@/components/CaigouTagListProps";
+import PdfUpload from "@/components/PdfUpload";
 
 const EditInvoiceFinancialDala=(props:any)=>{
     const [spinning, setSpinning] = useState(false);
@@ -41,6 +58,13 @@ const EditInvoiceFinancialDala=(props:any)=>{
     // 图片列表
     const [imgList,setImgList]=useState([]);
     const [bxId,setBxId]=useState(0);
+    const [caigou,setCaigou]=useState([]);
+    const [oldCaigou,setOldCaigou]=useState([]);
+    // 采购单
+    const [isOpenprocurement,setIsOpenprocurement]=useState(false);
+    const [isOpenInfo,setIsOpenInfo]=useState(false);
+    const [pdfFileName, setPdfFileName] = useState([]);
+
     const getOneInfo=(id:any)=>{
         NewFinancialDataService.one(id).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
@@ -58,7 +82,36 @@ const EditInvoiceFinancialDala=(props:any)=>{
                 setRemark(res.Data.remark);
                 setSupplierId(res.Data.supplierId);
                 setBxId(res.Data.bxId);
+                let mapPolist=res.Data.poList.map((item:any)=>{
+                    return (
+                        {
+                            ...item,
+                            orderCode: item.number || '',
+                            id: item.poId || 0,
+                        }
+                    )
+                });
+                setCaigou(mapPolist);
+                setOldCaigou(res.Data.poList);
                 setImgList(res.Data.foImage.split("|"));
+                // 接口返回字符串
+                const foImage = res.Data.foImage || '';
+                const allFiles = foImage.split('|').filter(Boolean);
+                // 区分 pdf 和图片
+                const imgArr: string[] = [];
+                const pdfArr: string[] = [];
+
+                allFiles.forEach(fileName => {
+                    // 判断后缀 .pdf，不区分大小写
+                    if (/\.pdf$/i.test(fileName)) {
+                        pdfArr.push(fileName);
+                    } else {
+                        imgArr.push(fileName);
+                    }
+                });
+            // 赋值state
+                setImgList(imgArr);
+                setPdfFileName(pdfArr);
             }else {
                 message.error(res.Data);
             }
@@ -286,7 +339,7 @@ const EditInvoiceFinancialDala=(props:any)=>{
         );
     };
     useEffect(() => {
-        // 累加所有金额，处理可能的空值
+        // 累加所有金额，处理空值 + 保留两位小数
         const sum = goodsList.reduce((acc, item) => acc + (Number(item.amount) || 0), 0);
         // 四舍五入保留两位小数
         setTotalAmount(Number(sum.toFixed(2)));
@@ -376,7 +429,6 @@ const EditInvoiceFinancialDala=(props:any)=>{
     }, []);
     const onOK=()=>{
         if (!orderDate) return  message.error('请选择日期');
-        // if (!accountId) return  message.error('请选择账户');
         if (!companyId) return  message.error('请选择公司');
         if (!projectId) return  message.error('请选择项目');
         if (!supplierId) return  message.error('请选择供应商');
@@ -387,21 +439,41 @@ const EditInvoiceFinancialDala=(props:any)=>{
         }));
 
         const filteredGoodsList = processedList.filter(item =>
-            (item.subjectName?.trim() !== '')
+            (item.subjectName?.trim() !== '' || item.summary?.trim() !== '')
             && item.amount > 0
         );
-        if (filteredGoodsList.length === 0) return message.error('报销明细科目不能为空,金额不能为0,请检查!');
-        let jsonData=JSON.stringify(filteredGoodsList);
-        let imgUrl=imgList.join("|");
+
+        if (filteredGoodsList.length === 0) {
+            return message.error('请完善明细科目、用途、金额字段');
+        }
+        let jsonfd=JSON.stringify(filteredGoodsList);
+        let mapCaigou=caigou.map((item)=>{
+            return {
+                ...item,
+                poId: item.id || 0,
+                number: item.orderCode || '',
+            }
+        });
+        let jsonCaigou=JSON.stringify(mapCaigou);
+        let caigouOld=JSON.stringify(oldCaigou);
+        let caigouFd={
+            fd:jsonfd,
+            caigou:jsonCaigou,
+            caigouOld
+        };
+        let jsonData=JSON.stringify(caigouFd);
+        // let jsonData=JSON.stringify(filteredGoodsList);
+        const allFileList = [...imgList, ...pdfFileName];
+        const imgUrl = allFileList.join("|");
         setSpinning(true);
         props.dispatch({
             type:'Bill/edit',
             payload:{uid,orderCode, orderDate, bxId,accountId,projectId, companyId, paidAmount, totalAmount, moneyType, jsonData,remark,supplierId,imgUrl}
         }).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode == 0) {
+            if (res.ErrorCode == 0 || res.ErrorCode == 9038) {
                 message.success('修改成功');
                 setSpinning(false);
-                history.push('/enter/financialData');
+                history.push('/enter/financialData/');
             } else {
                 message.error(res.ErrorCode + res.Data);
                 setSpinning(false);
@@ -417,7 +489,50 @@ const EditInvoiceFinancialDala=(props:any)=>{
         setImgList((prev: any[]) =>
             prev.filter((_, i) => i !== index)
         );
-
+    };
+    const openProcurementClick=()=>{
+        setIsOpenprocurement(true);
+    };
+    const openInfoClick=()=>{
+        setIsOpenInfo(true);
+    };
+    const onSelectionChange = (newSelectedRows) => {
+        // 如果新选中的是空数组 → 直接清空
+        if (newSelectedRows.length === 0) {
+            let mapPolist=oldCaigou.map((item:any)=>{
+                return (
+                    {
+                        ...item,
+                        orderCode: item.number || '',
+                        id: item.poId || 0,
+                    }
+                )
+            });
+            setCaigou(mapPolist);
+            return;
+        }
+        // 否则正常合并、去重
+        setCaigou(prev => {
+            const existIds = new Set(prev.map(item => item.id));
+            const realNewRows = newSelectedRows.filter(item => !existIds.has(item.id));
+            return [...prev, ...realNewRows];
+        });
+    };
+    const handleRemoveCaigou = (delId: number | string) => {
+        setCaigou(prev => prev.filter(item => item.id !== delId));
+    };
+    // 只接收fileName，不需要base64
+    const handleUploadSuccess = (fileName: string) => {
+        console.log('上传的文件',fileName);
+        setPdfFileName(prev => [fileName, ...pdfFileName]);
+    };
+    // 删除文件
+    const handleDeleteFile = (index: number) => {
+        const newList = pdfFileName.filter((_, i) => i !== index);
+        setPdfFileName(newList);
+    };
+    const handleUploadError = (err: any) => {
+        console.error('上传失败', err);
     };
     return(
         <Spin spinning={spinning}>
@@ -452,10 +567,27 @@ const EditInvoiceFinancialDala=(props:any)=>{
                 {/*<InputNumber addonBefore="已收/已付:" placeholder='已收/已付金额' value={paidAmount} onChange={changePaidAmount}/>*/}
                 <Input addonBefore="备注:" placeholder='备注' value={remark} onChange={changeRemark}/>
                 <Radio.Group value={moneyType} onChange={changeMoneyType}>
-                    {/*<Radio value={1}>收入</Radio>*/}
-                    {/*<Radio value={2}>支出</Radio>*/}
                     <Radio value={3}>报销</Radio>
                 </Radio.Group>
+                <Button type="primary" onClick={openProcurementClick}>
+                    采购单
+                </Button>
+                <Badge
+                    count={caigou.length}
+                    style={{
+                        backgroundColor: '#ff4d4f',
+                        fontSize: '12px',
+                        minWidth: '18px',
+                        height: '18px',
+                        lineHeight: '18px',
+                        top: '-8px',
+                        right: '-8px'
+                    }}
+                >
+                    <Button type="primary" onClick={openInfoClick}>
+                        详情
+                    </Button>
+                </Badge>
             </Space>
             <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
                 <Space.Compact>
@@ -562,30 +694,102 @@ const EditInvoiceFinancialDala=(props:any)=>{
                 </Space.Compact>
                 <div  style={{ display: 'flex'}}>
                     <ImageUploadPng onImageUpload={(base64)=>onImageUpload(base64)}/>
-                    {imgList.length>0?imgList.map((item:any,index:number)=>{
-                        return(
-                            <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
-                                <Image src={`${window.ServerConfig.imgServer}${item}`} style={{ width: '50px', height: '50px' }} />
+                    <Image.PreviewGroup>
+                    {imgList.map((item: any, index: number) => {
+                        // 内部调用拼接方法
+                        const imgUrl = getImgSrc(item);
+                        return (
+                            <div
+                                key={index}
+                                style={{
+                                    display: 'inline-block',
+                                    position: 'relative',
+                                    margin: '5px',
+                                }}
+                            >
+                                {/* 小图（点击放大预览） */}
+                                <Image
+                                    width={50}
+                                    height={50}
+                                    style={{ objectFit: 'cover' }}
+                                    src={imgUrl}
+                                />
+
+                                {/* 小图右上角删除按钮 */}
                                 <Button
-                                    type="primary"
                                     danger
+                                    type="primary"
+                                    size="small"
                                     onClick={() => handleDeleteunitImg(index)}
                                     style={{
                                         position: 'absolute',
-                                        top: '0',
-                                        left: '0',
+                                        top: 0,
+                                        right: 0,
                                         zIndex: 1,
-                                        padding: '2px 4px',
-                                        transform: 'translate(-50%, -50%)',
+                                        padding: '0 4px',
+                                        fontSize: '10px',
                                     }}
                                 >
-                                    删除
+                                    ×
                                 </Button>
                             </div>
-                        )
-                    }):''}
+                        );
+                    })}
+                    </Image.PreviewGroup>
+
                 </div>
             </Space>
+            <Card title="PDF上传">
+                <Space>
+                    <PdfUpload
+                        apiUrl="/api/upload/pdf"
+                        maxCount={5}
+                        maxSize={10 * 1024 * 1024}
+                        onSuccess={handleUploadSuccess}
+                        onError={handleUploadError}
+                    />
+
+                    {pdfFileName.length > 0 && (
+                        <div style={{ marginTop: 16 }}>
+                            {pdfFileName.map((name, idx) => (
+                                <div
+                                    key={idx}
+                                    style={{
+                                        marginBottom:6,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px'
+                                    }}
+                                >
+                                    <FilePdfOutlined style={{ color: '#f5222d' }} />
+                                    <a
+                                        href={`${window.ServerConfig.imgServer}/${name}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {name}
+                                    </a>
+                                    {/* Popconfirm 二次确认删除 */}
+                                    <Popconfirm
+                                        title="确定删除该文件？"
+                                        onConfirm={() => handleDeleteFile(idx)}
+                                        okText="确认"
+                                        cancelText="取消"
+                                    >
+                                        <Button
+                                            danger
+                                            size="small"
+                                            icon={<DeleteOutlined />}
+                                        >
+                                            删除
+                                        </Button>
+                                    </Popconfirm>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Space>
+            </Card>
             <Table
                 columns={columnsz}
                 dataSource={goodsList} // 添加数据源绑定
@@ -597,6 +801,14 @@ const EditInvoiceFinancialDala=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
             />
+            {/*勾选采购单的详情*/}
+            <Modal open={isOpenprocurement} title='采购单' onCancel={()=>setIsOpenprocurement(false)} width={1200} onOk={()=>{setIsOpenprocurement(false);}} footer={null}>
+                <FilteredProcurementList onSelectionChange={onSelectionChange}/>
+            </Modal>
+            {/*勾选采购单的详情*/}
+            <Modal open={isOpenInfo} title='勾选详情' onCancel={()=>setIsOpenInfo(false)} width={1200} onOk={()=>{setIsOpenInfo(false);}}>
+                <CaigouTagList list={caigou} onRemove={handleRemoveCaigou}/>
+            </Modal>
         </Spin>
     )
 }

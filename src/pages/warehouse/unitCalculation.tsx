@@ -21,19 +21,9 @@ const UnitCalculation=(props)=>{
             payload:{page,pageSize,name}
         })
     };
-    // 获取分页信息
-    const getFenye=()=>{
-        props.dispatch({
-            type:'UnitCalculation/fenye',
-            payload:{pageSize,name}
-        })
-    };
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
     const columns = [
         {
             title: '计算名称',
@@ -65,7 +55,6 @@ const UnitCalculation=(props)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     const onOk=()=>{
       setSpinning(true);
@@ -77,6 +66,7 @@ const UnitCalculation=(props)=>{
               message.success('删除成功');
               setDopen(false);
               setSpinning(false);
+              getList();
           }else {
               message.error(res.ErrorCode + res.Data);
               setSpinning(false);

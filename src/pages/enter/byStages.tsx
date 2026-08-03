@@ -215,21 +215,13 @@ const ByStages=(props)=>{
     useEffect(() => {
         logFenye();
     }, [page]);
-    useEffect(() => {
-        fenyeinfo();
-    }, []);
+
     // 搜索
     const suosou=()=>{
         setPage(1);
-        fenyeinfo();
         logFenye();
     };
-    const fenyeinfo=()=>{
-        props.dispatch({
-            type:'ByStages/fenye',
-            payload:{phone,stutes,startDate,endDate,pageSize}
-        })
-    };
+
     const toedit=(e:number)=>{
         history.push(`/enter/editByStages?id=${e}`);
     };

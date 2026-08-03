@@ -238,6 +238,7 @@ const RepairInvoice=()=>{
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}>{moneySum}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={6}>剩余未交:{NotBillSum}元</Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>

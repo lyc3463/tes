@@ -140,16 +140,8 @@ const WaterJournaling=(props)=>{
     const getCableList=()=>{
         CableService.fetch({page,collectorId,name,remark,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setdataSource(res.Data);
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
-    // 获取分页信息
-    const getCableListFenye=()=>{
-        CableService.fenye({collectorId,name,remark,pageSize}).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
+                console.log('res',res)
+                setdataSource(res.Data.data);
                 setc0Sum(res.Data.c0Sum);
                 setcount(res.Data.count);
                 seteleNumSum(res.Data.eleNumSum);
@@ -161,18 +153,15 @@ const WaterJournaling=(props)=>{
             }
         })
     };
+
     const sousuo=()=>{
         setpage(1);
-        getCableListFenye();
         getCableList();
     };
     const onChange=(e,pageSizz)=>{
         setpage(e);
         setPageSize(pageSizz);
     };
-    useEffect(() => {
-        getCableListFenye();
-    }, []);
     useEffect(() => {
         getCableList();
     }, [page,pageSize]);

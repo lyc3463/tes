@@ -1,10 +1,10 @@
 import {getData, postData} from '@/network/http';
 
 export function fetch(vals:any) {
-    return getData(1696, [vals.page,vals.name,vals.code,vals.pageSize]);
+    return getData(1696, [vals.page,vals.name,vals.code,vals.pageSize,0]);
 }
 export function fenye(vals:any) {
-    return getData(1697, [vals.name,vals.code,vals.pageSize]);
+    return getData(1697, [vals.name,vals.code,vals.pageSize,0]);
 }
 
 export function add(vals:any) {
@@ -20,6 +20,15 @@ export function remove(vals:any) {
 }
 export function one(vals:any) {
     return getData(1695, [vals]);
+}
+
+//导出
+export function exportOk(validArea:number,valPwd:string,validTime:string) {
+    return getData(2111, [validArea,valPwd,validTime]);
+}
+//导入
+export function importOk(importKey:string,mm:string) {
+    return postData(2112, [importKey,mm],'');
 }
 
 

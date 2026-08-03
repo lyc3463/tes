@@ -257,22 +257,12 @@ const CheckDeept = (props) => {
             payload:{page,pageSize,name,phone,startDate,endDate,tenantId,stutes}
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'CheckDeept/fenye',
-            payload:{pageSize,name,phone,startDate,endDate,tenantId,stutes}
-        })
-    };
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     return (
         <Spin spinning={spinning}>

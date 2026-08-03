@@ -26,3 +26,15 @@ export function getWxInfo(vals:any) {
 export function getWxInfoList(vals) {
     return getData(1612, [vals]);
 }
+// 查看销售折扣率设置
+export function thenBuckleOne() {
+    return getData(2115, []);
+}
+// 添加销售折扣率设置
+export function addThenBuckle(vals:number) {
+    return getData(2113, [vals]);
+}
+// 编辑销售折扣率设置
+export function editThenBuckle(vals:number) {
+    return getData(2114, [vals]);
+}

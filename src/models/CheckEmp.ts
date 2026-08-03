@@ -58,7 +58,11 @@ const EmpModels: EmpInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             }
             return res
@@ -74,26 +78,22 @@ const EmpModels: EmpInterface = {
         },
         *add({ payload }, { call, put,take }): any {
             const result = yield call(EmpService.add, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(EmpService.edit, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+
             return result
         },
         *delete({ payload }, { call, put,take }): any {
             const result = yield call(EmpService.remove, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+
             return result
         },
         *remove({ payload }, { call, put,take }): any {
             const result = yield call(EmpService.remove, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+
             return result
         },
         *fenye({ type, payload }, { put, call, select }): any {
@@ -113,8 +113,7 @@ const EmpModels: EmpInterface = {
         },
         *checkOK({ payload, callback }, { call, put, take }): any {
             const result = yield call(EmpService.check, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+
             return result
         },
     },

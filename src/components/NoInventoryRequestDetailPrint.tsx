@@ -10,6 +10,7 @@ interface PrintProps {
     user_name: string;
     type: number;
     stockStatus: number;
+    stockStutes: number;
     displayData: Array<{
         id: string | number;
         productsName?: string;
@@ -26,7 +27,7 @@ type PrintComponentRef = HTMLDivElement;
 
 // 核心改造：用 forwardRef 包裹组件，接收 ref 参数
 const NoInventoryRequestDetailPrint = forwardRef<PrintComponentRef, PrintProps>(
-    ({ stockStatus, type, title, orderCode, user_name, warehouseName, orderTime, displayData }, ref) => {
+    ({ stockStatus,stockStutes, type, title, orderCode, user_name, warehouseName, orderTime, displayData }, ref) => {
         return (
             <div>
                 <style>
@@ -62,8 +63,11 @@ const NoInventoryRequestDetailPrint = forwardRef<PrintComponentRef, PrintProps>(
                             <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>物品名称</th>
                             <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>编号</th>
                             <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>单位</th>
-                            <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>盘点数量</th>
-                            {type === 1 ? (
+                            {
+                                stockStutes===2||stockStutes===3?
+                                    <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>盘点数量</th>:''
+                            }
+                            { stockStutes===3 ? (
                                 <>
                                     <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>库存数量</th>
                                     <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>差异</th>
@@ -78,14 +82,16 @@ const NoInventoryRequestDetailPrint = forwardRef<PrintComponentRef, PrintProps>(
                                     <td style={{ border: '1px solid #000', padding: '8px' }}>{item.productsName || '未知物品'}</td>
                                     <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{item.productsCode || '-'}</td>
                                     <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{item.unitsName || '-'}</td>
-                                    <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{item.quantity ? item.quantity : 0 || 0}</td>
-                                    {type === 1 ? (
+                                    {
+                                        stockStutes===2||stockStutes===3?<td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{item.quantity ? item.quantity : 0 || 0}</td>:''
+                                    }
+                                    {stockStutes===3 ? (
                                         <>
                                             <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>
                                                 {stockStatus === 1 ? item.quantityKc2 || 0 : item.quantityKc || 0}
                                             </td>
                                             <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>
-                                                {item.quantity - (stockStatus === 1 ? item.quantityKc2 || 0 : item.quantityKc || 0) || 0}
+                                                {(item.quantity - item.quantityKc2).toFixed(2) || 0}
                                             </td>
                                         </>
                                     ) : ''}

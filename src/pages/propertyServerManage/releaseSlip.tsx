@@ -12,7 +12,7 @@ import {
     Space,
     Spin,
     Table,
-    Tag
+    Tag, Tooltip
 } from "antd";
 import dayjs from "dayjs";
 import {useEffect, useState} from "react";
@@ -21,6 +21,7 @@ import {updateSessionStorage,checkSessionStorage} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import CmpImageUploader from "@/components/ImageUploader";
 import * as ReleaseSlipServer from "@/services/releaseSlip";
+import ImageUploadPng from "@/components/ImageUploadPng";
 
 const ReleaseSlip=(props)=>{
     const [startDate,setStartDate]=useState(checkSessionStorage('/propertyServerManage/releaseSlip/','startDate')|| '2000-01-01');
@@ -41,6 +42,9 @@ const ReleaseSlip=(props)=>{
     const [goodJson,setGoodJson]=useState([]);
     const [b64,setB64]=useState([]);// 显示的多图
     const [displayB64,setDisplayB64]=useState([]);// 详情弹窗显示的图片
+    const [remark,setRemark]=useState('');// 驳回、终止描述
+    const [rejectStatus,setRejectStatus]=useState(0);// 驳回状态 终止状态
+    const [rejectOpen,setRejectOpen]=useState(false);// 驳回弹窗
     const columns=[
         {
             title:'提交日期',
@@ -141,82 +145,93 @@ const ReleaseSlip=(props)=>{
             dataIndex:'relStatus',
             key:'relStatus',
             width:100,
-            render:(text)=>{
-                if (text===1){
-                    return <Tag color="warning">待审核</Tag>;
+            render:(text,record)=>{
+                const statusConfig = {
+                    1: { text: '待审核', color: 'warning' },
+                    2: { text: '已审核', color: 'processing' },
+                    3: { text: '已放行', color: 'success' },
+                    4: { text: '已驳回', color: 'error' },
+                    5: { text: '已终止', color: 'default' },
+                };
+                const config = statusConfig[record.relStatus] || { text: '未知状态', color: 'gray' };
+                // 判断是否需要展示原因提示
+                const needTip = [5, 4].includes(record.relStatus) && record.rejectReason;
+
+                if (needTip) {
+                    return (
+                        <Tooltip title={record.rejectReason}>
+                            <Tag color={config.color}>{config.text}</Tag>
+                        </Tooltip>
+                    );
                 }
-                if (text===2){
-                    return <Tag color="processing">已审核</Tag>;
-                }
-                if (text===3){
-                    return <Tag color="success">已放行</Tag>;
-                }
-                return null;
+                return <Tag color={config.color}>{config.text}</Tag>;
             }
         },
         {
-            title:'操作',
-            dataIndex:'operation',
-            key:'operation',
-            width:200,
-            render:(text,record)=>{
-                const menuItems = [];
-                menuItems.push(
+            title: '操作',
+            dataIndex: 'operation',
+            key: 'operation',
+            width: 200,
+            render: (_, record) => {
+                const { relStatus } = record;
+                const menuItems = [
                     {
                         key: 'info',
                         label: '详情',
                         onClick: () => openInfo(record)
                     }
-                );
-                if (record.relStatus === 1) {
-                    menuItems.push({
-                        key: 'delete',
-                        label: '删除',
-                        onClick: () => del(record)
-                    });
-                    menuItems.push({
-                        key: 'check',
-                        label: '审核',
-                        onClick: () => isCheck(record)
-                    });
-                    menuItems.push({
-                        key: 'edit',
-                        label: '编辑',
-                        onClick: () => toinfo(record)
-                    });
+                ];
+                // 状态2/3：终止、驳回
+                if ([2, 1,4].includes(relStatus)) {
+                    menuItems.push(
+                        { key: 'terminate', label: '终止', onClick: () => isTerminate(record) },
+                        { key: 'reject', label: '驳回', onClick: () => isReject(record) }
+                    );
                 }
-                if (record.relStatus === 2) {
-                    menuItems.push({
-                        key: 'release',
-                        label: '放行',
-                        onClick: () => isRelease(record)
-                    });
+
+                // 状态1：删除、审核
+                if (relStatus === 1) {
+                    menuItems.push(
+                        { key: 'delete', label: '删除', onClick: () => del(record) },
+                        { key: 'check', label: '审核', onClick: () => isCheck(record) }
+                    );
                 }
-                return(
+
+                // 状态1/4：编辑
+                if ([1, 4].includes(relStatus)) {
+                    menuItems.push({ key: 'edit', label: '编辑', onClick: () => toinfo(record) });
+                }
+
+                // 状态2：放行
+                if (relStatus === 2) {
+                    menuItems.push({ key: 'release', label: '放行', onClick: () => isRelease(record) });
+                }
+
+                return (
                     <Space>
                         <Dropdown menu={{ items: menuItems }} placement="bottomRight">
                             <Button type="primary">操作</Button>
                         </Dropdown>
-                        {/*{*/}
-                        {/*    record.relStatus==1?<>*/}
-                        {/*        <Button type="primary" danger onClick={()=>del(record)}>删除</Button>*/}
-                        {/*        <Button type="primary" onClick={()=>isCheck(record)}>审核</Button>*/}
-                        {/*        <Button type='primary' onClick={()=>toinfo(record)}>编辑</Button>*/}
-                        {/*    </>:''*/}
-                        {/*}*/}
-                        {/*{*/}
-                        {/*    record.relStatus==2?<Button type='primary' onClick={()=>isRelease(record)}>放行</Button>:''*/}
-                        {/*}*/}
                     </Space>
-                )
+                );
             }
-        },
+        }
     ];
+    // 驳回弹窗
+    const isReject=(e:any)=>{
+        setUid(e.id);
+        setRejectStatus(4);
+        setRejectOpen(true);
+    };
+    // 终止
+    const isTerminate=(e:any)=>{
+        setUid(e.id);
+        setRejectStatus(5);
+        setRejectOpen(true);
+    };
     const suosou=()=>{
         setPage(1);
-        getListfenYen();
         getList();
-        console.log('props',props)
     };
     // 去详情页面
     const toinfo=(e)=>{
@@ -246,18 +261,29 @@ const ReleaseSlip=(props)=>{
             payload:{page, pageSize, name, phone, startDate, endDate, status, userID}
         })
     };
-    const getListfenYen=()=>{
-        props.dispatch({
-            type:'ReleaseSlip/fenye',
-            payload:{ name, phone, startDate, endDate, status, pageSize,userID}
-        })
+    const rejectOk=()=>{
+        setspinning(true);
+        try {
+            props.dispatch({
+                type:'ReleaseSlip/reject',
+                payload:{uid,rejectStatus,remark}
+            }).then((res:TypeErrorCode)=>{
+                if (res.ErrorCode==0){
+                    message.success('操作成功！');
+                    getList();
+                }
+            })
+        }catch (err){
+            message.error(err);
+        }finally {
+          // 关闭弹窗
+            setspinning(false);
+            setRejectOpen(false);
+        }
     };
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getListfenYen();
-    }, []);
     const onChange=(e:number,pageSize:number)=>{
         setPage(e);
         setPageSize(pageSize);
@@ -291,7 +317,6 @@ const ReleaseSlip=(props)=>{
     // 详情弹窗
     const openInfo=(e)=>{
         setInfoOpen(true);
-        console.log('e',e);
         getOne(e.id);
     };
     // 获取放行条详情
@@ -299,10 +324,11 @@ const ReleaseSlip=(props)=>{
         setspinning(true);
         ReleaseSlipServer.one(e).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('放行条详情',res.Data);
                 setGoodJson(JSON.parse(res.Data.goodJson));
-                let imageBase64=res.Data.imageBase64;
+                let imageBase64=res.Data.imageName;
                 if (imageBase64){
-                    setDisplayB64(imageBase64);
+                    setDisplayB64(imageBase64.split('|'));
                 }else {
                     setDisplayB64([]);
                 }
@@ -370,8 +396,8 @@ const ReleaseSlip=(props)=>{
         setB64(newB64);
     };
     // 多图名字
-    const handleImageUploads=(val:string)=>{
-        setImgsName([...imgsName,val]);
+    const onImageUpload = (imgName: string) => {
+        setImgsName(prev => [...prev, imgName]);
     };
     // 监听手机号
     const changePhone=(e)=>{
@@ -383,6 +409,11 @@ const ReleaseSlip=(props)=>{
         setName(e.target.value);
         updateSessionStorage('/propertyServerManage/releaseSlip/','name',e.target.value);
     };
+    const editStutesOk=()=>{
+        rejectOk();
+    };
+    // 删除图片
+    const handleDeleteunitImg = (index: number) => setImgsName(prev => prev.filter((_, i) => i !== index));
     return(
         <Spin spinning={spinning}>
             <List>
@@ -446,6 +477,12 @@ const ReleaseSlip=(props)=>{
                                 <Select.Option value={3}>
                                     已放行
                                 </Select.Option>
+                                <Select.Option value={4}>
+                                    驳回
+                                </Select.Option>
+                                <Select.Option value={5}>
+                                    终止
+                                </Select.Option>
                             </Select>
                         </Space.Compact>
                         <Button type="primary" onClick={suosou}>
@@ -474,10 +511,14 @@ const ReleaseSlip=(props)=>{
             <Modal title="详情" open={infoOpen} onCancel={() => setInfoOpen(false)} onOk={() => setInfoOpen(false)} loading={spinning}>
                 <div>
                     <Space style={{display:"flex",flexWrap:'wrap'}}>
-                        {displayB64.map((item:any)=>{
-                            return(
+                        {displayB64.map((item: string) => {
+                            // 判断是否已带 .png 后缀
+                            const fullSrc = item.endsWith('.png')
+                                ? `${window.ServerConfig.imgServer}${item}`
+                                : `${window.ServerConfig.imgServer}${item}.png`;
+                            return (
                                 <div key={item}>
-                                    <Image src={item} style={{ width: '80px', height: '80px' }} />
+                                    <Image src={fullSrc} width={50} height={50} />
                                 </div>
                             )
                         })}
@@ -502,35 +543,25 @@ const ReleaseSlip=(props)=>{
             <Modal title="放行" open={releaseOpen} onCancel={() => setReleaseOpen(false)} onOk={releaseFn} loading={spinning}>
                <Form>
                    <Form.Item label="多图">
-                       <CmpImageUploader onImageUpload={handleImageUploads} oldBase64={handBase64s}/>
-                       <Space style={{display:'flex',flexWrap:'wrap'}}>
-                           <Space style={{display:'flex',flexWrap:'wrap',marginTop:'25px'}}>
-                               {b64.length>0?b64.map((item:any,index:number)=>{
-                                   return(
-                                       <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative',marginLeft:'20px'}}>
-                                           <Image src={item} style={{ width: '80px', height: '80px' }} />
-                                           <Button
-                                               type="primary"
-                                               danger
-                                               onClick={() => handleDelete(index)}
-                                               style={{
-                                                   position: 'absolute',
-                                                   top: '0',
-                                                   left: '0',
-                                                   zIndex: 1,
-                                                   padding: '2px 4px',
-                                                   transform: 'translate(-50%, -50%)', // 使按钮居中于图片的左上角
-                                               }}
-                                           >
-                                               删除
-                                           </Button>
-                                       </div>
-                                   )
-                               }):''}
-                           </Space>
-                       </Space>
+                       <ImageUploadPng onImageUpload={(base64) => onImageUpload(base64)} />
+                       <div style={{ display: 'flex', alignItems: 'center', position: 'relative', marginLeft: '20px' }}>
+                       {imgsName.map((item, index) => (
+                           <div key={index} style={{ display: 'flex', alignItems: 'center', position: 'relative', marginLeft: '20px' }}>
+                               <Image src={`${window.ServerConfig.imgServer}${item}.png`} width={50} height={50} />
+                               <Button danger size="small" style={{ position: 'absolute', top: -8, left: -8, zIndex: 2 }} onClick={() => handleDeleteunitImg(index)}>×</Button>
+                           </div>
+                       ))}
+                       </div>
                    </Form.Item>
                </Form>
+            </Modal>
+            {/*驳回弹窗*/}
+            <Modal title={rejectStatus==4?'驳回':'终止'} open={rejectOpen} onCancel={() => setRejectOpen(false)} onOk={editStutesOk} loading={spinning}>
+                <Form>
+                    <Form.Item label="原因">
+                        <Input.TextArea value={remark} onChange={(e) => setRemark(e.target.value)} />
+                    </Form.Item>
+                </Form>
             </Modal>
         </Spin>
     )

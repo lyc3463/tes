@@ -42,15 +42,7 @@ const UnitSetting=(props)=>{
             payload:{page,name,pageSize}
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:"UnitSetting/fenye",
-            payload:{pageSize,name}
-        })
-    };
-    useEffect(() => {
-        getFenye();
-    }, []);
+
     useEffect(()=>{
         getList();
     },[page,pageSize]);
@@ -68,6 +60,7 @@ const UnitSetting=(props)=>{
                 message.success('删除成功');
                 setSpinning(false);
                 setVisible(false);
+                getList();
             }else {
                 message.error('删除失败'+res.ErrorCode+res.Data);
                 setSpinning(false);
@@ -82,7 +75,7 @@ const UnitSetting=(props)=>{
     const changeName=(e:any)=>{
         setName(e.target.value);
         updateSessionStorage('/warehouse/warehouseAndType','WarehouseUnitSettingListName',e.target.value);
-    }
+    };
     return(
       <Spin spinning={spinning}>
           <List>

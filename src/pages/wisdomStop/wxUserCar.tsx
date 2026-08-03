@@ -24,7 +24,8 @@ const WxUserCar=(props:any)=>{
     const [page,setPage]=useState(1);// 页码
     const [pageSize,setPageSize]=useState(20);// 页数
     const [carNo,setCarNo]=useState(checkSessionStorage('/wisdomStop/carManage/','carNo')||'');//车牌号
-    const [appId,setAppid]=useState(0);
+    const [uName,setUName]=useState(checkSessionStorage('/wisdomStop/carManage/','uName')||'');//姓名
+    const [uPhone,setUPhone]=useState(checkSessionStorage('/wisdomStop/carManage/','uPhone')||'');//手机号
     const [stutes,setStutes]=useState(checkSessionStorage('/wisdomStop/carManage/','stutes')||0);
     const [uid,setUid]=useState(0);
     const [spinning,setspinning]=useState(false);
@@ -34,20 +35,6 @@ const WxUserCar=(props:any)=>{
     const [isDeactivateOpen,setIsDeactivateOpen]=useState(false);
     const [detailOpen, setDetailOpen] = useState(false);
     const [mountCarList, setMountCarList] = useState([]); // 存储详情数据
-    // 获取列表
-    const getCarList=()=>{
-        props.dispatch({
-            type:'CarManage/fetch',
-            payload:{page,carNo,appId,stutes,pageSize}
-        })
-    };
-    // 获取分页信息
-    const getCarListfenye=()=>{
-        props.dispatch({
-            type:'CarManage/fenye',
-            payload:{carNo,appId,stutes,pageSize}
-        })
-    };
     const columns =[
         {
             title: '序号',
@@ -89,15 +76,15 @@ const WxUserCar=(props:any)=>{
             }
         },
         {
-            title: '租户姓名',
-            dataIndex: 'tenant_name',
-            key: 'tenant_name',
+            title: '用户名',
+            dataIndex: 'user_name',
+            key: 'user_name',
             align:'center',
         },
         {
             title: '手机号',
-            dataIndex: 'tenant_phone',
-            key: 'tenant_phone',
+            dataIndex: 'phone',
+            key: 'phone',
             align:'center',
         },
         {
@@ -322,10 +309,17 @@ const WxUserCar=(props:any)=>{
             },
         }
     ];
+    // 获取列表
+    const getCarList=()=>{
+        props.dispatch({
+            type:'CarManage/fetch',
+            payload:{page,carNo,userId:0,stutes,pageSize,userType:1,uName,uPhone}
+        })
+    };
+
     // 根据车牌获取车辆信息
     const getCarInfo=(e:string,type)=>{
         UserCarServer.reactCarNo(e).then((res:TypeErrorCode)=>{
-            console.log('res',res);
             if (res.ErrorCode==0){
                 if (res.Data.length>0){
                     res.Data.forEach(user => {
@@ -371,15 +365,11 @@ const WxUserCar=(props:any)=>{
     };
     useEffect(() => {
         getCarList();
-        console.log('props',props)
     }, [page,pageSize]);
-    useEffect(() => {
-        getCarListfenye();
-    }, []);
+
     const sousuo=()=>{
         setPage(1);
         getCarList();
-        getCarListfenye();
     };
     const onChange=(e,pageSize)=>{
         setPage(e);
@@ -412,6 +402,14 @@ const WxUserCar=(props:any)=>{
     const changeCarNo=(e)=>{
         setCarNo(e.target.value);
         updateSessionStorage('/wisdomStop/carManage/','carNo',e.target.value);
+    };
+    const changeUName=(e)=>{
+        setUName(e.target.value);
+        updateSessionStorage('/wisdomStop/carManage/','uName',e.target.value);
+    };
+    const changeUPhone=(e)=>{
+        setUPhone(e.target.value);
+        updateSessionStorage('/wisdomStop/carManage/','uPhone',e.target.value);
     };
     const changeStutes=(e)=>{
         setStutes(e);
@@ -464,6 +462,16 @@ const WxUserCar=(props:any)=>{
                             onChange={changeCarNo}
                             addonBefore="车牌号:"
                             value={carNo}
+                        />
+                        <Input
+                            onChange={changeUName}
+                            addonBefore="用户名:"
+                            value={uName}
+                        />
+                        <Input
+                            onChange={changeUPhone}
+                            addonBefore="手机号:"
+                            value={uPhone}
                         />
                         <Space.Compact>
                             <div

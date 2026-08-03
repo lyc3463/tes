@@ -1,8 +1,24 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {
+    Button,
+    DatePicker, Dropdown,
+    Input,
+    List, Menu,
+    MenuProps,
+    message,
+    Modal,
+    Pagination, Popover,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tag
+} from "antd";
 import dayjs from "dayjs";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import RenameType from "@/ModelTypes/TypeRename";
+import RenewType from "@/ModelTypes/TypeRenew";
 
 const CheckRenew=(props)=>{
     // 当前页数
@@ -23,6 +39,11 @@ const CheckRenew=(props)=>{
     const [spinning, setSpinning] = useState(false);
     // id
     const [uid,setUid]=useState(0);
+    // 驳回弹窗
+    const [openTranslation,setOpenTranslation]=useState(false);
+    const [tenant_name,setTenant_name]=useState('');
+    // 驳回原因
+    const [remark,setRemark]=useState('');
     const columns =[
         {
             title: '单元名称',
@@ -104,22 +125,59 @@ const CheckRenew=(props)=>{
             title: '状态',
             dataIndex: 'renameStatus',
             key: 'renameStatus',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>{record.renameStatus==2?<Tag color='green'>已通过</Tag>:<Tag color='red'>未审核</Tag>}</div>
-                )
+            render: (text: any, record: RenameType) => {
+                const status = record.renameStatus;
+                let tagDom;
+                if (status === 2) {
+                    tagDom = <Tag color="green">已审核</Tag>;
+                } else if (status === 3) {
+                    // 驳回，增加气泡展示备注
+                    tagDom = (
+                        <Popover content={record.remark || '无驳回原因'} title="驳回理由">
+                            <Tag color="red">驳回？</Tag>
+                        </Popover>
+                    );
+                } else {
+                    tagDom = <Tag color="orange">未审核</Tag>;
+                }
+                return tagDom;
             }
         },
         {
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',
-            render:(text:any,record:any,)=>{
-                return(
-                    <Space>
-                        {record.renameStatus==2?'':<Space><Button type='primary' onClick={()=>{isCheck(record)}}>确定审核</Button></Space>}
-                    </Space>
-                )
+            render: (text: any, record: RenewType) => {
+                // 下拉菜单配置
+                const menuItems: MenuProps['items'] = [
+                    {
+                        key: 'info',
+                        label: '详情',
+                        onClick: () => toInfo(record)
+                    }
+                ];
+                // 状态不等于2（未审核/驳回），追加审核、驳回
+                if (record.renameStatus !== 2) {
+                    menuItems.push(
+                        {
+                            key: 'check',
+                            label: '审核',
+                            onClick: () => isCheck(record)
+                        },
+                        {
+                            key: 'reject',
+                            danger: true,
+                            label: '驳回',
+                            onClick: () => isTranslation(record)
+                        }
+                    );
+                }
+                const menu = <Menu items={menuItems} />;
+                return (
+                    <Dropdown overlay={menu} trigger={['click']}>
+                        <Button>操作</Button>
+                    </Dropdown>
+                );
             }
         }
     ];
@@ -159,21 +217,17 @@ const CheckRenew=(props)=>{
             payload:{page,phone,stutes,startDate,endDate,pageSize}
         })
     };
+
     useEffect(() => {
         logFenye();
     }, [page,pageSize]);
+
     // 搜索
     const suosou=()=>{
         setPage(1);
-        fenyeinfo();
         logFenye();
     };
-    const fenyeinfo=()=>{
-        props.dispatch({
-            type:'Renew/fenye',
-            payload:{phone,stutes,startDate,endDate,pageSize}
-        })
-    };
+
     // 审核弹窗
     const isCheck=(e:any)=>{
         setOpen(true);
@@ -197,16 +251,40 @@ const CheckRenew=(props)=>{
             }
         })
     };
-    useEffect(() => {
-        fenyeinfo();
-    }, []);
+    const toInfo=(e:RenewType)=>{
+        history.push(`/enter/editRenew?id=${e.id}&renewStatus=${1}`);
+    };
+    const onTranslationOk=()=>{
+        setSpinning(true);
+        props.dispatch({
+            type:'Renew/translation',
+            payload:{uid,remark}
+        }).then((res:any)=>{
+            if (res.ErrorCode==0){
+                message.success('驳回成功');
+                setOpenTranslation(false);
+                setSpinning(false);
+                logFenye();
+            }else {
+                message.error(res.Data);
+                setOpenTranslation(false);
+                setSpinning(false);
+            }
+        })
+    };
+    const isTranslation=(e:RenewType)=>{
+        setOpenTranslation(true);
+        setUid(e.id);
+        setUphone(e.tenant_phone);
+        setTenant_name(e.tenant_name);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
-                            addonBefore="原手机号:"
+                            addonBefore="手机号:"
                             onChange={changePhone}
                             value={phone}
                         />
@@ -244,12 +322,13 @@ const CheckRenew=(props)=>{
                             </div>
                             <Select
                                 onChange={changeStutes}
-                                defaultValue={stutes}
+                                value={stutes}
                                 style={{ width: 120 }}
                                 options={[
                                     { value:0, label: '全部' },
                                     { value:1, label: '未审核' },
                                     { value:2, label: '已审核' },
+                                    { value:3, label: '驳回' },
                                 ]}
                             />
                         </Space.Compact>
@@ -271,9 +350,18 @@ const CheckRenew=(props)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-            {/*    审核弹窗*/}
+            {/*审核弹窗*/}
             <Modal open={isOpen} onOk={onOk} onCancel={()=>setOpen(false)} title='审核更名' loading={spinning}>
                 <span>是否审核通过手机号:<span style={{color:'red'}}>{uphone}</span>的用户吗?</span>
+            </Modal>
+            {/*驳回弹窗*/}
+            <Modal open={openTranslation} onOk={onTranslationOk} onCancel={()=>setOpenTranslation(false)} title='驳回更名' loading={spinning}>
+                <span>是否驳回手机号:<span style={{color:'red'}}>{`${uphone}(${tenant_name})`}</span>的更名吗?</span>
+                <Input.TextArea
+                    placeholder="请输入驳回原因"
+                    onChange={(e:any)=>setRemark(e.target.value)}
+                    value={remark}
+                />
             </Modal>
         </Spin>
     )

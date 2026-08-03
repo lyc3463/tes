@@ -25,35 +25,13 @@ const ZuList=(props:any)=>{
     const [moneySum,setmoneySum]=useState(0);
     // 租金已交费用统计
     const [NotBillSum,setNotBillSum]=useState(0);
-    // 搜索
-    const sousuo=()=>{
-        setPage(1);
-        getzujinList();
-        logFenye();
-    };
-    // 查看租金缴费列表
-    const getzujinList=()=>{
-        ArrearsBillService.zujinList({page,name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setdataSource(res.Data);
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
-    // 分页
-    const logFenye=()=>{
-        ArrearsBillService.zujinListFenye({name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setcount(res.Data.count);
-                setmoneySum(res.Data.moneySum);
-                setNotBillSum(res.Data.NotBillSum);
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
     const columns =[
+        {
+            title: '序号',
+            width: 60,
+            align: 'center',
+            render: (_text: any, _record: any, index: number) => index + 1
+        },
         {
             title: '交租日期',
             dataIndex: 'payrentDate',
@@ -104,7 +82,7 @@ const ZuList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        租金/管理费
+                        租金
                     </div>
                 )
             }
@@ -182,13 +160,37 @@ const ZuList=(props:any)=>{
             }
         },
         {
+            title: '分期金额',
+            dataIndex: 'xx',
+            key: 'xx',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {(record.staRent).toFixed(2)}元
+                    </div>
+                )
+            }
+        },
+        {
+            title: '分期还款金额',
+            dataIndex: 'xx',
+            key: 'xx',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {(record.staRent2).toFixed(2)}元
+                    </div>
+                )
+            }
+        },
+        {
             title: '优惠前租金',
             dataIndex: 'xx',
             key: 'xx',
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {(record.preRen+record.payAmount).toFixed(2)}元
+                        {(record.preRen+record.payAmount+record.staRent-record.staRent2).toFixed(2)}元
                     </div>
                 )
             }
@@ -207,6 +209,39 @@ const ZuList=(props:any)=>{
         },
 
     ];
+
+    // 搜索
+    const sousuo=()=>{
+        setPage(1);
+        getzujinList();
+        // logFenye();
+    };
+    // 查看租金缴费列表
+    const getzujinList=()=>{
+        ArrearsBillService.zujinList({page,name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
+            console.log('res',res)
+            if (res.ErrorCode==0){
+                setdataSource(res.Data.data);
+                setcount(res.Data.count);
+                setmoneySum(res.Data.billSum);
+                setNotBillSum(res.Data.NotBillSum);
+            }else {
+                message.error(res.Data);
+            }
+        })
+    };
+    // 分页
+    // const logFenye=()=>{
+    //     ArrearsBillService.zujinListFenye({name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
+    //         if (res.ErrorCode==0){
+    //             setcount(res.Data.count);
+    //             setmoneySum(res.Data.moneySum);
+    //             setNotBillSum(res.Data.NotBillSum);
+    //         }else {
+    //             message.error(res.Data);
+    //         }
+    //     })
+    // };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -226,9 +261,6 @@ const ZuList=(props:any)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-    useEffect(() => {
-        logFenye();
-    }, []);
     useEffect(() => {
         getzujinList();
     }, [page,pageSize]);
@@ -289,10 +321,11 @@ const ZuList=(props:any)=>{
                 summary={(columns) => (
                     <Table.Summary fixed>
                         <Table.Summary.Row>
-                            <Table.Summary.Cell index={1}> 统计 </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}> 统计 </Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={6}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}><span style={{color:"red"}}>{moneySum.toFixed(2)}元</span></Table.Summary.Cell>
                             <Table.Summary.Cell index={6}><span style={{color:"red"}}>{NotBillSum.toFixed(2)}元</span></Table.Summary.Cell>

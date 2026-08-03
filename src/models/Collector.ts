@@ -47,6 +47,7 @@ const AccountModels: CollectorInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(CollectorService.fetch, payload?payload:pl);
+            console.log('res',res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',

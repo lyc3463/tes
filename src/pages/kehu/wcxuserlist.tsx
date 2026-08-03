@@ -1,32 +1,29 @@
-import {
-    Button,
-    Form,
-    Image,
-    Input,
-    InputNumber,
-    List,
-    message,
-    Modal,
-    Pagination,
-    Select,
-    Space,
-    Spin,
-    Table,
-    Tag
-} from "antd";
+import {Button, Image, Input, InputNumber, List, message, Modal, Pagination, Space, Spin, Table} from "antd";
 import {connect,history} from 'umi';
 import * as AppUserService from '@/services/appUser';
-import {useEffect, useState} from "react";
-import {qxTree} from '@/constants/qxMenu/wxMenu'
-import {
-    buildTree,
-    checkSessionStorage,
-    ensureArrayLength,
-    exportDataToExcel,
-    updateSessionStorage
-} from "@/utils/OpenTool";
+import {useCallback, useEffect, useRef, useState} from "react";
+import {qxTree} from '@/constants/qxMenu/wxMenu';
+import {buildTree, checkSessionStorage, ensureArrayLength, exportDataToExcel, updateSessionStorage} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
+const checkboxRelationMap = {
+    190: [209, 263],
+    275: [272],
+    271: [268, 404, 269],
+    392: [176],
+    369: [366, 368, 367, 365],
+    186: [307],
+    363: [366, 364],
+    225: [285],
+    230: [285],
+    233: [285],
+    236: [285],
+    239: [239],
+    60: [61, 355, 347, 336, 413, 400, 435],
+    399: [421, 422, 423, 424, 404],
+    110: [111],
+    426: [427, 428, 429, 430],
+};
 const Wcxuserlist=(props:any)=>{
     const treeData = buildTree(qxTree);
     const [isSpinning,setIsSpinning]=useState(false);
@@ -40,28 +37,53 @@ const Wcxuserlist=(props:any)=>{
     const [isOpen,setIsOpen]=useState(false);
     const [selected, setSelected] = useState<string[]>(Array(562).fill('0'));
     const [appid,setAppid]=useState(0);
+    const [loadedImageIds, setLoadedImageIds] = useState<Set<string>>(new Set());
+    // 行ref数组
+    const rowRefs = useRef<HTMLDivElement[]>([]);
+    // 交叉观察器实例
+    const observerRef = useRef<IntersectionObserver | null>(null);
     const columns =[
         {
-            title: '用户头像',
-            dataIndex: 'appUser_image',
-            key: 'appUser_image',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        <Image src={text} style={{width:"50px",height:'50px'}}/>
+            title: '微信头像',
+            dataIndex: 'userImage',
+            key: 'userImage',
+            ellipsis: true,
+            render: (text: string, record: any) => {
+                const isImageLoaded = loadedImageIds.has(record.userId.toString());
+                let imageUrl = '';
+                if (isImageLoaded && text) {
+                    const textStr = String(text || '');
+                    imageUrl = textStr && textStr.endsWith('.png')
+                        ? `${window.ServerConfig.imgServer}${textStr}`
+                        : `${window.ServerConfig.imgServer}${textStr}_min.png`;
+                }
+                // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）
+                return (
+                    <div style={{width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                        <Image
+                            src={imageUrl || 'https://placeholder.pics/svg/50x50/EEEEEE/999999/加载中...'}
+                            style={{width: '100%', height: '100%', objectFit: 'cover'}}
+                            alt="物品图片"
+                            // 原生懒加载属性（正确用法：字符串值 'lazy'）
+                            loading="lazy"
+                            // fallback 逻辑：图片加载失败时显示占位图
+                            onError={(e) => {
+                                e.target.src = 'https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片';
+                            }}
+                        />
                     </div>
-                )
+                );
             }
         },
         {
             title: '微信呢称',
-            dataIndex: 'appUser_name',
-            key: 'appUser_name',
+            dataIndex: 'userName',
+            key: 'userName',
         },
         {
             title: '用户手机号',
-            dataIndex: 'appUser_phone',
-            key: 'appUser_phone',
+            dataIndex: 'phone',
+            key: 'phone',
         },
         {
             title: '余额(元)',
@@ -114,6 +136,12 @@ const Wcxuserlist=(props:any)=>{
             }
         },
     ];
+    // 监听数据变化，重置图片加载状态
+    useEffect(() => {
+        setLoadedImageIds(new Set());
+        // 初始化交叉观察器
+        initObserver();
+    }, []);
     // 监听手机号
     const changePhone=(e)=>{
         setPhone(e.target.value);
@@ -124,27 +152,16 @@ const Wcxuserlist=(props:any)=>{
         setName(e.target.value);
         updateSessionStorage('/kehu/wcxuserlist/','name',e.target.value);
     };
-    const toChangePark=(e)=>{
-      history.push(`/kehu/changePark?id=${e.id}`);
-    };
     // 搜索按钮
     const shousuo=()=>{
         setPage(1);
         getList();
-        logFenye()
     };
     const getList=()=>{
         props.dispatch({
             type:'AppUser/fetch',
             payload:{page,name,phone,pageSize,balance}
         });
-    };
-    // 分页
-    const logFenye=()=>{
-        props.dispatch({
-            type:"AppUser/fenye",
-            payload:{name,phone,pageSize,balance}
-        })
     };
     // 监听页数
     const onChange=(page:number,pageSize:number)=>{
@@ -156,29 +173,17 @@ const Wcxuserlist=(props:any)=>{
     }, [page,pageSize]);
     // 弹窗信息
     const editInfo=(vla:any)=>{
-        setAppid(vla.id);
+        setAppid(vla.userId);
         setIsOpen(true);
-        getOne(vla.id);
-    };
-    // 获取小程序信息详情
-    const getOne=(id:number)=>{
-        AppUserService.one(id).then((res:any)=>{
-            if (res.ErrorCode==0){
-                const authorityString = res.Data.authority;
-                const splitArray = authorityString.split('');
-                const adjustedArray = ensureArrayLength(splitArray, selected.length, '0');
-                setSelected(adjustedArray);
-            }else{
-                message.error(res.Data);
-            }
-        })
+        const authorityString = vla.authority;
+        const splitArray = authorityString.split('');
+        const adjustedArray = ensureArrayLength(splitArray, selected.length, '0');
+        setSelected(adjustedArray);
     };
     // 确定编辑权限
     const onOk=()=>{
         let joinqx=selected.join('');
-        console.log('joinqx',joinqx);
         setIsSpinning(true);
-
         props.dispatch({
             type:'AppUser/edit',
             payload:{appid,joinqx}
@@ -197,7 +202,6 @@ const Wcxuserlist=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
-        logFenye();
     }, []);
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: qxTree[]; selected: string[]; setSelected: (newSelected: string[]) => void })=> {
         return (
@@ -218,81 +222,16 @@ const Wcxuserlist=(props:any)=>{
             </ul>
         );
     };
-    const  handleCheckboxChange=(id: number, isChecked: boolean)=> {
-        // 创建一个新的数组来存储新的选中状态
-        let newSelected = [...selected];
-        // 更新指定 ID 的节点的选中状态
+    const handleCheckboxChange = (id: number, isChecked: boolean) => {
+        const newSelected = [...selected];
+        // 设置当前项
         newSelected[id] = isChecked ? '1' : '0';
-        if (id === 190 ) {
-            newSelected[209] = '1' ;
-            newSelected[263] ='1';
+        // 如果当前是勾选，才自动关联其他选项
+        if (isChecked && checkboxRelationMap[id]) {
+            checkboxRelationMap[id].forEach(relatedId => {
+                newSelected[relatedId] = '1';
+            });
         }
-        if (id === 275 ) {
-            newSelected[272] ='1';
-        }
-        if (id === 271 ) {
-            newSelected[268] = '1';
-            newSelected[404] = '1';
-            newSelected[269] = '1';
-        }
-        if (id === 392 ) {
-            newSelected[176] ='1';
-        }
-        if (id === 369 ) {
-            newSelected[366] ='1';
-            newSelected[368] ='1';
-            newSelected[367] ='1';
-            newSelected[365] ='1';
-        }
-        if (id === 186 ) {
-            newSelected[307] ='1';
-            newSelected[307] ='1';
-        }
-        if (id === 363 ) {
-            newSelected[366] ='1';
-            newSelected[364] ='1';
-        }
-        if (id === 225 ) {
-            newSelected[285] ='1';
-        }
-        if (id === 230 ) {
-            newSelected[285] ='1';
-        }
-        if (id === 233 ) {
-            newSelected[285] ='1';
-        }
-        if (id === 236 ) {
-            newSelected[285] ='1';
-        }
-        if (id === 239 ) {
-            newSelected[239] ='1';
-        }
-        if (id === 60 ) {
-            newSelected[61] ='1';
-            newSelected[355] ='1';
-            newSelected[347] ='1';
-            newSelected[336] ='1';
-            newSelected[413] ='1';
-            newSelected[400] ='1';
-            newSelected[435] ='1';
-        }
-        if (id === 399 ) {
-            newSelected[421] ='1';
-            newSelected[422] ='1';
-            newSelected[423] ='1';
-            newSelected[424] ='1';
-            newSelected[404] ='1';
-        }
-        if (id === 110 ) {
-            newSelected[111] ='1';
-        }
-        if (id === 426 ) {
-            newSelected[427] ='1';
-            newSelected[428] ='1';
-            newSelected[429] ='1';
-            newSelected[430] ='1';
-        }
-        // 设置新的选中状态
         setSelected(newSelected);
     };
     const changeBalance=(value)=>{
@@ -324,6 +263,38 @@ const Wcxuserlist=(props:any)=>{
             }
         })
     };
+    // 初始化交叉观察器：检测行是否进入可视区域
+    const initObserver = useCallback(() => {
+        // 销毁旧的观察器
+        if (observerRef.current) {
+            observerRef.current.disconnect();
+        }
+        // 创建新的观察器：元素进入可视区域时加载图片
+        observerRef.current = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const rowId = entry.target.dataset.rowId;
+                        if (rowId && !loadedImageIds.has(rowId)) {
+                            // 标记为已加载，触发重新渲染
+                            setLoadedImageIds(prev => new Set(prev).add(rowId));
+                        }
+                    }
+                });
+            },
+            {
+                root: document.querySelector('.ant-table-body'), // 表格滚动容器
+                rootMargin: '20px', // 提前20px加载（预加载）
+                threshold: 0.1 // 元素10%进入可视区域时触发
+            }
+        );
+        // 观察所有行元素
+        rowRefs.current.forEach((rowEl) => {
+            if (rowEl) {
+                observerRef.current?.observe(rowEl);
+            }
+        });
+    }, [loadedImageIds]);
     return(
         <Spin spinning={isSpinning}>
             <List style={{backgroundColor:'#f5f5f5',padding:'10px',marginBottom:"20px",border:'1px solid #e3e3e3',borderRadius:'4px'}}>
@@ -354,7 +325,7 @@ const Wcxuserlist=(props:any)=>{
             </List>
             <Table
                 columns={columns}
-                rowKey={(columns) => columns.id}
+                rowKey={(columns) => columns.userId}
                 pagination={false}
                 dataSource={props.AppUserList}
                 size='small'
@@ -362,6 +333,16 @@ const Wcxuserlist=(props:any)=>{
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
+                onRow={(record, index) => ({
+                    ref: (el) => {
+                        if (el) {
+                            el.dataset.rowId = record.userId; // 存储行ID
+                            rowRefs.current[index] = el;
+                            // 观察该行元素
+                            observerRef.current?.observe(el);
+                        }
+                    },
+                })}
                 summary={(columns) => (
                     <Table.Summary fixed>
                         <Table.Summary.Row>

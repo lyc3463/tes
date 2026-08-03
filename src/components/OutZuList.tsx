@@ -29,13 +29,17 @@ const OutZuList=(props:any)=>{
     const sousuo=()=>{
         setPage(1);
         getzujinList();
-        logFenye();
+        // logFenye();
     };
     // 查看租金缴费列表
     const getzujinList=()=>{
         ArrearsBillService.zujinList({page,name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setdataSource(res.Data);
+                console.log('res',res);
+                setdataSource(res.Data.data);
+                setcount(res.Data.count);
+                setmoneySum(res.Data.billSum);
+                setNotBillSum(res.Data.NotBillSum);
             }else {
                 message.error(res.Data);
             }
@@ -216,9 +220,9 @@ const OutZuList=(props:any)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-    useEffect(() => {
-        logFenye();
-    }, []);
+    // useEffect(() => {
+    //     logFenye();
+    // }, []);
     useEffect(() => {
         getzujinList();
     }, [page,pageSize]);

@@ -46,7 +46,7 @@ const SalesRankingModel: StaffInterface = {
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);

@@ -19,6 +19,7 @@ const ReturnReview=(props)=>{
     const [orderType,setOrderType]=useState(2);// 订单类型
     const [dOpen,setDOpen]=useState(false);// 审核弹窗是否打开
     const [dId,setDId]=useState(0);// 审核的id
+    const [uName,setUName]=useState(checkSessionStorage('/warehouse/outbound','returnReviewFormUName') || '');// 申请人
     const columns = [
         {
             title: '申请时间',
@@ -84,7 +85,7 @@ const ReturnReview=(props)=>{
                 <Space size="small">
                     {record.orderStatus==1?
                         <>
-                            {userQx()[508]=='1'?<Button type="primary" onClick={()=>isCheckOpen(record.id)}>审核</Button>:''}
+                            <Button type="primary" onClick={()=>isCheckOpen(record.id)}>审核</Button>
                         </>
                         :
                         null
@@ -101,21 +102,13 @@ const ReturnReview=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'ReturnReview/fetch',
-            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'ReturnReview/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
-        })
-    };
+
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setPageSize(pageSize);
@@ -147,6 +140,10 @@ const ReturnReview=(props)=>{
         setOrderCode(e.target.value);
         updateSessionStorage('/warehouse/outbound','returnReviewFormOrderCode',e.target.value);
     };
+    const changeUName=(e)=>{
+        setUName(e.target.value);
+        updateSessionStorage('/warehouse/outbound','returnReviewFormUName',e.target.value);
+    };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -165,7 +162,6 @@ const ReturnReview=(props)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     const changeOrderStatus=(e)=>{
         setOrderStatus(e);
@@ -177,11 +173,19 @@ const ReturnReview=(props)=>{
                 <List.Item>
                     <Space>
                         <Input
+                            style={{ width: 200 }}
                             addonBefore="仓库名称:"
                             value={warehouseName}
                             onChange={changeWarehouseName}
                         />
                         <Input
+                            style={{ width: 200 }}
+                            addonBefore="申请人:"
+                            value={uName}
+                            onChange={changeUName}
+                        />
+                        <Input
+                            style={{ width: 200 }}
                             addonBefore="单号:"
                             value={orderCode}
                             onChange={changeOrderCode}

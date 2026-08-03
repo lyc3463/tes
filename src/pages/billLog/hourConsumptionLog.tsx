@@ -19,7 +19,7 @@ const HourConsumptionLog=(props)=>{
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        fenye();
+        // fenye();
         logFenye();
     };
     // 列表
@@ -30,12 +30,12 @@ const HourConsumptionLog=(props)=>{
         })
     };
     // 分页信息
-    const fenye=()=>{
-        props.dispatch({
-            type:'ConsumptionLog/fenye',
-            payload:{name,phone,type,startDate,endDate,userID,pageSize}
-        });
-    };
+    // const fenye=()=>{
+    //     props.dispatch({
+    //         type:'ConsumptionLog/fenye',
+    //         payload:{name,phone,type,startDate,endDate,userID,pageSize}
+    //     });
+    // };
     // 监听页数
     const onChange=(e:number,pageSize)=>{
         setPage(e);
@@ -44,9 +44,9 @@ const HourConsumptionLog=(props)=>{
     useEffect(() => {
         logFenye();
     }, [page,pageSize]);
-    useEffect(() => {
-        fenye();
-    }, []);
+    // useEffect(() => {
+    //     fenye();
+    // }, []);
     const columns =[
         {
             title: '日期',

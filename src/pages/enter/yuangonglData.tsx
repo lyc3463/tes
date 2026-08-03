@@ -14,7 +14,7 @@ import {
     Tag
 } from "antd";
 import {history,connect} from "umi";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import dayjs from "dayjs";
 import {checkSessionStorage, compressBase64, updateSessionStorage} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
@@ -31,6 +31,7 @@ const YuangonglData=(props:any)=>{
     // 手机号
     const [phone,setPhone]=useState(checkSessionStorage('/enter/yuangonglData/','phone')||'');
     const [companyName,setcompanyName]=useState(checkSessionStorage('/enter/yuangonglData/','companyName')||'');
+    const [tenantId,setTenantId]=useState(0);
     // 唯一ID
     const [uid,setUid]=useState(0);
     // 删除的名称
@@ -39,6 +40,11 @@ const YuangonglData=(props:any)=>{
     const [isOpen,setIsOpen]=useState(false);
     // 用户权限
     const [uqx,setUqx]=useState([]);
+    const [loadedImageIds, setLoadedImageIds] = useState<Set<string>>(new Set());
+    // 行ref数组
+    const rowRefs = useRef<HTMLDivElement[]>([]);
+    // 交叉观察器实例
+    const observerRef = useRef<IntersectionObserver | null>(null);
     const columns =[
         {
             title: '登记日期',
@@ -76,16 +82,56 @@ const YuangonglData=(props:any)=>{
         },
         {
             title: '头像',
-            dataIndex: 'images',
-            key: 'images',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        <Image src={record.avatarBase64} style={{width:"50px",height:'50px'}}/>
+            dataIndex: 'avatarBase64',
+            key: 'avatarBase64',
+            ellipsis: true,
+            render: (text: string, record: any) => {
+                const isImageLoaded = loadedImageIds.has(record.id.toString());
+                let imageUrl = '';
+                let bigImgUrl = '';
+                if (isImageLoaded && text) {
+                    const textStr = String(text || '');
+                    imageUrl = textStr && textStr.endsWith('.png')
+                        ? `${window.ServerConfig.imgServer}${textStr}`
+                        : `${window.ServerConfig.imgServer}${textStr}_min.png`;
+                    bigImgUrl = textStr && textStr.endsWith('.png')
+                        ? `${window.ServerConfig.imgServer}${textStr}`
+                        : `${window.ServerConfig.imgServer}${textStr}.png`;
+                }
+
+                // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）
+                return (
+                    <div style={{width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                        <Image
+                            src={imageUrl || 'https://placeholder.pics/svg/50x50/EEEEEE/999999/加载中...'}
+                            style={{width: '100%', height: '100%', objectFit: 'cover'}}
+                            alt="物品图片"
+                            // 原生懒加载属性（正确用法：字符串值 'lazy'）
+                            loading="lazy"
+                            // fallback 逻辑：图片加载失败时显示占位图
+                            onError={(e) => {
+                                e.target.src = 'https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片';
+                            }}
+                            preview={{
+                                src: bigImgUrl, // 弹窗预览图单独指定
+                            }}
+                        />
                     </div>
-                )
+                );
             }
         },
+        // {
+        //     title: '头像',
+        //     dataIndex: 'images',
+        //     key: 'images',
+        //     render:(text:any,record:any,)=>{
+        //         return(
+        //             <div>
+        //                 <Image src={record.avatarBase64} style={{width:"50px",height:'50px'}}/>
+        //             </div>
+        //         )
+        //     }
+        // },
         {
             title: '员工联系方式',
             dataIndex: 'phone',
@@ -96,7 +142,6 @@ const YuangonglData=(props:any)=>{
             dataIndex: 'companyName',
             key: 'companyName',
         },
-
         {
             title: '状态',
             dataIndex: 'emp_status',
@@ -109,6 +154,11 @@ const YuangonglData=(props:any)=>{
                 )
             }
         },
+        // {
+        //     title: '录入人',
+        //     dataIndex: 'userName',
+        //     key: 'userName',
+        // },
         {
             title: '操作',
             dataIndex: 'cao',
@@ -132,6 +182,44 @@ const YuangonglData=(props:any)=>{
             }
         },
     ];
+    // 监听数据变化，重置图片加载状态
+    useEffect(() => {
+        setLoadedImageIds(new Set());
+        // 初始化交叉观察器
+        initObserver();
+    }, []);
+    // 初始化交叉观察器：检测行是否进入可视区域
+    const initObserver = useCallback(() => {
+        // 销毁旧的观察器
+        if (observerRef.current) {
+            observerRef.current.disconnect();
+        }
+        // 创建新的观察器：元素进入可视区域时加载图片
+        observerRef.current = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const rowId = entry.target.dataset.rowId;
+                        if (rowId && !loadedImageIds.has(rowId)) {
+                            // 标记为已加载，触发重新渲染
+                            setLoadedImageIds(prev => new Set(prev).add(rowId));
+                        }
+                    }
+                });
+            },
+            {
+                root: document.querySelector('.ant-table-body'), // 表格滚动容器
+                rootMargin: '20px', // 提前20px加载（预加载）
+                threshold: 0.1 // 元素10%进入可视区域时触发
+            }
+        );
+        // 观察所有行元素
+        rowRefs.current.forEach((rowEl) => {
+            if (rowEl) {
+                observerRef.current?.observe(rowEl);
+            }
+        });
+    }, [loadedImageIds]);
     const toadd=()=>{
         history.push('/enter/addYuangonglData')
     };
@@ -150,21 +238,13 @@ const YuangonglData=(props:any)=>{
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        getFenyeInfo();
         logFenye();
-    };
-    // 分页
-    const getFenyeInfo=()=>{
-        props.dispatch({
-            type:'Emp/fenye',
-            payload:{cname,nickname,phone,stutes,companyName,pageSize}
-        });
     };
     // 列表
     const logFenye=()=>{
         props.dispatch({
             type:"Emp/fetch",
-            payload:{page,cname,nickname,phone,stutes,companyName,pageSize}
+            payload:{page,cname,nickname,phone,stutes,companyName,pageSize,tenantId}
         })
     };
     // 监听页数
@@ -172,7 +252,6 @@ const YuangonglData=(props:any)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-
     // 监听状态
     const changeStutes=(e:number)=>{
         setStutes(e);
@@ -210,6 +289,7 @@ const YuangonglData=(props:any)=>{
                 message.success('删除成功');
                 setIsOpen(false);
                 setspinning(false);
+                logFenye();
             }else {
                 message.error(res.Data);
                 setspinning(false);
@@ -220,7 +300,6 @@ const YuangonglData=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
-        getFenyeInfo();
     }, []);
     return(
         <Spin spinning={spinning}>
@@ -250,32 +329,6 @@ const YuangonglData=(props:any)=>{
                             addonBefore="公司/单元:"
                             value={companyName}
                         />
-                        {/*<Space.Compact>*/}
-                        {/*    <div*/}
-                        {/*        style={{*/}
-                        {/*            borderRadius: '6px',*/}
-                        {/*            borderStartEndRadius: 0,*/}
-                        {/*            borderEndEndRadius: 0,*/}
-                        {/*            padding: '0 11px',*/}
-                        {/*            border: '1px solid #d9d9d9',*/}
-                        {/*            display: 'flex',*/}
-                        {/*            alignItems: 'center',*/}
-                        {/*            borderInlineEnd: 0,*/}
-                        {/*        }}*/}
-                        {/*    >*/}
-                        {/*        状态:*/}
-                        {/*    </div>*/}
-                        {/*    <Select*/}
-                        {/*        onChange={changeStutes}*/}
-                        {/*        defaultValue={stutes}*/}
-                        {/*        style={{ width: 120 }}*/}
-                        {/*        options={[*/}
-                        {/*            { value:0, label: '全部' },*/}
-                        {/*            { value:1, label: '未审核' },*/}
-                        {/*            { value:2, label: '已审核' },*/}
-                        {/*        ]}*/}
-                        {/*    />*/}
-                        {/*</Space.Compact>*/}
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -290,6 +343,16 @@ const YuangonglData=(props:any)=>{
                     scroll={{y:'70vh'}}
                     rowKey={(columns) => columns.id}
                     size='small'
+                    onRow={(record, index) => ({
+                        ref: (el) => {
+                            if (el) {
+                                el.dataset.rowId = record.id; // 存储行ID
+                                rowRefs.current[index] = el;
+                                // 观察该行元素
+                                observerRef.current?.observe(el);
+                            }
+                        },
+                    })}
                 />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal onOk={onOk} open={isOpen} title={'删除人脸'} onCancel={()=>setIsOpen(false)} loading={spinning}>

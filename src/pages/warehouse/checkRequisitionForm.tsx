@@ -19,6 +19,7 @@ const CheckRequisitionForm=(props)=>{
     const [orderType,setOrderType]=useState(1);// 订单类型
     const [dOpen,setDOpen]=useState(false);// 审核弹窗是否打开
     const [dId,setDId]=useState(0);// 审核的id
+    const [uName,setUName]=useState(checkSessionStorage('/warehouse/outbound','checkRequisitionFormUName') || '');// 申请人
     const columns = [
         {
             title: '申请时间',
@@ -74,7 +75,7 @@ const CheckRequisitionForm=(props)=>{
                 <Space size="small">
                     {record.orderStatus==1?
                         <>
-                            {userQx()[501]=='1'?<Button type="primary" onClick={()=>isCheckOpen(record.id)}>审核</Button>:''}
+                            <Button type="primary" onClick={()=>isCheckOpen(record.id)}>审核</Button>
                         </>
                         :
                         null
@@ -94,13 +95,13 @@ const CheckRequisitionForm=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'CheckRequisitionForm/fetch',
-            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     const getFenye=()=>{
         props.dispatch({
             type:'CheckRequisitionForm/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     useEffect(() => {
@@ -123,6 +124,7 @@ const CheckRequisitionForm=(props)=>{
                 message.success('审核成功');
                 setSpinning(false);
                 setDOpen(false);
+                getList();
             }else {
                 message.error(res.ErrorCode + res.Data);
                 setSpinning(false);
@@ -164,17 +166,29 @@ const CheckRequisitionForm=(props)=>{
         setOrderStatus(e);
         updateSessionStorage('/warehouse/outbound','checkRequisitionFormOrderStatus',e);
     };
+    const changeUName=(e)=>{
+        setUName(e.target.value);
+        updateSessionStorage('/warehouse/outbound','checkRequisitionFormUName',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <Space>
                         <Input
+                            style={{ width: 200 }}
                             addonBefore="仓库名称:"
                             value={warehouseName}
                             onChange={changeWarehouseName}
                         />
                         <Input
+                            style={{ width: 200 }}
+                            addonBefore="申请人:"
+                            value={uName}
+                            onChange={changeUName}
+                        />
+                        <Input
+                            style={{ width: 200 }}
                             addonBefore="单号:"
                             value={orderCode}
                             onChange={changeOrderCode}

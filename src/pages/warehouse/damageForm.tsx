@@ -18,6 +18,7 @@ const DamageForm=(props)=>{
     const [orderType,setOrderType]=useState(3);// 订单类型
     const [dOpen,setDOpen]=useState(false);// 删除弹窗是否打开
     const [dId,setDId]=useState(0);// 删除的id
+    const [uName,setUName]=useState(checkSessionStorage('/warehouse/outbound','damageFormUName') || '');// 申请人
     const columns = [
         {
             title: '申请时间',
@@ -71,8 +72,8 @@ const DamageForm=(props)=>{
                 <Space size="small">
                     {record.orderStatus==1?
                         <>
-                            {userQx()[512]=='1'?<Button type="primary" onClick={()=>{isDleOpen(record.id)}} danger>删除</Button>:''}
-                            {userQx()[511]=='1'?<Button type="primary" onClick={()=>{history.push(`/warehouse/editDamageForm?id=${record.id}`)}}>编辑</Button>:''}
+                            <Button type="primary" onClick={()=>{isDleOpen(record.id)}} danger>删除</Button>
+                           <Button type="primary" onClick={()=>{history.push(`/warehouse/editDamageForm?id=${record.id}`)}}>编辑</Button>
                         </>
                         :
                         null
@@ -92,21 +93,13 @@ const DamageForm=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'DamageFormReview/fetch',
-            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
-        })
-    };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'DamageFormReview/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
+
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setPageSize(pageSize);
@@ -156,26 +149,38 @@ const DamageForm=(props)=>{
         setOrderStatus(e);
         updateSessionStorage('/warehouse/outbound','damageFormStatus',e);
     };
+    // 申请人改变
+    const changeUName=(e)=>{
+        setUName(e.target.value);
+        updateSessionStorage('/warehouse/outbound','damageFormUName',e.target.value);
+    };
     // 搜索
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     return(
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
                     <div>
-                        {userQx()[510]=='1'?<Button type="primary" onClick={toadd}>申请报损</Button>:''}
+                       <Button type="primary" onClick={toadd}>申请报损</Button>
                     </div>
                     <Space>
                         <Input
+                            style={{ width: 200 }}
                             addonBefore="仓库名称:"
                             value={warehouseName}
                             onChange={changeWarehouseName}
                         />
                         <Input
+                            style={{ width: 200 }}
+                            addonBefore="申请人:"
+                            value={uName}
+                            onChange={changeUName}
+                        />
+                        <Input
+                            style={{ width: 200 }}
                             addonBefore="单号:"
                             value={orderCode}
                             onChange={changeOrderCode}

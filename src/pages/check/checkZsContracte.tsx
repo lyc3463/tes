@@ -52,8 +52,8 @@ const CheckZsContracte=(props:any)=>{
         },
         {
             title: '租户',
-            dataIndex: 'customName',
-            key: 'customName',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
         },
         {
             title: '起租日',
@@ -233,7 +233,6 @@ const CheckZsContracte=(props:any)=>{
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        getFenyeInfo();
         logFenye();
     };
     // 分页
@@ -242,12 +241,6 @@ const CheckZsContracte=(props:any)=>{
             type:"CheckStaff/fetch",
             payload:{page,identifier,contractType,contractStatus,startDate,endDate,name,pageSize}
         })
-    };
-    const getFenyeInfo=()=>{
-        props.dispatch({
-            type:'CheckStaff/fenye',
-            payload:{identifier,contractType,contractStatus,startDate,endDate,name,pageSize}
-        });
     };
     // 监听页数
     const onChange=(e:number,pageSize:number)=>{
@@ -295,7 +288,6 @@ const CheckZsContracte=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
-        getFenyeInfo();
     }, []);
     const xucolumns=[
         {

@@ -18,7 +18,8 @@ let pl={
     phone:'',
     stutes:1,
     companyName:'',
-    pageSize:50
+    pageSize:50,
+    tenantId:0,
 }
 
 export interface CustomState {
@@ -36,7 +37,6 @@ export interface EmpInterface {
         add: Effect;
         edit: Effect;
         remove: Effect;
-        fenye: Effect;
         delete: Effect;
         checkRemove: Effect;
         checkOK: Effect;
@@ -54,11 +54,15 @@ const EmpModels: EmpInterface = {
     effects: {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(EmpService.fetch,payload?payload:pl);
-
+            console.log('res',res)
             if (res.ErrorCode == 0) {
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             }
             return res
@@ -74,38 +78,23 @@ const EmpModels: EmpInterface = {
         },
         *add({ payload }, { call, put,take }): any {
             const result = yield call(EmpService.add, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+
             return result
         },
         *edit({ payload, callback }, { call, put, take }): any {
             const result = yield call(EmpService.edit, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+
             return result
         },
         *delete({ payload }, { call, put,take }): any {
             const result = yield call(EmpService.remove, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+
             return result
         },
         *remove({ payload }, { call, put,take }): any {
             const result = yield call(EmpService.remove, payload);
-            yield put({ type: 'fetch', payload: pl });
-            yield take('fetch/@@end');
+
             return result
-        },
-        *fenye({ type, payload }, { put, call, select }): any {
-            const res = yield call(EmpService.fenye,payload?payload:pl);
-            if (res.ErrorCode == 0) {
-                yield put({
-                    type: 'count',
-                    payload: { count: res.Data },
-                });
-            } else {
-                message.error(res.ErrorCode + res.Data);
-            }
         },
         *checkRemove({ payload }, { call, put,take }): any {
             const result = yield call(EmpService.checkRemove, payload);
@@ -142,12 +131,7 @@ const EmpModels: EmpInterface = {
         setup({ dispatch, history }, done) {
             return history.listen(({ location, action }) => {
                 const pathname = fixPathname(location.pathname);
-                if (StaticInfo.userId > 0 && pathname === '/enter/yuangonglData/') {
-                    dispatch({
-                        type: 'fenye',
-                        payload: location.state,
-                    });
-                }
+
             });
         },
     },

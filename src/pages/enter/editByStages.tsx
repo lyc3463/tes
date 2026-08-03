@@ -1,10 +1,11 @@
-import {Button, DatePicker, Form, Input, InputNumber, message, Select, Space, Spin} from "antd";
+import {Button, DatePicker, Form, Image, Input, InputNumber, message, Select, Space, Spin} from "antd";
 import {filterAndUpdateList, phonePattern} from "@/utils/OpenTool";
 import {connect,history,useNavigate} from 'umi'
 import {useEffect, useRef, useState} from "react";
 import * as ByStagesService from '@/services/byStages';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
+import ImageUpload from "@/components/ImageUploader";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -28,9 +29,12 @@ const editByStages=(props)=>{
     // 分期结束时间
     const [hkEndDate,sethkEndDate]=useState('');
     const [futureRent,setfutureRent]=useState(0);
+    const [imgB64, setImgB64] = useState<string[]>([]);
+    const [imgName,setImgName]=useState<string[]>([]);
     const getInfo=(e)=>{
         ByStagesService.one(e).then((res:TypeErrorCode)=>{
             setspinning(true);
+            console.log('详情',res);
             if (res.ErrorCode==0){
                 setOldName(res.Data.tenant_name);
                 setOldPhone(res.Data.tenant_phone);
@@ -42,6 +46,8 @@ const editByStages=(props)=>{
                 sethkEndDate(res.Data.staEndTime2);
                 setfutureRent(res.Data.staRent);
                 setspinning(false);
+                setImgName(res.Data.pdfImage.split("|"));
+                setImgB64(res.Data.pdfImageBase64.split("|"));
             }else {
                 setspinning(false);
                 message.error(res.Data);
@@ -56,9 +62,10 @@ const editByStages=(props)=>{
     }, []);
     const onFinish=(val)=>{
         setspinning(true);
+        const imgList=imgName.join('|');
         props.dispatch({
             type:"ByStages/edit",
-            payload:{uid,futureRent,fqStartDate,fqEndDate,hkEndDate,hkStartDate}
+            payload:{uid,futureRent,fqStartDate,fqEndDate,hkEndDate,hkStartDate,imgList}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('修改成功');
@@ -78,7 +85,22 @@ const editByStages=(props)=>{
         sethkStartDate(date[0]+'-01');
         sethkEndDate(date[1]+'-01');
     };
-
+    // 图片base64
+    const onImageUpload=(base64:any)=>{
+        setImgName([...imgName,base64]);
+    };
+    const oldBase64=(base64:any)=>{
+        setImgB64([...imgB64,base64]);
+    };
+    // 删除租户证件图片
+    const handleDeletezuhu=(index:number)=>{
+        const newName = [...imgName];
+        const newB64 = [...imgB64];
+        newB64.splice(index, 1);
+        newB64.splice(index, 1);
+        setImgName(newName);
+        setImgB64(newB64);
+    };
     return(
         <Spin spinning={spinning}>
             <Form
@@ -107,18 +129,42 @@ const editByStages=(props)=>{
                 <Form.Item label='每月分期租金(元)'>
                     <InputNumber value={futureRent} min={0} onChange={(e)=>setfutureRent(e)}/>
                 </Form.Item>
-                <Form.Item label='备注'>
-                    <span style={{fontSize:'12px',color:'#555'}}>分期开始/结束月份每月分期租金分配给还款开始/结束日期</span>
+                <Form.Item label='图片'>
+                    <ImageUpload onImageUpload={onImageUpload} oldBase64={oldBase64}/>
+                    {/* 有图片才渲染预览区域 */}
+                    {imgB64.length > 0 && (
+                        <Space wrap size={10} style={{ marginTop: 10 }}>
+                            {imgB64.map((item, index) => (
+                                <div key={index} style={{ position: "relative" }}>
+                                    <Image
+                                        src={item}
+                                        width={70}
+                                        height={70}
+                                        style={{ borderRadius: 6, objectFit: "cover" }}
+                                        preview
+                                    />
+                                    <Button
+                                        danger
+                                        size="small"
+                                        style={{ position: "absolute", top: 2, right: 2, width: 22, height: 22, padding: 0 }}
+                                        onClick={() => handleDeletezuhu(index)}
+                                    >
+                                        ×
+                                    </Button>
+                                </div>
+                            ))}
+                        </Space>
+                    )}
                 </Form.Item>
                 <Form.Item {...tailLayout}>
-                   <Space>
-                       <Button type="primary" htmlType="submit">
-                           确定编辑
-                       </Button>
-                       <Button type="primary" onClick={()=>navigate(-1)}>
-                           返回
-                       </Button>
-                   </Space>
+                    <Space>
+                        <Button type="primary" htmlType="submit">
+                            确定编辑
+                        </Button>
+                        <Button type="primary" onClick={()=>navigate(-1)}>
+                            返回
+                        </Button>
+                    </Space>
                 </Form.Item>
             </Form>
         </Spin>

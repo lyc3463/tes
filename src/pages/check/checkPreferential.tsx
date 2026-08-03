@@ -176,23 +176,15 @@ const CheckPreferential=(props)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
-        fenyeinfo();
         logFenye();
     };
-    const fenyeinfo=()=>{
-        props.dispatch({
-            type:'Preferential/fenye',
-            payload:{phone,stutes,startDate,endDate,pageSize}
-        })
-    };
+
     // 审核弹窗
     const checkOp=(e)=>{
         setIsOpen(true);
         setUid(e);
     };
-    useEffect(() => {
-        fenyeinfo();
-    }, []);
+
     const onOk=()=>{
         setspinning(true);
         props.dispatch({

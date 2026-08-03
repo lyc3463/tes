@@ -27,9 +27,9 @@ const SalesInfo=(props)=>{
     const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/sales','SalesInfoStartDate')||'2000-01-01');// 开始时间
     const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/sales','SalesInfoEndDate')||'2099-01-01');// 结束日期
     const [orderType,setOrderType]=useState(5);// 订单类型
-    const [iskc,setIskc]=useState(0);// 0 未入库 1已入库
+    const [iskc,setIskc]=useState(1);// 0 未入库 1已入库
     const [pageSize,setPageSize]=useState(50); // 每页数量
-    const [warehouseId,setWarehouseId]=useState(checkSessionStorage('/warehouse/sales','SalesInfoWarehouseId')||0);// 仓库id
+    const [warehouseName,setWarehouseId]=useState(checkSessionStorage('/warehouse/sales','SalesInfoWarehouseId')||0);// 仓库id
     const [unitId,setUnitId]=useState(checkSessionStorage('/warehouse/sales','SalesInfoUnitId')||0);// 单位id
     // 新增：存储已加载图片的行ID（避免重复加载）
     const [loadedImageIds, setLoadedImageIds] = useState<Set<string>>(new Set());
@@ -124,16 +124,11 @@ const SalesInfo=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'SalesInfo/fetch',
-            payload:{page, pageSize, orderCode, productsName, orderType, startDate,iskc, endDate,warehouseId,unitId}
+            payload:{page, pageSize, orderCode, productsName, orderType, startDate,iskc, endDate,warehouseName,unitId}
         })
     };
     // 分页信息
-    const getFenye=()=>{
-        props.dispatch({
-            type:'SalesInfo/fenye',
-            payload:{pageSize, orderCode, productsName, orderType, startDate, iskc,endDate,warehouseId,unitId}
-        })
-    };
+
     // 仓库列表
     const getWarehouseList=()=>{
         props.dispatch({
@@ -148,7 +143,6 @@ const SalesInfo=(props)=>{
         getList();
     }, [page,pageSize]);
     useEffect(() => {
-        getFenye();
         getUnitSettingList();
         getWarehouseList();
     }, []);
@@ -177,7 +171,6 @@ const SalesInfo=(props)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     // 单位列表
     const getUnitSettingList=()=>{
@@ -276,7 +269,7 @@ const SalesInfo=(props)=>{
                             <Select
                                 style={{width:120}}
                                 placeholder='请选择入库仓库'
-                                value={warehouseId}
+                                value={warehouseName}
                                 onChange={changeWarehouse}
                                 showSearch
                                 optionFilterProp="children"

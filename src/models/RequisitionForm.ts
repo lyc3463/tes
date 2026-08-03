@@ -19,7 +19,8 @@ let pl={
     endDate:'2099-01-01',
     orderStatus:1,
     billStatus:0,
-    orderType:1
+    orderType:1,
+    uName:''
 }
 export interface StaffCountState {
     count: number;

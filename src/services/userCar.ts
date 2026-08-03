@@ -1,6 +1,6 @@
 import {getData, postData} from '@/network/http';
 export function fetch(vals:any) {
-    return getData(1659, [vals.page,vals.carNo,vals.name,vals.stutes,vals.pageSize]);
+    return getData(1521, [vals.page,vals.carNo,vals.userId,vals.stutes,vals.pageSize,vals.userType,vals.uName,vals.uPhone]);
 }
 export function fenye(vals:any) {
     return getData(1660, [vals.carNo,vals.name,vals.stutes,vals.pageSize]);

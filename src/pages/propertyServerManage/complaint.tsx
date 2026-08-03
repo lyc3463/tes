@@ -174,13 +174,7 @@ const Complaint=(props:any)=>{
     const getList=()=>{
         props.dispatch({
             type:'Tousu/fetch',
-            payload:{page,name,phone,state,startDate,endDate,openID,pageSize}
-        })
-    };
-    const getfenye=()=>{
-        props.dispatch({
-            type:'Tousu/fenye',
-            payload:{name,phone,state,startDate,endDate,openID,pageSize}
+            payload:{page,name,phone,state,startDate,endDate,userId:0,pageSize}
         })
     };
     useEffect(() => {
@@ -190,9 +184,6 @@ const Complaint=(props:any)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-    useEffect(() => {
-        getfenye();
-    }, []);
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -209,8 +200,8 @@ const Complaint=(props:any)=>{
     };
     const sousuo=()=>{
         setPage(1);
-        getfenye();
         getList();
+        console.log('props',props)
     };
     // 回复内容
     const tohuifu=(e:any)=>{

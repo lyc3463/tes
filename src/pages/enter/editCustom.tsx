@@ -1,20 +1,18 @@
 import {connect, history,useNavigate} from "umi";
 import {useEffect, useRef, useState} from "react";
 import * as CustomServer from "@/services/custom";
-import {Button, DatePicker, Form, Input, message, Select, Space, Spin} from "antd";
+import {Button, DatePicker, Form, Input, message, Select, Space, Spin, Tooltip} from "antd";
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import {phonePattern, replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
 dayjs.extend(customParseFormat);
-const tailLayout = {
-    wrapperCol: { offset: 4 },
-};
+
 const EditCustom=(props)=>{
     const navigate=useNavigate();
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     const formRef=useRef();
-    const [custom_date,setCustom_date]=useState('');
+    const [custom_date,setCustom_date]=useState('2000-01-10');
     // 来访渠道
     const [visitor_channels,setvisitor_channels]=useState(1);
     // 客户类别
@@ -97,144 +95,156 @@ const EditCustom=(props)=>{
         let a=replaceEnglishCommasWithChinese(e.target.value);
         setremark(a);
     };
+    const BlockRadio = ({ active, onClick, children }) => (
+        <button
+            type="button"
+            onClick={onClick}
+            style={{
+                padding: '5px 16px',
+                border: '1px solid #e5e7eb',
+                background: active ? '#1677ff' : '#f5f7fa',
+                color: active ? '#ffffff' : '#333333',
+                borderRadius: 2,
+                marginRight: 6,
+                cursor: 'pointer',
+                fontSize: 14
+            }}
+        >
+            {children}
+        </button>
+    )
     return(
         <Spin spinning={spinning}>
-            <Form
-                labelCol={{ span: 4 }}
-                wrapperCol={{ span: 14 }}
-                ref={formRef}
-                layout="horizontal"
-                initialValues={{intermediary_company:'',required_area:1,visitor_position:'',company_name:'',industry:'',visitor_channels:1,intermediary_name:'',office_area:'',reason_lease:1,demands:1,remark:'',visitor_type:1,intermediary_phone:''}}
-                size={'large'}
-                onFinish={onFinish}
-                style={{ marginTop: '1rem' }}
-            >
-                <Form.Item style={{display:'flex'}} {...tailLayout}>
-                    <Space size='large'>
-                        <Form.Item label='登记日期' style={{width:'200px'}}>
-                            {
-                                custom_date?<DatePicker onChange={getDataInfo} defaultValue={dayjs(custom_date)}/>:''
-                            }
-                        </Form.Item>
-                        <Form.Item label='客户姓名' name='custom_name' rules={[{required: true, message: '请输入客户姓名' }]} style={{width:'200px'}}>
-                            <Input placeholder='客户姓名'/>
-                        </Form.Item>
-                        <Form.Item label='联系方式' name='phone' rules={[{required: true, message: '请输入手机号' },{pattern: phonePattern, message: '请输入有效的手机号'}]} style={{width:'200px'}}>
-                            <Input placeholder='联系方式'/>
-                        </Form.Item>
-                        <Form.Item label='来访渠道' style={{width:'200px'}}>
-                            <Select onChange={changechannels} value={visitor_channels}>
-                                <Select.Option value={1}>中介</Select.Option>
-                                <Select.Option value={2}>自来</Select.Option>
-                                <Select.Option value={3}>全民营销</Select.Option>
-                                <Select.Option value={4}>线上</Select.Option>
-                            </Select>
-                        </Form.Item>
-                    </Space>
-                </Form.Item>
-                <Form.Item style={{display:'flex'}} {...tailLayout}>
-                    <Space size='large'>
-                        <Form.Item label='公司名称' name='company_name' style={{width:'200px'}}>
-                            <Input placeholder='请填写公司'/>
-                        </Form.Item>
-                        <Form.Item label='行业' name='industry' style={{width:'200px'}}>
-                            <Input placeholder='行业'/>
-                        </Form.Item>
-                        <Form.Item label='客户类别' style={{width:'200px'}}>
-                            <Select onChange={changevisitor_type} value={visitor_type}>
-                                <Select.Option value={2}>商业</Select.Option>
-                                <Select.Option value={1}>办公</Select.Option>
-                            </Select>
-                        </Form.Item>
-                        <Form.Item label='访客职位' name='visitor_position' style={{width:'200px'}}>
-                            <Input placeholder='访客职位'/>
-                        </Form.Item>
-                    </Space>
-                </Form.Item>
-                <Form.Item style={{display:'flex'}} wrapperCol={{offset: 4}}>
-                    <Space size='large'>
-                        <Form.Item label='需求面积' style={{width:'250px'}}>
-                            <Select onChange={changerequired_area} value={required_area}>
-                                <Select.Option value={1}>100以下</Select.Option>
-                                <Select.Option value={2}>101-200</Select.Option>
-                                <Select.Option value={3}>201-350</Select.Option>
-                                <Select.Option value={4}>351-500</Select.Option>
-                                <Select.Option value={5}>501-1000</Select.Option>
-                                <Select.Option value={6}>1000以上</Select.Option>
-                            </Select>
-                        </Form.Item>
-                        <Form.Item label='租赁原因' style={{width:'250px'}}>
-                            <Select onChange={changereason_lease} value={reason_lease}>
-                                <Select.Option value={1}>首次经营</Select.Option>
-                                <Select.Option value={2}>平迁</Select.Option>
-                                <Select.Option value={3}>合同到期</Select.Option>
-                                <Select.Option value={4}>扩大</Select.Option>
-                                <Select.Option value={5}>缩小</Select.Option>
-                                <Select.Option value={6}>开设分点</Select.Option>
-                            </Select>
-                        </Form.Item>
-                        <Form.Item label='产品需求'  style={{width:'300px'}}>
-                            <Select onChange={changedemands} value={demands}>
-                                <Select.Option value={1}>精装修</Select.Option>
-                                <Select.Option value={2}>简装</Select.Option>
-                                <Select.Option value={3}>毛坯</Select.Option>
-                            </Select>
-                        </Form.Item>
-                    </Space>
-                </Form.Item>
-                <Form.Item style={{display:'flex'}} wrapperCol={{offset: 4}}>
-                    <Space size='large'>
-                        <Form.Item label='目前办公区域' name='office_area' style={{width:'300px'}}>
-                            <Input placeholder='目前办公区域'/>
-                        </Form.Item>
-                        <Form.Item label='备注' name='remark' style={{width:'550px'}}>
-                            <Input.TextArea placeholder='备注' value={remark} onChange={changeremark}/>
-                        </Form.Item>
-                    </Space>
-                </Form.Item>
-                <Form.Item>
-                    {
-                        visitor_channels==2?
-                            <>
-                                <Form.Item label='中介公司名称' name='intermediary_company' style={{display:'none',width:'200px'}}>
-                                    <Input placeholder='中介公司名称'/>
-                                </Form.Item>
-                                <Form.Item label='中介名称' name='intermediary_name' style={{display:'none',width:'200px'}}>
-                                    <Input placeholder='中介名称'/>
-                                </Form.Item>
-                                <Form.Item label='中介联系电话' name='intermediary_phone' style={{display:'none',width:'200px'}}>
-                                    <Input placeholder='中介联系电话'/>
-                                </Form.Item>
+            <div style={{ padding: '20px' }}>
+                <Form
+                    ref={formRef}
+                    initialValues={{intermediary_company:'',required_area:1,visitor_position:'',company_name:'',industry:'',visitor_channels:1,intermediary_name:'',office_area:'',reason_lease:1,demands:1,remark:'',visitor_type:1,intermediary_phone:''}}
+                    layout="horizontal"
+                    size={'large'}
+                    onFinish={onFinish}
+                >
+                    <div style={{ border: '2px solid #4096ff', padding: '20px', borderRadius: '6px', marginBottom: '24px' }}>
+                        <h3 style={{ color: '#1677ff', margin: '0 0 24px 0', fontSize: '18px' }}>01 职位基本信息</h3>
+                        <div style={{ display: 'flex', gap: '24px', marginBottom: '16px', alignItems: 'center' }}>
+                            <Form.Item label="登记日期" style={{ marginBottom: 0, width: '260px' }}>
+                                <DatePicker style={{ width: '100%' }} onChange={getDataInfo} value={dayjs(custom_date)} />
+                            </Form.Item>
+                            <Form.Item label="客户姓名" style={{ marginBottom: 0, flex: 1 }} name='custom_name' rules={[{required: true, message: '请输入客户姓名' }]}>
+                                <Input placeholder="客户姓名"/>
+                            </Form.Item>
+                            <Form.Item
+                                label="联系方式"
+                                name="phone"
+                                rules={[{ required: true, message: '请输入手机号' }, { pattern: phonePattern, message: '请输入有效的手机号' }]}
+                                style={{ marginBottom: 0, flex: 1 }}
+                            >
+                                <Input placeholder="联系方式" />
+                            </Form.Item>
+                        </div>
 
-                            </>
-                            :
-                            <Form.Item style={{display:'flex'}} wrapperCol={{offset: 4}}>
-                                <Space>
-                                    <Form.Item label='中介公司名称' name='intermediary_company' style={{width:'300px'}}>
-                                        <Input placeholder='中介公司名称'/>
-                                    </Form.Item>
-                                    <Form.Item label='中介联系人' name='intermediary_name' style={{width:'260px'}}>
-                                        <Input placeholder='中介联系人'/>
-                                    </Form.Item>
-                                    <Form.Item label='中介联系电话' name='intermediary_phone' style={{width:'260px'}}>
-                                        <Input placeholder='中介联系电话'/>
-                                    </Form.Item>
+                        {/* 第二行：公司名称、行业、客户类别、访客职位 */}
+                        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+                            <Form.Item label="公司名称" style={{ marginBottom: 0, flex: 2 }} name='company_name'>
+                                <Input placeholder="请填写公司" />
+                            </Form.Item>
+                            <Form.Item label="行 业:" name="industry" style={{ marginBottom: 0, flex: 1 }}>
+                                <Input placeholder="行业" />
+                            </Form.Item>
+                            <Form.Item label="客户类别" style={{ marginBottom: 0, width: '220px' }}>
+                                <Space size={0}>
+                                    <BlockRadio active={visitor_type === 1} onClick={() => changevisitor_type(1)}>办公</BlockRadio>
+                                    <BlockRadio active={visitor_type === 2} onClick={() => changevisitor_type(2)}>商业</BlockRadio>
                                 </Space>
                             </Form.Item>
+                            <Form.Item label="访客职位" style={{ marginBottom: 0, flex: 1 }} name='visitor_position'>
+                                <Input placeholder="访客职位" />
+                            </Form.Item>
+                        </div>
+                    </div>
 
-                    }
-                </Form.Item>
-                <Form.Item {...tailLayout}>
-                    <Space>
-                        <Button type="primary" htmlType="submit" disabled={disp}>
-                            确定修改
-                        </Button>
-                        <Button type="primary" onClick={()=>navigate(-1)}>
-                            返回
-                        </Button>
-                    </Space>
-                </Form.Item>
-            </Form>
+                    <div style={{ border: '2px solid #4096ff', padding: '20px', borderRadius: '6px', marginBottom: '24px' }}>
+                        <h3 style={{ color: '#1677ff', margin: '0 0 24px 0', fontSize: '18px' }}>02 办公租赁需求信息</h3>
+                        <Form.Item label="来访渠道" style={{ marginBottom: '16px' }}>
+                            <Space size={0}>
+                                <BlockRadio active={visitor_channels === 1} onClick={() => changechannels(1)}>中介</BlockRadio>
+                                <BlockRadio active={visitor_channels === 2} onClick={() => changechannels(2)}>自来</BlockRadio>
+                                <BlockRadio active={visitor_channels === 3} onClick={() => changechannels(3)}>全民营销</BlockRadio>
+                                <BlockRadio active={visitor_channels === 4} onClick={() => changechannels(4)}>线上</BlockRadio>
+                            </Space>
+                        </Form.Item>
+
+                        <Form.Item label="需求面积" style={{ marginBottom: '16px' }}>
+                            <Space size={0}>
+                                <BlockRadio active={required_area === 1} onClick={() => changerequired_area(1)}>100m²以下</BlockRadio>
+                                <BlockRadio active={required_area === 2} onClick={() => changerequired_area(2)}>101-200m²</BlockRadio>
+                                <BlockRadio active={required_area === 3} onClick={() => changerequired_area(3)}>201-350m²</BlockRadio>
+                                <BlockRadio active={required_area === 4} onClick={() => changerequired_area(4)}>351-500m²</BlockRadio>
+                                <BlockRadio active={required_area === 5} onClick={() => changerequired_area(5)}>501-1000m²</BlockRadio>
+                                <BlockRadio active={required_area === 6} onClick={() => changerequired_area(6)}>1000m²以上</BlockRadio>
+                            </Space>
+                        </Form.Item>
+
+                        <Form.Item label="租赁原因" style={{ marginBottom: '16px' }}>
+                            <Space size={0}>
+                                <BlockRadio active={reason_lease === 1} onClick={() => changereason_lease(1)}>首次经营</BlockRadio>
+                                <BlockRadio active={reason_lease === 2} onClick={() => changereason_lease(2)}>平迁</BlockRadio>
+                                <BlockRadio active={reason_lease === 3} onClick={() => changereason_lease(3)}>合同到期</BlockRadio>
+                                <BlockRadio active={reason_lease === 4} onClick={() => changereason_lease(4)}>扩大</BlockRadio>
+                                <BlockRadio active={reason_lease === 5} onClick={() => changereason_lease(5)}>缩小</BlockRadio>
+                                <BlockRadio active={reason_lease === 6} onClick={() => changereason_lease(6)}>开设分点</BlockRadio>
+                            </Space>
+                        </Form.Item>
+
+                        <Form.Item label="产品需求" style={{ marginBottom: '16px' }}>
+                            <Space size={0}>
+                                <BlockRadio active={demands === 1} onClick={() => changedemands(1)}>精装修</BlockRadio>
+                                <BlockRadio active={demands === 2} onClick={() => changedemands(2)}>简装</BlockRadio>
+                                <BlockRadio active={demands === 3} onClick={() => changedemands(3)}>毛坯</BlockRadio>
+                            </Space>
+                        </Form.Item>
+
+                        <Form.Item label="目前办公区域" name="office_area" style={{ marginBottom: '16px' }}>
+                            <Input placeholder="目前办公区域" style={{ maxWidth: '320px' }} />
+                        </Form.Item>
+
+                        <Form.Item label="备注:" name="remark" style={{ marginBottom: 0 }}>
+                            <Input.TextArea
+                                placeholder="备注"
+                                value={remark}
+                                onChange={changeremark}
+                                rows={1}
+                            />
+                        </Form.Item>
+                    </div>
+                    {/* ========== 03 合作中介信息 区块 仅中介渠道显示 ========== */}
+                    {visitor_channels === 1 && (
+                        <div style={{ border: '2px solid #4096ff', padding: '20px', borderRadius: '6px', marginBottom: '32px' }}>
+                            <h3 style={{ color: '#1677ff', margin: '0 0 24px 0', fontSize: '18px' }}>03 合作中介信息</h3>
+                            <div style={{ display: 'flex', gap: '24px' }}>
+                                <Form.Item label="中介公司名称" name="intermediary_company" style={{ marginBottom: 0, flex: 1 }}>
+                                    <Input placeholder="中介公司名称" />
+                                </Form.Item>
+                                <Form.Item label="中介联系人" name="intermediary_name" style={{ marginBottom: 0, flex: 1 }}>
+                                    <Input placeholder="中介联系人" />
+                                </Form.Item>
+                                <Form.Item label="中介联系电话" name="intermediary_phone" style={{ marginBottom: 0, flex: 1 }}>
+                                    <Input placeholder="中介联系电话" />
+                                </Form.Item>
+                            </div>
+                        </div>
+                    )}
+                    <Form.Item style={{ textAlign: 'center', marginBottom: 0 }}>
+                        <Space>
+                            <Button type="primary" htmlType="submit" disabled={disp}>
+                                修改
+                            </Button>
+                            <Button onClick={() => navigate(-1)}>
+                                返回
+                            </Button>
+                        </Space>
+                    </Form.Item>
+                </Form>
+            </div>
         </Spin>
     )
 }

@@ -87,8 +87,8 @@ const DamageForm=(props)=>{
 
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
-                    ? `http://img.qhwy6.com/${textStr}`
-                    : `http://img.qhwy6.com/${textStr}_X.png`;
+                    ? `${window.ServerConfig.imgServer}${textStr}`
+                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 // 步骤3：仅当字符串非空时渲染图片，否则返回空
                 return textStr ? (
                     <Image
@@ -111,7 +111,6 @@ const DamageForm=(props)=>{
                     optionFilterProp="children"
                     placeholder="搜索物品名称"
                     style={{ width: 120 }}
-                    value={text || undefined}
                     onChange={(value) => handleProductSelect(record.id, value)}
                     filterOption={(input, option) => {
                         if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) {
@@ -148,22 +147,28 @@ const DamageForm=(props)=>{
             title: '单位',
             dataIndex: 'unitsId',
             key: 'unitsId',
-            render: (text, record) => (
-                <Select
-                    showSearch
-                    optionFilterProp="children"
-                    placeholder="选择单位"  // Fix placeholder text
-                    style={{ width: 120 }}
-                    value={text || undefined}
-                    onChange={(value) => handleUnitSelect(record.id, value)}
-                    options={Array.isArray(record.iList)
-                        ? record.iList.map(item => ({
-                            label: item.unitsName || '',  // Unit name as label
-                            value: item.unitsId || 0      // Unit ID as value (adjust if using unitsCode)
-                        }))
-                        : []}
-                />
-            )
+            render: (text, record) => {
+                // Check if iList is a non-empty array
+                const hasValidUnits = Array.isArray(record.iList) && record.iList.length > 0;
+                // Render text if no valid units, otherwise render Select
+                if (!hasValidUnits) {
+                    return <span>{record.unitsName}</span>;
+                }
+                return (
+                    <Select
+                        showSearch
+                        optionFilterProp="children"
+                        placeholder="选择单位"
+                        style={{ width: 120 }}
+                        value={text || undefined}
+                        onChange={(value) => handleUnitSelect(record.id, value)}
+                        options={record.iList.map(item => ({
+                            label: item.unitsName || '',
+                            value: item.unitsId || 0
+                        }))}
+                    />
+                );
+            }
         },
         {
             title: '报损数量',
@@ -206,7 +211,7 @@ const DamageForm=(props)=>{
         });
         setDisplayData(updatedData);
     };
-// 选择单位
+    // 选择单位
     const handleUnitSelect = (recordId, unitId) => {
         const currentRecord = displayData.find(item => item.id === recordId);
         if (!currentRecord || !Array.isArray(currentRecord.iList)) return;
@@ -235,7 +240,6 @@ const DamageForm=(props)=>{
                     totalPrice: selectedUnit.totalPrice || 0,
                     unitsId: selectedUnit.unitsId || 0,
                     unitsName: selectedUnit.unitsName || 0,
-                    warehouseName: selectedUnit.warehouseName || 0,
                     isZk: selectedUnit.isZk || 1,
                     discountRateDp: selectedUnit.discountRateDp || 100,
                     discountPriceDp: selectedUnit.discountPriceDp || 0,
@@ -268,6 +272,7 @@ const DamageForm=(props)=>{
     // 仓库id
     const changeWarehouse=(e)=>{
         setWarehouseId(e);
+        setDisplayData(prevDisplayData => prevDisplayData.filter(item => item.productsName === ''));
         getList(e);
     };
     useEffect(() => {
@@ -337,12 +342,12 @@ const DamageForm=(props)=>{
             totalPrice:0,
             unitsId:0,
             unitsName:0,
-            warehouseName:0,
             isZk: 1,
             discountRateDp: 100,
             discountPriceDp: 0,
             poId:uid,
             iList:[]
+
         }));
         // 添加到现有记录中
         setDisplayData([...displayData, ...newRecords]);
@@ -351,38 +356,48 @@ const DamageForm=(props)=>{
     const handleProductSelect = (recordId, productCode) => {
         // 查找选中的物品信息
         const selectedProduct = thingStockInfoList.find(item => item.productsCode === productCode);
-        if (!selectedProduct) return;
-        // 更新goods状态中对应记录的信息
-        setDisplayData(displayData.map(item => {
-            if (item.id === recordId) {
-                return {
-                    ...item,
-                    productsImageBase64: selectedProduct.productsImageBase64 || '', // 同步物品图片
-                    productsImage: selectedProduct.productsImage || '', // 物品图片名称
-                    productsName: selectedProduct.productsName || '', // 物品名称
-                    iList: selectedProduct.iList || [],
-                    poId:uid
-                };
+        ThingStockInfoServer.productsNameQuery(warehouseId,selectedProduct.productsCode).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                console.log('物品名称',res);
+                setDisplayData(displayData.map(item => {
+                    if (item.id === recordId) {
+                        return {
+                            ...item,
+                            productsImageBase64: res.Data.productsImageBase64 || '', // 同步物品图片
+                            productsImage: res.Data.productsImage || '', // 物品图片名称
+                            productsName: selectedProduct.productsName || '', // 物品名称
+                            iList: res.Data.iList || [],
+                            brandId:0,
+                            abbreviation:'',
+                            barcode:'',
+                            costPrice:0,
+                            groupId:0,
+                            inventoryId:0,
+                            number:0,
+                            presalePrice:0,
+                            price:0,
+                            priceKc:0,
+                            productsCode:'',
+                            quantity:0,
+                            quantityKc:0,
+                            retailPricce:0,
+                            specifications:'',
+                            totalPrice:0,
+                            unitsId:0,
+                            unitsName:'',
+                            isZk: 1,
+                            discountRateDp: 100,
+                            discountPriceDp: 0,
+                            poId:uid
+                        };
+                    }
+                    return item;
+                }));
+            }else {
+                message.error(res.Data);
             }
-            return item;
-        }));
+        })
     };
-    useEffect(() => {
-        if (thingStockInfoList.length === 0) return; // 库存为空时不处理
-        setDisplayData(prevData =>
-            prevData.map(displayItem => {
-                // 查找库存中productsCode匹配的项
-                const matchedStockItem = thingStockInfoList.find(
-                    stockItem => stockItem.productsCode === displayItem.productsCode
-                );
-                console.log('matchedStockItem',matchedStockItem);
-                // 若找到匹配项，更新iList；否则保留原iList
-                return matchedStockItem
-                    ? { ...displayItem, iList: matchedStockItem.iList || [] }
-                    : displayItem;
-            })
-        );
-    }, [thingStockInfoList]);
     return(
         <Spin spinning={spinning}>
             <Space>
@@ -410,7 +425,7 @@ const DamageForm=(props)=>{
                     >
                         时间:
                     </div>
-                    <DatePicker defaultValue={dayjs(orderTime)} onChange={changeDate}/>
+                    <DatePicker value={dayjs(orderTime)} onChange={changeDate}/>
                 </Space.Compact>
                 <Space.Compact>
                     <div

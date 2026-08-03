@@ -213,18 +213,9 @@ const CheckByStages=(props)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
-        fenyeinfo();
         logFenye();
     };
-    const fenyeinfo=()=>{
-        props.dispatch({
-            type:'ByStages/fenye',
-            payload:{phone,stutes,startDate,endDate,pageSize}
-        })
-    };
-    useEffect(() => {
-        fenyeinfo();
-    }, []);
+
     return(
         <Spin spinning={spinning}>
             <List>
@@ -275,6 +266,7 @@ const CheckByStages=(props)=>{
                                     { value:0, label: '全部' },
                                     { value:1, label: '未审核' },
                                     { value:2, label: '已审核' },
+                                    { value:3, label: '驳回' },
                                 ]}
                             />
                         </Space.Compact>

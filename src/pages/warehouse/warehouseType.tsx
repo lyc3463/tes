@@ -36,18 +36,10 @@ const WarehouseType=(props)=>{
             payload:{name, page, pageSize}
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:"WarehouseType/fenye",
-            payload:{name, pageSize}
-        })
-    };
+
     useEffect(() => {
         getList();
     }, [page, pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setPageSize(pageSize);
@@ -65,6 +57,7 @@ const WarehouseType=(props)=>{
                 message.success('删除成功');
                 setSpinning(false);
                 setOpen(false);
+                getList();
             }else {
                 message.error('删除失败'+res.ErrorCode+res.Data);
                 setSpinning(false);

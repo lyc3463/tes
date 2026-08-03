@@ -276,7 +276,7 @@ const OldFinancialData=(props:any)=>{
         }).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
                 console.log('原始数据列表',res.Data);
-                setBillList(res.Data);
+                setBillList(res.Data.data);
             }
             setspinning(false);
         })
@@ -299,14 +299,8 @@ const OldFinancialData=(props:any)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'Bill/fenye',
-            payload:{pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,supplierId,foType,paidStatus,expenseCode,userId:StaticInfo.userId}
-        })
-    };
+
     const updateStatusMap=(data)=> {
         const statusKeys = [1,3,4,5,6,7,8,9,10,11];
         // 先清空
@@ -350,7 +344,6 @@ const OldFinancialData=(props:any)=>{
         })
     };
     useEffect(() => {
-        getFenye();
         getSupplierList();
         getReviewer();
     }, []);

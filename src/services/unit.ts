@@ -13,7 +13,6 @@ export function add(vals:any) {
 
 export function edit(vals:any) {
     return getData(1135, [vals.uid,vals.house_id,vals.unit_name,vals.floor_area,vals.rentable_area,vals.floor,vals.rent,vals.price,vals.unit_type,vals.add_area]);
-
 }
 
 export function remove(vals:any) {

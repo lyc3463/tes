@@ -51,7 +51,11 @@ const ThingStockInfoModel: StaffInterface = {
                 console.log('物品库存列表',res);
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);

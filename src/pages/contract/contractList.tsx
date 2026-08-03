@@ -117,7 +117,7 @@ const ContractList=(props:any)=>{
         }
     ];
     const toInfo=(e:number)=>{
-        history.push(`/check/contracteInfo?id=${e}`)
+        history.push(`/check/contracteInfo?id=${e}`);
     };
     // 监听页数
     const onChange=(e:number,pageSize:number)=>{
@@ -130,23 +130,23 @@ const ContractList=(props:any)=>{
           payload:{page,pageSize,startDate,endDate,contractType,identifier,name}
       })
     };
-    const getListFenyeInfo=()=>{
-        props.dispatch({
-            type:'CheckHetong/fenye',
-            payload:{page,pageSize,startDate,endDate,contractType,identifier,name}
-        })
-    };
+    // const getListFenyeInfo=()=>{
+    //     props.dispatch({
+    //         type:'CheckHetong/fenye',
+    //         payload:{page,pageSize,startDate,endDate,contractType,identifier,name}
+    //     })
+    // };
     const sousuo=()=>{
         setPage(1);
         getList();
-        getListFenyeInfo();
+        // getListFenyeInfo();
     };
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getListFenyeInfo();
-    }, []);
+    // useEffect(() => {
+    //     getListFenyeInfo();
+    // }, []);
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
         if (data.length === 2 && data[0] === '' && data[1] === '') {
@@ -201,7 +201,6 @@ const ContractList=(props:any)=>{
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -219,7 +218,7 @@ const ContractList=(props:any)=>{
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }
                 summary={(columns) => (
-                    <Table.Summary >
+                    <Table.Summary>
                         <Table.Summary.Row>
                             <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>

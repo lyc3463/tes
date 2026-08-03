@@ -2,6 +2,8 @@ import {connect,history,useNavigate} from 'umi'
 import {Button, Form, Input, message, Select, Space, Spin} from "antd";
 import {useEffect, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
+import * as AccountService from "@/services/account";
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -10,11 +12,14 @@ const AddProject=(props:any)=>{
     const [isLoading,setIsLoading]=useState(false);
     const [form] = Form.useForm();
     const [companyList,setCompanyList]=useState([]);
+    // 账户列表
+    const [account,setAccount]=useState([]);
+    const [account_ID,setAccount_ID]=useState(0);
     const onFinish=async (values)=>{
         setIsLoading(true);
         let res=await props.dispatch({
             type:'Project/add',
-            payload:values
+            payload:{...values,account_ID}
         })
         if (res.ErrorCode==0){
             message.success('添加成功');
@@ -25,9 +30,26 @@ const AddProject=(props:any)=>{
             setIsLoading(false);
         }
     }
-    useEffect(() => {
-        filterAndUpdateList(props.CompanList, 'company_name', 'id', setCompanyList);
-    }, []);
+    // 获取账户列表
+    const getAccountList=()=>{
+        AccountService.fetch({name:'',account_type:0}).then((res:TypeErrorCode)=>{
+            if (res.ErrorCode==0){
+                setAccount(res.Data)
+            }
+        })
+    };
+    const getCompanList=()=>{
+        props.dispatch({
+            type:'Compan/fetch',
+        })
+    };
+    useEffect(()=>{
+        getAccountList();
+        getCompanList();
+    },[])
+    const changeAccout=(e:any)=>{
+        setAccount_ID(e)
+    };
 
     return(
         <Spin spinning={isLoading}>
@@ -45,10 +67,25 @@ const AddProject=(props:any)=>{
                 </Form.Item>
                 <Form.Item label="选择公司" name="company_id" rules={[{required: true, message: '请选择公司'}]}>
                     <Select>
-                        {companyList.map((item:any,index:any)=>{
+                        {/* 先判断：是数组且长度大于0才渲染选项，否则不渲染 */}
+                        {Array.isArray(props.CompanList) && props.CompanList.length > 0
+                            ? props.CompanList.map((item: any, index: any) => (
+                                <Select.Option value={item.id} key={index}>
+                                    {item.company_name}
+                                </Select.Option>
+                            ))
+                            : null}
+                    </Select>
+                </Form.Item>
+                <Form.Item label="账户名称">
+                    <Select
+                        value={account_ID}
+                        onChange={changeAccout}
+                    >
+                        {account.map((item:any,index:any)=>{
                             return(
-                                <Select.Option value={item.value} key={index}>
-                                    {item.label}
+                                <Select.Option value={item.id} key={index}>
+                                    {item.account_name}-{item.account_card}
                                 </Select.Option>
                             )
                         })}

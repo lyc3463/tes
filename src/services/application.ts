@@ -1,7 +1,7 @@
 import {getData, postData} from '@/network/http';
 
 export function fetch(vals:any) {
-    return getData(1739, [vals.page,vals.orderCode,vals.warehouseName,vals.supplierName,vals.startDate,vals.endDate,vals.orderStatus,vals.billStatus,vals.pageSize,vals.orderType]);
+    return getData(1739, [vals.page,vals.orderCode,vals.warehouseName,vals.supplierName,vals.startDate,vals.endDate,vals.orderStatus,vals.billStatus,vals.pageSize,vals.orderType,vals.uName]);
 }
 export function fenye(vals:any) {
     return getData(1740, [vals.orderCode,vals.warehouseName,vals.supplierName,vals.startDate,vals.endDate,vals.orderStatus,vals.billStatus,vals.pageSize,vals.orderType]);
@@ -25,7 +25,7 @@ export function one(vals:any) {
     return getData(1738, [vals]);
 }
 export function addWarehousing(vals:any) {
-    return getData(1742, [vals.warehouseId,vals.jsonId]);
+    return postData(1742, [vals.warehouseId],vals.jsonData);
 }
 
 export function addOrType(vals:any) {

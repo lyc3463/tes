@@ -36,8 +36,8 @@ const ThingStockInfo=(props)=>{
                 if (isImageLoaded && text) {
                     const textStr = String(text || '');
                     imageUrl = textStr && textStr.endsWith('.png')
-                        ? `http://img.qhwy6.com/${textStr}`
-                        : `http://img.qhwy6.com/${textStr}_X.png`;
+                        ? `${window.ServerConfig.imgServer}${textStr}`
+                        : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 }
 
                 // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）
@@ -133,13 +133,7 @@ const ThingStockInfo=(props)=>{
             payload:{page, pageSize, warehouseId, productsName, startDate, endDate,unitId}
         })
     };
-    // 分页信息
-    const getFenye=()=>{
-        props.dispatch({
-            type:'ThingStockInfo/fenye',
-            payload:{pageSize, warehouseId, productsName, startDate, endDate,unitId}
-        })
-    };
+
     // 单位列表
     const getUnitSettingList=()=>{
         props.dispatch({
@@ -156,7 +150,6 @@ const ThingStockInfo=(props)=>{
         getList();
     }, [page,pageSize]);
     useEffect(() => {
-        getFenye();
         getWarehouseList();
         getUnitSettingList();
     }, []);
@@ -172,7 +165,6 @@ const ThingStockInfo=(props)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     // 监听日期
     const changeDate=(_:any,data:string[])=>{
@@ -366,6 +358,7 @@ const ThingStockInfo=(props)=>{
                     <Table.Summary >
                         <Table.Summary.Row>
                             <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}></Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>

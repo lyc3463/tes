@@ -1,23 +1,10 @@
-import {
-    Button,
-    DatePicker,
-    Input,
-    List,
-    message,
-    Modal,
-    Pagination,
-    Select,
-    Space,
-    Spin,
-    Table,
-    Tag,
-    Tooltip
-} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Popover, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import RenameType from '@/ModelTypes/TypeRename';
 
 const Rename=(props)=>{
     // 当前页数
@@ -26,14 +13,17 @@ const Rename=(props)=>{
     const [uid,setUid]=useState(0);
     // 手机号
     const [phone,setPhone]=useState(checkSessionStorage('/enter/afterSales/','renamePhone')||'');
-    // 状态 0全部，1未审核，2审核通过
-    const [stutes,setStutes]=useState(1);
+    // 状态 0全部，1未审核，2审核通过,3驳回
+    const [stutes,setStutes]=useState(checkSessionStorage('/enter/afterSales/','renameStatus')||0);
     // 开始时间
     const [startDate,setStartDate]=useState(checkSessionStorage('/enter/afterSales/','renameStartDate')||'2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState(checkSessionStorage('/enter/afterSales/','renameEndDate')||'2099-01-01');
+    // 删除弹窗
     const [open,setOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
+    const [tenant_name,setTenant_name]=useState('');
+
     const columns =[
         {
             title: '单元名称',
@@ -53,7 +43,7 @@ const Rename=(props)=>{
                 multiple: 1,
             },
             width:200,
-            render: (text:any, record:any) => {
+            render: (text:any, record:RenameType) => {
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
                     <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
@@ -70,7 +60,7 @@ const Rename=(props)=>{
             title: '申请日期',
             dataIndex: 'created',
             key: 'created',
-            render:(_:any,record:any)=>(
+            render:(_:any,record:RenameType)=>(
                 <div>
                     {dayjs(record.created).format("YYYY-MM-DD")}
                 </div>
@@ -80,7 +70,7 @@ const Rename=(props)=>{
             title: '合同编号',
             dataIndex: 'identifier',
             key: 'identifier',
-            render:(text:any,record:any,)=>{
+            render:(text:any,record:RenameType)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
                         <Tooltip title={record.identifier}>
@@ -94,7 +84,7 @@ const Rename=(props)=>{
             title: '原名字',
             dataIndex: 'tenant_name',
             key: 'tenant_name',
-            render:(text:any,record:any,)=>{
+            render:(text:any,record:RenameType,)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
                         <Tooltip title={record.tenant_name}>
@@ -108,7 +98,7 @@ const Rename=(props)=>{
             title: '更改后的名字',
             dataIndex: 'rename',
             key: 'rename',
-            render:(text:any,record:any,)=>{
+            render:(text:any,record:RenameType,)=>{
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
                         <Tooltip title={record.rename}>
@@ -142,23 +132,37 @@ const Rename=(props)=>{
             title: '状态',
             dataIndex: 'renameStatus',
             key: 'renameStatus',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>{record.renameStatus==2?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}</div>
-                )
+            render: (text: any, record: RenameType) => {
+                const status = record.renameStatus;
+                let tagDom;
+
+                if (status === 2) {
+                    tagDom = <Tag color="green">已审核</Tag>;
+                } else if (status === 3) {
+                    // 驳回，增加气泡展示备注
+                    tagDom = (
+                        <Popover content={record.remark || '无驳回原因'} title="驳回理由">
+                            <Tag color="red">驳回？</Tag>
+                        </Popover>
+                    );
+                } else {
+                    tagDom = <Tag color="orange">未审核</Tag>;
+                }
+
+                return tagDom;
             }
         },
         {
             title: '操作',
             dataIndex: 'renameStatus',
             key: 'renameStatus',
-            render:(text:any,record:any,)=>{
+            render:(text:any,record:RenameType,)=>{
                 return(
                     <Space>{record.renameStatus==2?
                             ''
                         :<>
-                            <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
-                            <Button type='primary' danger onClick={()=>isDelete(record.id)}>删除</Button>
+                            <Button type='primary' onClick={()=>toedit(record)}>编辑</Button>
+                            <Button type='primary' danger onClick={()=>isDelete(record)}>删除</Button>
                         </>}
                     </Space>
                 )
@@ -173,12 +177,13 @@ const Rename=(props)=>{
         setPage(page);
         setPageSize(pageSize);
     };
-    const toedit=(e)=>{
-        history.push(`/enter/editRename?id=${e}`);
+    const toedit=(e:RenameType)=>{
+        history.push(`/enter/editRename?id=${e.id}&renameStatus=${1}`);
     };
-    const isDelete=(e)=>{
-        setUid(e);
+    const isDelete=(e:RenameType)=>{
+        setUid(e.id);
         setOpen(true);
+        setTenant_name(e.tenant_name);
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -202,6 +207,7 @@ const Rename=(props)=>{
     // 监听状态
     const changeStutes=(e:number)=>{
       setStutes(e);
+      updateSessionStorage('/enter/afterSales/','renameStatus',e);
     };
     // 分页
     const logFenye=()=>{
@@ -213,21 +219,11 @@ const Rename=(props)=>{
     useEffect(() => {
         logFenye();
     }, [page,pageSize]);
-    const fenyeinfo=()=>{
-        props.dispatch({
-            type:'Rename/fenye',
-            payload:{phone,stutes,startDate,endDate,pageSize}
-        })
-    };
     // 搜索
     const suosou=()=>{
         setPage(1);
-        fenyeinfo()
         logFenye();
     };
-    useEffect(() => {
-        fenyeinfo();
-    }, []);
     const onOk=()=>{
         setspinning(true);
         props.dispatch({
@@ -238,6 +234,7 @@ const Rename=(props)=>{
                 message.success('删除成功');
                 setOpen(false);
                 setspinning(false);
+                logFenye();
             }else {
                 message.error(res.Data);
                 setOpen(false);
@@ -273,6 +270,33 @@ const Rename=(props)=>{
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={changeStutes}
+                                value={stutes}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '未审核' },
+                                    { value:2, label: '已审核' },
+                                    { value:3, label: '驳回' },
+                                ]}
+                            />
+                        </Space.Compact>
                         <Button type="primary" onClick={suosou}>
                             搜索
                         </Button>
@@ -290,8 +314,9 @@ const Rename=(props)=>{
                 dataSource={props.RenameList}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
+            {/*删除*/}
             <Modal open={open} title='是否要删除?' onCancel={()=>setOpen(false)} onOk={onOk} loading={spinning}>
-                <div>是否要删除?</div>
+                <div>是否要删除<span style={{color:'red'}}>{tenant_name}</span>的更名申请?</div>
             </Modal>
         </Spin>
     )

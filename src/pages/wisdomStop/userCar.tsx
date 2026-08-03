@@ -33,6 +33,8 @@ const UserCar=(props)=>{
     const [carNo,setCarNo]=useState(checkSessionStorage('/wisdomStop/carManage/','userCarNo')||'');//车牌号
     const [name,setName]=useState(checkSessionStorage('/wisdomStop/carManage/','name')||'');//姓名
     const [stutes,setStutes]=useState(checkSessionStorage('/wisdomStop/carManage/','userStutes')||0);
+    const [uName,setUName]=useState(checkSessionStorage('/wisdomStop/carManage/','userName')||'');// 用户名
+    const [uPhone,setUPhone]=useState(checkSessionStorage('/wisdomStop/carManage/','userPhone')||'');// 手机号
     const [uid,setUid]=useState(0);
     const [spinning,setspinning]=useState(false);
     const [isCheckOpen,setIsChengckOpen]=useState(false);
@@ -57,14 +59,7 @@ const UserCar=(props)=>{
     const getCarList=()=>{
         props.dispatch({
             type:'UserCar/fetch',
-            payload:{page,carNo,name,stutes,pageSize}
-        })
-    };
-    // 获取分页信息
-    const getCarListfenye=()=>{
-        props.dispatch({
-            type:'UserCar/fenye',
-            payload:{carNo,name,stutes,pageSize}
+            payload:{page,carNo,userId:0,stutes,pageSize,userType:2,uName,uPhone}
         })
     };
     const columns =[
@@ -78,14 +73,14 @@ const UserCar=(props)=>{
         },
         {
             title: '用户姓名',
-            dataIndex: 'tenant_name',
-            key: 'tenant_name',
+            dataIndex: 'user_name',
+            key: 'user_name',
             align:'center',
         },
         {
             title: '手机号',
-            dataIndex: 'tenant_phone',
-            key: 'tenant_phone',
+            dataIndex: 'phone',
+            key: 'phone',
             align:'center',
         },
         {
@@ -439,13 +434,11 @@ const UserCar=(props)=>{
         getCarList();
     }, [page,pageSize]);
     useEffect(() => {
-        getCarListfenye();
         getPackageList();
     }, []);
     const sousuo=()=>{
         setPage(1);
         getCarList();
-        getCarListfenye();
     };
     const onChange=(e,pageSize)=>{
         setPage(e);
@@ -557,6 +550,14 @@ const UserCar=(props)=>{
             }
         })
     };
+    const changeUName=(e)=>{
+        setUName(e.target.value);
+        updateSessionStorage('/wisdomStop/carManage/','userName',e.target.value);
+    };
+    const changeUPhone=(e)=>{
+        setUPhone(e.target.value);
+        updateSessionStorage('/wisdomStop/carManage/','userPhone',e.target.value);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -569,6 +570,16 @@ const UserCar=(props)=>{
                             onChange={changeCarNo}
                             addonBefore="车牌号:"
                             value={carNo}
+                        />
+                        <Input
+                            onChange={changeUName}
+                            addonBefore="用户名:"
+                            value={uName}
+                        />
+                        <Input
+                            onChange={changeUPhone}
+                            addonBefore="手机号:"
+                            value={uPhone}
                         />
                         <Space.Compact>
                             <div

@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import {connect, history} from "umi";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
 
 const SalesCustomerList=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -18,6 +18,7 @@ const SalesCustomerList=(props)=>{
     const [orderType,setOrderType]=useState(5);// 订单类型
     const [dOpen,setDOpen]=useState(false);// 审核弹窗
     const [dId,setDId]=useState(0);// 审核id
+    const [uName,setUName]=useState(checkSessionStorage('/warehouse/sales','SalesCustomerListUName')||'');// 审核人
     const columns = [
         {
             title: '申请时间',
@@ -107,19 +108,16 @@ const SalesCustomerList=(props)=>{
         setDId(e);
         setDOpen(true);
     };
-    const toadd=()=>{
-        history.push('/warehouse/addSalesList');
-    };
     const getList=()=>{
         props.dispatch({
             type:'SalesCustomerList/fetch',
-            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     const getFenye=()=>{
         props.dispatch({
             type:'SalesCustomerList/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     useEffect(() => {
@@ -174,6 +172,10 @@ const SalesCustomerList=(props)=>{
         setOrderStatus(e);
         updateSessionStorage('/warehouse/sales','SalesCustomerListOrderStatus',e);
     }
+    const changeUName=(e)=>{
+        setUName(e.target.value);
+        updateSessionStorage('/warehouse/sales','SalesCustomerListUName',e.target.value);
+    }
     const sousuo=()=>{
         setPage(1);
         getList();
@@ -190,10 +192,22 @@ const SalesCustomerList=(props)=>{
                             onChange={changeWarehouseName}
                         />
                         <Input
+                            addonBefore="申请人:"
+                            value={uName}
+                            onChange={changeUName}
+                        />
+                        <Input
                             addonBefore="单号:"
                             value={orderCode}
                             onChange={changeOrderCode}
                         />
+                    </Space>
+                </List.Item>
+                <List.Item>
+                    <Space>
+                        <Button type="primary" onClick={sousuo}>
+                            搜索
+                        </Button>
                         <Space.Compact>
                             <div
                                 style={{
@@ -237,9 +251,6 @@ const SalesCustomerList=(props)=>{
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
-                        <Button type="primary" onClick={sousuo}>
-                            搜索
-                        </Button>
                     </Space>
                 </List.Item>
             </List>
@@ -252,15 +263,16 @@ const SalesCustomerList=(props)=>{
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (
-                    <Table.Summary >
+                    <Table.Summary>
                         <Table.Summary.Row>
                             <Table.Summary.Cell index={1}>统计</Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
-                            <Table.Summary.Cell index={7}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}

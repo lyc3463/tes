@@ -4,6 +4,7 @@ import {connect,history,useNavigate} from "umi";
 import CmpImageUploader from "@/components/ImageUploader";
 import * as GroupingServer from "@/services/grouping";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import ImageUploadPng from "@/components/ImageUploadPng";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -46,7 +47,6 @@ const AddYuangonglData=(props:any)=>{
         setEstarttime(item[0]);
         seteendtime(item[1]);
     };
-
     // 获取图片名字
     const handleImageUpload=(item:string)=>{
         setOldImgName(item);
@@ -76,7 +76,6 @@ const AddYuangonglData=(props:any)=>{
     useEffect(() => {
         getGeteList();
         getGroupingList();
-
     }, []);
 
     const changeGate=(e)=>{
@@ -150,7 +149,7 @@ const AddYuangonglData=(props:any)=>{
                 <Form.Item label='员工人脸'>
                    <Space style={{display:'flex'}}>
                        <Space style={{display:'flex'}}>
-                           <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={getImgBase64}/>
+                           <ImageUploadPng onImageUpload={handleImageUpload} oldBase64={getImgBase64}/>
                            {fileBase64?<Image src={fileBase64} style={{width:'80px',height:'80px'}}/>:''}
                        </Space>
                    </Space>

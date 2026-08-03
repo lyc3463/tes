@@ -80,7 +80,7 @@ const ReviewTransferForm=(props)=>{
                 <Space size="small">
                     {record.orderStatus==1?
                         <>
-                            {userQx()[538]=='1'?<Button type="primary" onClick={()=>{isDleOpen(record.id)}}>审核</Button>:''}
+                           <Button type="primary" onClick={()=>{isDleOpen(record.id)}}>审核</Button>
                         </>
                         :
                         null

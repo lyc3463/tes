@@ -7,6 +7,7 @@ import CmpImageUploader from "@/components/ImageUploader";
 import {compressBase64, filterAndUpdateList} from "@/utils/OpenTool";
 import * as GroupingServer from "@/services/grouping";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import ImageUploadPng from "@/components/ImageUploadPng";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
@@ -36,9 +37,8 @@ const EditYuangong=(props:any)=>{
         if (res.ErrorCode==0){
             console.log('res',res);
             formRef.current.setFieldsValue(res.Data);
-            let aaa=await compressBase64(res.Data.avatarBase64)
-            setFileBase64(aaa);
-            setOldImgName(res.Data.empFileName);
+            // let aaa=await compressBase64(res.Data.avatarBase64)
+            setOldImgName(res.Data.avatarBase64);
             let splicegateIds=res.Data.gateIds.split("|").map(Number);
             setobtain(splicegateIds);
             seteendtime(dayjs(res.Data.eendtime).format('YYYY-MM-DD'));
@@ -174,8 +174,16 @@ const EditYuangong=(props:any)=>{
                 </Form.Item>
                 <Form.Item label='员工人脸'>
                     <Space style={{display:'flex'}}>
-                        <CmpImageUploader onImageUpload={handleImageUpload} oldBase64={getImgBase64}/>
-                        {fileBase64?<Image src={fileBase64} style={{width:'80px',height:'80px'}}/>:''}
+                        <ImageUploadPng onImageUpload={handleImageUpload}/>
+                        {oldImgName ? (
+                            <Image
+                                src={oldImgName.includes('.png')
+                                    ? `${window.ServerConfig.imgServer}${oldImgName}`
+                                    : `${window.ServerConfig.imgServer}${oldImgName}.png`
+                                }
+                                style={{width:'80px',height:'80px'}}
+                            />
+                        ) : ''}
                     </Space>
                 </Form.Item>
                 <Form.Item {...tailLayout}>

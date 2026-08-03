@@ -42,15 +42,18 @@ const RentRate=(props)=>{
     const sousuo=()=>{
         setPage(1);
         getzujinList();
-        logFenye();
+        // logFenye();
     };
     // 查看租金缴费列表
     const getzujinList=()=>{
         setspinning(true);
         RechargeRateService.zujinList({page,name,phone,startDate,endDate,tenandId,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setdataSource(res.Data);
+                console.log('res',res)
+                setdataSource(res.Data.data);
                 setspinning(false);
+                setcount(res.Data.count);
+                setmoneySum(res.Data.billSum);
             }else {
                 message.error(res.Data);
                 setspinning(false);
@@ -58,23 +61,23 @@ const RentRate=(props)=>{
         })
     };
     // 分页
-    const logFenye=()=>{
-        RechargeRateService.zujinListFenye({name,phone,startDate,endDate,tenandId,pageSize}).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setcount(res.Data.count);
-                setmoneySum(res.Data.moneySum);
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
+    // const logFenye=()=>{
+    //     RechargeRateService.zujinListFenye({name,phone,startDate,endDate,tenandId,pageSize}).then((res:TypeErrorCode)=>{
+    //         if (res.ErrorCode==0){
+    //             setcount(res.Data.count);
+    //             setmoneySum(res.Data.moneySum);
+    //         }else {
+    //             message.error(res.Data);
+    //         }
+    //     })
+    // };
     // 监听页数
     const onChange=(e:number,pageSize:number)=>{
         setPage(e);
         setPageSize(pageSize);
     };
     useEffect(() => {
-        logFenye();
+        // logFenye();
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
@@ -207,7 +210,7 @@ const RentRate=(props)=>{
                 let headers=['日期','租户名称','手机号','类型','租金/管理费(元)','优惠金额','优惠前租金','违约金(元)','状态'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
-                    ...res.Data.map(item => [
+                    ...res.Data.data.map(item => [
                         item.payrentDate.split('T')[0], // 提取日期部分
                         item.tenant_name,
                         item.tenant_phone,
@@ -223,7 +226,7 @@ const RentRate=(props)=>{
                         { v: '', t: 's' },
                         { v: '', t: 's' },
                         { v: '', t: 's' },
-                        { v: moneySum.toFixed(2), t: 'n' }, // 总扣费金额
+                        { v: res.Data.billSum.toFixed(2), t: 'n' }, // 总扣费金额
                     ]
                 ];
                 exportDataToExcel(ws_data);

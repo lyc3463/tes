@@ -245,7 +245,6 @@ const ZsContract=(props:any)=>{
                 setIsDeleteOpen(false);
                 setspinning(false);
                 logFenye();
-                getListFenye();
             }else {
                 message.error(res.Data);
                 setIsDeleteOpen(false);
@@ -253,28 +252,10 @@ const ZsContract=(props:any)=>{
             }
         })
     };
-    // 分页信息
-    const getListFenye=()=>{
-        setspinning(true);
-        StaffService.getHTfFy({identifier,contractType,contractStatus,startDate,endDate,name,pageSize}).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setcount(res.Data.count);
-                setzuMoney(res.Data.zuMoney);
-                setdeposit(res.Data.deposit);
-                setprepayment(res.Data.prepayment);
-                setdepositFee(res.Data.depositFee);
-                setmanageFee(res.Data.manageFee);
-                setspinning(false);
-            }else {
-                setspinning(false);
-                message.error(res.Data);
-            }
-        })
-    };
+
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        getListFenye();
         logFenye();
     };
     // 分页
@@ -282,8 +263,15 @@ const ZsContract=(props:any)=>{
         setspinning(true);
         StaffService.getHT({page,identifier,contractType,contractStatus,startDate,endDate,name,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
+                console.log('res',res)
                 setStaffList(res.Data);
                 setspinning(false);
+                // setcount(res.Data.count);
+                // setzuMoney(res.Data.zuMoney);
+                // setdeposit(res.Data.deposit);
+                // setprepayment(res.Data.prepayment);
+                // setdepositFee(res.Data.depositFee);
+                // setmanageFee(res.Data.manageFee);
             }else {
                 setspinning(false);
                 message.error(res.Data);
@@ -295,9 +283,6 @@ const ZsContract=(props:any)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-    useEffect(() => {
-        getListFenye();
-    }, []);
     useEffect(() => {
         logFenye();
     }, [page]);

@@ -80,18 +80,10 @@ const WarehouseList=(props:any)=>{
             payload:{page,warehouseName, personName, personPhone,pageSize,isXs}
         })
     };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'WarehouseList/fenye',
-            payload:{warehouseName, personName, personPhone,pageSize,isXs}
-        })
-    };
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getFenye();
-    }, []);
+
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setPageSize(pageSize);

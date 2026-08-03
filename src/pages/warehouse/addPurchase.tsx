@@ -11,11 +11,10 @@ import {
     Select,
     Space,
     Spin,
-    Table, Tag
+    Table,
+    Tag
 } from "antd";
 import {useEffect, useRef, useState} from "react";
-import {generate} from "@/utils/OpenTool";
-import {StaticInfo} from '@/StaticInfo'
 import {connect,useNavigate,history} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as Application from "@/services/application";
@@ -43,13 +42,14 @@ const AddPurchase=(props)=>{
     // 订单物品列表
     const [goods,setGoods]=useState([]);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const [selectedRows, setSelectedRows] = useState<React.Key[]>([]);
 
     const getOne=async (id:string)=>{
         setSpinning(true);
         let res:any=await  Application.one(id);
         if (res.ErrorCode==0){
+            console.log('res',res)
             let data=res.Data;
-            console.log('详情',data);
             setSpinning(false);
             setOrderCode(data.orderCode);
             setWarehouseId(data.warehouseId);
@@ -58,7 +58,11 @@ const AddPurchase=(props)=>{
             setPaidAmount(data.paidAmount);
             setTotalAmount(data.totalAmount);
             setRemark(data.remark);
-            setGoods(data.ppList);
+            let ppList=data.ppList.map((item:any)=>{
+                item.quantity=item.quantityTotal-item.quantitySum;
+                return item;
+            });
+            setGoods(ppList);
         }else {
             message.error(res.Data);
             setSpinning(false);
@@ -80,10 +84,11 @@ const AddPurchase=(props)=>{
                 // 核心修复：先将text转为字符串，再做空值+后缀判断
                 // 步骤1：处理非字符串类型（如null/undefined/数字），转为空字符串
                 const textStr = String(text || '');
+
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
-                    ? `http://img.qhwy6.com/${textStr}`
-                    : `http://img.qhwy6.com/${textStr}_X.png`;
+                    ? `${window.ServerConfig.imgServer}${textStr}`
+                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
                 // 步骤3：仅当字符串非空时渲染图片，否则返回空
                 return textStr ? (
                     <Image
@@ -100,43 +105,6 @@ const AddPurchase=(props)=>{
             title: '物品名称',
             dataIndex: 'productsName',
             key:'productsName',
-            render: (text, record) => (
-                <Select
-                    showSearch // 启用搜索
-                    optionFilterProp="children" // 搜索选项的哪个属性
-                    placeholder="搜索物品名称"
-                    style={{ width: 120 }}
-                    value={text || undefined} // 当前选中值
-                    // 选择变更时更新状态
-                    filterOption={(input, option) => {
-                        // 1. 边界处理：如果thingList不是数组或为空，直接返回false
-                        if (!Array.isArray(props.thingList) || props.thingList.length === 0) {
-                            return false;
-                        }
-                        // 2. 根据选项value查找对应的物品数据
-                        const item = props.thingList.find(unit => unit.id == option.value);
-                        if (!item) return false; // 未找到对应物品，不匹配
-                        // 3. 同时搜索productsName和abbreviation（不区分大小写）
-                        const searchInput = input.toLowerCase();
-                        const nameMatch = item.productsName?.toLowerCase().includes(searchInput);
-                        const abbrMatch = item.abbreviation?.toLowerCase().includes(searchInput);
-                        // 任一字段匹配即返回true
-                        return nameMatch || abbrMatch;
-                    }}
-                    // 下拉选项来自thingList
-                    options={Array.isArray(props.thingList)
-                        ? props.thingList.map(item => ({
-                            label: item.productsName, // 显示名称
-                            value: item.id // 选项值（物品ID）
-                        }))
-                        : []}
-                />
-            )
-        },
-        {
-            title: '物品名称',
-            dataIndex: 'productsName',
-            key:'productsName',
         },
         {
             title: '物品编号',
@@ -145,43 +113,22 @@ const AddPurchase=(props)=>{
         },
         {
             title: '单位',
-            dataIndex: 'unitsId',
-            key:'unitsId',
-            render:(text, record) => (
-                <Select
-                    placeholder='选择单位'
-                    style={{width:120}}
-                    value={record.unitsId}
-                    options={Array.isArray(record.unitsList) && record.unitsList.length > 0
-                        ? record.unitsList.map((item:any)=>({
-                            label:item.unitsName,
-                            value:item.from_unit_id,
-                        }))
-                        : []}
-                />
-            )
-        },
-        {
-            title: '数量',
-            dataIndex: 'quantity',
-            key:'quantity',
-            render:(text, record) => (
-                <InputNumber
-                    min={0}
-                    value={text}
-                />
-            )
+            dataIndex: 'unitsName',
+            key:'unitsName',
         },
         {
             title: '单价(元)',
             dataIndex: 'price',
             key:'price',
-            render:(text, record) => (
-                <InputNumber
-                    min={0}
-                    value={text}
-                />
-            )
+            // render:(text, record) => (
+            //     <InputNumber
+            //         min={0}
+            //         value={text}
+            //         onChange={(value)=>{
+            //             record.price=value;
+            //         }}
+            //     />
+            // )
         },
         {
             title: '总价钱(元)',
@@ -192,6 +139,45 @@ const AddPurchase=(props)=>{
                     min={0}
                     disabled
                     value={text}
+                />
+            )
+        },
+        {
+            title: '采购数量',
+            dataIndex: 'quantityTotal',
+            key:'quantityTotal',
+            render:(text, record) => (
+                <InputNumber
+                    min={0}
+                    value={text}
+                    disabled
+                />
+            )
+        },
+        {
+            title: '已入库数量',
+            dataIndex: 'quantitySum',
+            key:'quantitySum',
+            render:(text, record) => (
+                <InputNumber
+                    min={0}
+                    value={text}
+                    disabled
+                />
+            )
+        },
+        {
+            title: '入库数量',
+            dataIndex: 'quantity',
+            key:'quantity',
+            render:(text, record) => (
+                <InputNumber
+                    min={0}
+                    max={record.quantityTotal-record.quantitySum}
+                    value={record.quantity}
+                    onChange={(value)=>{
+                        record.quantity=value;
+                    }}
                 />
             )
         },
@@ -227,31 +213,41 @@ const AddPurchase=(props)=>{
     useEffect(() => {
         getSupplierList();
         getWarehouseList();
-        getThingList();
+        // getThingList();
     }, []);
     const rowSelection = {
         selectedRowKeys,
         onChange: (selectedKeys: React.Key[], selectedRows: any[]) => {
             setSelectedRowKeys(selectedKeys);
+            setSelectedRows(selectedRows);
         },
         type: 'checkbox',  // 复选框类型
         // 根据iskc值控制复选框是否可用
         getCheckboxProps: (record) => ({
-            disabled: record.iskc !== 0, // iskc不等于0时禁用复选框（已入库）
+            disabled: record.iskc !== 0,
         }),
     };
     // 确定入库
     const onOK=()=>{
-        if (selectedRowKeys.length < 1) {
-            message.error('请选择要入库的物品');
-            return; // 阻止提交
+        if (selectedRows.length < 1) {
+            message.warning('请选择要入库的物品');
+            return;
+        }
+        let newArr= selectedRows.map((item:any) => ({
+            ppId: item.id,
+            quantity: item.quantity,
+        }));
+        const hasZeroQuantity = newArr.some((item: any) => item.quantity === 0);
+        if (hasZeroQuantity) {
+            message.warning('请输入入库数量');
+            return;
         }
         setSpinning(true);
         props.dispatch({
             type:'Purchase/addWarehousing',
             payload:{
                 warehouseId,
-                jsonId:selectedRowKeys.join('|'),
+                jsonData: JSON.stringify(newArr)
             },
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
@@ -259,6 +255,7 @@ const AddPurchase=(props)=>{
                 setSpinning(false);
                 getOne(uid);
                 setSelectedRowKeys([]);
+                setSelectedRows([]);
             } else {
                 message.error(res.ErrorCode + res.Data);
                 setSpinning(false);

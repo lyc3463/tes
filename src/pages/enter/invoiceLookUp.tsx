@@ -114,15 +114,10 @@ const InvoiceLookUp=(props:any)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
-        getFenyeInfo();
+        // getFenyeInfo();
         logFenye();
     };
-    const getFenyeInfo=()=>{
-        props.dispatch({
-            type:'InvoiceLookUp/fenye',
-            payload:{name,stutes,openID,pageSize}
-        })
-    };
+
     // 审核通过的弹窗
     const check=(e)=>{
         setUid(e.id);
@@ -174,7 +169,7 @@ const InvoiceLookUp=(props:any)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
-        getFenyeInfo();
+        // getFenyeInfo();
     }, []);
     const changeName=(e)=>{
         setName(e.target.value);
