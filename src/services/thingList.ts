@@ -8,11 +8,11 @@ export function fenye(vals:any) {
 }
 
 export function add(vals:any) {
-    return postData(1692, [vals.productsName,vals.productsCode,vals.abbreviation,vals.productsImage,vals.brandId,vals.number,vals.presalePrice,vals.retailPricce,vals.costPrice,vals.specifications,vals.barcode='',vals.remark,vals.groupId,vals.unitsId,vals.isHs,vals.goodsTypeId,vals.yearId,vals.textureId],vals.jsonData);
+    return postData(1692, [vals.productsName,vals.productsCode,vals.abbreviation,vals.productsImage,vals.brandId,vals.number,vals.specifications,vals.barcode='',vals.remark,vals.goodsTypeId,vals.yearId,vals.textureId],vals.jsonData);
 }
 
 export function edit(vals:any) {
-    return postData(1693, [vals.uid,vals.productsName,vals.productsCode,vals.abbreviation,vals.productsImage,vals.brandId,vals.number,vals.presalePrice,vals.retailPricce,vals.costPrice,vals.specifications,vals.barcode='',vals.remark,vals.groupId,vals.unitsId,vals.isHs,vals.goodsTypeId,vals.yearId,vals.textureId],vals.jsonData);
+    return postData(1693, [vals.uid,vals.productsName,vals.productsCode,vals.abbreviation,vals.productsImage,vals.brandId,vals.number,vals.specifications,vals.barcode='',vals.remark,vals.goodsTypeId,vals.yearId,vals.textureId],vals.jsonData);
 }
 
 export function remove(vals:any) {
@@ -30,5 +30,3 @@ export function exportOk(validArea:number,valPwd:string,validTime:string) {
 export function importOk(importKey:string,mm:string) {
     return postData(2112, [importKey,mm],'');
 }
-
-

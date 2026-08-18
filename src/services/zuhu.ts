@@ -39,10 +39,10 @@ export function depoListFenye(name:string,phone:string,startDate:string,endDate:
     return getData(1455, [name,phone,startDate,endDate,uid,type,pageSize]);
 }
 export function newbyzhuhu(vals:any) {
-    return getData(1496, [vals.uid,vals.reserved_amount,vals.warn_amount,vals.minimum_recharge,vals.remark,vals.tenantAmount,vals.oldreserved_amount]);
+    return getData(1496, [vals.uid,vals.reserved_amount,vals.warn_amount,vals.minimum_recharge,vals.remark,vals.tenantAmount,vals.oldreserved_amount,vals.is_deduction]);
 }
 export function newbyappuser(vals:any) {
-    return getData(1423, [vals.uid,vals.tenant_phone,vals.is_deduction]);
+    return getData(1423, [vals.uid,vals.tenant_phone]);
 }
 export function unbind(vals:any) {
     return getData(1425, [vals]);

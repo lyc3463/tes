@@ -221,6 +221,7 @@ const CheckOutRent=(props)=>{
                 message.success('审核通过');
                 setOpen(false);
                 setSpinning(false);
+                logFenye();
             }else {
                 message.error(res.Data);
                 setSpinning(false);

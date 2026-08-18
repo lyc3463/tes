@@ -14,3 +14,7 @@ export function selectFetch(warehouseId) {
 export function productsNameQuery(warehouseId,productsName) {
     return getData(1794, [warehouseId,productsName,StaticInfo.park_id]);
 }
+// 编辑价钱
+export function editProductsPrice(vals:any) {
+    return getData(1744, [vals.uid,vals.presalePrice,vals.retailPricce]);
+}

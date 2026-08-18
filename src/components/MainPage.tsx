@@ -269,6 +269,7 @@ class MainPage extends Component<any> {
         CommonService.swPark(e).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 StaticInfo.park_id=e;
+                StaticInfo.park_name=parkList.children;
                 this.setState({park_id:e});
                 sessionStorage.setItem('park_id',e);
                 sessionStorage.setItem('park_name',parkList.children);

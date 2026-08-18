@@ -1,16 +1,20 @@
-import {Button, Input, List, message, Modal, Pagination, Space, Spin, Table} from "antd";
+import {Button, Form, Input, InputNumber, List, message, Modal, Pagination, Select, Space, Spin, Table} from "antd";
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
-
+import * as UnitCalculationServer from '@/services/unitCalculation';
 const UnitCalculation=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    const [name,setName]=useState(checkSessionStorage('/warehouse/warehouseAndType','WarehouseUnitCalculationListName')||'');// 换算名称
+    const [name,setName]=useState(checkSessionStorage('/warehouse/warehouseAndType','WarehouseUnitCalculationListName')||0);// 换算名称
     const [uid,setUid]=useState(0);
     const [dopen,setDopen]=useState(false);
+    const [from_unit_id,setFrom_unit_id]=useState(0);
+    const [to_unit_id,setTo_unit_id]=useState(0);
+    const [conversion_rate,setConversion_rate]=useState(0);
+    const [editOpen,setEditOpen]=useState(false);
     const toadd=()=>{
         history.push('/warehouse/addUnitCalculation');
     };
@@ -26,20 +30,36 @@ const UnitCalculation=(props)=>{
     }, [page,pageSize]);
     const columns = [
         {
-            title: '计算名称',
-            dataIndex: 'groupName',
+            title: '上级单位',
+            dataIndex: 'unitsName',
+        },
+        {
+            title: '转换倍率',
+            dataIndex: 'conversion_rate',
+        },
+        {
+            title: '下级单位',
+            dataIndex: 'unitsName2',
         },
         {
             title: '操作',
             dataIndex: 'operation',
             render: (text, record) => (
                 <Space>
-                    <Button type="primary" onClick={() => history.push(`/warehouse/editUnitCalculation?id=${record.id}`)}>编辑</Button>
+                    <Button type="primary" onClick={()=>onEditOpen(record)}>编辑</Button>
                     <Button type="primary" danger onClick={()=>isDelOpen(record.id)}>删除</Button>
                 </Space>
             ),
         },
     ];
+    const onEditOpen=(e)=>{
+        console.log('e',e)
+        setUid(e.id);
+        setEditOpen(true);
+        setFrom_unit_id(e.from_unit_id);
+        setTo_unit_id(e.to_unit_id);
+        setConversion_rate(e.conversion_rate);
+    };
     const isDelOpen=(e)=>{
         setUid(e);
         setDopen(true);
@@ -73,6 +93,20 @@ const UnitCalculation=(props)=>{
               setDopen(false);
           }
       })
+    };
+    const editOpenOk=(e)=>{
+        UnitCalculationServer.edit({uid,from_unit_id,to_unit_id,conversion_rate}).then((res:TypeErrorCode)=>{
+            if(res.ErrorCode===0){
+                message.success('修改成功');
+                setSpinning(false);
+                getList();
+                setEditOpen(false);
+            }else{
+                message.error(res.Data);
+                setSpinning(false);
+                setEditOpen(false);
+            }
+        });
     };
     return(
         <Spin spinning={spinning}>
@@ -113,6 +147,8 @@ const UnitCalculation=(props)=>{
 const mapStateToProps = (state: any) => ({
     list: state.UnitCalculation.list,
     count: state.UnitCalculation.count,
+    UnitList: state.UnitSetting.list,
+
 
 });
 export default connect(mapStateToProps) (UnitCalculation);

@@ -48,7 +48,7 @@ const AddPurchase=(props)=>{
         setSpinning(true);
         let res:any=await  Application.one(id);
         if (res.ErrorCode==0){
-            console.log('res',res)
+            console.log('入库详情',res)
             let data=res.Data;
             setSpinning(false);
             setOrderCode(data.orderCode);
@@ -74,7 +74,20 @@ const AddPurchase=(props)=>{
         setUid(id);
         getOne(id);
     }, []);
-
+    const updateQuantity = (id, value) => {
+        setGoods(prev =>
+            prev.map(item =>
+                item.ppId === id ? { ...item, quantity: value } : item
+            )
+        );
+    };
+    const updatePrice = (id, value) => {
+        setGoods(prev =>
+            prev.map(item =>
+                item.ppId === id ? { ...item, price: value } : item
+            )
+        );
+    };
     const columnsz = [
         {
             title: '物品图片',
@@ -88,13 +101,16 @@ const AddPurchase=(props)=>{
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
                     ? `${window.ServerConfig.imgServer}${textStr}`
-                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
+                    : `${window.ServerConfig.imgServer}${textStr}_min.png`;
                 // 步骤3：仅当字符串非空时渲染图片，否则返回空
                 return textStr ? (
                     <Image
                         src={imageUrl}
                         style={{width:'50px',height:'50px'}}
                         fallback="https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片"
+                        preview={{
+                            src: `${window.ServerConfig.imgServer}${record.productsImage}.png`, // 弹窗预览图单独指定
+                        }}
                     />
                 ) : (
                     ''
@@ -120,15 +136,15 @@ const AddPurchase=(props)=>{
             title: '单价(元)',
             dataIndex: 'price',
             key:'price',
-            // render:(text, record) => (
-            //     <InputNumber
-            //         min={0}
-            //         value={text}
-            //         onChange={(value)=>{
-            //             record.price=value;
-            //         }}
-            //     />
-            // )
+            render:(text, record) => (
+                <InputNumber
+                    min={0}
+                    value={record.price}
+                    onChange={(value) => {
+                        updatePrice(record.ppId, value);
+                    }}
+                />
+            )
         },
         {
             title: '总价钱(元)',
@@ -175,8 +191,8 @@ const AddPurchase=(props)=>{
                     min={0}
                     max={record.quantityTotal-record.quantitySum}
                     value={record.quantity}
-                    onChange={(value)=>{
-                        record.quantity=value;
+                    onChange={(value) => {
+                        updateQuantity(record.ppId, value);
                     }}
                 />
             )
@@ -234,8 +250,9 @@ const AddPurchase=(props)=>{
             return;
         }
         let newArr= selectedRows.map((item:any) => ({
-            ppId: item.id,
+            ppId: item.ppId,
             quantity: item.quantity,
+            price: item.price,
         }));
         const hasZeroQuantity = newArr.some((item: any) => item.quantity === 0);
         if (hasZeroQuantity) {
@@ -305,7 +322,7 @@ const AddPurchase=(props)=>{
             </Space>
             <Table
                 columns={columnsz}
-                rowKey={(columns) => columns.id}
+                rowKey={(columns) => columns.ppId}
                 pagination={false}
                 size='small'
                 scroll={{y:'55vh'}}

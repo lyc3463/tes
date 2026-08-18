@@ -289,7 +289,7 @@ const AddDirectPurchase = (props) => {
                 const textStr = String(text || '');
                 const imageUrl = textStr && textStr.endsWith('.png')
                     ? `${window.ServerConfig.imgServer}${textStr}`
-                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
+                    : `${window.ServerConfig.imgServer}${textStr}.png`;
                 return textStr ? (
                     <Image
                         src={imageUrl}
@@ -330,11 +330,6 @@ const AddDirectPurchase = (props) => {
             )
         },
         {
-            title: '物品名称',
-            dataIndex: 'productsName',
-            key: 'productsName',
-        },
-        {
             title: '物品编号',
             dataIndex: 'productsCode',
             key: 'productsCode',
@@ -345,21 +340,23 @@ const AddDirectPurchase = (props) => {
             key: 'unitsId',
             render: (text, record) => (
                 <div>
-                    {
-                        record.isHs == 0 ? <span>{record.unitsName}</span> :
-                            <Select
-                                placeholder='选择单位'
-                                disabled={record.isHs == 0}
-                                style={{ width: 120 }}
-                                options={Array.isArray(record.unitsList) && record.unitsList.length > 0
-                                    ? record.unitsList.map((item: any) => ({
-                                        label: item.unitsName,
-                                        value: item.from_unit_id,
-                                    }))
-                                    : []}
-                                onChange={(value) => changeUnitsId(value, record.id)}
-                            />
-                    }
+                    <Select
+                        placeholder='单位'
+                        onChange={(value) => changeUnitsId(value, record.id)}
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) => {
+                            // 假设每个 option 都有一个与数据项对应的 value 属性
+                            const item = props.UnitSetting.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                            return item?.unitsName?.toLowerCase().includes(input.toLowerCase());
+                        }}
+                        options={Array.isArray(props.UnitSetting) && props.UnitSetting.length > 0
+                            ? props.UnitSetting.map((item:any)=>({
+                                label:item.unitsName,
+                                value:item.id,
+                            }))
+                            : []}
+                    />
                 </div>
             )
         },

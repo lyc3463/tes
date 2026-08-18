@@ -52,7 +52,7 @@ const EditProject=(props)=>{
     }
     // 获取账户列表
     const getAccountList=()=>{
-        AccountService.fetch({name:'',account_type:0}).then((res:TypeErrorCode)=>{
+        AccountService.fetch({name:'',account_type:2}).then((res:TypeErrorCode)=>{
             console.log('res',res);
             if (res.ErrorCode==0){
                 setAccount(res.Data)

@@ -245,7 +245,7 @@ const InfoRequisitionForm=(props)=>{
             {/*</Space>*/}
             <Table
                 columns={columnsz}
-                rowKey="id"  // 简化rowKey写法
+                rowKey="ppId"  // 简化rowKey写法
                 pagination={false}
                 size='small'
                 scroll={{y:'55vh'}}

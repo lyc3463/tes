@@ -1,10 +1,9 @@
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {connect, history} from "umi";
-import {getData} from "@/network/http";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 
 const ReviewTransferForm=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -19,6 +18,7 @@ const ReviewTransferForm=(props)=>{
     const [orderType,setOrderType]=useState(4);// 订单类型
     const [dOpen,setDOpen]=useState(false);// 审核弹窗是否打开
     const [dId,setDId]=useState(0);// 审核的id
+    const [uName,setUName]=useState('');// 审核的用户名
     const columns = [
         {
             title: '申请时间',
@@ -97,13 +97,13 @@ const ReviewTransferForm=(props)=>{
     const getList=()=>{
         props.dispatch({
             type:'ReviewTransferForm/fetch',
-            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{page, orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     const getFenye=()=>{
         props.dispatch({
             type:'ReviewTransferForm/fenye',
-            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType}
+            payload:{orderCode, warehouseName, startDate, endDate, orderStatus, billStatus, pageSize, orderType,uName}
         })
     };
     useEffect(() => {
@@ -126,6 +126,7 @@ const ReviewTransferForm=(props)=>{
                 message.success('审核成功');
                 setSpinning(false);
                 setDOpen(false);
+                getList();
             }else {
                 message.error(res.ErrorCode + res.Data);
                 setSpinning(false);

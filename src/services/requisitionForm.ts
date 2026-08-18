@@ -27,7 +27,7 @@ export function addSales(vals:any) {
     return postData(1762, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.remark,vals.paidAmount,vals.totalAmount,vals.customerId,vals.discountRate,vals.discountPrice,vals.pmId,vals.salesperson],vals.jsonData);
 }
 export function edit(vals:any) {
-    return postData(1747, [vals.uid,vals.orderCode,vals.orderTime,vals.warehouseId,vals.paidAmount,vals.totalAmount,vals.remark,vals.warehouseId2,vals.customerId,vals.discountRate,vals.discountPrice,vals.pmId,vals.salesperson],vals.jsonData);
+    return postData(1747, [vals.uid,vals.orderCode,vals.orderTime,vals.warehouseId,vals.paidAmount,vals.totalAmount,vals.remark,vals.warehouseId2,vals.customerId,vals.discountRate,vals.discountPrice,vals.pmId,vals.salesperson,vals.parkIdDB],vals.jsonData);
 }
 
 export function remove(vals:any) {
@@ -41,6 +41,10 @@ export function check(vals:any) {
 }
 export function payment(vals:any) {
     return getData(1765, [vals.uid,vals.paymentAmount,vals.paymentType,vals.payCrderCode,vals.payOrderType]);
+}
+// 添加跨店调拨单
+export function addCrossStoreTransfer(vals:any) {
+    return postData(1792, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.remark,vals.warehouseId2,vals.parkIdDB],vals.jsonData);
 }
 
 

@@ -43,10 +43,10 @@ const AddThingList=(props)=>{
         setAbbreviation(auxiliaryCode);
     };
     const onFinish= (values)=>{
-        if (unitsId==0){
-            message.error('请选择单位');
-            return;
-        }
+        // if (unitsId==0){
+        //     message.error('请选择单位');
+        //     return;
+        // }
         // if (yearId==0){
         //     message.error('请选择年份');
         //     return;
@@ -59,19 +59,19 @@ const AddThingList=(props)=>{
         //     message.error('请选择物品类型');
         //     return;
         // }
-        if (isHs==1 && groupId===0) return message.warning('请选择换算分组单位');
-        if (isHs === 1) {
-            const unitExists = goodsList.some(item => item.from_unit_id === unitsId);
-            if (!unitExists) {
-                message.error('选择的单位不在换算分组中，请重新选择');
-                return;
-            }
-        }
+        // if (isHs==1 && groupId===0) return message.warning('请选择换算分组单位');
+        // if (isHs === 1) {
+        //     const unitExists = goodsList.some(item => item.from_unit_id === unitsId);
+        //     if (!unitExists) {
+        //         message.error('选择的单位不在换算分组中，请重新选择');
+        //         return;
+        //     }
+        // }
         setSpinning(true);
         let jsonData=JSON.stringify(goodsList);
         props.dispatch({
             type:'ThingList/add',
-            payload:{...values,unitsId,productsImage,abbreviation,productsCode,jsonData,isHs,groupId,yearId,textureId,goodsTypeId}
+            payload:{...values,productsImage,abbreviation,productsCode,jsonData,yearId,textureId,goodsTypeId}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('添加成功');
@@ -179,7 +179,6 @@ const AddThingList=(props)=>{
                 layout="horizontal"
                 size={'large'}
                 initialValues={{specifications:'',barcode:'',remark:'',number:0,groupId:0}}
-
                 onFinish={onFinish}
                 style={{ marginTop: '1rem' }}
             >
@@ -203,25 +202,25 @@ const AddThingList=(props)=>{
                             : []}
                     />
                 </Form.Item>
-                <Form.Item label='单位'>
-                    <Select
-                        placeholder='单位'
-                        onChange={changeUnitsId}
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) => {
-                            // 假设每个 option 都有一个与数据项对应的 value 属性
-                            const item = props.UnitSetting.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
-                            return item?.unitsName?.toLowerCase().includes(input.toLowerCase());
-                        }}
-                        options={Array.isArray(props.UnitSetting) && props.UnitSetting.length > 0
-                            ? props.UnitSetting.map((item:any)=>({
-                                label:item.unitsName,
-                                value:item.id,
-                            }))
-                            : []}
-                    />
-                </Form.Item>
+                {/*<Form.Item label='单位'>*/}
+                {/*    <Select*/}
+                {/*        placeholder='单位'*/}
+                {/*        onChange={changeUnitsId}*/}
+                {/*        showSearch*/}
+                {/*        optionFilterProp="children"*/}
+                {/*        filterOption={(input, option) => {*/}
+                {/*            // 假设每个 option 都有一个与数据项对应的 value 属性*/}
+                {/*            const item = props.UnitSetting.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程*/}
+                {/*            return item?.unitsName?.toLowerCase().includes(input.toLowerCase());*/}
+                {/*        }}*/}
+                {/*        options={Array.isArray(props.UnitSetting) && props.UnitSetting.length > 0*/}
+                {/*            ? props.UnitSetting.map((item:any)=>({*/}
+                {/*                label:item.unitsName,*/}
+                {/*                value:item.id,*/}
+                {/*            }))*/}
+                {/*            : []}*/}
+                {/*    />*/}
+                {/*</Form.Item>*/}
                 <Form.Item label='物品类型'>
                     <Select
                         placeholder='物品类型'
@@ -279,72 +278,72 @@ const AddThingList=(props)=>{
                             : []}
                     />
                 </Form.Item>
-                <Form.Item label='成本价' name='costPrice' rules={[{required: true, message: '请输入成本价' }]}>
-                    <InputNumber placeholder='成本价'/>
-                </Form.Item>
-                <Form.Item label='是否换算'>
-                    <Radio.Group value={isHs} onChange={changeIsHs}>
-                        <Radio value={1}>是</Radio>
-                        <Radio value={0}>否</Radio>
-                    </Radio.Group>
-                </Form.Item>
-                {
-                    isHs==1?<>
-                        <Form.Item label='换算单位'>
-                            <Select
-                                onChange={changeGroupId}
-                                placeholder='换算单位'
-                                options={Array.isArray(props.UnitCalculation) && props.UnitCalculation.length > 0
-                                    ? props.UnitCalculation.map((item:any)=>({
-                                        label:item.groupName,
-                                        value:item.id,
-                                    }))
-                                    : []}
-                            />
-                        </Form.Item>
-                        <Form.Item label='单位换算'>
-                            {goodsList.map((item:any, index:number)=>{
-                                // 获取当前单位名称
-                                const currentUnitName = getUnitName(item.from_unit_id);
-                                // 获取上一单位名称（当前项的to_unit_id对应的单位名称）
-                                const prevUnitName = getUnitName(item.to_unit_id);
-                                return(
-                                    <Space key={item.id} style={{display:'flex',marginBottom:'10px',alignItems:'center'}}>
-                                        <Select
-                                            disabled
-                                            placeholder='选择单位'
-                                            style={{width:'200px'}}
-                                            options={Array.isArray(props.UnitSetting) && props.UnitSetting.length > 0
-                                                ? props.UnitSetting.map((item:any)=>({
-                                                    label:item.unitsName,
-                                                    value:item.id,
-                                                }))
-                                                : []}
-                                            value={item.from_unit_id}
-                                        />
-                                        <InputNumber
-                                            addonBefore="单位关系:"
-                                            value={index === 0 ? 1 : item.conversion_rate}
-                                            disabled
-                                            style={{width:'200px'}}
-                                            name={`relation_${item.id}`}
-                                            min={1}
-                                        />
-                                        <span style={{margin: '0 10px'}}>
-                                       {index === 0 ? `(${currentUnitName || '未选择单位'})` : `= ${item.conversion_rate || 1} ${prevUnitName || '上一单位'}`}
-                                    </span>
-                                    </Space>
-                                )
-                            })}
-                        </Form.Item>
-                    </>:''
-                }
-                <Form.Item label='零售控价' name='presalePrice' rules={[{required: true, message: '请填写零售控价' }]}>
-                    <InputNumber placeholder='零售控价'/>
-                </Form.Item>
-                <Form.Item label='零售价' name='retailPricce' rules={[{required: true, message: '请输入零售价' }]}>
-                    <InputNumber placeholder='零售价'/>
-                </Form.Item>
+                {/*<Form.Item label='成本价' name='costPrice' rules={[{required: true, message: '请输入成本价' }]}>*/}
+                {/*    <InputNumber placeholder='成本价'/>*/}
+                {/*</Form.Item>*/}
+                {/*<Form.Item label='是否换算'>*/}
+                {/*    <Radio.Group value={isHs} onChange={changeIsHs}>*/}
+                {/*        <Radio value={1}>是</Radio>*/}
+                {/*        <Radio value={0}>否</Radio>*/}
+                {/*    </Radio.Group>*/}
+                {/*</Form.Item>*/}
+                {/*{*/}
+                {/*    isHs==1?<>*/}
+                {/*        <Form.Item label='换算单位'>*/}
+                {/*            <Select*/}
+                {/*                onChange={changeGroupId}*/}
+                {/*                placeholder='换算单位'*/}
+                {/*                options={Array.isArray(props.UnitCalculation) && props.UnitCalculation.length > 0*/}
+                {/*                    ? props.UnitCalculation.map((item:any)=>({*/}
+                {/*                        label:item.groupName,*/}
+                {/*                        value:item.id,*/}
+                {/*                    }))*/}
+                {/*                    : []}*/}
+                {/*            />*/}
+                {/*        </Form.Item>*/}
+                {/*        <Form.Item label='单位换算'>*/}
+                {/*            {goodsList.map((item:any, index:number)=>{*/}
+                {/*                // 获取当前单位名称*/}
+                {/*                const currentUnitName = getUnitName(item.from_unit_id);*/}
+                {/*                // 获取上一单位名称（当前项的to_unit_id对应的单位名称）*/}
+                {/*                const prevUnitName = getUnitName(item.to_unit_id);*/}
+                {/*                return(*/}
+                {/*                    <Space key={item.id} style={{display:'flex',marginBottom:'10px',alignItems:'center'}}>*/}
+                {/*                        <Select*/}
+                {/*                            disabled*/}
+                {/*                            placeholder='选择单位'*/}
+                {/*                            style={{width:'200px'}}*/}
+                {/*                            options={Array.isArray(props.UnitSetting) && props.UnitSetting.length > 0*/}
+                {/*                                ? props.UnitSetting.map((item:any)=>({*/}
+                {/*                                    label:item.unitsName,*/}
+                {/*                                    value:item.id,*/}
+                {/*                                }))*/}
+                {/*                                : []}*/}
+                {/*                            value={item.from_unit_id}*/}
+                {/*                        />*/}
+                {/*                        <InputNumber*/}
+                {/*                            addonBefore="单位关系:"*/}
+                {/*                            value={index === 0 ? 1 : item.conversion_rate}*/}
+                {/*                            disabled*/}
+                {/*                            style={{width:'200px'}}*/}
+                {/*                            name={`relation_${item.id}`}*/}
+                {/*                            min={1}*/}
+                {/*                        />*/}
+                {/*                        <span style={{margin: '0 10px'}}>*/}
+                {/*                       {index === 0 ? `(${currentUnitName || '未选择单位'})` : `= ${item.conversion_rate || 1} ${prevUnitName || '上一单位'}`}*/}
+                {/*                    </span>*/}
+                {/*                    </Space>*/}
+                {/*                )*/}
+                {/*            })}*/}
+                {/*        </Form.Item>*/}
+                {/*    </>:''*/}
+                {/*}*/}
+                {/*<Form.Item label='零售控价' name='presalePrice' rules={[{required: true, message: '请填写零售控价' }]}>*/}
+                {/*    <InputNumber placeholder='零售控价'/>*/}
+                {/*</Form.Item>*/}
+                {/*<Form.Item label='零售价' name='retailPricce' rules={[{required: true, message: '请输入零售价' }]}>*/}
+                {/*    <InputNumber placeholder='零售价'/>*/}
+                {/*</Form.Item>*/}
                 <Form.Item label='预警库存数' name='number'>
                     <InputNumber placeholder='预警库存数' min={0}/>
                 </Form.Item>

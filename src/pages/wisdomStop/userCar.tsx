@@ -384,11 +384,13 @@ const UserCar=(props)=>{
     };
     // 开通
     const isActivate=(e,type)=>{
+        console.log('res',e);
+        
         setCarInfo(e.carNo);
         setTid(e.id);
-        setAppId(e.appId);
-        settenant_phone(e.tenant_phone);
-        settenant_name(e.tenant_name);
+        setAppId(e.id);
+        settenant_phone(e.phone);
+        settenant_name(e.user_name);
         setActivateOpen(true);
     };
     //延期
@@ -538,7 +540,8 @@ const UserCar=(props)=>{
     // 开通成功确定
     const onActivateOk=()=>{
         let userId=CryptoUtils.md5(appId.toString());
-        UserCarServer.adyuebao(appId,tcID,tenant_name,userId,1,tenant_phone,fee,month,startDate,endDate,tId).then((res:TypeErrorCode)=>{
+        UserCarServer.adyuebao(tcID,tenant_name,userId,1,tenant_phone,fee,month,startDate,endDate,tId).then((res:TypeErrorCode)=>{
+            console.log('res',res);
             if (res.ErrorCode==0){
                 message.success('开通成功');
                 setActivateOpen(false);

@@ -362,7 +362,6 @@ const PurchaseRequestCheck=(props)=>{
             <Modal title="审核弹窗" open={dOpne} onOk={()=>checkOk()} onCancel={()=>setDOpen(false)} loading={spinning}>
                 是否要审核?
             </Modal>
-
         </Spin>
     )
 }

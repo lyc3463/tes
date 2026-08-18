@@ -140,6 +140,7 @@ const SalesCustomerList=(props)=>{
                 message.success('审核成功');
                 setSpinning(false);
                 setDOpen(false);
+                getList();
             }else {
                 message.error(res.ErrorCode + res.Data);
                 setSpinning(false);

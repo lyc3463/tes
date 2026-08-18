@@ -1,5 +1,4 @@
 //permission 1显示 0隐藏/禁用
-
 import TypeMenu from "@/ModelTypes/TypeMenu";
 
 export const qxTree: TypeMenu[] = [
@@ -555,5 +554,6 @@ export const qxTree: TypeMenu[] = [
     { id: 559, name: '销售审核设置',parentId: 451, authId: 559},
     { id: 560, name: '退货付款',parentId: 450, authId: 560},
     { id: 561, name: '付款',parentId: 560, authId: 561},
-
+    { id: 563, name: '申请跨店调拨',parentId: 448, authId: 563},
+    { id: 564, name: '导出物品',parentId: 560, authId: 564},
 ]

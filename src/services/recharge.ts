@@ -24,6 +24,11 @@ export function addaliPayQr(vals:any) {
 export function lunxun(dingdan:string) {
     return getData(8003, [dingdan]);
 }
+
 export function infoMealId(vals:any) {
     return getData(1569, [vals]);
+}
+// 斗拱微信二维码
+export function adddgchongzhi(vals:any) {
+    return getData(1871, [vals.newMoney,vals.remarks,vals.rechargetype,vals.startDate,vals.numberItems]);
 }

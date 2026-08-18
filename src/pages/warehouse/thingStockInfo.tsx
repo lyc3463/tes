@@ -1,9 +1,25 @@
-import {Button, DatePicker, Image, Input, List, Pagination, Select, Space, Spin, Table, Tooltip} from "antd";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {
+    Button,
+    DatePicker,
+    Image,
+    Input, InputNumber,
+    List,
+    message,
+    Modal,
+    Pagination,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Tooltip
+} from "antd";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {connect} from "umi";
 import dayjs from "dayjs";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 import {DownOutlined, MinusOutlined, UpOutlined} from "@ant-design/icons";
+import * as ThingStockInfoService from '@/services/thingStockInfo';
+import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const ThingStockInfo=(props)=>{
     const [spinning, setSpinning] = useState(false);
@@ -14,12 +30,24 @@ const ThingStockInfo=(props)=>{
     const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/thingStock','endDate')||'2099-01-01');// 结束日期
     const [unitId,setUnitId]=useState(checkSessionStorage('/warehouse/thingStock','unitId')||0);// 单位id
     const [pageSize,setPageSize]=useState(50); // 每页数量
+    const [count,setCount]=useState(0); // 总记录数
+    const [quantitySum,setQuantitySum]=useState(0); // 总库存数
+    const [priceSum,setPriceSum]=useState(0); // 总金额
+    const [maxPriceSum,setMaxPriceSum]=useState(0); // 最大金额
+    const [minPriceSum,setMinPriceSum]=useState(0); // 最小金额
+    const [avePriceSum,setAvePriceSum]=useState(0); // 平均金额
+    const [editVisible, setEditVisible] = useState(false);
+    const [presalePrice,setPresalePrice]=useState(0);
+    const [retailPricce,setRetailPricce]=useState(0);
+    const [uid, setUid] = useState(0);
+    const [editProductsName, setEditProductsName] = useState('');
     // 新增：存储已加载图片的行ID（避免重复加载）
     const [loadedImageIds, setLoadedImageIds] = useState<Set<string>>(new Set());
     // 行ref数组
     const rowRefs = useRef<HTMLDivElement[]>([]);
     // 交叉观察器实例
     const observerRef = useRef<IntersectionObserver | null>(null);
+    const [list,setList]=useState<any[]>([]);
     const columns = [
         {
             title: '所属仓库',
@@ -37,9 +65,8 @@ const ThingStockInfo=(props)=>{
                     const textStr = String(text || '');
                     imageUrl = textStr && textStr.endsWith('.png')
                         ? `${window.ServerConfig.imgServer}${textStr}`
-                        : `${window.ServerConfig.imgServer}${textStr}_X.png`;
+                        : `${window.ServerConfig.imgServer}${textStr}_min.png`;
                 }
-
                 // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）
                 return (
                     <div style={{width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -52,6 +79,9 @@ const ThingStockInfo=(props)=>{
                             // fallback 逻辑：图片加载失败时显示占位图
                             onError={(e) => {
                                 e.target.src = 'https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片';
+                            }}
+                            preview={{
+                                src: `${window.ServerConfig.imgServer}${record.productsImage}.png`, // 弹窗预览图单独指定
                             }}
                         />
                     </div>
@@ -66,7 +96,6 @@ const ThingStockInfo=(props)=>{
                 return dayjs(text).format('YYYY-MM-DD');
             }
         },
-
         {
             title: '物品名称',
             dataIndex: 'productsName',
@@ -93,18 +122,18 @@ const ThingStockInfo=(props)=>{
                     title={record.lastPrice !== undefined ? `上次价格: ${record.lastPrice}元` : ''}
                     placement="top"
                 >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    {text}
-                    {record.lastPrice !== undefined && (
-                        record.price > record.lastPrice ? (
-                            <UpOutlined style={{ color: '#52c41a', fontSize: '12px' }} />
-                        ) : record.price < record.lastPrice ? (
-                            <DownOutlined style={{ color: '#f5222d', fontSize: '12px' }} />
-                        ) : (
-                            <MinusOutlined style={{ color: '#bfbfbf', fontSize: '12px' }} />
-                        )
-                    )}
-                </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {text}
+                        {record.lastPrice !== undefined && (
+                            record.price > record.lastPrice ? (
+                                <UpOutlined style={{ color: '#52c41a', fontSize: '12px' }} />
+                            ) : record.price < record.lastPrice ? (
+                                <DownOutlined style={{ color: '#f5222d', fontSize: '12px' }} />
+                            ) : (
+                                <MinusOutlined style={{ color: '#bfbfbf', fontSize: '12px' }} />
+                            )
+                        )}
+                    </span>
                 </Tooltip>
             )
         },
@@ -120,19 +149,69 @@ const ThingStockInfo=(props)=>{
             title: '仓库平均价(元)',
             dataIndex: 'avePrice',
         },
+        {
+            title: '控价',
+            dataIndex: 'retailPricce',
+        },
+        {
+            title: '销售价',
+            dataIndex: 'presalePrice',
+        },
+        {
+            title: '操作',
+            dataIndex: 'xx',
+            render: (text: number, record: any) => (
+               <Button type="primary" onClick={()=>onEditOpen(record)}>修改价格</Button>
+            )
+        },
     ];
+    // 编辑弹窗
+    const onEditOpen = (record: any) => {
+        console.log('编辑记录:', record);
+        setEditVisible(true);
+        setUid(record.id);
+        setPresalePrice(record.presalePrice);
+        setRetailPricce(record.retailPricce);
+        setEditProductsName(record.productsName);
+    };
     // 监听分页
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setPageSize(pageSize);
     };
     // 列表信息
-    const getList=()=>{
-        props.dispatch({
-            type:'ThingStockInfo/fetch',
-            payload:{page, pageSize, warehouseId, productsName, startDate, endDate,unitId}
+    const getList = useCallback(() => {
+        ThingStockInfoService.fetch({
+            page,
+            pageSize,
+            warehouseId,
+            productsName,
+            startDate,
+            endDate,
+            unitId
+        }).then((res: TypeErrorCode) => {
+            if (res.ErrorCode === 0) {
+                setList(res.Data.data || []);
+                setCount(res.Data.count || 0);
+                setQuantitySum(res.Data.quantitySum || 0);
+                setPriceSum(res.Data.priceSum || 0);
+                setMaxPriceSum(res.Data.maxPriceSum || 0);
+                setMinPriceSum(res.Data.minPriceSum || 0);
+                setAvePriceSum(res.Data.avePriceSum || 0);
+            } else {
+                // 处理业务错误
+                console.error('获取列表失败:', res.ErrorCode || res.ErrorCode);
+                message.error(res.ErrorCode || '获取列表失败，请重试');
+                setList([]);
+            }
         })
-    };
+            .catch((error) => {
+                // 处理网络错误或异常
+                console.error('请求异常:', error);
+                message.error('网络异常，请检查后重试');
+                setList([]);
+            })
+    }, [page, pageSize, warehouseId, productsName, startDate, endDate, unitId]); // 添加依赖项
 
     // 单位列表
     const getUnitSettingList=()=>{
@@ -223,7 +302,6 @@ const ThingStockInfo=(props)=>{
             }
         });
     }, [loadedImageIds]);
-
     // 清理观察器
     useEffect(() => {
         return () => {
@@ -232,6 +310,30 @@ const ThingStockInfo=(props)=>{
             }
         };
     }, []);
+    // 编辑确认
+    const onEditOk = () => {
+        setSpinning(true);
+        ThingStockInfoService.editProductsPrice({
+            uid,
+            presalePrice,
+            retailPricce,
+        }).then((res:TypeErrorCode) => {
+            if (res.ErrorCode === 0) {
+                message.success('编辑成功');
+                getList();
+            } else {
+                message.error(res.ErrorCode || '编辑失败，请重试');
+            }
+        })
+        .catch((error) => {
+            // 处理网络错误或异常
+            console.error('请求异常:', error);
+            message.error('网络异常，请检查后重试');
+        }).finally(()=>{
+            setSpinning(false);
+            setEditVisible(false);
+        });
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -341,11 +443,11 @@ const ThingStockInfo=(props)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 scroll={{y:'60vh'}}
-                dataSource={props.list}
-                rowKey={(columns) => columns.id}
+                dataSource={list}
+                rowKey={(record:any, index:number) => index}
                 size='small'
-                onRow={(record, index) => ({
-                    ref: (el) => {
+                onRow={(record:any, index:number) => ({
+                    ref: (el:any) => {
                         if (el) {
                             el.dataset.rowId = record.id; // 存储行ID
                             rowRefs.current[index] = el;
@@ -363,23 +465,36 @@ const ThingStockInfo=(props)=>{
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
                             <Table.Summary.Cell index={5}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}>{props.count?props.count.quantitySum:0}</Table.Summary.Cell>
-                            <Table.Summary.Cell index={7}>{props.count?props.count.priceSum:0}</Table.Summary.Cell>
-                            <Table.Summary.Cell index={8}>{props.count?props.count.maxPriceSum:0}</Table.Summary.Cell>
-                            <Table.Summary.Cell index={8}>{props.count?props.count.minPriceSum:0}</Table.Summary.Cell>
-                            <Table.Summary.Cell index={8}>{props.count?props.count.avePriceSum:0}</Table.Summary.Cell>
-
+                            <Table.Summary.Cell index={6}>{quantitySum}</Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}>{priceSum}</Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}>{maxPriceSum}</Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}>{minPriceSum}</Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}>{avePriceSum}</Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
+            <Modal title={editProductsName} open={editVisible} onCancel={() => setEditVisible(false)} onOk={onEditOk}>
+                <Space.Compact>
+                    <InputNumber
+                        addonBefore="销售价:"
+                        value={presalePrice}
+                        min={0}
+                        onChange={(value) => setPresalePrice(value)}
+                    />
+                    <InputNumber
+                        addonBefore="控价:"
+                        min={0}
+                        value={retailPricce}
+                        onChange={(value) => setRetailPricce(value)}
+                    />
+                </Space.Compact>
+            </Modal>
         </Spin>
     )
 }
 const mapStateToProps = (state: any) => ({
-    list: state.ThingStockInfo.list,
-    count: state.ThingStockInfo.count,
     WarehouseList: state.WarehouseList.list,
     UnitSettingList: state.UnitSetting.list,
 

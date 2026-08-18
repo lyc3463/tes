@@ -60,12 +60,24 @@ const Recharge=(props)=>{
             message.warning('请输入金额');
         }else {
             let newMoney=money*100;
-            let remarks=`短信充值;充值金额${newMoney}分;充值条数${numberItems}条`;
+            let remarks=`短信充值;充值金额${money}元;充值条数${numberItems}条`;
+            // RechargeService.adddgchongzhi(
+            //     {newMoney,remarks,rechargetype:1,startDate:dayjs().format('YYYY-MM-DD'),numberItems}
+            // ).then((res:ErrorCodeType)=>{
+            //         if (res.ErrorCode==0){
+            //             setCode(res.Data);
+            //             getOneNuber();
+            //             setIsTihuan(true);
+            //         }else {
+            //             message.error(res.Data);
+            //         }
+            //     });
             props.dispatch({
                 type:'Recharge/addchongzhi',
-                payload:{newMoney,remarks,numberItems,rechargetype:1,startDate:dayjs().format('YYYY-MM-DD')}
+                payload:{newMoney,remarks,rechargetype:1,startDate:dayjs().format('YYYY-MM-DD'),numberItems}
             }).then((res:ErrorCodeType)=>{
                 if (res.ErrorCode==0){
+                    console.log('参数',res.Data);
                     setCode(res.Data);
                     getOneNuber();
                     setIsTihuan(true);
@@ -81,11 +93,15 @@ const Recharge=(props)=>{
             message.warning('请输入金额');
         }else {
             let newMoney=money*100;
-            let remarks=`支付宝充值短信${numberItems}条`;
-            props.dispatch({
-                type:'Recharge/addaliPayQr',
-                payload:{newMoney,remarks,payType:"alipay_qr",numberItems,rechargetype:5,startDate:dayjs().format('YYYY-MM-DD')}
-            }).then((res:ErrorCodeType)=>{
+            let remarks=`微信充值短信${numberItems}条`;
+            RechargeService.addaliPayQr(
+                {newMoney,remarks,payType:"alipay_qr",numberItems,rechargetype:5,startDate:dayjs().format('YYYY-MM-DD')}
+            )
+            // props.dispatch({
+            //     type:'Recharge/addaliPayQr',
+            //     payload:{newMoney,remarks,payType:"alipay_qr",numberItems,rechargetype:5,startDate:dayjs().format('YYYY-MM-DD')}
+            // })
+                .then((res:ErrorCodeType)=>{
                 if (res.ErrorCode==0){
                     console.log('res.Data',res)
                     setCode(res.Data.payInfo);
@@ -98,7 +114,8 @@ const Recharge=(props)=>{
         }
     };
     const add=()=>{
-        aliQrPay();
+        // aliQrPay();
+        wxQrPay();
         // if (money<=0){
         //     message.warning('请输入金额');
         // }else {
@@ -187,7 +204,7 @@ const Recharge=(props)=>{
                             <div className={styles.controlGroup}>
                                 <label className={styles.controlLabel}>支付方式</label>
                                 <Radio.Group style={{marginLeft:'20px'}} defaultValue={1}>
-                                    <Radio value={1}>支付宝支付</Radio>
+                                    <Radio value={1}>微信支付</Radio>
                                 </Radio.Group>
                             </div>
                             <div className={styles.fromActions}>

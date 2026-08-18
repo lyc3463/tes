@@ -420,7 +420,7 @@ const AddNewFinancialData=(props:any)=>{
         setGoodsList(result.fdList);
         setCompanyId(result.companyId);
         setProjectId(result.projectId);
-        getAccountListInfo(result.projectId);
+        // getAccountListInfo(result.projectId);
         setRemark(result.remark);
         setSupplierId(result.supplierId);
         setBxId(result.id);

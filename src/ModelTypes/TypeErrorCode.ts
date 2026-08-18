@@ -1,6 +1,7 @@
 type TypeErrorCode = {
     ErrorCode: number;
-    Data:any
+    Data:any,
+    A:number
 };
 
 export default TypeErrorCode;

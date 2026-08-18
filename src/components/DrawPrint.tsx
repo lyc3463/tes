@@ -15,6 +15,7 @@ interface PrintProps {
         productsCode?: string;
         unitsName?: string;
         quantity?: number;
+        ppId?: number;
     }>;
 }
 
@@ -30,34 +31,33 @@ const DrawPrint: React.FC<PrintProps> = ({ title, orderCode,user_name, warehouse
                     仓库: {warehouseName} |  领用日期: {dayjs(orderTime).format('YYYY-MM-DD')}
                 </p>
             </div>
-
             {/* 物品列表表格（渲染 goods 数组） */}
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                <tr style={{ border: '1px solid #000' }}>
-                    <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>物品名称</th>
-                    <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>编号</th>
-                    <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>单位</th>
-                    <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>数量</th>
-                </tr>
+                    <tr style={{ border: '1px solid #000' }}>
+                        <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>物品名称</th>
+                        <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>编号</th>
+                        <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>单位</th>
+                        <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>数量</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {displayData.length > 0 ? (
-                    displayData.map((item) => (
-                        <tr key={item.id} style={{ border: '1px solid #000' }}>
-                            <td style={{ border: '1px solid #000', padding: '8px' }}>{item.productsName || '未知物品'}</td>
-                            <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{item.productsCode || '-'}</td>
-                            <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{item.unitsName || '-'}</td>
-                            <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{item.quantity || 0}</td>
+                    {displayData.length > 0 ? (
+                        displayData.map((item) => (
+                            <tr key={item.ppId} style={{ border: '1px solid #000' }}>
+                                <td style={{ border: '1px solid #000', padding: '8px' }}>{item.productsName || '未知物品'}</td>
+                                <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{item.productsCode || '-'}</td>
+                                <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{item.unitsName || '-'}</td>
+                                <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{item.quantity || 0}</td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan={5} style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>
+                                暂无物品数据
+                            </td>
                         </tr>
-                    ))
-                ) : (
-                    <tr>
-                        <td colSpan={5} style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>
-                            暂无物品数据
-                        </td>
-                    </tr>
-                )}
+                    )}
                 </tbody>
             </table>
         </div>

@@ -1,4 +1,4 @@
-import {Button, Form, InputNumber, message, Space, Input, Spin} from "antd";
+import {Button, Form, InputNumber, message, Space, Input, Spin, Radio} from "antd";
 import {useEffect, useRef, useState} from "react";
 import {connect,history,useNavigate} from "umi";
 import * as ZuhuServer from "@/services/zuhu";
@@ -22,6 +22,7 @@ const Bymoney=(props)=>{
     const  [spinning,setspinning]=useState(false);
     const getOneCustom=async (id:string)=>{
         let res:any=await  ZuhuServer.one(id);
+        console.log('租户详情',res)
         if (res.ErrorCode==0){
             let data=res.Data;
             formRef.current.setFieldsValue(data[0]);
@@ -90,6 +91,12 @@ const Bymoney=(props)=>{
                         {/*<span style={{fontSize:'12px',color:'#999'}}>注:有账单欠费的情况下,只能通过该确定按钮修改最低充值,下面确定关联按钮修改不了最低充值</span>*/}
                         <span style={{fontSize:'12px',color:'#999'}}>租户最低充值金额</span>
                     </Space>
+                </Form.Item>
+                <Form.Item label='是否自动扣款' name='is_deduction'>
+                    <Radio.Group>
+                        <Radio value={1}>是</Radio>
+                        <Radio value={0}>否</Radio>
+                    </Radio.Group>
                 </Form.Item>
                 <Form.Item label='备注' name='remark'>
                     <Input.TextArea style={{width:'400px'}}/>

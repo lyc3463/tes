@@ -57,12 +57,12 @@ const Byappuser=(props)=>{
                 <Form.Item label='小程序手机号' name='tenant_phone' rules={[{required: true, message: '请输入手机号' },{pattern: phonePattern, message: '请输入有效的手机号'}]}>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='是否自动扣款' name='is_deduction'>
-                    <Radio.Group>
-                        <Radio value={1}>是</Radio>
-                        <Radio value={0}>否</Radio>
-                    </Radio.Group>
-                </Form.Item>
+                {/*<Form.Item label='是否自动扣款' name='is_deduction'>*/}
+                {/*    <Radio.Group>*/}
+                {/*        <Radio value={1}>是</Radio>*/}
+                {/*        <Radio value={0}>否</Radio>*/}
+                {/*    </Radio.Group>*/}
+                {/*</Form.Item>*/}
                 <Form.Item {...tailLayout}>
                  <Space>
                      <Button type="primary" htmlType="submit">

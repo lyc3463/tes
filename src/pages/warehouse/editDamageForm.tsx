@@ -60,7 +60,7 @@ const DamageForm=(props)=>{
             getList(data.warehouseId);
             if (data.ppList.length>0&&data.ppList){
                 let newArr=data.ppList.map((item:any,index)=>{
-                    return {...item,poId:data.id}
+                    return {...item,poId:data.id,productsId:item.id}
                 })
                 setDisplayData(newArr);
             }
@@ -88,13 +88,16 @@ const DamageForm=(props)=>{
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
                     ? `${window.ServerConfig.imgServer}${textStr}`
-                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
+                    : `${window.ServerConfig.imgServer}${textStr}_min.png`;
                 // 步骤3：仅当字符串非空时渲染图片，否则返回空
                 return textStr ? (
                     <Image
                         src={imageUrl}
                         style={{width:'50px',height:'50px'}}
                         fallback="https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片"
+                        preview={{
+                            src: `${window.ServerConfig.imgServer}${record.productsImage}.png`, // 弹窗预览图单独指定
+                        }}
                     />
                 ) : (
                     ''
@@ -102,41 +105,33 @@ const DamageForm=(props)=>{
             }
         },
         {
-            title: '物品名称',
-            dataIndex: 'productsName',
-            key:'productsName',
+            title: '物品选择',
+            dataIndex: 'inventoryId',
+            key: 'inventoryId',
+            width: 300,
             render: (text, record) => (
                 <Select
                     showSearch
                     optionFilterProp="children"
                     placeholder="搜索物品名称"
-                    style={{ width: 120 }}
-                    onChange={(value) => handleProductSelect(record.id, value)}
+                    style={{ width: '100%' }}
+                    value={text || undefined}
+                    onChange={(value) => handleProductSelect(value, record)}
                     filterOption={(input, option) => {
-                        if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) {
-                            return false;
-                        }
-                        // 查找匹配productsCode的物品 (使用productsCode代替id)
-                        const item = thingStockInfoList.find(unit => unit.productsCode == option.value);
+                        if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) return false;
+                        const item = thingStockInfoList.find(unit => `${unit.unitsName}${unit.productsName}` === option.value);
                         if (!item) return false;
                         const searchInput = input.toLowerCase();
-                        // 仍按名称搜索，但基于productsCode匹配的物品
                         return item.productsName?.toLowerCase().includes(searchInput);
                     }}
-                    // 选项值使用productsCode代替id (唯一非int标识符)
                     options={Array.isArray(thingStockInfoList)
                         ? thingStockInfoList.map(item => ({
-                            label: `${item.productsName}`,
-                            value: item.productsCode // 改为使用productsCode作为value
+                            label: `${item.unitsName}-${item.productsName}`,
+                            value: item.id
                         }))
                         : []}
                 />
             )
-        },
-        {
-            title: '物品名称',
-            dataIndex: 'productsName',
-            key:'productsName',
         },
         {
             title: '物品编号',
@@ -145,30 +140,14 @@ const DamageForm=(props)=>{
         },
         {
             title: '单位',
-            dataIndex: 'unitsId',
-            key: 'unitsId',
-            render: (text, record) => {
-                // Check if iList is a non-empty array
-                const hasValidUnits = Array.isArray(record.iList) && record.iList.length > 0;
-                // Render text if no valid units, otherwise render Select
-                if (!hasValidUnits) {
-                    return <span>{record.unitsName}</span>;
-                }
-                return (
-                    <Select
-                        showSearch
-                        optionFilterProp="children"
-                        placeholder="选择单位"
-                        style={{ width: 120 }}
-                        value={text || undefined}
-                        onChange={(value) => handleUnitSelect(record.id, value)}
-                        options={record.iList.map(item => ({
-                            label: item.unitsName || '',
-                            value: item.unitsId || 0
-                        }))}
-                    />
-                );
-            }
+            dataIndex: 'unitsName',
+            key: 'unitsName',
+            render: (text, record) => (
+                <Input
+                    min={0}
+                    value={text}
+                />
+            )
         },
         {
             title: '报损数量',
@@ -280,14 +259,28 @@ const DamageForm=(props)=>{
     }, []);
     const onOK=()=>{
         if (orderTime==='') return message.warning('请选择申请时间');
-        const filteredData = displayData.filter(item => item.productsCode !== '' && item.unitsId > 0);
+        const filteredData = displayData.filter(item => item.inventoryId !== 0 && item.unitsId > 0);
         if (filteredData.length === 0) return message.warning('请选择有效的物品信息');
         const hasInvalidQuantity = filteredData.some(item => item.quantity <= 0);
         if (hasInvalidQuantity) {
             return message.warning('请输入报损数量');
         }
-        console.log('selectedItems',filteredData);
-        let jsonData = JSON.stringify(filteredData);
+        let newFilteredData = filteredData.map((item:any)=>({
+            inventoryId: item.inventoryId,
+            quantity: item.quantity,
+            unitsId: item.unitsId,
+            productsName: item.productsName,
+            productsCode: item.productsCode,
+            productsImage: item.productsImage,
+            price: item.price,
+            totalPrice: item.totalPrice,
+            discountRateDp: item.discountRateDp,
+            discountPriceDp: item.discountPriceDp,
+            isZk: item.isZk,
+            id: item.productsId,
+            poId:uid
+        }));
+        let jsonData = JSON.stringify(newFilteredData);
         setSpinning(true);
         props.dispatch({
             type:'DamageForm/edit',
@@ -315,12 +308,12 @@ const DamageForm=(props)=>{
     const addTenEmptyRecords = () => {
         // 获取当前最大ID，不存在则从1开始
         const maxId = displayData.length > 0
-            ? Math.max(...displayData.map(item => item.id))
+            ? Math.max(...displayData.map(item => item.ppId))
             : 0;
 
         // 生成10条空记录，ID递增
         const newRecords = Array.from({length: 1}, (_, i) => ({
-            id: maxId + i + 1,
+            ppId: maxId + i + 1,
             productsImageBase64: '', // 同步物品图片
             brandId:0,
             abbreviation:'',
@@ -353,50 +346,37 @@ const DamageForm=(props)=>{
         setDisplayData([...displayData, ...newRecords]);
     };
     // 处理物品选择变更 - 更新物品名称及相关信息
-    const handleProductSelect = (recordId, productCode) => {
-        // 查找选中的物品信息
-        const selectedProduct = thingStockInfoList.find(item => item.productsCode === productCode);
-        ThingStockInfoServer.productsNameQuery(warehouseId,selectedProduct.productsCode).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                console.log('物品名称',res);
-                setDisplayData(displayData.map(item => {
-                    if (item.id === recordId) {
-                        return {
-                            ...item,
-                            productsImageBase64: res.Data.productsImageBase64 || '', // 同步物品图片
-                            productsImage: res.Data.productsImage || '', // 物品图片名称
-                            productsName: selectedProduct.productsName || '', // 物品名称
-                            iList: res.Data.iList || [],
-                            brandId:0,
-                            abbreviation:'',
-                            barcode:'',
-                            costPrice:0,
-                            groupId:0,
-                            inventoryId:0,
-                            number:0,
-                            presalePrice:0,
-                            price:0,
-                            priceKc:0,
-                            productsCode:'',
-                            quantity:0,
-                            quantityKc:0,
-                            retailPricce:0,
-                            specifications:'',
-                            totalPrice:0,
-                            unitsId:0,
-                            unitsName:'',
-                            isZk: 1,
-                            discountRateDp: 100,
-                            discountPriceDp: 0,
-                            poId:uid
-                        };
-                    }
-                    return item;
-                }));
-            }else {
-                message.error(res.Data);
+    const handleProductSelect = (value, record) => {
+        const selectedProduct = thingStockInfoList.find(item => item.id == value);
+        console.log('选择的物品', selectedProduct);
+        setDisplayData(displayData.map(item => {
+            if (item.id === record.id) {
+                return {
+                    ...item,
+                    productsImage: selectedProduct.productsImage || '',
+                    productsName: selectedProduct.productsName || '',
+                    iList: selectedProduct.unitsList || [],
+                    brandId: 0,
+                    costPrice: 0,
+                    inventoryId: selectedProduct.id,
+                    presalePrice: selectedProduct.presalePrice,
+                    price: selectedProduct.price,
+                    priceKc: 0,
+                    productsCode: selectedProduct.productsCode,
+                    quantity: 0,
+                    productsId: selectedProduct.productsId,
+                    quantityKc: selectedProduct.quantity || 0,
+                    retailPricce: selectedProduct.presalePrice,
+                    totalPrice: 0,
+                    unitsId: selectedProduct.unitsId || 0,
+                    unitsName: selectedProduct.unitsName || '',
+                    isZk: 1,
+                    discountRateDp: 100,
+                    discountPriceDp: 0,
+                };
             }
-        })
+            return item;
+        }));
     };
     return(
         <Spin spinning={spinning}>
@@ -462,7 +442,7 @@ const DamageForm=(props)=>{
             </Space>
             <Table
                 columns={columnsz}
-                rowKey="id"  // 简化rowKey写法
+                rowKey="ppId"  // 简化rowKey写法
                 pagination={false}
                 size='small'
                 scroll={{y:'55vh'}}

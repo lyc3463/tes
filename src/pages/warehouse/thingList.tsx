@@ -58,7 +58,7 @@ const ThingList = (props) => {
                     const textStr = String(text || '');
                     imageUrl = textStr && textStr.endsWith('.png')
                         ? `${window.ServerConfig.imgServer}${textStr}`
-                        : `${window.ServerConfig.imgServer}${textStr}_X.png`;
+                        : `${window.ServerConfig.imgServer}${textStr}_min.png`;
                 }
                 // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）
                 return (
@@ -72,6 +72,9 @@ const ThingList = (props) => {
                             // fallback 逻辑：图片加载失败时显示占位图
                             onError={(e) => {
                                 e.target.src = 'https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片';
+                            }}
+                            preview={{
+                                src: `${window.ServerConfig.imgServer}${record.productsImage}.png`, // 弹窗预览图单独指定
                             }}
                         />
                     </div>
@@ -96,21 +99,6 @@ const ThingList = (props) => {
         {
             title: '品牌方',
             dataIndex: 'brandName',
-            ellipsis: true,
-        },
-        {
-            title: '成本价',
-            dataIndex: 'costPrice',
-            ellipsis: true,
-        },
-        {
-            title: '零售控价',
-            dataIndex: 'presalePrice',
-            ellipsis: true,
-        },
-        {
-            title: '零售价',
-            dataIndex: 'retailPricce',
             ellipsis: true,
         },
         {

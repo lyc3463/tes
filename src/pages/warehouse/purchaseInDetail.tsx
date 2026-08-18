@@ -102,7 +102,7 @@ const PurchaseInDetail=(props)=>{
                     const textStr = String(text || '');
                     imageUrl = textStr && textStr.endsWith('.png')
                         ? `${window.ServerConfig.imgServer}${textStr}`
-                        : `${window.ServerConfig.imgServer}${textStr}_X.png`;
+                        : `${window.ServerConfig.imgServer}${textStr}_min.png`;
                 }
                 // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）
                 return (

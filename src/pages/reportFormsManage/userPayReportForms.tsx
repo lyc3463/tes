@@ -40,6 +40,7 @@ const userPayReportForms=(props)=>{
     const [consumptionMoney10,setconsumptionMoney10]=useState(0);
     const [consumptionMoney11,setconsumptionMoney11]=useState(0);
     const [consumptionMoney12,setconsumptionMoney12]=useState(0);
+    const [consumptionMoney13,setconsumptionMoney13]=useState(0);
     const [beginMoney,setbeginMoney]=useState(0);
     const [endMoney,setendMoney]=useState(0);
     const columns =[
@@ -111,13 +112,25 @@ const userPayReportForms=(props)=>{
             }
         },
         {
-            title: '租金/管理费(元)',
+            title: '租金',
             dataIndex: 'consumptionMoney2',
             key: 'consumptionMoney2',
             render:(text:any,record:any)=>{
                 return(
                     <div>
                         {record.consumptionMoney2.toFixed(2)}元
+                    </div>
+                )
+            }
+        },
+        {
+            title: '管理费',
+            dataIndex: 'consumptionMoney13',
+            key: 'consumptionMoney13',
+            render:(text:any,record:any)=>{
+                return(
+                    <div>
+                        {record.consumptionMoney13.toFixed(2)}元
                     </div>
                 )
             }
@@ -304,6 +317,7 @@ const userPayReportForms=(props)=>{
         let consumptionMoney10 = 0;
         let consumptionMoney11 = 0;
         let consumptionMoney12 = 0;
+        let consumptionMoney13 = 0;
         let beginMoney = 0;
         let endMoney = 0;
         // 遍历数组，累加每个属性的值
@@ -320,6 +334,7 @@ const userPayReportForms=(props)=>{
             consumptionMoney10 += transaction.consumptionMoney10 || 0;
             consumptionMoney11 += transaction.consumptionMoney11 || 0;
             consumptionMoney12 += transaction.consumptionMoney12 || 0;
+            consumptionMoney13 += transaction.consumptionMoney13 || 0;
             beginMoney += transaction.beginMoney || 0;
             endMoney += transaction.endMoney || 0;
         });
@@ -337,6 +352,7 @@ const userPayReportForms=(props)=>{
             consumptionMoney10: consumptionMoney10.toFixed(2)*1,
             consumptionMoney11: consumptionMoney11.toFixed(2)*1,
             consumptionMoney12: consumptionMoney12.toFixed(2)*1,
+            consumptionMoney13: consumptionMoney13.toFixed(2)*1,
             beginMoney: beginMoney.toFixed(2)*1,
             endMoney: endMoney.toFixed(2)*1,
         };
@@ -371,6 +387,7 @@ const userPayReportForms=(props)=>{
                 setconsumptionMoney10(sum.consumptionMoney10);
                 setconsumptionMoney11(sum.consumptionMoney11);
                 setconsumptionMoney12(sum.consumptionMoney12);
+                setconsumptionMoney13(sum.consumptionMoney13);
                 setbeginMoney(sum.beginMoney);
                 setendMoney(sum.endMoney);
             }else {
@@ -411,7 +428,7 @@ const userPayReportForms=(props)=>{
         const newDate = originalDate.add(1, 'day');
         WaterRateService.fetch({name,phone,startDate,endDate:dayjs(newDate).format('YYYY-MM-DD'),page:1,pageSize:100000}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let headers=['房屋','单元','租户','手机号','手动充值(元)','微信充值(元)','租金/管理费(元)','电费(元)','水费(元)','服务费(元)','公共缴费(元)','违约金(元)','月保(元)','大额转账(元)','报修(元)','装修押金(元)','开始时间','开始时间余额(元)','结束时间','结束时间余额(元)'];
+                let headers=['房屋','单元','租户','手机号','手动充值(元)','微信充值(元)','租金(元)','管理费(元)','电费(元)','水费(元)','服务费(元)','公共缴费(元)','违约金(元)','月保(元)','大额转账(元)','报修(元)','装修押金(元)','开始时间','开始时间余额(元)','结束时间','结束时间余额(元)'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [
@@ -427,6 +444,7 @@ const userPayReportForms=(props)=>{
                         item.consumptionMoney6.toFixed(2),
                         item.consumptionMoney.toFixed(2),
                         item.consumptionMoney2.toFixed(2),
+                        item.consumptionMoney13.toFixed(2),
                         item.consumptionMoney3.toFixed(2),
                         item.consumptionMoney4.toFixed(2),
                         item.consumptionMoney7.toFixed(2),
@@ -449,6 +467,7 @@ const userPayReportForms=(props)=>{
                         { v: consumptionMoney6.toFixed(2), t: 'n' },
                         { v: consumptionMoney.toFixed(2), t: 'n' },
                         { v: consumptionMoney2.toFixed(2), t: 'n' },
+                        { v: consumptionMoney13.toFixed(2), t: 'n' },
                         { v: consumptionMoney3.toFixed(2), t: 'n' },
                         { v: consumptionMoney4.toFixed(2), t: 'n' },
                         { v: consumptionMoney7.toFixed(2), t: 'n' },
@@ -545,6 +564,9 @@ const userPayReportForms=(props)=>{
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={2}>
                                 {consumptionMoney2}元
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={2}>
+                                {consumptionMoney13}元
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={3}>
                                 {consumptionMoney3}元

@@ -146,6 +146,7 @@ const ParameterList=(props:any)=>{
                             <Input
                                 addonBefore="参数名称:"
                                 onChange={changeName}
+                                value={cname}
                             />
                             <Space.Compact>
                                 <div

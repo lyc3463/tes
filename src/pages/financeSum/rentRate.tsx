@@ -35,7 +35,7 @@ const RentRate=(props)=>{
     const [count,setcount]=useState(0);
     // 列表
     const [dataSource,setdataSource]=useState([]);
-    // 租金管理费统计
+    // 租金统计
     const [moneySum,setmoneySum]=useState(0);
     const [uqx,setUqx]=useState([]);
     // 搜索
@@ -143,7 +143,7 @@ const RentRate=(props)=>{
             key: 'tenant_phone',
         },
         {
-            title: '租金/管理费',
+            title: '租金',
             dataIndex: 'payAmount',
             key: 'payAmount',
             render:(text:any,record:any)=>{
@@ -207,7 +207,7 @@ const RentRate=(props)=>{
         setspinning(true);
         RechargeRateService.zujinList({page:1,name,phone,startDate,endDate,tenandId,pageSize:100000}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let headers=['日期','租户名称','手机号','类型','租金/管理费(元)','优惠金额','优惠前租金','违约金(元)','状态'];
+                let headers=['日期','租户名称','手机号','类型','租金(元)','优惠金额','优惠前租金','违约金(元)','状态'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.data.map(item => [

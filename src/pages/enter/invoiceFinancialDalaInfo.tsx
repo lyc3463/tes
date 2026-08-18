@@ -1,4 +1,5 @@
 import {
+    Badge,
     Button, Card,
     DatePicker,
     Image,
@@ -16,16 +17,13 @@ import {
 import {useEffect, useState} from "react";
 import {connect,history,useNavigate} from "umi";
 import dayjs from "dayjs";
-import {generate, getCurrentDate} from "@/utils/OpenTool";
-import {StaticInfo} from "@/StaticInfo";
-import {AlignCenterOutlined, ClearOutlined, DeleteOutlined, FilePdfOutlined} from "@ant-design/icons";
+import {AlignCenterOutlined, FilePdfOutlined} from "@ant-design/icons";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as ProjectService from "@/services/project";
-import ImageUploadPng from "@/components/ImageUploadPng";
 import * as NewFinancialDataService from "@/services/newFinancialData";
 import ReimbursePrint from "@/components/MyReimbursePrint";
 import {getImgSrc} from "@/utils/OpenTool";
-import PdfUpload from "@/components/PdfUpload";
+import CaigouTagList from "@/components/CaigouTagListProps";
 
 const EditInvoiceFinancialDala=(props:any)=>{
     const [spinning, setSpinning] = useState(false);
@@ -61,7 +59,9 @@ const EditInvoiceFinancialDala=(props:any)=>{
     const [imgList,setImgList]=useState([]);
     const [oneInfo,setOneInfo]=useState({});
     const [pdfFileName, setPdfFileName] = useState([]);
-
+    const [caigou,setCaigou]=useState([]);
+    // 采购单
+    const [isOpenInfo,setIsOpenInfo]=useState(false);
 
     const getOneInfo=(id:any)=>{
         NewFinancialDataService.one(id).then((res:TypeErrorCode)=>{
@@ -79,6 +79,16 @@ const EditInvoiceFinancialDala=(props:any)=>{
                 setTotalAmount(res.Data.totalAmount);
                 setPaidAmount(res.Data.paidAmount);
                 setRemark(res.Data.remark);
+                let mapPolist=res.Data.poList.map((item:any)=>{
+                    return (
+                        {
+                            ...item,
+                            orderCode: item.number || '',
+                            id: item.poId || 0,
+                        }
+                    )
+                });
+                setCaigou(mapPolist);
                 setSupplierId(res.Data.supplierId);
                 const foImage = res.Data.foImage || '';
                 const allFiles = foImage.split('|').filter(Boolean);
@@ -171,35 +181,6 @@ const EditInvoiceFinancialDala=(props:any)=>{
             )
         },
     ];
-    // 上传图片
-    const onImageUpload = (imgName: string) => {
-        console.log(imgName);
-        setImgList(prev => [...prev, imgName]);
-    };
-    // 数量
-    const handleQuantityChange=(id:number,value:number)=>{
-        setGoodsList(prev =>
-            prev.map(item =>
-                item.id === id ? { ...item, quantity: value } : item
-            )
-        );
-    };
-    // 单位
-    const handleUnitChange=(id:number,value:string)=>{
-        setGoodsList(prev =>
-            prev.map(item =>
-                item.id === id ? { ...item, unit: value } : item
-            )
-        );
-    };
-    // 单价
-    const handlePriceChange=(id:number,value:number)=>{
-        setGoodsList(prev =>
-            prev.map(item =>
-                item.id === id ? { ...item, unitPrice: value } : item
-            )
-        );
-    };
     const generateMultipleRecords = (count: number) => {
         // 计算起始ID（当前最大ID + 1，若为空则从1开始）
         const maxId = goodsList.length > 0
@@ -413,6 +394,12 @@ const EditInvoiceFinancialDala=(props:any)=>{
     const isOpen=()=>{
         setPrintVisible(true);
     };
+    const handleRemoveCaigou = (delId: number | string) => {
+        setCaigou(prev => prev.filter(item => item.id !== delId));
+    };
+    const openInfoClick=()=>{
+        setIsOpenInfo(true);
+    };
     return(
         <Spin spinning={spinning}>
             <style global>
@@ -483,6 +470,22 @@ const EditInvoiceFinancialDala=(props:any)=>{
                     {/*<Radio value={2}>支出</Radio>*/}
                     <Radio value={3}>报销</Radio>
                 </Radio.Group>
+                <Badge
+                    count={caigou.length}
+                    style={{
+                        backgroundColor: '#ff4d4f',
+                        fontSize: '12px',
+                        minWidth: '18px',
+                        height: '18px',
+                        lineHeight: '18px',
+                        top: '-8px',
+                        right: '-8px'
+                    }}
+                >
+                    <Button type="primary" onClick={openInfoClick}>
+                        详情
+                    </Button>
+                </Badge>
             </Space>
             <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
                 <Space.Compact>
@@ -675,6 +678,10 @@ const EditInvoiceFinancialDala=(props:any)=>{
                     />
                     {/*<ReimbursePrint item={{...oneInfo,fdList:goodsList}}/>*/}
                 </div>
+            </Modal>
+            {/*勾选采购单的详情*/}
+            <Modal open={isOpenInfo} title='勾选详情' onCancel={()=>setIsOpenInfo(false)} width={1200} onOk={()=>{setIsOpenInfo(false);}}>
+                <CaigouTagList list={caigou} onRemove={handleRemoveCaigou}/>
             </Modal>
         </Spin>
     )

@@ -162,38 +162,35 @@ const addReturnForm = (props) => {
             }
         },
         {
-            title: '选择物品',
-            dataIndex: 'productsName',
-            key: 'selectProducts',
+            title: '物品选择',
+            dataIndex: 'inventoryId',
+            key: 'inventoryId',
+            width: 300,
             render: (text, record) => (
                 <Select
                     showSearch
                     optionFilterProp="children"
                     placeholder="搜索物品名称"
-                    style={{ width: 120 }}
+                    style={{ width: '100%' }}
                     value={text || undefined}
-                    onChange={(value, label) => handleProductSelect(record.id, label)}
+                    onChange={(value) => handleProductSelect(value, record)}
                     filterOption={(input, option) => {
                         if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) return false;
-                        const item = thingStockInfoList.find(unit => `${unit.productsCode}${unit.productsName}` === option.value);
+                        const item = thingStockInfoList.find(unit => `${unit.unitsName}${unit.productsName}` === option.value);
                         if (!item) return false;
                         const searchInput = input.toLowerCase();
                         return item.productsName?.toLowerCase().includes(searchInput);
                     }}
                     options={Array.isArray(thingStockInfoList)
                         ? thingStockInfoList.map(item => ({
-                            label: `${item.productsName}`,
-                            value: `${item.productsCode + item.productsName}`
+                            label: `${item.unitsName}-${item.productsName}`,
+                            value: item.id
                         }))
                         : []}
                 />
             )
         },
-        {
-            title: '物品名称',
-            dataIndex: 'productsName',
-            key: 'productsName',
-        },
+
         {
             title: '物品编号',
             dataIndex: 'productsCode',
@@ -201,22 +198,12 @@ const addReturnForm = (props) => {
         },
         {
             title: '单位',
-            dataIndex: 'unitsId',
-            key: 'unitsId',
+            dataIndex: 'unitsName',
+            key: 'unitsName',
             render: (text, record) => (
-                <Select
-                    showSearch
-                    optionFilterProp="children"
-                    placeholder="选择单位"
-                    style={{ width: 120 }}
-                    value={text || undefined}
-                    onChange={(value) => handleUnitSelect(record.id, value)}
-                    options={Array.isArray(record.iList)
-                        ? record.iList.map(item => ({
-                            label: item.unitsName || '',
-                            value: item.unitsId || 0
-                        }))
-                        : []}
+                <Input
+                    min={0}
+                    value={text}
                 />
             )
         },
@@ -324,47 +311,80 @@ const addReturnForm = (props) => {
     };
 
     // 选择物品回填明细
-    const handleProductSelect = (recordId, label) => {
-        const selectedProduct = thingStockInfoList.find(item => item.productsName === label.label);
-        ThingStockInfoServer.productsNameQuery(warehouseId, selectedProduct.productsCode).then((res: TypeErrorCode) => {
-            if (res.ErrorCode == 0) {
-                setDisplayData(displayData.map(item => {
-                    if (item.id === recordId) {
-                        return {
-                            ...item,
-                            productsImageBase64: res.Data.productsImageBase64 || '',
-                            productsImage: res.Data.productsImage || '',
-                            productsName: selectedProduct.productsName || '',
-                            iList: res.Data.iList || [],
-                            brandId: 0,
-                            abbreviation: '',
-                            barcode: '',
-                            costPrice: 0,
-                            groupId: 0,
-                            inventoryId: 0,
-                            number: 0,
-                            presalePrice: 0,
-                            price: 0,
-                            priceKc: 0,
-                            productsCode: 0,
-                            quantity: 0,
-                            quantityKc: 0,
-                            retailPricce: 0,
-                            specifications: '',
-                            totalPrice: 0,
-                            unitsId: 0,
-                            unitsName: 0,
-                            isZk: 1,
-                            discountRateDp: 100,
-                            discountPriceDp: 0,
-                        };
-                    }
-                    return item;
-                }));
-            } else {
-                message.error(res.Data);
+    const handleProductSelect = (value, record) => {
+        const selectedProduct = thingStockInfoList.find(item => item.id == value);
+        console.log('选择的物品', selectedProduct);
+        setDisplayData(displayData.map(item => {
+            if (item.id === record.id) {
+                return {
+                    ...item,
+                    productsImage: selectedProduct.productsImage || '',
+                    productsName: selectedProduct.productsName || '',
+                    iList: selectedProduct.unitsList || [],
+                    brandId: 0,
+                    costPrice: 0,
+                    inventoryId: selectedProduct.id,
+                    presalePrice: selectedProduct.presalePrice,
+                    price: selectedProduct.price,
+                    priceKc: 0,
+                    productsCode: selectedProduct.productsCode,
+                    quantity: 0,
+                    productsId:selectedProduct.productsId,
+                    quantityKc: selectedProduct.quantity || 0,
+                    retailPricce: selectedProduct.presalePrice,
+                    totalPrice: 0,
+                    unitsId: selectedProduct.unitsId || 0,
+                    unitsName: selectedProduct.unitsName || '',
+                    isZk: 1,
+                    discountRateDp: 100,
+                    discountPriceDp: 0,
+                };
             }
-        })
+            return item;
+        }));
+
+
+        // const selectedProduct = thingStockInfoList.find(item => item.productsName === label.label);
+        // ThingStockInfoServer.productsNameQuery(warehouseId, selectedProduct.productsCode).then((res: TypeErrorCode) => {
+        //     console.log('选择的物品', res);
+        //     if (res.ErrorCode == 0) {
+        //         setDisplayData(displayData.map(item => {
+        //             if (item.id === recordId) {
+        //                 return {
+        //                     ...item,
+        //                     productsImageBase64: res.Data.productsImageBase64 || '',
+        //                     productsImage: res.Data.productsImage || '',
+        //                     productsName: selectedProduct.productsName || '',
+        //                     iList: res.Data.iList || [],
+        //                     brandId: 0,
+        //                     abbreviation: '',
+        //                     barcode: '',
+        //                     costPrice: 0,
+        //                     groupId: 0,
+        //                     inventoryId: 0,
+        //                     number: 0,
+        //                     presalePrice: 0,
+        //                     price: 0,
+        //                     priceKc: 0,
+        //                     productsCode: 0,
+        //                     quantity: 0,
+        //                     quantityKc: 0,
+        //                     retailPricce: 0,
+        //                     specifications: '',
+        //                     totalPrice: 0,
+        //                     unitsId: 0,
+        //                     unitsName: 0,
+        //                     isZk: 1,
+        //                     discountRateDp: 100,
+        //                     discountPriceDp: 0,
+        //                 };
+        //             }
+        //             return item;
+        //         }));
+        //     } else {
+        //         message.error(res.Data);
+        //     }
+        // })
     };
 
     // 日期切换
@@ -409,7 +429,21 @@ const addReturnForm = (props) => {
         if (hasInvalidQuantity) {
             return message.warning('请输入退货数量');
         }
-        let jsonData = JSON.stringify(filteredData);
+        let newFilteredData = filteredData.map((item:any)=>({
+            inventoryId: item.inventoryId,
+            quantity: item.quantity,
+            unitsId: item.unitsId,
+            productsName: item.productsName,
+            productsCode: item.productsCode,
+            productsImage: item.productsImage,
+            price: item.price,
+            totalPrice: item.totalPrice,
+            discountRateDp: item.discountRateDp,
+            discountPriceDp: item.discountPriceDp,
+            isZk: item.isZk,
+            id: item.productsId,
+        }));
+        let jsonData = JSON.stringify(newFilteredData);
         setSpinning(true);
         props.dispatch({
             type: 'ReturnForm/add',

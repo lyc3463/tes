@@ -112,7 +112,7 @@ const InfpApplication=(props)=>{
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
                     ? `${window.ServerConfig.imgServer}${textStr}`
-                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
+                    : `${window.ServerConfig.imgServer}${textStr}.png`;
                 // 步骤3：仅当字符串非空时渲染图片，否则返回空
                 return textStr ? (
                     <Image
@@ -163,11 +163,6 @@ const InfpApplication=(props)=>{
             )
         },
         {
-            title: '物品名称',
-            dataIndex: 'productsName',
-            key:'productsName',
-        },
-        {
             title: '物品编号',
             dataIndex: 'productsCode',
             key:'productsCode',
@@ -178,20 +173,23 @@ const InfpApplication=(props)=>{
             key:'unitsId',
             render:(text, record) => (
                 <div>
-                    {
-                        record.isHs==0?<span>{record.unitsName}</span>:
-                            <Select
-                                placeholder='选择单位'
-                                disabled={record.isHs==0}
-                                style={{width:120}}
-                                options={Array.isArray(record.unitsList) && record.unitsList.length > 0
-                                    ? record.unitsList.map((item:any)=>({
-                                        label:item.unitsName,
-                                        value:item.from_unit_id,
-                                    }))
-                                    : []}
-                            />
-                    }
+                    <Select
+                        placeholder='单位'
+                        showSearch
+                        value={record.unitsId}
+                        optionFilterProp="children"
+                        filterOption={(input, option) => {
+                            // 假设每个 option 都有一个与数据项对应的 value 属性
+                            const item = props.UnitSetting.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                            return item?.unitsName?.toLowerCase().includes(input.toLowerCase());
+                        }}
+                        options={Array.isArray(props.UnitSetting) && props.UnitSetting.length > 0
+                            ? props.UnitSetting.map((item:any)=>({
+                                label:item.unitsName,
+                                value:item.id,
+                            }))
+                            : []}
+                    />
                 </div>
             )
         },
@@ -253,10 +251,17 @@ const InfpApplication=(props)=>{
             type:"ThingList/fetch",
         })
     };
+    // 获取单位列表
+    const getUnitSettingList=()=>{
+        props.dispatch({
+            type:"UnitSetting/fetch",
+        })
+    };
     useEffect(() => {
         getSupplierList();
         getWarehouseList();
         getThingList();
+        getUnitSettingList();
     }, []);
     // 自定义打印方法（处理内容隔离和样式）
     const handlePrint = useReactToPrint({
@@ -398,5 +403,6 @@ const mapStateToProps = (state: any) => ({
     warehouseListList: state.WarehouseList.list,
     supplierList: state.Supplier.list,
     thingList: state.ThingList.list,
+    UnitSetting: state.UnitSetting.list,
 });
 export default connect(mapStateToProps)(InfpApplication);

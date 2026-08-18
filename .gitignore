@@ -8,3 +8,5 @@
 /dist
 /.idea
 .swc
+# Build output
+dist/

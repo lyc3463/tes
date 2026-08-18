@@ -203,41 +203,33 @@ const addSalesList = (props) => {
             }
         },
         {
-            title: '物品名称',
-            dataIndex: 'productsName',
-            key: 'productsName',
+            title: '物品选择',
+            dataIndex: 'inventoryId',
+            key: 'inventoryId',
+            width: 300,
             render: (text, record) => (
                 <Select
                     showSearch
                     optionFilterProp="children"
                     placeholder="搜索物品名称"
-                    style={{ width: 120 }}
+                    style={{ width: '100%' }}
                     value={text || undefined}
-                    onChange={(value, label) => handleProductSelect(record.id, label)}
+                    onChange={(value) => handleProductSelect(value, record)}
                     filterOption={(input, option) => {
-                        if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) {
-                            return false;
-                        }
-                        const item = thingStockInfoList.find(
-                            unit => `${unit.productsCode}${unit.productsName}` === option.value
-                        );
+                        if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) return false;
+                        const item = thingStockInfoList.find(unit => `${unit.unitsName}${unit.productsName}` === option.value);
                         if (!item) return false;
                         const searchInput = input.toLowerCase();
                         return item.productsName?.toLowerCase().includes(searchInput);
                     }}
                     options={Array.isArray(thingStockInfoList)
                         ? thingStockInfoList.map(item => ({
-                            label: `${item.productsName}`,
-                            value: `${item.productsCode + item.productsName}`
+                            label: `${item.unitsName}-${item.productsName}`,
+                            value: item.id
                         }))
                         : []}
                 />
             )
-        },
-        {
-            title: '物品名称',
-            dataIndex: 'productsName',
-            key: 'productsName',
         },
         {
             title: '物品编号',
@@ -246,22 +238,12 @@ const addSalesList = (props) => {
         },
         {
             title: '单位',
-            dataIndex: 'unitsId',
-            key: 'unitsId',
+            dataIndex: 'unitsName',
+            key: 'unitsName',
             render: (text, record) => (
-                <Select
-                    showSearch
-                    optionFilterProp="children"
-                    placeholder="选择单位"
-                    style={{ width: 120 }}
-                    value={text || undefined}
-                    onChange={(value) => handleUnitSelect(record.id, value)}
-                    options={Array.isArray(record.iList)
-                        ? record.iList.map(item => ({
-                            label: item.unitsName || '',
-                            value: item.unitsId || 0
-                        }))
-                        : []}
+                <Input
+                    min={0}
+                    value={text}
                 />
             )
         },
@@ -366,114 +348,81 @@ const addSalesList = (props) => {
         setDisplayData(displayData.filter((item) => item.id !== id));
     };
 
-    const  setPresalePrice=(data, conversions) =>{
-        const presaleMap = {};
-        const retailMap = {};
-
-        const baseUnitId = data.unitsId;
-
-        function fix(num) {
-            return Number(num.toFixed(2));
-        }
-
-        // 当前单位价格固定
-        presaleMap[baseUnitId] = fix(data.presalePrice);
-        retailMap[baseUnitId] = fix(data.retailPricce);
-
-        function calculate(unitId) {
-            const currentPresale = presaleMap[unitId];
-            const currentRetail = retailMap[unitId];
-
-            // 向上找
-            conversions
-                .filter(item => item.to_unit_id === unitId)
-                .forEach(item => {
-                    if (presaleMap[item.from_unit_id] == null) {
-                        presaleMap[item.from_unit_id] = fix(
-                            currentPresale * item.conversion_rate
-                        );
-                        retailMap[item.from_unit_id] = fix(
-                            currentRetail * item.conversion_rate
-                        );
-
-                        calculate(item.from_unit_id);
-                    }
-                });
-
-            // 向下找
-            conversions
-                .filter(item => item.from_unit_id === unitId)
-                .forEach(item => {
-                    if (item.to_unit_id !== 0 && presaleMap[item.to_unit_id] == null) {
-                        presaleMap[item.to_unit_id] = fix(
-                            currentPresale / item.conversion_rate
-                        );
-                        retailMap[item.to_unit_id] = fix(
-                            currentRetail / item.conversion_rate
-                        );
-
-                        calculate(item.to_unit_id);
-                    }
-                });
-        }
-        calculate(baseUnitId);
-        data.iList.forEach(item => {
-            item.presalePrice = presaleMap[item.unitsId] ?? 0;
-            item.retailPricce = retailMap[item.unitsId] ?? 0;
-        });
-
-        return data.iList;
-    }
     // 处理物品选择变更
-    const handleProductSelect = (recordId,label) => {
-        // 查找选中的物品信息
-        const selectedProduct = thingStockInfoList.find(item => item.productsName === label.label);
-        ThingStockInfoServer.productsNameQuery(warehouseId,selectedProduct.productsCode).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                let groupList=[];
-                ThingListvice.one(res.Data.groupId).then((groupRes:TypeErrorCode)=>{
-                    if(groupRes.ErrorCode===0){
-                        groupList=groupRes.Data.unitsList||[];
-                        let newarr=setPresalePrice(res.Data,groupRes.Data.unitsList);
-                        setDisplayData(displayData.map(item => {
-                            if (item.id === recordId) {
-                                return {
-                                    ...item,
-                                    productsImageBase64: res.Data.productsImageBase64 || '', // 同步物品图片
-                                    productsImage: res.Data.productsImage || '', // 物品图片名称
-                                    productsName: selectedProduct.productsName || '', // 物品名称
-                                    iList: res.Data.iList || [],
-                                    brandId:0,
-                                    abbreviation:'',
-                                    barcode:'',
-                                    costPrice:0,
-                                    groupId:0,
-                                    inventoryId:0,
-                                    number:0,
-                                    presalePrice:res.Data.presalePrice,
-                                    price:0,
-                                    priceKc:0,
-                                    productsCode:0,
-                                    quantity:0,
-                                    quantityKc:0,
-                                    retailPricce:res.Data.retailPricce,
-                                    specifications:'',
-                                    totalPrice:0,
-                                    unitsId:0,
-                                    unitsName:0,
-                                    isZk: 1,
-                                    discountRateDp: 100,
-                                    discountPriceDp: 0,
-                                };
-                            }
-                            return item;
-                        }));
-                    }
-                })
-            }else {
-                message.error(res.Data);
+    const handleProductSelect = (value, record) => {
+        const selectedProduct = thingStockInfoList.find(item => item.id == value);
+        console.log('选择的物品', selectedProduct);
+        setDisplayData(displayData.map(item => {
+            if (item.id === record.id) {
+                return {
+                    ...item,
+                    productsImage: selectedProduct.productsImage || '',
+                    productsName: selectedProduct.productsName || '',
+                    iList: selectedProduct.unitsList || [],
+                    brandId: 0,
+                    costPrice: 0,
+                    inventoryId: selectedProduct.id,
+                    presalePrice: selectedProduct.presalePrice,
+                    price: selectedProduct.price,
+                    priceKc: 0,
+                    productsCode: selectedProduct.productsCode,
+                    quantity: 0,
+                    productsId:selectedProduct.productsId,
+                    quantityKc: selectedProduct.quantity || 0,
+                    retailPricce: selectedProduct.presalePrice,
+                    totalPrice: 0,
+                    unitsId: selectedProduct.unitsId || 0,
+                    unitsName: selectedProduct.unitsName || '',
+                    isZk: 1,
+                    discountRateDp: 100,
+                    discountPriceDp: 0,
+                };
             }
-        })
+            return item;
+        }));
+
+
+        // const selectedProduct = thingStockInfoList.find(item => item.productsName === label.label);
+        // ThingStockInfoServer.productsNameQuery(warehouseId, selectedProduct.productsCode).then((res: TypeErrorCode) => {
+        //     console.log('选择的物品', res);
+        //     if (res.ErrorCode == 0) {
+        //         setDisplayData(displayData.map(item => {
+        //             if (item.id === recordId) {
+        //                 return {
+        //                     ...item,
+        //                     productsImageBase64: res.Data.productsImageBase64 || '',
+        //                     productsImage: res.Data.productsImage || '',
+        //                     productsName: selectedProduct.productsName || '',
+        //                     iList: res.Data.iList || [],
+        //                     brandId: 0,
+        //                     abbreviation: '',
+        //                     barcode: '',
+        //                     costPrice: 0,
+        //                     groupId: 0,
+        //                     inventoryId: 0,
+        //                     number: 0,
+        //                     presalePrice: 0,
+        //                     price: 0,
+        //                     priceKc: 0,
+        //                     productsCode: 0,
+        //                     quantity: 0,
+        //                     quantityKc: 0,
+        //                     retailPricce: 0,
+        //                     specifications: '',
+        //                     totalPrice: 0,
+        //                     unitsId: 0,
+        //                     unitsName: 0,
+        //                     isZk: 1,
+        //                     discountRateDp: 100,
+        //                     discountPriceDp: 0,
+        //                 };
+        //             }
+        //             return item;
+        //         }));
+        //     } else {
+        //         message.error(res.Data);
+        //     }
+        // })
     };
     // 修改出库数量
     const changproductsNum = (value, recordId) => {
@@ -584,7 +533,21 @@ const addSalesList = (props) => {
         if (hasInvalidQuantity) {
             return message.warning('请输入销售数量');
         }
-        let jsonData = JSON.stringify(filteredData);
+        let newFilteredData = filteredData.map((item:any)=>({
+            inventoryId: item.inventoryId,
+            quantity: item.quantity,
+            unitsId: item.unitsId,
+            productsName: item.productsName,
+            productsCode: item.productsCode,
+            productsImage: item.productsImage,
+            price: item.price,
+            totalPrice: item.totalPrice,
+            discountRateDp: item.discountRateDp,
+            discountPriceDp: item.discountPriceDp,
+            isZk: item.isZk,
+            id: item.productsId,
+        }));
+        let jsonData = JSON.stringify(newFilteredData);
         setSpinning(true);
         props.dispatch({
             type: 'SalesList/add',

@@ -48,7 +48,7 @@ const EditApplication=(props)=>{
         let res:any=await  Application.one(id);
         if (res.ErrorCode==0){
             let data=res.Data;
-            console.log('data',data);
+            console.log('详情',data);
             setSpinning(false);
             setOrderCode(data.orderCode);
             setWarehouseId(data.warehouseId);
@@ -81,93 +81,76 @@ const EditApplication=(props)=>{
     };
     // 处理物品选择变更 - 更新物品名称及相关信息
     const handleProductSelect = (recordId, productId) => {
-        // 查找选中的物品信息
         const selectedProduct = props.thingList.find(item => item.id === productId);
-        if (!selectedProduct) return;
-        console.log('大数组',selectedProduct)
-        let processedUnitsList = selectedProduct.unitsList || [];
-        if (selectedProduct.isHs === 1 && processedUnitsList.length > 0) {
-            // 1. 复制单位列表避免直接修改原数据
-            processedUnitsList = [...selectedProduct.unitsList];
-
-            // 2. 创建单位ID映射表（from_unit_id → 单位对象）
-            const unitMap = processedUnitsList.reduce((map, unit) => {
-                map[unit.from_unit_id] = unit;
-                return map;
-            }, {});
-
-            // 3. 根据大数组的unitsId定位基准单位（from_unit_id === unitsId）
-            const targetUnitId = selectedProduct.unitsId; // 大数组的unitsId
-            const targetUnit = unitMap[targetUnitId]; // 基准单位
-            if (!targetUnit) {
-                console.error(`未找到from_unit_id=${targetUnitId}的单位`);
-                return;
-            }
-            // 4. 基准单位价格初始化（新增presalePrice和retailPricce的基准值）
-            targetUnit.price = selectedProduct.costPrice || 0;
-            targetUnit.presalePrice = selectedProduct.presalePrice || 0; // 新增：基准预售价格
-            targetUnit.retailPricce = selectedProduct.retailPricce || 0; // 新增：基准控价
-
-            // 5. 向下计算小单位价格（基准单位 → 更小单位）
-            let currentUnit = targetUnit;
-            while (currentUnit.to_unit_id !== 0) {
-                const childUnit = unitMap[currentUnit.to_unit_id];
-                if (!childUnit) break;
-                // 小单位价格计算（同步更新三个价格字段）
-                childUnit.price = currentUnit.price / currentUnit.conversion_rate;
-                childUnit.presalePrice = currentUnit.presalePrice / currentUnit.conversion_rate; // 新增：预售价格换算
-                childUnit.retailPricce = currentUnit.retailPricce / currentUnit.conversion_rate; // 新增：控价换算
-                currentUnit = childUnit;
-            }
-
-            // 6. 向上计算大单位价格（基准单位 → 更大单位）
-            const parentMap = processedUnitsList.reduce((map, unit) => {
-                map[unit.to_unit_id] = unit;
-                return map;
-            }, {});
-
-            currentUnit = targetUnit;
-            while (parentMap[currentUnit.from_unit_id]) {
-                const parentUnit = parentMap[currentUnit.from_unit_id];
-                if (!parentUnit) break;
-                // 大单位价格计算（同步更新三个价格字段）
-                parentUnit.price = currentUnit.price * parentUnit.conversion_rate;
-                parentUnit.presalePrice = currentUnit.presalePrice * parentUnit.conversion_rate; // 新增：预售价格换算
-                parentUnit.retailPricce = currentUnit.retailPricce * parentUnit.conversion_rate; // 新增：控价换算
-                currentUnit = parentUnit;
-            }
-        }
-        console.log('过滤后的物品,',processedUnitsList);
-        // 更新goods状态中对应记录的信息
+        console.log('物品详情',selectedProduct)
+        // if (!selectedProduct) return;
+        // let processedUnitsList = selectedProduct.unitsList || [];
+        // if (selectedProduct.isHs === 1 && processedUnitsList.length > 0) {
+        //     processedUnitsList = [...selectedProduct.unitsList];
+        //     const unitMap = processedUnitsList.reduce((map, unit) => {
+        //         map[unit.from_unit_id] = unit;
+        //         return map;
+        //     }, {});
+        //     const targetUnitId = selectedProduct.unitsId;
+        //     const targetUnit = unitMap[targetUnitId];
+        //     if (!targetUnit) return;
+        //     targetUnit.price = selectedProduct.costPrice || 0;
+        //     targetUnit.presalePrice = selectedProduct.presalePrice || 0;
+        //     targetUnit.retailPricce = selectedProduct.retailPricce || 0;
+        //     let currentUnit = targetUnit;
+        //     while (currentUnit.to_unit_id !== 0) {
+        //         const childUnit = unitMap[currentUnit.to_unit_id];
+        //         if (!childUnit) break;
+        //         childUnit.price = currentUnit.price / currentUnit.conversion_rate;
+        //         childUnit.presalePrice = currentUnit.presalePrice / currentUnit.conversion_rate;
+        //         childUnit.retailPricce = currentUnit.retailPricce / currentUnit.conversion_rate;
+        //         currentUnit = childUnit;
+        //     }
+        //     const parentMap = processedUnitsList.reduce((map, unit) => {
+        //         map[unit.to_unit_id] = unit;
+        //         return map;
+        //     }, {});
+        //     currentUnit = targetUnit;
+        //     while (parentMap[currentUnit.from_unit_id]) {
+        //         const parentUnit = parentMap[currentUnit.from_unit_id];
+        //         if (!parentUnit) break;
+        //         parentUnit.price = currentUnit.price * parentUnit.conversion_rate;
+        //         parentUnit.presalePrice = currentUnit.presalePrice * parentUnit.conversion_rate;
+        //         parentUnit.retailPricce = currentUnit.retailPricce * parentUnit.conversion_rate;
+        //         currentUnit = parentUnit;
+        //     }
+        // }
         setGoods(goods.map(item => {
             if (item.id === recordId) {
                 return {
                     ...item,
-                    productsImageBase64: selectedProduct.productsImageBase64 || '', // 同步物品图片
-                    productsName: selectedProduct.productsName, // 更新物品名称
-                    productsCode: selectedProduct.productsCode || '', // 同步物品编号
-                    abbreviation: selectedProduct.abbreviation || '', // 同步物品助查码
-                    productsImage: selectedProduct.productsImage || '', // 图片名称
-                    brandId: selectedProduct.brandId || 0, // 同步物品品牌
-                    groupId: selectedProduct.groupId || 0, // 同步物品分组
-                    number: selectedProduct.number || 0, // 同步物品数量
-                    presalePrice: selectedProduct.presalePrice || 0, // 同步物品预售价
-                    retailPricce: selectedProduct.retailPricce || 0, // 同步物品控价
-                    costPrice: selectedProduct.costPrice || 0, // 同步物品成本价
-                    specifications: selectedProduct.specifications || '', // 同步物品规格
-                    barcode: selectedProduct.barcode || '', // 同步物品条码
-                    remark: selectedProduct.remark || '', // 同步物品备注
-                    unitsId: selectedProduct.unitsId || 0, // 同步单位ID
-                    quantity: selectedProduct.quantity || 0, // 同步物品数量
-                    price: selectedProduct.isHs === 0
-                        ? (selectedProduct.costPrice || 0)  // isHs=0时使用成本价
-                        : (selectedProduct.price || 0),    // 否则使用原价格字段
-                    totalPrice: selectedProduct.quantity * (selectedProduct.isHs === 0
-                        ? (selectedProduct.costPrice || 0)
-                        : (selectedProduct.price || 0)) || 0,  // 物品总金额
-                    unitsList: processedUnitsList, // 使用处理后的单位列表（含单价）
-                    isHs: selectedProduct.isHs || 0, // 是否换算
-                    unitsName: selectedProduct.unitsName || '', // 同步单位名称
+                    productsId: selectedProduct.id || 0,
+                    // productsImageBase64: selectedProduct.productsImageBase64 || '',
+                    productsName: selectedProduct.productsName,
+                    productsCode: selectedProduct.productsCode || '',
+                    // abbreviation: selectedProduct.abbreviation || '',
+                    productsImage: selectedProduct.productsImage || '',
+                    // brandId: selectedProduct.brandId || 0,
+                    // groupId: selectedProduct.groupId || 0,
+                    // number: selectedProduct.number || 0,
+                    // presalePrice: selectedProduct.presalePrice || 0,
+                    // retailPricce: selectedProduct.retailPricce || 0,
+                    // costPrice: selectedProduct.costPrice || 0,
+                    specifications: selectedProduct.specifications || '',
+                    barcode: selectedProduct.barcode || '',
+                    remark: selectedProduct.remark || '',
+                    // unitsId: selectedProduct.unitsId || 0,
+                    quantity: selectedProduct.quantity || 0,
+                    price: selectedProduct.price || 0,
+                    // price: selectedProduct.isHs === 0
+                    //     ? (selectedProduct.costPrice || 0)
+                    //     : (selectedProduct.price || 0),
+                    // totalPrice: selectedProduct.quantity * (selectedProduct.isHs === 0
+                    //     ? (selectedProduct.costPrice || 0)
+                    //     : (selectedProduct.price || 0)) || 0,
+                    // unitsList: processedUnitsList,
+                    // isHs: selectedProduct.isHs || 0,
+                    // unitsName: selectedProduct.unitsName || '',
                 };
             }
             return item;
@@ -242,7 +225,7 @@ const EditApplication=(props)=>{
                 // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
                 const imageUrl = textStr && textStr.endsWith('.png')
                     ? `${window.ServerConfig.imgServer}${textStr}`
-                    : `${window.ServerConfig.imgServer}${textStr}_X.png`;
+                    : `${window.ServerConfig.imgServer}${textStr}.png`;
                 // 步骤3：仅当字符串非空时渲染图片，否则返回空
                 return textStr ? (
                     <Image
@@ -256,47 +239,34 @@ const EditApplication=(props)=>{
             }
         },
         {
-            title: '物品名称',
+            title: '选择物品',
             dataIndex: 'productsName',
-            key:'productsName',
+            key: 'productsName',
             render: (text, record) => (
                 <Select
-                    showSearch // 启用搜索
-                    optionFilterProp="children" // 搜索选项的哪个属性
+                    showSearch
+                    optionFilterProp="children"
                     placeholder="搜索物品名称"
                     style={{ width: 120 }}
-                    value={text || undefined} // 当前选中值
-                    // 选择变更时更新状态
+                    value={text || undefined}
                     onChange={(value) => handleProductSelect(record.id, value)}
                     filterOption={(input, option) => {
-                        // 1. 边界处理：如果thingList不是数组或为空，直接返回false
-                        if (!Array.isArray(props.thingList) || props.thingList.length === 0) {
-                            return false;
-                        }
-                        // 2. 根据选项value查找对应的物品数据
+                        if (!Array.isArray(props.thingList) || props.thingList.length === 0) return false;
                         const item = props.thingList.find(unit => unit.id == option.value);
-                        if (!item) return false; // 未找到对应物品，不匹配
-                        // 3. 同时搜索productsName和abbreviation（不区分大小写）
+                        if (!item) return false;
                         const searchInput = input.toLowerCase();
                         const nameMatch = item.productsName?.toLowerCase().includes(searchInput);
                         const abbrMatch = item.abbreviation?.toLowerCase().includes(searchInput);
-                        // 任一字段匹配即返回true
                         return nameMatch || abbrMatch;
                     }}
-                    // 下拉选项来自thingList
                     options={Array.isArray(props.thingList)
                         ? props.thingList.map(item => ({
-                            label: item.productsName, // 显示名称
-                            value: item.id // 选项值（物品ID）
+                            label: item.productsName,
+                            value: item.id
                         }))
                         : []}
                 />
             )
-        },
-        {
-            title: '物品名称',
-            dataIndex: 'productsName',
-            key:'productsName',
         },
         {
             title: '物品编号',
@@ -306,25 +276,43 @@ const EditApplication=(props)=>{
         {
             title: '单位',
             dataIndex: 'unitsId',
-            key:'unitsId',
-            render:(text, record) => (
+            key: 'unitsId',
+            render: (text, record) => (
                 <div>
-                    {record.groupId==0?record.unitsName:
-                        <Select
-                            placeholder='选择单位'
-                            style={{width:120}}
-                            value={text}
-                            options={Array.isArray(record.unitsList) && record.unitsList.length > 0
-                                ? record.unitsList.map((item:any)=>({
-                                    label:item.unitsName,
-                                    value:item.from_unit_id,
-                                }))
-                                : []}
-                            onChange={(value) => changeUnitsId(value, record.id)}
-                        />
-                    }
+                    <Select
+                        placeholder='单位'
+                        onChange={(value) => changeUnitsId(value, record.id)}
+                        showSearch
+                        value={record.unitsId}
+                        optionFilterProp="children"
+                        filterOption={(input, option) => {
+                            // 假设每个 option 都有一个与数据项对应的 value 属性
+                            const item = props.UnitSetting.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                            return item?.unitsName?.toLowerCase().includes(input.toLowerCase());
+                        }}
+                        options={Array.isArray(props.UnitSetting) && props.UnitSetting.length > 0
+                            ? props.UnitSetting.map((item:any)=>({
+                                label:item.unitsName,
+                                value:item.id,
+                            }))
+                            : []}
+                    />
+                    {/*{*/}
+                    {/*    record.isHs == 0 ? <span>{record.unitsName}</span> :*/}
+                    {/*        <Select*/}
+                    {/*            placeholder='选择单位'*/}
+                    {/*            disabled={record.isHs == 0}*/}
+                    {/*            style={{ width: 120 }}*/}
+                    {/*            options={Array.isArray(record.unitsList) && record.unitsList.length > 0*/}
+                    {/*                ? record.unitsList.map((item: any) => ({*/}
+                    {/*                    label: item.unitsName,*/}
+                    {/*                    value: item.from_unit_id,*/}
+                    {/*                }))*/}
+                    {/*                : []}*/}
+                    {/*            onChange={(value) => changeUnitsId(value, record.id)}*/}
+                    {/*        />*/}
+                    {/*}*/}
                 </div>
-
             )
         },
         {
@@ -397,6 +385,7 @@ const EditApplication=(props)=>{
         getWarehouseList();
         getThingList();
         getPayList();
+        getUnitSettingList();
     }, []);
     // 仓库id
     const changeWarehouse=(e)=>{
@@ -452,7 +441,18 @@ const EditApplication=(props)=>{
             message.error('请先填写完整所有物品的资料（物品名称、单位、数量、单价）');
             return; // 阻止提交
         }
-        let jsonData = JSON.stringify(goods);
+        let newFilteredData = goods.map((item:any)=>({
+            quantity: item.quantity,
+            unitsId: item.unitsId,
+            productsName: item.productsName,
+            abbreviation: item.abbreviation,
+            productsCode: item.productsCode,
+            productsImage: item.productsImage,
+            price: item.price,
+            totalPrice: item.totalPrice,
+            id: item.productsId,
+        }));
+        let jsonData = JSON.stringify(newFilteredData);
         setSpinning(true);
         props.dispatch({
             type:"Application/edit",
@@ -517,6 +517,12 @@ const EditApplication=(props)=>{
     const getPayList=()=>{
         props.dispatch({
             type:'PayType/fetch',
+        })
+    };
+    // 获取单位列表
+    const getUnitSettingList=()=>{
+        props.dispatch({
+            type:"UnitSetting/fetch",
         })
     };
     return(
@@ -630,6 +636,7 @@ const mapStateToProps = (state: any) => ({
     warehouseListList: state.WarehouseList.list,
     supplierList: state.Supplier.list,
     thingList: state.ThingList.list,
+    UnitSetting: state.UnitSetting.list,
     PayTypeList: state.PayType.list,
 });
 export default connect(mapStateToProps)(EditApplication);

@@ -109,17 +109,17 @@ const TenantBill = ({ contractInfo }: { contractInfo: ContractInfo }) => {
                     <Tag color="magenta">{record.prepayment} 元</Tag>
                 ),
         },
-        // {
-        //     title: "当月账单",
-        //     dataIndex: "billMoney",
-        //     key: "billMoney",
-        //     render: (t: any, record: BillItem) =>
-        //         record.billMoney === 0 ? (
-        //             <Tag color="magenta">{record.billMoney} 元</Tag>
-        //         ) : (
-        //             <Tag color="blue">{record.billMoney} 元</Tag>
-        //         ),
-        // },
+        {
+            title: "当月账单",
+            dataIndex: "billMoney",
+            key: "billMoney",
+            render: (t: any, record: BillItem) =>
+                record.billMoney === 0 ? (
+                    <Tag color="magenta">{record.billMoney} 元</Tag>
+                ) : (
+                    <Tag color="blue">{record.billMoney} 元</Tag>
+                ),
+        },
         {
             title: "缴费状态",
             dataIndex: "billStatus",

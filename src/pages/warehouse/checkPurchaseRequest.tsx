@@ -22,7 +22,9 @@ const CheckPurchaseRequest=()=>{
                 {userQx()[485]=='1'?<Tabs.TabPane tab='采购审核' key='2'>
                     <PurchaseRequestCheck/>
                 </Tabs.TabPane>:''}
-                {userQx()[486]=='1'?<Tabs.TabPane tab='采购入库' key='3'>
+                    {userQx()[486]=='1'?<Tabs.TabPane tab='采购入库' key='3'><Purchase/>
+                </Tabs.TabPane>:''}
+                {userQx()[486]=='1'?<Tabs.TabPane tab='入库审核' key='6'>
                     <Purchase/>
                 </Tabs.TabPane>:''}
                 {userQx()[489]=='1'?<Tabs.TabPane tab='直接入库单' key='4'>

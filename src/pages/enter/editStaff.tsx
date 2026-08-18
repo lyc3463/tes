@@ -606,7 +606,7 @@ const EditStaff=(props:any)=>{
                                     <Select
                                         mode="multiple"
                                         placeholder="选择单元"
-                                        disabled={unitStutes}
+                                        // disabled={unitStutes}
                                         value={unitarrList}
                                         onChange={changeunit}
                                         showSearch
@@ -644,7 +644,7 @@ const EditStaff=(props:any)=>{
                             <div className="form-item-group">
                                 <Form.Item label="租金/月(元)">
                                     <div style={{ width: 180 }}>
-                                        <InputNumber value={zuMoney} onChange={changeMoney} disabled style={{ width: '100%' }} />
+                                        <InputNumber value={zuMoney} onChange={changeMoney} style={{ width: '100%' }} />
                                         <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>最低 {minzujin} 元</div>
                                     </div>
                                 </Form.Item>
@@ -652,7 +652,7 @@ const EditStaff=(props:any)=>{
 
                             <div className="form-item-group">
                                 <Form.Item label="押金(元)">
-                                    <InputNumber value={deposit} onChange={(e) => setdeposit(e)} disabled style={{ width: 180 }} />
+                                    <InputNumber value={deposit} onChange={(e) => setdeposit(e)} style={{ width: 180 }} />
                                 </Form.Item>
                             </div>
 
