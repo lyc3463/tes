@@ -10,5 +10,5 @@ window.ServerConfig = {
     imgServer: 'http://img.qhwy6.com/',
     // 线上图片测试接口
     // imgServer: 'https://test.qhwy6.com:9076/',
-    socketServer: 'ws://127.0.0.1:8000/' 
+    socketServer: 'ws://127.0.0.1:8000/'
 };
