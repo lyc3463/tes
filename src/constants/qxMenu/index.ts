@@ -556,4 +556,6 @@ export const qxTree: TypeMenu[] = [
     { id: 561, name: '付款',parentId: 560, authId: 561},
     { id: 563, name: '申请跨店调拨',parentId: 448, authId: 563},
     { id: 564, name: '导出物品',parentId: 560, authId: 564},
+    { id: 565, name: '拆分',parentId: 488, authId: 565},
+    { id: 566, name: '合并',parentId: 488, authId: 566},
 ]

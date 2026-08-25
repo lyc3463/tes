@@ -221,7 +221,7 @@ const FinancialDataPrint: React.FC<PrintProps> = ({orderCode,title, orderDate,cr
                     </div>
                 </div>
                 <div style={{display:'flex',justifyContent:"space-around",color:'red'}}>
-                    <span>负责人:<span style={{color:'#000'}}>{createUserName || ''}</span></span>
+                    <span>经手人:<span style={{color:'#000'}}>{createUserName || ''}</span></span>
                     <span>会计:</span>
                     <span>复核:<span style={{color:'#000'}}>{reviewerName || ''}</span></span>
                     <span>出纳:</span>

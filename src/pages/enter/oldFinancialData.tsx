@@ -1,6 +1,7 @@
 import {
     Button,
     DatePicker,
+    Descriptions,
     Input,
     List,
     message,
@@ -11,10 +12,11 @@ import {
     Spin,
     Table,
     Tag,
-    Tooltip
+    Tooltip,
+    type TableProps
 } from "antd";
 import dayjs from "dayjs";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState, type ChangeEvent, type Key} from "react";
 import {connect,history} from "umi";
 import {checkSessionStorage, newprocessBills, processBills, updateSessionStorage, userQx} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -23,7 +25,25 @@ import * as processConfiguration from '@/services/processConfiguration';
 import AllFinancialDataPrint from "@/components/AllFinancialDataPrint";
 import {QuestionCircleOutlined} from "@ant-design/icons";
 import {StaticInfo} from "@/StaticInfo";
-const statusMap: any = {
+import type { FinancialCount, FinancialDataProps, FinancialRecord, SupplierItem } from "@/ModelTypes/TypeFinancialData";
+
+interface RootState {
+    Bill: {
+        count?: FinancialCount;
+    };
+    Supplier: {
+        list: SupplierItem[];
+    };
+}
+
+interface StatusConfig {
+    text: string;
+    color: string;
+    next?: number;
+    btnText?: string;
+}
+
+const statusMap: Record<number, StatusConfig> = {
     1: { text: '', color: 'orange',next: 3,btnText:'会计审核' },
     // 2: { text: '已入账', color: 'green'  },
     3: { text: '', color: 'blue' ,next: 4,btnText:''},
@@ -40,12 +60,12 @@ const statusMap: any = {
     14: { text: '已入账', color: 'purple'},
     15: { text: '驳回', color: 'red'},
 }
-const OldFinancialData=(props:any)=>{
+const OldFinancialData=(props: FinancialDataProps)=>{
     // 展示total
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 账单列表
-    const [billList,setBillList]=useState([]);
+    const [billList,setBillList]=useState<FinancialRecord[]>([]);
     // 开始时间
     const [startDate,setBillBgeinTime]=useState(checkSessionStorage('/enter/financialData/','OldFinancialDatastartDate')||'2000-01-01');
     // 结束时间
@@ -71,15 +91,16 @@ const OldFinancialData=(props:any)=>{
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
     const [printModalOpen,setPrintModalOpen]=useState(false);
-    const [printList,setPrintList]=useState([]);
-    const printRef = useRef();
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-    const columns =[
+    const [printList,setPrintList]=useState<FinancialRecord[]>([]);
+    const [delRecord,setDelRecord]=useState<FinancialRecord | null>(null);
+    const printRef = useRef<HTMLDivElement | null>(null);
+    const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
+    const columns: TableProps<FinancialRecord>['columns'] =[
         {
             title: '日期',
             dataIndex: 'orderDate',
             key: 'orderDate',
-            render:(text:any,record:any,)=>{
+            render:(_,record)=>{
                 return(
                     <div>
                         {dayjs(record.orderDate).format('YYYY-MM-DD')}
@@ -92,7 +113,7 @@ const OldFinancialData=(props:any)=>{
             dataIndex: 'number',
             key: 'number',
             ellipsis: true,
-            render:(text:any,record:any)=>{
+            render:(text,record)=>{
                 return(
                     <span style={{color:'#1890FF'}} onClick={()=>{
                         history.push(`/enter/invoiceFinancialDalaInfo?id=${record.id}`);
@@ -104,26 +125,23 @@ const OldFinancialData=(props:any)=>{
             title: '公司',
             dataIndex: 'company_name',
             key: 'company_name',
-            ellipsis: true,
         },
         {
             title: '项目',
             dataIndex: 'project_name',
             key: 'project_name',
-            ellipsis: true,
         },
         {
             title: '供应商',
             dataIndex: 'supplierName',
             key: 'supplierName',
-            ellipsis: true,
         },
         {
             title: '类型',
             dataIndex: 'moneyType',
             key: 'moneyType',
-            render: (text: any) => {
-                const map: any = {
+            render: (text) => {
+                const map: Record<number, { color: string; label: string }> = {
                     1: { color: 'green', label: '收入' },
                     2: { color: 'red', label: '支出' },
                     3: { color: 'blue', label: '报销' },
@@ -164,7 +182,7 @@ const OldFinancialData=(props:any)=>{
             title: '状态',
             dataIndex: 'orderStatus',
             key: 'orderStatus',
-            render: (text: any,record:any) => {
+            render: (text,record) => {
                 const current = statusMap[text] || { text: '未知', color: 'default' }
                 return (
                     <Tag color={current.color}>
@@ -210,19 +228,21 @@ const OldFinancialData=(props:any)=>{
             title: '操作',
             dataIndex: 'amount',
             key: 'amount',
-            render:(text:any,record:any)=>{
-                return(
-                    <Space>
-                        {
-                            record.orderStatus==15||record.orderStatus==1?<>
-                                <Button type='primary' onClick={()=>{
-                                    history.push(`/enter/editInvoiceFinancialDala?id=${record.id}`);
-                                }}>编辑</Button>
-                                <Button type='primary' danger onClick={()=>isDelOpen(record.id)}>删除</Button>
-                            </>:null
-                        }
-                    </Space>
-                )
+            render:(_,record)=>{
+                        return (
+                            <Space>
+                                {
+                                    record.orderStatus==15||record.orderStatus==1 ? (
+                                        <>
+                                            <Button type='primary' onClick={() => {
+                                                history.push(`/enter/editInvoiceFinancialDala?id=${record.id}`);
+                                            }}>编辑</Button>
+                                            <Button type='primary' danger onClick={() => isDelOpen(record)}>删除</Button>
+                                        </>
+                                    ) : null
+                                }
+                            </Space>
+                        )
             }
         },
     ];
@@ -246,9 +266,10 @@ const OldFinancialData=(props:any)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-    const isDelOpen=(e)=>{
+    const isDelOpen=(record: FinancialRecord)=>{
         setIsOpen(true);
-        setUid(e);
+        setUid(record.id);
+        setDelRecord(record);
     };
     // 删除确定按钮
     const onOK=()=>{
@@ -261,6 +282,7 @@ const OldFinancialData=(props:any)=>{
                 message.success('删除成功');
                 setspinning(false);
                 setIsOpen(false);
+                setDelRecord(null);
                 getList();
             }else {
                 message.error(res.ErrorCode + res.Data);
@@ -281,18 +303,18 @@ const OldFinancialData=(props:any)=>{
             setspinning(false);
         })
     };
-    const changeOrderCode = (e:any) => {
+    const changeOrderCode = (e:ChangeEvent<HTMLInputElement>) => {
         setOrderCode(e.target.value);
     };
-    const changeCompany_name = (e:any) => {
+    const changeCompany_name = (e:ChangeEvent<HTMLInputElement>) => {
         setCompany_name(e.target.value);
         updateSessionStorage('/enter/financialData/','OldFinancialDatacompany_name',e.target.value);
     };
-    const changeMoneyType = (e:any) => {
+    const changeMoneyType = (e:number) => {
         setMoneyType(e);
         updateSessionStorage('/enter/financialData/','OldFinancialDatamoneyType',e);
     };
-    const changeAccount_card = (e:any) => {
+    const changeAccount_card = (e:ChangeEvent<HTMLInputElement>) => {
         setaccount_card(e.target.value);
         updateSessionStorage('/enter/financialData/','OldFinancialDataaccount_card',e.target.value);
     };
@@ -301,7 +323,7 @@ const OldFinancialData=(props:any)=>{
         getList();
     };
 
-    const updateStatusMap=(data)=> {
+    const updateStatusMap=(data:Record<string, string>)=> {
         const statusKeys = [1,3,4,5,6,7,8,9,10,11];
         // 先清空
         statusKeys.forEach(key => {
@@ -350,9 +372,9 @@ const OldFinancialData=(props:any)=>{
     useEffect(()=>{
         getList();
     },[page, pageSize]);
-    const rowSelection = {
+    const rowSelection: TableProps<FinancialRecord>['rowSelection'] = {
         selectedRowKeys,
-        onChange: (selectedKeys: React.Key[], selectedRows: any[]) => {
+        onChange: (selectedKeys) => {
             setSelectedRowKeys(selectedKeys);
         },
         type: 'checkbox',  // 复选框类型
@@ -379,7 +401,7 @@ const OldFinancialData=(props:any)=>{
                 const neededCount = 7 - currentLength;
                 // 获取当前fdList中的最大ID，用于生成新记录ID
                 const maxId = currentLength > 0
-                    ? Math.max(...fdList.map(item => item.id))
+                    ? Math.max(...fdList.map((fdItem:any) => fdItem.id))
                     : 0;
 
                 // 生成补充的空记录
@@ -399,11 +421,11 @@ const OldFinancialData=(props:any)=>{
         setPrintList(printList);
         setPrintModalOpen(true);
     };
-    const changeProject_name=(e:any)=>{
+    const changeProject_name=(e:ChangeEvent<HTMLInputElement>)=>{
         setProject_name(e.target.value);
         updateSessionStorage('/enter/financialData/','OldFinancialDataproject_name',e.target.value);
     }
-    const changeSupplierId=(e:any)=>{
+    const changeSupplierId=(e:number)=>{
         setsupplierId(e);
         updateSessionStorage('/enter/financialData/','OldFinancialDatasupplierId',e);
     }
@@ -427,7 +449,7 @@ const OldFinancialData=(props:any)=>{
             ...options
         ];
     };
-    const changeStutes=(e:any)=>{
+    const changeStutes=(e:number)=>{
         setOrderStatus(e);
         updateSessionStorage('/enter/financialData/','OldFinancialDatabillStatus',e);
     }
@@ -530,15 +552,14 @@ const OldFinancialData=(props:any)=>{
                                 placeholder='供应商'
                                 value={supplierId}
                                 filterOption={(input, option) => {
-                                    // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = props.SupplierList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
-                                    return item?.supplierName?.toLowerCase().includes(input.toLowerCase());
+                                    const item = props.SupplierList.find(unit => unit.id === Number(option?.value ?? 0));
+                                    return item?.supplierName?.toLowerCase().includes(input.toLowerCase()) ?? false;
                                 }}
                                 options={
                                     [
                                         { label: '全部', value: 0 },
                                         ...(Array.isArray(props.SupplierList) && props.SupplierList.length > 0
-                                                ? props.SupplierList.map((item:any)=>({
+                                                ? props.SupplierList.map((item)=>({
                                                     label: item.supplierName,
                                                     value: item.id,
                                                 }))
@@ -592,9 +613,9 @@ const OldFinancialData=(props:any)=>{
                 pagination={false}
                 dataSource={billList}
                 scroll={{y:'60vh'}}
-                rowKey={(columns) => columns.id}
+                rowKey={(record) => record.id}
                 size='small'
-                summary={(columns) => (
+                summary={() => (
                     <Table.Summary fixed>
                         <Table.Summary.Row>
                             <Table.Summary.Cell index={0}>
@@ -623,8 +644,35 @@ const OldFinancialData=(props:any)=>{
                 rowSelection={rowSelection}  // 添加选择功能配置
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-            <Modal open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOK} loading={spinning}>
-                <div>是否要删除？</div>
+            <Modal open={isOpen} onCancel={()=>{setIsOpen(false); setDelRecord(null);}} onOk={onOK} loading={spinning} title='删除确认' width={1000}>
+                <div style={{marginBottom:'12px'}}>是否要删除以下数据？</div>
+                {
+                    delRecord ? (
+                        <Descriptions bordered size='small' column={2}>
+                            <Descriptions.Item label='日期'>
+                                {delRecord.orderDate ? dayjs(delRecord.orderDate).format('YYYY-MM-DD') : ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='报销单号'>
+                                {delRecord.number || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='类型'>
+                                报销
+                            </Descriptions.Item>
+                            <Descriptions.Item label='公司名称'>
+                                {delRecord.company_name || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='项目名称'>
+                                {delRecord.project_name || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='供应商'>
+                                {delRecord.supplierName || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='总金额(元)'>
+                                {delRecord.totalAmount ?? ''}
+                            </Descriptions.Item>
+                        </Descriptions>
+                    ) : null
+                }
             </Modal>
             <Modal
                 width={1000}
@@ -647,7 +695,7 @@ const OldFinancialData=(props:any)=>{
         </Spin>
     )
 }
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
     return {
         count: state.Bill.count,
         SupplierList: state.Supplier.list,

@@ -6,6 +6,7 @@ import {history} from "@@/core/history";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {updateSessionStorage, userQx} from "@/utils/OpenTool";
 import * as ApplicationService from "@/services/application";
+import * as Application from "@/services/application";
 const DirectPurchase=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);  // 当前页数
@@ -125,7 +126,8 @@ const DirectPurchase=(props)=>{
                 return(
                     <Space>
                         {record.orderStatus==1&&<>
-                            <Button type="primary" onClick={()=>isCheckOpen(record.id)}>审核</Button>
+                            <Button type="primary" onClick={()=>isDelOpen(record.id)}>删除</Button>
+                            <Button type="primary" onClick={()=>{history.push(`/warehouse/editApplication?id=${record.id}`)}}>编辑</Button>
                         </>}
                     </Space>
                 )
@@ -133,7 +135,7 @@ const DirectPurchase=(props)=>{
 
         },
     ];
-    const isCheckOpen=(id)=>{
+    const isDelOpen=(id)=>{
         setDUid(id);
         setDOpen(true);
     };
@@ -211,6 +213,20 @@ const DirectPurchase=(props)=>{
                 message.success('审核成功');
                 setDOpen(false);
                 setSpinning(false);
+                getList();
+            }else{
+                message.error(res.Data);
+                setSpinning(false);
+            }
+        })
+    };
+    const delOk=()=>{
+        setSpinning(true);
+        Application.remove(dUid).then((res:TypeErrorCode)=>{
+            setSpinning(false);
+            if(res.ErrorCode===0){
+                message.success('删除成功');
+                setDOpen(false);
                 getList();
             }else{
                 message.error(res.Data);
@@ -361,8 +377,8 @@ const DirectPurchase=(props)=>{
                 )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-            <Modal title="审核弹窗" open={dOpne} onOk={()=>checkOk()} onCancel={()=>setDOpen(false)} loading={spinning}>
-                是否要审核?
+            <Modal title="删除确认" open={dOpne} onOk={()=>delOk()} onCancel={()=>setDOpen(false)} loading={spinning}>
+                是否要删除?
             </Modal>
         </Spin>
     )

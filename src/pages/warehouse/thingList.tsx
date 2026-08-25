@@ -44,7 +44,7 @@ const ThingList = (props) => {
     const [importKey,setImportKey]=useState('');
     // 导入密码
     const [importPassword,setImportPassword]=useState('');
-
+    const [goodsTypeId,setGoodsTypeId]=useState(checkSessionStorage('/warehouse/warehouseAndType','ThingListGoodsTypeId') || 0);
 
     const columns = [
         {
@@ -82,6 +82,11 @@ const ThingList = (props) => {
             }
         },
         {
+            title: '物品类型',
+            dataIndex: 'typeName',
+            ellipsis: true,
+        },
+        {
             title: '物品名称',
             dataIndex: 'productsName',
             ellipsis: true,
@@ -102,10 +107,15 @@ const ThingList = (props) => {
             ellipsis: true,
         },
         {
-            title: '预警库存数',
-            dataIndex: 'number',
+            title: '单位',
+            dataIndex: 'unitsName',
             ellipsis: true,
         },
+        // {
+        //     title: '预警库存数',
+        //     dataIndex: 'number',
+        //     ellipsis: true,
+        // },
         {
             title: '操作',
             dataIndex: 'operation',
@@ -123,13 +133,16 @@ const ThingList = (props) => {
     const getList=()=>{
         props.dispatch({
             type:'ThingList/fetch',
-            payload:{page, pageSize, code, name},
+            payload:{page, pageSize, code, name,goodsTypeId},
         })
     };
 
     useEffect(() => {
         getList();
     }, [page,pageSize]);
+    useEffect(()=>{
+        getWarehouseTypeList();
+    },[]);
     // 监听页数
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);
@@ -285,7 +298,15 @@ const ThingList = (props) => {
                 setImportVisible(false);
             }
         })
-    }
+    };
+    const getWarehouseTypeList=()=>{
+        props.dispatch({
+            type:"WarehouseType/fetch",
+        })
+    };
+    const changeGoodsTypeId=(e)=>{
+        setGoodsTypeId(e);
+    };
     return (
         <Spin spinning={spinning}>
             <List>
@@ -311,6 +332,29 @@ const ThingList = (props) => {
                             addonBefore="物品编码:"
                             value={code}
                             onChange={changeCode}
+                        />
+                        <Select
+                            addonBefore="物品类型:"
+                            value={goodsTypeId}
+                            style={{width:'250px'}}
+                            onChange={changeGoodsTypeId}
+                            filterOption={(input, option) => {
+                                // 假设每个 option 都有一个与数据项对应的 value 属性
+                                const item = props.WarehouseTypeList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
+                                return item?.typeName?.toLowerCase().includes(input.toLowerCase());
+                            }}
+                            options={
+                                [
+                                    { label: '全部', value: 0 },
+                                    ...(Array.isArray(props.WarehouseTypeList) && props.WarehouseTypeList.length > 0
+                                            ? props.WarehouseTypeList.map((item:any)=>({
+                                                label: item.typeName,
+                                                value: item.id,
+                                            }))
+                                            : []
+                                    )
+                                ]
+                            }
                         />
                         <Button type="primary" onClick={sousuo}>
                             搜索
@@ -419,5 +463,7 @@ const ThingList = (props) => {
 const mapStateToProps = (state: any) => ({
     list: state.ThingList.list,
     count: state.ThingList.count,
+    WarehouseTypeList: state.WarehouseType.list,
+
 });
 export default connect(mapStateToProps)(ThingList);

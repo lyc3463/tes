@@ -270,9 +270,12 @@ class MainPage extends Component<any> {
             if (res.ErrorCode==0){
                 StaticInfo.park_id=e;
                 StaticInfo.park_name=parkList.children;
+                StaticInfo.uqx=res.Data;
                 this.setState({park_id:e});
                 sessionStorage.setItem('park_id',e);
+                sessionStorage.setItem('park_id',e);
                 sessionStorage.setItem('park_name',parkList.children);
+                sessionStorage.setItem('uqx',res.Data);
                 UmiHistory.push('/');
             }else {
                 message.error(res.Data);

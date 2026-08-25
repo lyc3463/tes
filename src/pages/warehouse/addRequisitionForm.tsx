@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import { PlusOutlined } from "@ant-design/icons";
 import * as ThingStockInfoServer from '@/services/thingStockInfo';
+import UnitSplitModal from '@/components/UnitSplitModal';
 
 // 缓存唯一标识
 const CACHE_KEY = "AddRequisitionForm_draft_cache";
@@ -40,6 +41,11 @@ const AddRequisitionForm = (props) => {
     const [paidAmount, setPaidAmount] = useState(0);
     // 总金额
     const [totalAmount, setTotalAmount] = useState(0);
+    const [upOpen, setUpOpen] = useState(false);
+    const [upUnitsId, setUpUnitsId] = useState(0);
+    const [unitsList, setUnitsList] = useState([]);
+    const [upQuantity, setUpQuantity] = useState(1);
+    const [inventoryId, setInventoryId] = useState(0);
 
     // ====================== 缓存工具函数 ======================
     // 读取缓存
@@ -203,7 +209,13 @@ const AddRequisitionForm = (props) => {
             dataIndex: 'delete',
             key: 'delete',
             render: (text, record) => {
-                return <Button type='primary' danger onClick={() => isDel(record.id)}>删除</Button>
+                return (
+                    <Space>
+                        {/* <Button type='primary' danger onClick={() => splitUp(record)}>向上拆</Button> */}
+                        {/*<Button type='primary' danger onClick={() => isDel(record.id)}>删除</Button>*/}
+                        <Button type='primary' danger onClick={() => isDel(record.id)}>删除</Button>
+                    </Space>
+                )
             }
         },
     ];
@@ -314,7 +326,6 @@ const AddRequisitionForm = (props) => {
             isZk: item.isZk,
             id: item.productsId,
         }));
-        console.log('newFilteredData',newFilteredData);
         let jsonData = JSON.stringify(newFilteredData);
         setSpinning(true);
         props.dispatch({
@@ -335,7 +346,6 @@ const AddRequisitionForm = (props) => {
     const changeRemark = (e) => {
         setRemark(e.target.value);
     };
-
     // 删除单行物品
     const isDel = (id: number) => {
         setDisplayData(displayData.filter((item) => item.id !== id));
@@ -444,51 +454,34 @@ const AddRequisitionForm = (props) => {
             }
             return item;
         }));
-
-
-        // const selectedProduct = thingStockInfoList.find(item => item.productsName === label.label);
-        // ThingStockInfoServer.productsNameQuery(warehouseId, selectedProduct.productsCode).then((res: TypeErrorCode) => {
-        //     console.log('选择的物品', res);
-        //     if (res.ErrorCode == 0) {
-        //         setDisplayData(displayData.map(item => {
-        //             if (item.id === recordId) {
-        //                 return {
-        //                     ...item,
-        //                     productsImageBase64: res.Data.productsImageBase64 || '',
-        //                     productsImage: res.Data.productsImage || '',
-        //                     productsName: selectedProduct.productsName || '',
-        //                     iList: res.Data.iList || [],
-        //                     brandId: 0,
-        //                     abbreviation: '',
-        //                     barcode: '',
-        //                     costPrice: 0,
-        //                     groupId: 0,
-        //                     inventoryId: 0,
-        //                     number: 0,
-        //                     presalePrice: 0,
-        //                     price: 0,
-        //                     priceKc: 0,
-        //                     productsCode: 0,
-        //                     quantity: 0,
-        //                     quantityKc: 0,
-        //                     retailPricce: 0,
-        //                     specifications: '',
-        //                     totalPrice: 0,
-        //                     unitsId: 0,
-        //                     unitsName: 0,
-        //                     isZk: 1,
-        //                     discountRateDp: 100,
-        //                     discountPriceDp: 0,
-        //                 };
-        //             }
-        //             return item;
-        //         }));
-        //     } else {
-        //         message.error(res.Data);
-        //     }
-        // })
     };
-
+    const splitUp=(record:any)=>{
+        setUpOpen(true);
+        setUpUnitsId(record.unitsId);
+        setUnitsList(record.iList || []);
+        setInventoryId(record.inventoryId);
+        setUpQuantity(0);
+    };
+    const onUpOK = () => {
+        setSpinning(true);
+        if (upQuantity <= 0) {
+            message.warning('请输入拆分数量');
+            setSpinning(false);
+            return;
+        }
+        ThingStockInfoServer.splitUp({inventoryId, warehouseId, unitsId: upUnitsId, quantity: upQuantity}).then((res: TypeErrorCode) => {
+            if (res.ErrorCode == 0) {
+                message.success('拆分成功');
+                setUpOpen(false);
+                setUpQuantity(0);
+                getList(warehouseId);
+                setSpinning(false);
+            } else {
+                message.error(res.Data);
+                setSpinning(false);
+            }
+        })
+    };
     return (
         <Spin spinning={spinning}>
             <Space>
@@ -541,9 +534,22 @@ const AddRequisitionForm = (props) => {
                 type="primary"
                 onClick={addTenEmptyRecords}
                 style={{ marginTop: '10px' }}
+                loading={spinning}
             >
                 <PlusOutlined /> 新增一行
             </Button>
+            <UnitSplitModal
+                open={upOpen}
+                currentUnitId={upUnitsId}
+                unitsList={unitsList}
+                quantity={upQuantity}
+                onQuantityChange={(value) => setUpQuantity(value)}
+                onConfirm={onUpOK}
+                onCancel={() => {
+                    setUpOpen(false);
+                    setUpQuantity(0);
+                }}
+            />
         </Spin>
     )
 }

@@ -1,6 +1,7 @@
 import {
     Button,
     DatePicker,
+    Descriptions,
     Input,
     List,
     message,
@@ -9,7 +10,7 @@ import {
     Select,
     Space,
     Spin,
-    Table,
+    Table, type TableProps,
     Tag,
     Tooltip
 } from "antd";
@@ -18,8 +19,15 @@ import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import ByStagesType from "@/ModelTypes/TypeByStages";
 
-const ByStages=(props)=>{
+interface ByStagesProps {
+    dispatch: (action: { type: string; payload?: any }) => any;
+    ByStagesList?: ByStagesType[];
+    count?: { count: number };
+}
+
+const ByStages=(props: ByStagesProps)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
@@ -34,10 +42,12 @@ const ByStages=(props)=>{
     const [did,setDid]=useState(0);
     const [open,setOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
+    // 删除弹窗展示的记录信息
+    const [deleteRecord,setDeleteRecord]=useState<ByStagesType>({} as ByStagesType);
     const toadd=()=>{
         history.push('/enter/addByStages')
     };
-    const columns =[
+    const columns: TableProps<ByStagesType>['columns'] =[
         {
             title: '单元名称',
             dataIndex: 'unitList',
@@ -60,7 +70,7 @@ const ByStages=(props)=>{
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
                     <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
-                        {limitedUnitList.map((item, index) => (
+                        {limitedUnitList.map((item:any, index:number) => (
                             <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
                         ))}
                         {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
@@ -168,7 +178,7 @@ const ByStages=(props)=>{
                     <Space>
                         {
                             record.renameStatus==2?'':<> <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
-                                <Button type='primary' danger onClick={()=>IsDelOpen(record.id)}>删除</Button></>
+                                <Button type='primary' danger onClick={()=>IsDelOpen(record)}>删除</Button></>
                         }
                     </Space>
                 )
@@ -197,7 +207,7 @@ const ByStages=(props)=>{
         }
     };
     // 监听姓名
-    const changePhone=(e)=>{
+    const changePhone=(e: React.ChangeEvent<HTMLInputElement>)=>{
         setPhone(e.target.value);
         updateSessionStorage('/enter/afterSales/','byStagesPhone',e.target.value);
     };
@@ -220,13 +230,15 @@ const ByStages=(props)=>{
     const suosou=()=>{
         setPage(1);
         logFenye();
+        console.log('props',props);
     };
 
     const toedit=(e:number)=>{
         history.push(`/enter/editByStages?id=${e}`);
     };
-    const IsDelOpen=(e)=>{
-        setDid(e);
+    const IsDelOpen=(record: ByStagesType)=>{
+        setDid(record.id);
+        setDeleteRecord(record);
         setOpen(true);
     };
     const onOk=()=>{
@@ -239,6 +251,7 @@ const ByStages=(props)=>{
                 message.success('删除成功');
                 setspinning(false);
                 setOpen(false);
+                logFenye();
             }else {
                 message.error(res.Data);
                 setspinning(false);
@@ -293,10 +306,21 @@ const ByStages=(props)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-            <Modal onOk={onOk} onCancel={()=>setOpen(false)} loading={spinning} open={open} title='是否要删除?'>
-                <div>
-                    是否要删除?
-                </div>
+            <Modal onOk={onOk} onCancel={()=>setOpen(false)} loading={spinning} open={open} title='是否要删除?' width={1000}>
+                <Descriptions
+                    column={2}
+                    size="small"
+                    bordered
+                    labelStyle={{ width: 110, backgroundColor: '#fafafa' }}
+                >
+                    <Descriptions.Item label="日期">{deleteRecord.created?dayjs(deleteRecord.created).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                    <Descriptions.Item label="合同编号">{deleteRecord.identifier}</Descriptions.Item>
+                    <Descriptions.Item label="租户姓名">{deleteRecord.tenant_name}</Descriptions.Item>
+                    <Descriptions.Item label="联系方式">{deleteRecord.tenant_phone}</Descriptions.Item>
+                    <Descriptions.Item label="分期周期" span={2}>{deleteRecord.staBeginTime?dayjs(deleteRecord.staBeginTime).format('YYYY-MM'):''}至{deleteRecord.staEndTime?dayjs(deleteRecord.staEndTime).format('YYYY-MM'):''}</Descriptions.Item>
+                    <Descriptions.Item label="还款周期" span={2}>{deleteRecord.staBeginTime2?dayjs(deleteRecord.staBeginTime2).format('YYYY-MM'):''}至{deleteRecord.staEndTime2?dayjs(deleteRecord.staEndTime2).format('YYYY-MM'):''}</Descriptions.Item>
+                    <Descriptions.Item label="租金分期金额" span={2}>{deleteRecord.staRent} 元</Descriptions.Item>
+                </Descriptions>
             </Modal>
         </Spin>
     )

@@ -146,75 +146,68 @@ const AddDirectPurchase = (props) => {
         setGoods(goods.filter((item) => item.id !== id));
     };
 
+    const normalizeUnitsListPrice = (product: any, baseUnitId?: number) => {
+        const unitsList = Array.isArray(product?.unitsList) ? product.unitsList : [];
+        if (!baseUnitId || unitsList.length === 0) {
+            return unitsList;
+        }
+
+        const normalized = unitsList.map((item: any) => ({ ...item, price: 0 }));
+        const basePrice = Number(product?.costPrice || product?.price || 0);
+        const unitPriceMap = new Map<number, number>();
+        const visited = new Set<number>();
+
+        const fillPrice = (currentUnitId: number, currentPrice: number) => {
+            if (visited.has(currentUnitId)) return;
+            visited.add(currentUnitId);
+            unitPriceMap.set(currentUnitId, currentPrice);
+
+            normalized.forEach((unit: any) => {
+                if (unit.from_unit_id === currentUnitId && unit.to_unit_id !== currentUnitId) {
+                    fillPrice(unit.to_unit_id, currentPrice / (unit.conversion_rate || 1));
+                }
+                if (unit.to_unit_id === currentUnitId && unit.from_unit_id !== currentUnitId) {
+                    fillPrice(unit.from_unit_id, currentPrice * (unit.conversion_rate || 1));
+                }
+            });
+        };
+
+        fillPrice(baseUnitId, basePrice);
+
+        return normalized.map((unit: any) => ({
+            ...unit,
+            price: Number(unitPriceMap.get(unit.from_unit_id) ?? 0),
+        }));
+    };
+
     // 处理物品选择变更
     const handleProductSelect = (recordId, productId) => {
         const selectedProduct = props.thingList.find(item => item.id === productId);
         if (!selectedProduct) return;
-        let processedUnitsList = selectedProduct.unitsList || [];
-        if (selectedProduct.isHs === 1 && processedUnitsList.length > 0) {
-            processedUnitsList = [...selectedProduct.unitsList];
-            const unitMap = processedUnitsList.reduce((map, unit) => {
-                map[unit.from_unit_id] = unit;
-                return map;
-            }, {});
-            const targetUnitId = selectedProduct.unitsId;
-            const targetUnit = unitMap[targetUnitId];
-            if (!targetUnit) return;
-            targetUnit.price = selectedProduct.costPrice || 0;
-            targetUnit.presalePrice = selectedProduct.presalePrice || 0;
-            targetUnit.retailPricce = selectedProduct.retailPricce || 0;
-            let currentUnit = targetUnit;
-            while (currentUnit.to_unit_id !== 0) {
-                const childUnit = unitMap[currentUnit.to_unit_id];
-                if (!childUnit) break;
-                childUnit.price = currentUnit.price / currentUnit.conversion_rate;
-                childUnit.presalePrice = currentUnit.presalePrice / currentUnit.conversion_rate;
-                childUnit.retailPricce = currentUnit.retailPricce / currentUnit.conversion_rate;
-                currentUnit = childUnit;
-            }
-            const parentMap = processedUnitsList.reduce((map, unit) => {
-                map[unit.to_unit_id] = unit;
-                return map;
-            }, {});
-            currentUnit = targetUnit;
-            while (parentMap[currentUnit.from_unit_id]) {
-                const parentUnit = parentMap[currentUnit.from_unit_id];
-                if (!parentUnit) break;
-                parentUnit.price = currentUnit.price * parentUnit.conversion_rate;
-                parentUnit.presalePrice = currentUnit.presalePrice * parentUnit.conversion_rate;
-                parentUnit.retailPricce = currentUnit.retailPricce * parentUnit.conversion_rate;
-                currentUnit = parentUnit;
-            }
-        }
+
+        const baseUnitId = selectedProduct.unitsId || selectedProduct.unitsList?.[0]?.from_unit_id || 0;
+        const normalizedUnits = normalizeUnitsListPrice(selectedProduct, baseUnitId);
+        const selectedUnit = normalizedUnits.find((item: any) => item.from_unit_id === baseUnitId) || normalizedUnits[0];
+        const newPrice = Number(selectedUnit?.price ?? selectedProduct.costPrice ?? selectedProduct.price ?? 0);
+
         setGoods(goods.map(item => {
             if (item.id === recordId) {
                 return {
                     ...item,
-                    productsImageBase64: selectedProduct.productsImageBase64 || '',
+                    productsId: selectedProduct.id || 0,
                     productsName: selectedProduct.productsName,
                     productsCode: selectedProduct.productsCode || '',
-                    abbreviation: selectedProduct.abbreviation || '',
                     productsImage: selectedProduct.productsImage || '',
-                    brandId: selectedProduct.brandId || 0,
-                    groupId: selectedProduct.groupId || 0,
-                    number: selectedProduct.number || 0,
-                    presalePrice: selectedProduct.presalePrice || 0,
-                    retailPricce: selectedProduct.retailPricce || 0,
-                    costPrice: selectedProduct.retailPricce || 0,
                     specifications: selectedProduct.specifications || '',
                     barcode: selectedProduct.barcode || '',
                     remark: selectedProduct.remark || '',
-                    unitsId: selectedProduct.unitsId || 0,
                     quantity: selectedProduct.quantity || 0,
-                    price: selectedProduct.isHs === 0
-                        ? (selectedProduct.costPrice || 0)
-                        : (selectedProduct.price || 0),
-                    totalPrice: selectedProduct.quantity * (selectedProduct.isHs === 0
-                        ? (selectedProduct.costPrice || 0)
-                        : (selectedProduct.price || 0)) || 0,
-                    unitsList: processedUnitsList,
+                    unitsList: normalizedUnits,
                     isHs: selectedProduct.isHs || 0,
+                    unitsId: baseUnitId,
                     unitsName: selectedProduct.unitsName || '',
+                    price: newPrice,
+                    totalPrice: ((selectedProduct.quantity || 0) * newPrice).toFixed(2) * 1,
                 };
             }
             return item;
@@ -255,15 +248,11 @@ const AddDirectPurchase = (props) => {
                     const selectedUnit = Array.isArray(item.unitsList)
                         ? item.unitsList.find(unit => unit.from_unit_id === value)
                         : null;
-                    const newPrice = selectedUnit?.price || 0;
-                    const presalePrice = selectedUnit?.presalePrice || 0;
-                    const retailPricce = selectedUnit?.retailPricce || 0;
+                    const newPrice = Number(selectedUnit?.price ?? 0);
                     return {
                         ...item,
                         unitsId: value || 0,
-                        price: (newPrice.toFixed(2)) * 1,
-                        presalePrice,
-                        retailPricce,
+                        price: Number(newPrice.toFixed(2)),
                         totalPrice: ((item.quantity * newPrice).toFixed(2)) * 1
                     };
                 }
@@ -340,23 +329,38 @@ const AddDirectPurchase = (props) => {
             key: 'unitsId',
             render: (text, record) => (
                 <div>
-                    <Select
-                        placeholder='单位'
-                        onChange={(value) => changeUnitsId(value, record.id)}
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) => {
-                            // 假设每个 option 都有一个与数据项对应的 value 属性
-                            const item = props.UnitSetting.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
-                            return item?.unitsName?.toLowerCase().includes(input.toLowerCase());
-                        }}
-                        options={Array.isArray(props.UnitSetting) && props.UnitSetting.length > 0
-                            ? props.UnitSetting.map((item:any)=>({
-                                label:item.unitsName,
-                                value:item.id,
-                            }))
-                            : []}
-                    />
+                    {/*<Select*/}
+                    {/*    placeholder='单位'*/}
+                    {/*    onChange={(value) => changeUnitsId(value, record.id)}*/}
+                    {/*    showSearch*/}
+                    {/*    optionFilterProp="children"*/}
+                    {/*    filterOption={(input, option) => {*/}
+                    {/*        // 假设每个 option 都有一个与数据项对应的 value 属性*/}
+                    {/*        const item = props.UnitSetting.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程*/}
+                    {/*        return item?.unitsName?.toLowerCase().includes(input.toLowerCase());*/}
+                    {/*    }}*/}
+                    {/*    options={Array.isArray(props.UnitSetting) && props.UnitSetting.length > 0*/}
+                    {/*        ? props.UnitSetting.map((item:any)=>({*/}
+                    {/*            label:item.unitsName,*/}
+                    {/*            value:item.id,*/}
+                    {/*        }))*/}
+                    {/*        : []}*/}
+                    {/*/>*/}
+                    {
+                        record.isHs == 0 ? <span>{record.unitsName}</span> :
+                            <Select
+                                placeholder='选择单位'
+                                disabled={record.isHs == 0}
+                                style={{ width: 120 }}
+                                options={Array.isArray(record.unitsList) && record.unitsList.length > 0
+                                    ? record.unitsList.map((item: any) => ({
+                                        label: item.unitsName,
+                                        value: item.from_unit_id,
+                                    }))
+                                    : []}
+                                onChange={(value) => changeUnitsId(value, record.id)}
+                            />
+                    }
                 </div>
             )
         },
@@ -419,7 +423,7 @@ const AddDirectPurchase = (props) => {
     const getThingList = () => {
         props.dispatch({
             type: "ThingList/fetch",
-            payload: { page: 1, code: '', name: '', pageSize: 10000 },
+            payload: { page: 1, code: '', name: '', pageSize: 10000,goodsTypeId:0 },
         })
     };
 
@@ -476,8 +480,18 @@ const AddDirectPurchase = (props) => {
             message.error('请选择支付方式');
             return;
         }
-        let jsonData = JSON.stringify(filteredGoods);
-        console.log(filteredGoods);
+        let newFilteredData = filteredGoods.map((item:any)=>({
+            quantity: item.quantity,
+            unitsId: item.unitsId,
+            productsName: item.productsName,
+            abbreviation: item.abbreviation,
+            productsCode: item.productsCode,
+            productsImage: item.productsImage,
+            price: item.price,
+            totalPrice: item.totalPrice,
+            id: item.productsId,
+        }));
+        let jsonData = JSON.stringify(newFilteredData);
         props.dispatch({
             type: "DirectPurchase/add",
             payload: { orderCode, orderTime, warehouseId, supplierId, paidAmount, totalAmount, remark, jsonData, pmId },

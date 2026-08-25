@@ -98,7 +98,7 @@ const EditTransferForm=(props)=>{
                 );
             }
         },
-        {
+       {
             title: '物品选择',
             dataIndex: 'inventoryId',
             key: 'inventoryId',
@@ -231,8 +231,22 @@ const EditTransferForm=(props)=>{
         if (hasInvalidQuantity) {
             return message.warning('请输入调拨数量');
         }
-        console.log('selectedItems',filteredData);
-        let jsonData = JSON.stringify(filteredData);
+        let newFilteredData = filteredData.map((item:any)=>({
+            inventoryId: item.inventoryId,
+            quantity: item.quantity,
+            unitsId: item.unitsId,
+            productsName: item.productsName,
+            productsCode: item.productsCode,
+            productsImage: item.productsImage,
+            price: item.price,
+            totalPrice: item.totalPrice,
+            discountRateDp: item.discountRateDp,
+            discountPriceDp: item.discountPriceDp,
+            isZk: item.isZk,
+            id: item.productsId,
+            poId:uid
+        }));
+        let jsonData = JSON.stringify(newFilteredData);
         setSpinning(true);
         props.dispatch({
             type:'TransferForm/edit',

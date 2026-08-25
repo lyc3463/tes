@@ -13,8 +13,8 @@ import RequestARefund from "@/pages/enter/requestARefund";
 const AfterSales=()=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('activeTabKey1') || '1');
     // 用户权限
-    const [uqx,setUqx]=useState([]);
-    const onChange = (key) => {
+    const [uqx,setUqx]=useState<string[]>([]);
+    const onChange = (key:string) => {
         setActiveKey(key);
         sessionStorage.setItem('activeTabKey1', key);
     };

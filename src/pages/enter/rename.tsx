@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Popover, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
+import {Button, DatePicker, Descriptions, Input, List, message, Modal, Pagination, Popover, Select, Space, Spin, Table, type TableProps, Tag, Tooltip} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
@@ -6,7 +6,13 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 import RenameType from '@/ModelTypes/TypeRename';
 
-const Rename=(props)=>{
+interface RenameProps {
+    dispatch: (action: { type: string; payload?: any }) => any;
+    RenameList?: RenameType[];
+    count?: { count: number };
+}
+
+const Rename=(props: RenameProps)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
@@ -23,8 +29,10 @@ const Rename=(props)=>{
     const [open,setOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
     const [tenant_name,setTenant_name]=useState('');
+    // 删除弹窗展示的记录信息
+    const [deleteRecord,setDeleteRecord]=useState<RenameType>({} as RenameType);
 
-    const columns =[
+    const columns: TableProps<RenameType>['columns'] =[
         {
             title: '单元名称',
             dataIndex: 'unitList',
@@ -173,7 +181,7 @@ const Rename=(props)=>{
       history.push('/enter/addRename');
     };
     // 监听页数
-    const onChange=(page,pageSize)=>{
+    const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setPageSize(pageSize);
     };
@@ -184,6 +192,7 @@ const Rename=(props)=>{
         setUid(e.id);
         setOpen(true);
         setTenant_name(e.tenant_name);
+        setDeleteRecord(e);
     };
     // 时间选择
     const changeDate=(_:any,data:string[])=>{
@@ -200,7 +209,7 @@ const Rename=(props)=>{
         }
     };
     // 监听姓名
-    const changePhone=(e)=>{
+    const changePhone=(e: React.ChangeEvent<HTMLInputElement>)=>{
         setPhone(e.target.value);
         updateSessionStorage('/enter/afterSales/','renamePhone',e.target.value);
     };
@@ -315,8 +324,22 @@ const Rename=(props)=>{
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
             {/*删除*/}
-            <Modal open={open} title='是否要删除?' onCancel={()=>setOpen(false)} onOk={onOk} loading={spinning}>
-                <div>是否要删除<span style={{color:'red'}}>{tenant_name}</span>的更名申请?</div>
+            <Modal open={open} title='是否要删除?' onCancel={()=>setOpen(false)} onOk={onOk} loading={spinning} width={1000}>
+                <Descriptions
+                    column={2}
+                    size="small"
+                    bordered
+                    labelStyle={{ width: 110, backgroundColor: '#fafafa' }}
+                >
+                    <Descriptions.Item label="申请日期">{deleteRecord.created?dayjs(deleteRecord.created).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                    <Descriptions.Item label="合同编号">{deleteRecord.identifier}</Descriptions.Item>
+                    <Descriptions.Item label="原名字">{deleteRecord.tenant_name}</Descriptions.Item>
+                    <Descriptions.Item label="更改后的名字">{deleteRecord.rename}</Descriptions.Item>
+                    <Descriptions.Item label="原手机号">{deleteRecord.tenant_phone}</Descriptions.Item>
+                    <Descriptions.Item label="更改后的手机号">{deleteRecord.rephone}</Descriptions.Item>
+                    <Descriptions.Item label="原身份证">{deleteRecord.customCard}</Descriptions.Item>
+                    <Descriptions.Item label="更改后的身份证">{deleteRecord.reCard}</Descriptions.Item>
+                </Descriptions>
             </Modal>
         </Spin>
     )

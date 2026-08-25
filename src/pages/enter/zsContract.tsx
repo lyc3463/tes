@@ -1,6 +1,7 @@
 import {
     Button,
     DatePicker,
+    Descriptions,
     Form,
     Input,
     List,
@@ -25,6 +26,8 @@ import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 const ZsContract=(props:any)=>{
     const [isDeltOpen,setIsDeleteOpen]=useState(false);
     const [uid,setUid]=useState(0);
+    // 删除弹窗展示的记录信息
+    const [deleteRecord,setDeleteRecord]=useState<any>({});
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
@@ -198,7 +201,7 @@ const ZsContract=(props:any)=>{
                         {record.contractStatus==1||record.contractStatus==4?
                             <>
                                 {uqx[205]=='1'?<Button type='primary' onClick={()=>toedit(record)}>编辑</Button> :''}
-                                {uqx[207]=='1'?<Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>:''}
+                                {uqx[207]=='1'?<Button type='primary' danger onClick={()=>isdelete(record)}>删除</Button>:''}
 
                                 <Button type='primary' onClick={()=>toInfo(record)}>详情</Button>
                             </>:
@@ -229,8 +232,9 @@ const ZsContract=(props:any)=>{
         }
     };
     // 删除弹窗
-    const isdelete=(e:number)=>{
-        setUid(e);
+    const isdelete=(record:any)=>{
+        setUid(record.id);
+        setDeleteRecord(record);
         setIsDeleteOpen(true);
     };
     // 确定删除按钮
@@ -397,7 +401,17 @@ const ZsContract=(props:any)=>{
             />
             <Pagination total={count} pageSize={50} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
             <Modal open={isDeltOpen} onCancel={()=>setIsDeleteOpen(false)} title='删除合同' onOk={onOk}>
-                <div>确定要删除吗？</div>
+                <Descriptions
+                    column={2}
+                    size="small"
+                    bordered
+                    labelStyle={{ width: 90, backgroundColor: '#fafafa' }}
+                >
+                    <Descriptions.Item label="租户姓名">{deleteRecord.customName}</Descriptions.Item>
+                    <Descriptions.Item label="租金">{deleteRecord.zuMoney} 元</Descriptions.Item>
+                    <Descriptions.Item label="起租日">{deleteRecord.beginTime?dayjs(deleteRecord.beginTime).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                    <Descriptions.Item label="到期日">{deleteRecord.endTime?dayjs(deleteRecord.endTime).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                </Descriptions>
             </Modal>
         </Spin>
     )

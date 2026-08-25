@@ -1,6 +1,7 @@
 import {
     Button,
     DatePicker,
+    Descriptions,
     Input,
     List,
     message,
@@ -9,7 +10,7 @@ import {
     Select,
     Space,
     Spin,
-    Table,
+    Table, type TableProps,
     Tag,
     Tooltip
 } from "antd";
@@ -18,8 +19,15 @@ import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
-import RenameType from "@/ModelTypes/TypeRename";
-const OutRent=(props:any)=>{
+import OutRentType from "@/ModelTypes/TypeOutRent";
+
+interface OutRentProps {
+    dispatch: (action: { type: string; payload?: any }) => any;
+    OutRentList?: OutRentType[];
+    count?: { count: number };
+}
+
+const OutRent=(props: OutRentProps)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
@@ -34,7 +42,9 @@ const OutRent=(props:any)=>{
     const [startDate,setStartDate]=useState(checkSessionStorage('/enter/afterSales/','outRentStartDate')||'2000-01-01');
     // 结束时间
     const [endDate,setEndDate]=useState(checkSessionStorage('/enter/afterSales/','outRentEndDate')||'2099-01-01');
-    const columns =[
+    // 删除弹窗展示的记录信息
+    const [deleteRecord,setDeleteRecord]=useState<OutRentType>({} as OutRentType);
+    const columns: TableProps<OutRentType>['columns'] =[
         {
             title: '单元名称',
             dataIndex: 'unitList',
@@ -57,7 +67,7 @@ const OutRent=(props:any)=>{
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
                     <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
-                        {limitedUnitList.map((item, index) => (
+                        {limitedUnitList.map((item:any, index:number) => (
                             <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
                         ))}
                         {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
@@ -133,7 +143,7 @@ const OutRent=(props:any)=>{
             title: '状态',
             dataIndex: 'renameStatus',
             key: 'renameStatus',
-            render: (text: any, record: RenameType) => {
+            render: (text: any, record: OutRentType) => {
                 const status = record.renameStatus;
                 let tagDom;
                 if (status === 2) {
@@ -170,7 +180,7 @@ const OutRent=(props:any)=>{
                     <Space>
                         {record.renameStatus==2?'':<>
                             <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
-                            <Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>
+                            <Button type='primary' danger onClick={()=>isdelete(record)}>删除</Button>
                         </>}
                     </Space>
                 )
@@ -181,7 +191,7 @@ const OutRent=(props:any)=>{
         history.push('/enter/addOutRent')
     };
     // 监听页数
-    const onChange=(page,pageSize)=>{
+    const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setPageSize(pageSize);
     };
@@ -192,7 +202,6 @@ const OutRent=(props:any)=>{
             setEndDate('2099-01-01');
             updateSessionStorage('/enter/afterSales/','outRentStartDate','2000-01-01');
             updateSessionStorage('/enter/afterSales/','outRentEndDate','2099-01-01');
-
         } else {
             setStartDate(data[0]);
             setEndDate(data[1]);
@@ -201,7 +210,7 @@ const OutRent=(props:any)=>{
         }
     };
     // 监听姓名
-    const changePhone=(e)=>{
+    const changePhone=(e: React.ChangeEvent<HTMLInputElement>)=>{
         setPhone(e.target.value);
         updateSessionStorage('/enter/afterSales/','outRentPhone',e.target.value);
     };
@@ -229,8 +238,9 @@ const OutRent=(props:any)=>{
     const toedit=(e:number)=>{
         history.push(`/enter/editOutRent?id=${e}`);
     };
-    const isdelete=(e)=>{
-      setUid(e);
+    const isdelete=(record: OutRentType)=>{
+      setUid(record.id);
+      setDeleteRecord(record);
       setOpen(true);
     };
     const onOk=()=>{
@@ -328,8 +338,20 @@ const OutRent=(props:any)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-            <Modal open={open} loading={spinning} onCancel={()=>setOpen(false)} title={'删除'} onOk={onOk}>
-                是否要删除?
+            <Modal open={open} loading={spinning} onCancel={()=>setOpen(false)} title={'删除'} onOk={onOk} width={1000}>
+                <Descriptions
+                    column={2}
+                    size="small"
+                    bordered
+                    labelStyle={{ width: 110, backgroundColor: '#fafafa' }}
+                >
+                    <Descriptions.Item label="日期">{deleteRecord.created?dayjs(deleteRecord.created).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                    <Descriptions.Item label="合同编号">{deleteRecord.identifier}</Descriptions.Item>
+                    <Descriptions.Item label="租户姓名">{deleteRecord.tenant_name}</Descriptions.Item>
+                    <Descriptions.Item label="联系方式">{deleteRecord.tenant_phone}</Descriptions.Item>
+                    <Descriptions.Item label="申请退租日期">{deleteRecord.refundData?dayjs(deleteRecord.refundData).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                    <Descriptions.Item label="退租原因">{deleteRecord.refundReason}</Descriptions.Item>
+                </Descriptions>
             </Modal>
         </Spin>
     )

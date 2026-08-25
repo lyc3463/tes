@@ -30,5 +30,5 @@ export function infoMealId(vals:any) {
 }
 // 斗拱微信二维码
 export function adddgchongzhi(vals:any) {
-    return getData(1871, [vals.newMoney,vals.remarks,vals.rechargetype,vals.startDate,vals.numberItems]);
+    return getData(1871, [vals.newMoney,vals.remarks,vals.rechargetype,vals.startDate,vals.numberItems,vals.payType]);
 }

@@ -14,12 +14,20 @@ import {
     Tag
 } from "antd";
 import dayjs from "dayjs";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState, type ChangeEvent} from "react";
 import {history,connect} from "umi";
 import {StaticInfo} from "@/StaticInfo";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import type { EmployeeRecord, EmployeeResponse } from '@/ModelTypes/TypeEmp';
+import { Descriptions } from 'antd';
 
-const CheckStaff=(props:any)=>{
+interface CheckStaffProps {
+    EmpList: EmployeeRecord[];
+    count?: EmployeeResponse;
+    dispatch: (action: { type: string; payload?: any }) => any;
+}
+
+const CheckStaff=(props: CheckStaffProps)=>{
     const [uid,setUid]=useState<number>(0);
     const [isopen,setOpen]=useState(false);
     // 当前页数
@@ -41,7 +49,8 @@ const CheckStaff=(props:any)=>{
     // 交叉观察器实例
     const observerRef = useRef<IntersectionObserver | null>(null);
     // 用户权限
-    const [uqx,setUqx]=useState([]);
+    const [uqx,setUqx]=useState<string[]>([]);
+    const [checkRecord, setCheckRecord] = useState<EmployeeRecord | null>(null);
     const columns =[
         {
             title: '登记日期',
@@ -106,8 +115,12 @@ const CheckStaff=(props:any)=>{
                             // 原生懒加载属性（正确用法：字符串值 'lazy'）
                             loading="lazy"
                             // fallback 逻辑：图片加载失败时显示占位图
-                            onError={(e) => {
-                                e.target.src = 'https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片';
+                            onError={(e: any) => {
+                                try {
+                                    (e.target as HTMLImageElement).src = 'https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片';
+                                } catch (err) {
+                                    // ignore
+                                }
                             }}
                             preview={{
                                 src: bigImgUrl, // 弹窗预览图单独指定
@@ -182,7 +195,8 @@ const CheckStaff=(props:any)=>{
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        const rowId = entry.target.dataset.rowId;
+                        const target = entry.target as HTMLElement;
+                        const rowId = target.dataset ? target.dataset.rowId : undefined;
                         if (rowId && !loadedImageIds.has(rowId)) {
                             // 标记为已加载，触发重新渲染
                             setLoadedImageIds(prev => new Set(prev).add(rowId));
@@ -203,9 +217,10 @@ const CheckStaff=(props:any)=>{
             }
         });
     }, [loadedImageIds]);
-    // 审核弹窗
-    const check=(e)=>{
-        setUid(e.id);
+    // 审核弹窗：接收 record 并保存以供 Modal 展示
+    const check=(record: EmployeeRecord)=>{
+        setUid(record.id);
+        setCheckRecord(record);
         setOpen(true)
     };
     // 弹窗确定
@@ -254,17 +269,17 @@ const CheckStaff=(props:any)=>{
         logFenye();
     }, [page,pageSize]);
     // 监听员工姓名
-    const changeName=(e)=>{
+    const changeName=(e: ChangeEvent<HTMLInputElement>)=>{
         setCname(e.target.value);
         updateSessionStorage('/check/checkStaff/','name',e.target.value);
     };
     // 监听员工昵称
-    const changeNickname=(e)=>{
+    const changeNickname=(e: ChangeEvent<HTMLInputElement>)=>{
         setNickname(e.target.value);
         updateSessionStorage('/check/checkStaff/','nickname',e.target.value);
     };
     // 监听手机号
-    const changePhone=(e)=>{
+    const changePhone=(e: ChangeEvent<HTMLInputElement>)=>{
         setPhone(e.target.value);
         updateSessionStorage('/check/checkStaff/','phone',e.target.value);
     };
@@ -272,7 +287,7 @@ const CheckStaff=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
-    const changeCompanyName=(e)=>{
+    const changeCompanyName=(e: ChangeEvent<HTMLInputElement>)=>{
         setcompanyName(e.target.value);
         updateSessionStorage('/check/checkStaff/','companyName',e.target.value);
     };
@@ -342,20 +357,41 @@ const CheckStaff=(props:any)=>{
                 dataSource={props.EmpList}
                 rowKey={(columns) => columns.id}
                 onRow={(record, index) => ({
-                    ref: (el) => {
-                        if (el) {
-                            el.dataset.rowId = record.id; // 存储行ID
-                            rowRefs.current[index] = el;
-                            // 观察该行元素
-                            observerRef.current?.observe(el);
+                    // 使用 any 绕过 AntD 的严格 onRow 返回类型限制，以便我们能设置行 ref
+                    ...( ((): any => ({
+                        ref: (el: any) => {
+                            if (el) {
+                                el.dataset.rowId = String(record.id); // 存储行ID
+                                if (typeof index === 'number') {
+                                    rowRefs.current[index] = el;
+                                }
+                                // 观察该行元素
+                                observerRef.current?.observe(el);
+                            }
                         }
-                    },
-                })}
+                    }))()),
+                } as any)}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*审核弹窗*/}
-            <Modal onOk={OK} onCancel={()=>setOpen(false)} open={isopen} title='是否通过' loading={spinning}>
-                <div>确定要通过吗？</div>
+            <Modal onOk={OK} onCancel={()=>{setOpen(false); setCheckRecord(null);}} open={isopen} title='是否通过' loading={spinning} width={600}>
+                <div style={{marginBottom:12}}>是否通过以下员工？</div>
+                {checkRecord ? (
+                    <Descriptions bordered size='small' column={2}>
+                        <Descriptions.Item label='登记日期'>
+                            {checkRecord.begintime ? dayjs(checkRecord.begintime).format('YYYY-MM-DD') : ''}
+                        </Descriptions.Item>
+                        <Descriptions.Item label='姓名'>
+                            {checkRecord.name || ''}
+                        </Descriptions.Item>
+                        <Descriptions.Item label='公司'>
+                            {checkRecord.companyName || ''}
+                        </Descriptions.Item>
+                        <Descriptions.Item label='手机号'>
+                            {checkRecord.phone || ''}
+                        </Descriptions.Item>
+                    </Descriptions>
+                ) : null}
             </Modal>
         </Spin>
     )

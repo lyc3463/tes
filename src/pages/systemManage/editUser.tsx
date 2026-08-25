@@ -24,7 +24,8 @@ const EditUser=(props:any)=>{
     const [qyList,setqyList]=useState([]);
     const [qyId,setqyId]=useState(0);
     const [park_id,setPark_id]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(562).fill('0'));
+    const [oldpark_id,setOldpark_id]=useState([]);
+    const [selected, setSelected] = useState<string[]>(Array(567).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -40,6 +41,7 @@ const EditUser=(props:any)=>{
                 formRef.current.setFieldsValue(res.Data);
                 setisTask(res.Data.isTask.split("|").map(Number));
                 setPark_id(res.Data.parkList.map((item:any)=>String(item.parkId)));
+                setOldpark_id(res.Data.parkList.map((item:any)=>String(item.parkId)));
                 const authorityString = res.Data.authority;
                 setqyId(res.Data.qyId);
                 const splitArray = authorityString.split('');
@@ -1612,9 +1614,11 @@ const EditUser=(props:any)=>{
         let joinOsTask=isTask.join('|');
         if (park_id.length<1) return message.warning('请选择园区!')
         let joinPark=park_id.join('|');
+        let joinOldPark=oldpark_id.join('|');
+
         props.dispatch({
             type:'Users/edit',
-            payload:{...value,uid,joinqx,joinOsTask,qyId,joinPark}
+            payload:{...value,uid,joinqx,joinOsTask,qyId,joinPark,joinOldPark}
         }).then((res)=>{
             if (res.ErrorCode==0){
                 message.success('修改成功');

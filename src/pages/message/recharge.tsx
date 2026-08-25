@@ -8,7 +8,7 @@ import Myqrcode from "@/components/Myqrcode";
 import {RedoOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 
-const Recharge=(props)=>{
+const Recharge=()=>{
     const data=[
         {id:1,title:5250,money:500,youhui:5},
         {id:2,title:11000,money:1000,youhui:10},
@@ -72,13 +72,12 @@ const Recharge=(props)=>{
             //             message.error(res.Data);
             //         }
             //     });
-            props.dispatch({
-                type:'Recharge/addchongzhi',
-                payload:{newMoney,remarks,rechargetype:1,startDate:dayjs().format('YYYY-MM-DD'),numberItems}
-            }).then((res:ErrorCodeType)=>{
+            RechargeService.adddgchongzhi(
+                {newMoney,remarks,payType:"A_NATIVE",numberItems,rechargetype:5,startDate:dayjs().format('YYYY-MM-DD')}
+            ).then((res:ErrorCodeType)=>{
                 if (res.ErrorCode==0){
-                    console.log('参数',res.Data);
-                    setCode(res.Data);
+                    console.log('相应',res);
+                    setCode(res.Data.data.qr_code);
                     getOneNuber();
                     setIsTihuan(true);
                 }else {
@@ -204,7 +203,7 @@ const Recharge=(props)=>{
                             <div className={styles.controlGroup}>
                                 <label className={styles.controlLabel}>支付方式</label>
                                 <Radio.Group style={{marginLeft:'20px'}} defaultValue={1}>
-                                    <Radio value={1}>微信支付</Radio>
+                                    <Radio value={1}>支付宝支付</Radio>
                                 </Radio.Group>
                             </div>
                             <div className={styles.fromActions}>

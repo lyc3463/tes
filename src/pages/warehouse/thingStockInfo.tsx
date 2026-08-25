@@ -20,6 +20,7 @@ import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 import {DownOutlined, MinusOutlined, UpOutlined} from "@ant-design/icons";
 import * as ThingStockInfoService from '@/services/thingStockInfo';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import UnitSplitModal from "@/components/UnitSplitModal";
 
 const ThingStockInfo=(props)=>{
     const [spinning, setSpinning] = useState(false);
@@ -48,6 +49,12 @@ const ThingStockInfo=(props)=>{
     // 交叉观察器实例
     const observerRef = useRef<IntersectionObserver | null>(null);
     const [list,setList]=useState<any[]>([]);
+    const [upOpen, setUpOpen] = useState(false);
+    const [upUnitsId, setUpUnitsId] = useState(0);
+    const [unitsList, setUnitsList] = useState([]);
+    const [upQuantity, setUpQuantity] = useState(1);
+    const [inventoryId, setInventoryId] = useState(0);
+    const [upWarehouseId, setUpWarehouseId] = useState(0);
     const columns = [
         {
             title: '所属仓库',
@@ -161,10 +168,19 @@ const ThingStockInfo=(props)=>{
             title: '操作',
             dataIndex: 'xx',
             render: (text: number, record: any) => (
-               <Button type="primary" onClick={()=>onEditOpen(record)}>修改价格</Button>
+                <Button type='primary' danger onClick={() => splitUp(record)}>向上拆</Button>
             )
         },
     ];
+    const splitUp=(record:any)=>{
+        console.log('拆分记录:', record);
+        setUpOpen(true);
+        setUpUnitsId(record.unitsId);
+        setUnitsList(record.unitsList || []);
+        setInventoryId(record.id);
+        setUpQuantity(0);
+        setUpWarehouseId(record.warehouseId);
+    };
     // 编辑弹窗
     const onEditOpen = (record: any) => {
         console.log('编辑记录:', record);
@@ -190,6 +206,7 @@ const ThingStockInfo=(props)=>{
             endDate,
             unitId
         }).then((res: TypeErrorCode) => {
+            console.log('获取列表响应:', res);
             if (res.ErrorCode === 0) {
                 setList(res.Data.data || []);
                 setCount(res.Data.count || 0);
@@ -333,6 +350,26 @@ const ThingStockInfo=(props)=>{
             setSpinning(false);
             setEditVisible(false);
         });
+    };
+    const onUpOK = () => {
+        setSpinning(true);
+        if (upQuantity <= 0) {
+            message.warning('请输入拆分数量');
+            setSpinning(false);
+            return;
+        }
+        ThingStockInfoService.splitUp({inventoryId, warehouseId:upWarehouseId, unitsId: upUnitsId, quantity: upQuantity}).then((res: TypeErrorCode) => {
+            if (res.ErrorCode == 0) {
+                message.success('拆分成功');
+                setUpOpen(false);
+                setUpQuantity(0);
+                setSpinning(false);
+                getList();
+            } else {
+                message.error(res.Data);
+                setSpinning(false);
+            }
+        })
     };
     return(
         <Spin spinning={spinning}>
@@ -491,6 +528,18 @@ const ThingStockInfo=(props)=>{
                     />
                 </Space.Compact>
             </Modal>
+            <UnitSplitModal
+                open={upOpen}
+                currentUnitId={upUnitsId}
+                unitsList={unitsList}
+                quantity={upQuantity}
+                onQuantityChange={(value) => setUpQuantity(value)}
+                onConfirm={onUpOK}
+                onCancel={() => {
+                    setUpOpen(false);
+                    setUpQuantity(0);
+                }}
+            />
         </Spin>
     )
 }

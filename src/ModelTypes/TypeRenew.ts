@@ -1,19 +1,38 @@
-type TypeRenew  = {
-    beginData:string;
-    contractId : number;
-    created: string;
-    endDate: string;
+// 单元信息
+export interface RenewUnitItem {
     id: number;
-    identifier: string;
+    tenantId: number;
+    park_id: number;
+    house_id: number;
+    house_name: any;
+    unit_name: string;
+    floor_area: number;
+    rentable_area: number;
+    floor: number;
+    rent: number;
+    price: number;
+    unit_type: number;
+    add_area: number;
+    status: number;
+}
+
+type TypeRenew = {
+    id: number;
     parkId: number;
-    pdfImage?: string;
-    pdfImageBase64?: string;
-    remark: string;
-    renameStatus: number;
-    tenantId: number
+    tenantId: number;
+    contractId: number;
+    identifier: string;
     tenant_name: string;
     tenant_phone: string;
-    unitList: any[];
+    beginData: string;
+    endDate: string;
+    renameStatus: number;
+    // 接口返回 null，按 any 处理
+    pdfImage: any;
+    pdfImageBase64: any;
+    remark: string;
+    created: string;
+    unitList: RenewUnitItem[];
 };
 
 export default TypeRenew;

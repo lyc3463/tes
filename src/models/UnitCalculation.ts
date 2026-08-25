@@ -12,7 +12,7 @@ import StaffType from '@/ModelTypes/TypeStaff';
 import { fixPathname } from '@/utils/common';
 let pl={
     page:1,
-    name:0,
+    name:'',
     pageSize:50
 }
 export interface StaffCountState {

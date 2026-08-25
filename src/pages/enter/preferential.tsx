@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import {
     Button,
     DatePicker,
+    Descriptions,
     Input,
     List,
     message,
@@ -10,7 +11,7 @@ import {
     Select,
     Space,
     Spin,
-    Table,
+    Table, type TableProps,
     Tag,
     Tooltip
 } from "antd";
@@ -18,8 +19,15 @@ import {connect,history} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import PreferentialType from "@/ModelTypes/TypePreferential";
 
-const Preferential=(props)=>{
+interface PreferentialProps {
+    dispatch: (action: { type: string; payload?: any }) => any;
+    PreferentialList?: PreferentialType[];
+    count?: { count: number };
+}
+
+const Preferential=(props: PreferentialProps)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setpageSize]=useState(50);
@@ -34,7 +42,9 @@ const Preferential=(props)=>{
     const [did,setdid]=useState(0);
     const [dopen,setDopen]=useState(false);
     const [spinning,setspinning]=useState(false);
-    const columns =[
+    // 删除弹窗展示的记录信息
+    const [deleteRecord,setDeleteRecord]=useState<PreferentialType>({} as PreferentialType);
+    const columns: TableProps<PreferentialType>['columns'] =[
         {
             title: '单元名称',
             dataIndex: 'unitList',
@@ -57,7 +67,7 @@ const Preferential=(props)=>{
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
                     <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
-                        {limitedUnitList.map((item, index) => (
+                        {limitedUnitList.map((item: any, index: number) => (
                             <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
                         ))}
                         {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
@@ -155,7 +165,7 @@ const Preferential=(props)=>{
                     <Space>
                         {
                             record.renameStatus==2?'':<> <Button type='primary' onClick={()=>toedit(record.id)}>编辑</Button>
-                                <Button type='primary' danger onClick={()=>IsDelOpen(record.id)}>删除</Button></>
+                                <Button type='primary' danger onClick={()=>IsDelOpen(record)}>删除</Button></>
                         }
                     </Space>
                 )
@@ -169,7 +179,7 @@ const Preferential=(props)=>{
         history.push('/enter/addPreferential');
     };
     // 监听页数
-    const onChange=(page,pageSize)=>{
+    const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setpageSize(pageSize);
     };
@@ -188,7 +198,7 @@ const Preferential=(props)=>{
         }
     };
     // 监听姓名
-    const changePhone=(e)=>{
+    const changePhone=(e: React.ChangeEvent<HTMLInputElement>)=>{
         setPhone(e.target.value);
         updateSessionStorage('/enter/afterSales/','preferentialPhone',e.target.value);
     };
@@ -210,10 +220,12 @@ const Preferential=(props)=>{
     const suosou=()=>{
         setPage(1);
         logFenye();
+        console.log('props',props);
     };
 
-    const IsDelOpen=(e)=>{
-        setdid(e);
+    const IsDelOpen=(record: PreferentialType)=>{
+        setdid(record.id);
+        setDeleteRecord(record);
         setDopen(true);
     };
     const onOK=()=>{
@@ -226,6 +238,7 @@ const Preferential=(props)=>{
                 message.success('删除成功');
                 setspinning(false);
                 setDopen(false);
+                logFenye();
             }else {
                 message.error(res.Data);
                 setspinning(false);
@@ -305,8 +318,20 @@ const Preferential=(props)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-            <Modal title='删除' open={dopen} onOk={onOK} loading={spinning} onCancel={()=>setDopen(false)}>
-                <div>是否要删除?</div>
+            <Modal title='删除' open={dopen} onOk={onOK} loading={spinning} onCancel={()=>setDopen(false)} width={1000}>
+                <Descriptions
+                    column={2}
+                    size="small"
+                    bordered
+                    labelStyle={{ width: 110, backgroundColor: '#fafafa' }}
+                >
+                    <Descriptions.Item label="日期">{deleteRecord.created?dayjs(deleteRecord.created).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                    <Descriptions.Item label="合同编号">{deleteRecord.identifier}</Descriptions.Item>
+                    <Descriptions.Item label="租户姓名">{deleteRecord.tenant_name}</Descriptions.Item>
+                    <Descriptions.Item label="联系方式">{deleteRecord.tenant_phone}</Descriptions.Item>
+                    <Descriptions.Item label="优惠周期" span={2}>{deleteRecord.preBeginTime?dayjs(deleteRecord.preBeginTime).format('YYYY-MM'):''}月至{deleteRecord.preEndTime?dayjs(deleteRecord.preEndTime).format('YYYY-MM'):''}月</Descriptions.Item>
+                    <Descriptions.Item label="申请优惠租金" span={2}>{deleteRecord.preRen} 元</Descriptions.Item>
+                </Descriptions>
             </Modal>
         </Spin>
     )

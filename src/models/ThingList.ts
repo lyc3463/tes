@@ -14,7 +14,8 @@ let pl={
     page:1,
     code:'',
     name:'',
-    pageSize:50
+    pageSize:50,
+    goodsTypeId:0,
 }
 export interface StaffCountState {
     count: number;

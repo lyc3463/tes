@@ -5,7 +5,7 @@ import {useState} from "react";
 
 const FinancialData=(props:any)=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('financialDataActiveKey') || '1');
-    const onChange = (key) => {
+    const onChange = (key:string) => {
         setActiveKey(key);
         sessionStorage.setItem('financialDataActiveKey', key);
     };

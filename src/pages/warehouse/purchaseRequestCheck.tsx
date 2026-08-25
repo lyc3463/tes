@@ -3,7 +3,8 @@ import React, {useEffect, useState} from "react";
 import {connect,history} from "umi";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import * as Application from '@/services/application';
 
 const PurchaseRequestCheck=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -18,6 +19,10 @@ const PurchaseRequestCheck=(props)=>{
     const [pageSize,setPageSize]=useState(50); // 每页数量
     const [orderType,setOrderType]=useState(1);// 订单类型
     const [dUid,setDUid]=useState(0);// 审核的ID
+    const [paidAmountSum,setPaidAmountSum]=useState(0);// 已交金额
+    const [totalAmountSum,setTotalAmountSum]=useState(0);// 物品总价
+    const [count,setCount]=useState(0);// 总条数
+    const [list,setList]=useState([]);// 列表
     const [dOpne,setDOpen]=useState(false);// 审核确认弹窗
     const [uName,setUName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckUName')||'');// 提交人
     const columns=[
@@ -47,7 +52,6 @@ const PurchaseRequestCheck=(props)=>{
             key:'warehouseName',
             align:'center',
             ellipsis:true,
-
         },
         {
             title:'供应商',
@@ -94,7 +98,7 @@ const PurchaseRequestCheck=(props)=>{
                 let statusInfo = {};
                 switch (text) {
                     case 1:
-                        statusInfo = { color: 'blue', text: '未审核' };
+                        statusInfo = { color: 'blue', text: '采购审核' };
                         break;
                     case 2:
                         statusInfo = { color: 'green', text: '已审核' };
@@ -138,10 +142,7 @@ const PurchaseRequestCheck=(props)=>{
     };
     const checkOk=()=>{
         setSpinning(true);
-        props.dispatch({
-            type:'PurchaseRequestCheck/check',
-            payload:dUid,
-        }).then((res:TypeErrorCode)=>{
+        Application.check({uid:dUid,orderStatus:2}).then((res:TypeErrorCode)=>{
             if(res.ErrorCode===0){
                 message.success('审核成功');
                 setDOpen(false);
@@ -155,16 +156,16 @@ const PurchaseRequestCheck=(props)=>{
     };
     // 列表信息
     const getList=()=>{
-        props.dispatch({
-            type:'PurchaseRequestCheck/fetch',
-            payload:{page, pageSize, orderCode, warehouseName, supplierName, startDate, endDate, orderStatus, billStatus,orderType,uName}
-        })
-    };
-    // 分页信息
-    const getFenye=()=>{
-        props.dispatch({
-            type:'PurchaseRequestCheck/fenye',
-            payload:{pageSize, orderCode, warehouseName, supplierName, startDate, endDate, orderStatus, billStatus,orderType,uName}
+        Application.fetch({page, pageSize, orderCode, warehouseName, supplierName, startDate, endDate, orderStatus, billStatus,orderType,uName}).then((res:TypeErrorCode)=>{
+            console.log(res.Data);
+            if(res.ErrorCode===0){
+                setList(res.Data.data);
+                setCount(res.Data.count);
+                setPaidAmountSum(res.Data.paidAmountSum);
+                setTotalAmountSum(res.Data.totalAmountSum);
+            }else{
+                message.error(res.Data);
+            }
         })
     };
     const onChange=(page:number,pageSize:number)=>{
@@ -177,7 +178,6 @@ const PurchaseRequestCheck=(props)=>{
         })
     };
     useEffect(() => {
-        getFenye();
         getSupplierList();
     }, []);
     useEffect(() => {
@@ -186,7 +186,6 @@ const PurchaseRequestCheck=(props)=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getFenye();
     };
     const changeWarehouseName=(e)=>{
         updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckWarehouseName',e.target.value);
@@ -212,7 +211,7 @@ const PurchaseRequestCheck=(props)=>{
             setEndDate(data[1]);
             updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckStartDate',data[0]);
             updateSessionStorage('/warehouse/checkPurchaseRequest','PurchaseRequestCheckEndDate',data[1]);
-        }
+        };
     };
     const changeOrderStatus=(e)=>{
         setOrderStatus(e);
@@ -307,7 +306,7 @@ const PurchaseRequestCheck=(props)=>{
                                 onChange={changeOrderStatus}
                                 options={[
                                     {label:'全部',value:0},
-                                    {label:'待审核',value:1},
+                                    {label:'采购审核',value:1},
                                     {label:'已审核',value:2},
                                     {label:'已提交报销',value:3},
                                     {label:'已报销',value:4},
@@ -342,7 +341,7 @@ const PurchaseRequestCheck=(props)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 scroll={{y:'60vh',x:1500}}
-                dataSource={props.list}
+                dataSource={list}
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (
@@ -352,13 +351,13 @@ const PurchaseRequestCheck=(props)=>{
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
-                            <Table.Summary.Cell index={7}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{paidAmountSum}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}><div style={{width:"100%",textAlign:'center'}}>{totalAmountSum}</div></Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
             <Modal title="审核弹窗" open={dOpne} onOk={()=>checkOk()} onCancel={()=>setDOpen(false)} loading={spinning}>
                 是否要审核?
             </Modal>
@@ -366,8 +365,6 @@ const PurchaseRequestCheck=(props)=>{
     )
 }
 const mapStateToProps = (state: any) => ({
-    list: state.PurchaseRequestCheck.list,
-    count: state.PurchaseRequestCheck.count,
     SupplierList: state.Supplier.list,
 });
 export default connect(mapStateToProps)(PurchaseRequestCheck)

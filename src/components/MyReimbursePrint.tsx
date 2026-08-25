@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import {Modal, Image, Button} from "antd";
 import {getImgSrc, numberToRMB} from "@/utils/OpenTool";
 import {FilePdfOutlined} from "@ant-design/icons";
+import CaigouTagList from "@/components/CaigouTagListProps";
 
 // 抽离明细类型
 interface FdListItem {
@@ -37,6 +38,7 @@ interface PrintItem {
     personName?: string;
     foImage?: string;
     fdList: FdListItem[];
+    poList: any[];
 }
 
 // 组件入参外层类型
@@ -46,9 +48,14 @@ interface PrintProps {
 
 // 标准函数组件，类型正确
 const ReimbursePrint = ({ item }: { item: PrintProps }) => {
+
     const [open, setOpen] = useState(false);
+      // 采购单
+    const [isOpenInfo,setIsOpenInfo]=useState(false);
     // 解构简化，全局直接使用 data 代替 item.printItem
     const data = item.printItem;
+    console.log('详情', data);
+    
 
     const th = {
         border: "1px solid #4d85ff",
@@ -284,11 +291,28 @@ const ReimbursePrint = ({ item }: { item: PrintProps }) => {
                                     </div>
                                 </div>
                             )}
-
                             {allFiles.length === 0 && <div>暂无附件</div>}
                         </>
                     );
                 })()}
+                {data.poList.length > 0 && (
+                    <div style={{ marginTop: 16 }}>
+                        <Button type="primary" onClick={() => setIsOpenInfo(true)}>
+                            查看采购单详情
+                        </Button>
+                    </div>
+                )}
+            </Modal>
+            <Modal open={isOpenInfo} title='单号详情' onCancel={()=>setIsOpenInfo(false)} width={1200} onOk={()=>{setIsOpenInfo(false);}}>
+                <CaigouTagList list={data.poList.map((item:any)=>{
+                    return (
+                        {
+                            ...item,
+                            orderCode: item.number || '',
+                            id: item.poId || 0,
+                        }
+                    )
+                })}/>
             </Modal>
         </div>
     );

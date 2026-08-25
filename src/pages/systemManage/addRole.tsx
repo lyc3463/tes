@@ -15,7 +15,7 @@ const AddRole=(props)=>{
     const navigate=useNavigate();
     const [spinning,setspinning]=useState(false);
     const treeData = buildTree(qxTree);
-    const [selected, setSelected] = useState<string[]>(Array(562).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(567).fill('0'));
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: TypeMenu[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void })=> {
         return (
             <ul>

@@ -243,8 +243,22 @@ const AddTransferForm=(props)=>{
         if (hasInvalidQuantity) {
             return message.warning('请输入调拨数量');
         }
+        let newFilteredData = filteredData.map((item:any)=>({
+            inventoryId: item.inventoryId,
+            quantity: item.quantity,
+            unitsId: item.unitsId,
+            productsName: item.productsName,
+            productsCode: item.productsCode,
+            productsImage: item.productsImage,
+            price: item.price,
+            totalPrice: item.totalPrice,
+            discountRateDp: item.discountRateDp,
+            discountPriceDp: item.discountPriceDp,
+            isZk: item.isZk,
+            id: item.productsId,
+        }));
         console.log('selectedItems',filteredData);
-        let jsonData = JSON.stringify(filteredData);
+        let jsonData = JSON.stringify(newFilteredData);
         setSpinning(true);
         props.dispatch({
             type:'TransferForm/add',

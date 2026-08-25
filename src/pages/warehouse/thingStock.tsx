@@ -7,6 +7,8 @@ import TransferDetails from "@/pages/warehouse/transferDetails";
 import {userQx} from "@/utils/OpenTool";
 import CrossStoreTransferForm from "@/pages/warehouse/crossStoreTransferForm";
 import CrossStoreReviewTransferForm from "@/pages/warehouse/crossStoreReviewTransferForm";
+import InAndOutDetails from "@/pages/warehouse/inAndOutDetails";
+
 
 const ThingStock=()=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('thingStockActiveKey') || '1');
@@ -34,6 +36,9 @@ const ThingStock=()=>{
             {userQx()[539]=='1'?<Tabs.TabPane tab='调拨明细' key='4'>
                 <TransferDetails/>
             </Tabs.TabPane>:''}
+             <Tabs.TabPane tab='进出数量明细' key='7'>
+                <InAndOutDetails/>
+            </Tabs.TabPane>
         </Tabs>
     )
 }

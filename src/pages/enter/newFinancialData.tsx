@@ -1,21 +1,34 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Descriptions, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag, type TableProps} from "antd";
 import dayjs from "dayjs";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState, type ChangeEvent, type Key} from "react";
 import {connect,history} from "umi";
 import {checkSessionStorage, newprocessBills, processBills, updateSessionStorage, userQx} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import { useReactToPrint } from 'react-to-print';
 import AllFinancialDataPrint from "@/components/AllFinancialDataPrint";
-const NewFinancialData=(props:any)=>{
+import type { FinancialCount, FinancialDataProps, FinancialRecord, SupplierItem } from "@/ModelTypes/TypeFinancialData";
+
+interface RootState {
+    NewFinancialData: {
+        count?: FinancialCount;
+    };
+    Supplier: {
+        list: SupplierItem[];
+    };
+}
+
+const NewFinancialData=(props: FinancialDataProps)=>{
+    const DEFAULT_START_DATE = '2000-01-01';
+    const DEFAULT_END_DATE = '2099-01-01';
     // 展示total
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 账单列表
-    const [billList,setBillList]=useState([]);
+    const [billList,setBillList]=useState<FinancialRecord[]>([]);
     // 开始时间
-    const [startDate,setBillBgeinTime]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDatastartDate')||'2000-01-01');
+    const [startDate,setBillBgeinTime]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDatastartDate')||DEFAULT_START_DATE);
     // 结束时间
-    const [endDate,setBillEndTime]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDataendDate')||'2099-01-01');
+    const [endDate,setBillEndTime]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDataendDate')||DEFAULT_END_DATE);
     // 账单状态
     const [orderStatus,setBillStatus]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDatabillStatus')||0);
     // 删除的id
@@ -35,18 +48,19 @@ const NewFinancialData=(props:any)=>{
     const [paidStatus,setPaidStatus]=useState(checkSessionStorage('/enter/financialData/','NewFinancialDatapaidStatus')||0);
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
+    const [delRecord,setDelRecord]=useState<FinancialRecord | null>(null);
     const [printModalOpen,setPrintModalOpen]=useState(false);
-    const [printList,setPrintList]=useState([]);
-    const printRef = useRef();
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const [printList,setPrintList]=useState<FinancialRecord[]>([]);
+    const printRef = useRef<HTMLDivElement | null>(null);
+    const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
     const [showReimburseColumn, setShowReimburseColumn] = useState(false);
 
-    const columns =[
+    const columns: TableProps<FinancialRecord>['columns'] =[
         {
             title: '日期',
             dataIndex: 'orderDate',
             key: 'orderDate',
-            render:(text:any,record:any,)=>{
+            render:(_,record)=>{
                 return(
                     <div>
                         {dayjs(record.orderDate).format('YYYY-MM-DD')}
@@ -70,7 +84,7 @@ const NewFinancialData=(props:any)=>{
             dataIndex: 'number',
             key: 'number',
             // 👇 你原来的逻辑 100% 保留，完全不动
-            render: (text: any, record: any) => {
+            render: (_, record) => {
                 const hasUnderline = record.number && record.number.includes('_');
                 return (
                     <span
@@ -93,37 +107,32 @@ const NewFinancialData=(props:any)=>{
             title: '公司',
             dataIndex: 'company_name',
             key: 'company_name',
-            ellipsis: true,
         },
         {
             title: '项目',
             dataIndex: 'project_name',
             key: 'project_name',
-            ellipsis: true,
         },
         {
             title: '账户名',
             dataIndex: 'account_name',
             key: 'account_name',
-            ellipsis: true,
         },
         {
             title: '账户卡号',
             dataIndex: 'account_card',
             key: 'account_card',
-            ellipsis: true,
         },
         {
             title: '供应商',
             dataIndex: 'supplierName',
             key: 'supplierName',
-            ellipsis: true,
         },
         {
             title: '类型',
             dataIndex: 'moneyType',
             key: 'moneyType',
-            render:(text:any,record:any)=>{
+            render:(text)=>{
                 return(
                     <Tag color={text==1?'green':'red'}>
                         {text==1?'收入':'支出'}
@@ -135,7 +144,7 @@ const NewFinancialData=(props:any)=>{
             title: '收入总金额(元)',
             dataIndex: 'totalAmount',
             key: 'totalAmount',
-            render:(text:any,record:any)=>{
+            render:(text,record)=>{
                 return(
                     <span>{record.moneyType==1?text:0}</span>
                 )
@@ -150,7 +159,7 @@ const NewFinancialData=(props:any)=>{
             title: '支出总金额',
             dataIndex: 'totalAmount',
             key: 'totalAmount',
-            render:(text:any,record:any)=>{
+            render:(text,record)=>{
                 return(
                     <span>{record.moneyType==2?text:null}</span>
                 )
@@ -160,7 +169,7 @@ const NewFinancialData=(props:any)=>{
             title: '余额(元)',
             dataIndex: 'balance2',
             key: 'balance2',
-            render:(text:any,record:any)=>{
+            render:(text)=>{
                 return(
                     <div>
                         {text.toFixed(2)}
@@ -172,7 +181,7 @@ const NewFinancialData=(props:any)=>{
             title: '状态',
             dataIndex: 'orderStatus',
             key: 'orderStatus',
-            render:(text:any,record:any)=>{
+            render:(text)=>{
                 return(
                     <Tag color={text==1?'red':'green'}>
                         {text==1?'未审核':'已审核'}
@@ -189,7 +198,7 @@ const NewFinancialData=(props:any)=>{
             title: '审核人',
             dataIndex: 'reviewerName',
             key: 'reviewerName',
-            render:(text:any,record:any)=>{
+            render:(text,record)=>{
                 return(
                     <Tag color={record.orderStatus==2?'green':'blue'}>
                         {record.orderStatus==2?text:''}
@@ -201,7 +210,7 @@ const NewFinancialData=(props:any)=>{
             title: '操作',
             dataIndex: 'amount',
             key: 'amount',
-            render:(text:any,record:any)=>{
+            render:(_,record)=>{
                 return(
                     <Space>
                         {
@@ -209,7 +218,7 @@ const NewFinancialData=(props:any)=>{
                                 <Button type='primary' onClick={()=>{
                                     history.push(`/enter/editNewFinancialData?id=${record.id}`);
                                 }}>编辑</Button>
-                                <Button type='primary' danger onClick={()=>isDelOpen(record.id)}>删除</Button>
+                                <Button type='primary' danger onClick={()=>isDelOpen(record)}>删除</Button>
                             </>:null
                         }
                     </Space>
@@ -217,18 +226,13 @@ const NewFinancialData=(props:any)=>{
             }
         },
     ];
-    const changeDate=(_:any,data:string[])=>{
-        if (data.length === 2 && data[0] === '' && data[1] === '') {
-            setBillBgeinTime('2000-01-01');
-            setBillEndTime('2099-01-01');
-            updateSessionStorage('/enter/financialData/','NewFinancialDatastartDate','2000-01-01');
-            updateSessionStorage('/enter/financialData/','NewFinancialDataendDate','2099-01-01');
-        } else {
-            setBillBgeinTime(data[0]);
-            setBillEndTime(data[1]);
-            updateSessionStorage('/enter/financialData/','NewFinancialDatastartDate',data[0]);
-            updateSessionStorage('/enter/financialData/','NewFinancialDataendDate',data[1]);
-        }
+    const changeDate=(_: unknown,data:string[] = [])=>{
+        const hasDateRange = data.length === 2 && data[0] && data[1];
+        const [nextStartDate, nextEndDate] = hasDateRange ? data : [DEFAULT_START_DATE, DEFAULT_END_DATE];
+        setBillBgeinTime(nextStartDate);
+        setBillEndTime(nextEndDate);
+        updateSessionStorage('/enter/financialData/','NewFinancialDatastartDate',nextStartDate);
+        updateSessionStorage('/enter/financialData/','NewFinancialDataendDate',nextEndDate);
     };
     const toadd=()=>{
         history.push('/enter/addNewFinancialData');
@@ -237,9 +241,14 @@ const NewFinancialData=(props:any)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-    const isDelOpen=(e)=>{
+    const closeDelModal=()=>{
+        setIsOpen(false);
+        setDelRecord(null);
+    };
+    const isDelOpen=(record:FinancialRecord)=>{
         setIsOpen(true);
-        setUid(e);
+        setUid(record.id);
+        setDelRecord(record);
     };
     // 删除确定按钮
     const onOK=()=>{
@@ -251,7 +260,7 @@ const NewFinancialData=(props:any)=>{
             if (res.ErrorCode==0){
                 message.success('删除成功');
                 setspinning(false);
-                setIsOpen(false);
+                closeDelModal();
                 getList();
             }else {
                 message.error(res.ErrorCode + res.Data);
@@ -267,25 +276,25 @@ const NewFinancialData=(props:any)=>{
         }).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
                 console.log('原始数据列表',res.Data);
-                let newArr=newprocessBills(res.Data.data);
+                const newArr = newprocessBills(res.Data.data) as { ErrorCode: number; Data: FinancialRecord[] };
                 // console.log('新数据列表',newArr);
                 setBillList(newArr.Data);
             }
             setspinning(false);
         })
     };
-    const changeOrderCode = (e:any) => {
+    const changeOrderCode = (e:ChangeEvent<HTMLInputElement>) => {
         setOrderCode(e.target.value);
     };
-    const changeCompany_name = (e:any) => {
+    const changeCompany_name = (e:ChangeEvent<HTMLInputElement>) => {
         setCompany_name(e.target.value);
         updateSessionStorage('/enter/financialData/','NewFinancialDatacompany_name',e.target.value);
     };
-    const changeMoneyType = (e:any) => {
+    const changeMoneyType = (e:number) => {
         setMoneyType(e);
         updateSessionStorage('/enter/financialData/','NewFinancialDatamoneyType',e);
     };
-    const changeAccount_card = (e:any) => {
+    const changeAccount_card = (e:ChangeEvent<HTMLInputElement>) => {
         setaccount_card(e.target.value);
         updateSessionStorage('/enter/financialData/','NewFinancialDataaccount_card',e.target.value);
     };
@@ -305,23 +314,23 @@ const NewFinancialData=(props:any)=>{
             type:"Supplier/fetch",
         })
     };
-    const changeSupplierId=(e:any)=>{
+    const changeSupplierId=(e:number)=>{
         setsupplierId(e);
         updateSessionStorage('/enter/financialData/','NewFinancialDatasupplierId',e);
     }
-    const changeStutes=(e:any)=>{
+    const changeStutes=(e:number)=>{
         setPaidStatus(e);
         updateSessionStorage('/enter/financialData/','NewFinancialDatapaidStatus',e);
     }
-    const rowSelection = {
+    const rowSelection: TableProps<FinancialRecord>['rowSelection'] = {
         selectedRowKeys,
-        onChange: (selectedKeys: React.Key[], selectedRows: any[]) => {
+        onChange: (selectedKeys) => {
             setSelectedRowKeys(selectedKeys);
         },
         type: 'checkbox',  // 复选框类型
         // 根据iskc值控制复选框是否可用
         getCheckboxProps: (record) => ({
-            disabled: (record.number && record.number.includes('_')),
+            disabled: Boolean(record.number && record.number.includes('_')),
         }),
     };
     const isPrintModalOpen=()=>{
@@ -346,7 +355,7 @@ const NewFinancialData=(props:any)=>{
                 const neededCount = 7 - currentLength;
                 // 获取当前fdList中的最大ID，用于生成新记录ID
                 const maxId = currentLength > 0
-                    ? Math.max(...fdList.map(item => item.id))
+                    ? Math.max(...fdList.map((fdItem:any) => fdItem.id))
                     : 0;
 
                 // 生成补充的空记录
@@ -366,11 +375,11 @@ const NewFinancialData=(props:any)=>{
         setPrintList(printList);
         setPrintModalOpen(true);
     };
-    const changeProject_name=(e:any)=>{
+    const changeProject_name=(e:ChangeEvent<HTMLInputElement>)=>{
         setProject_name(e.target.value);
         updateSessionStorage('/enter/financialData/','NewFinancialDataproject_name',e.target.value);
     }
-    const changeOrderStatus=(e:any)=>{
+    const changeOrderStatus=(e:number)=>{
         setBillStatus(e);
         updateSessionStorage('/enter/financialData/','NewFinancialDataorderStatus',e);
     }
@@ -448,7 +457,7 @@ const NewFinancialData=(props:any)=>{
                         />:  <Input
                             addonBefore="报销单号:"
                             value={expenseCode}
-                            onChange={(e)=>setExpenseCode(e.target.value)}
+                            onChange={(e:ChangeEvent<HTMLInputElement>)=>setExpenseCode(e.target.value)}
                         />}
 
 
@@ -493,15 +502,14 @@ const NewFinancialData=(props:any)=>{
                                 placeholder='供应商'
                                 value={supplierId}
                                 filterOption={(input, option) => {
-                                    // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = props.SupplierList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
-                                    return item?.supplierName?.toLowerCase().includes(input.toLowerCase());
+                                    const item = props.SupplierList.find(unit => unit.id === Number(option?.value ?? 0));
+                                    return item?.supplierName?.toLowerCase().includes(input.toLowerCase()) ?? false;
                                 }}
                                 options={
                                     [
                                         { label: '全部', value: 0 },
                                         ...(Array.isArray(props.SupplierList) && props.SupplierList.length > 0
-                                                ? props.SupplierList.map((item:any)=>({
+                                                ? props.SupplierList.map((item)=>({
                                                     label: item.supplierName,
                                                     value: item.id,
                                                 }))
@@ -602,9 +610,9 @@ const NewFinancialData=(props:any)=>{
                 pagination={false}
                 dataSource={billList}
                 scroll={{y:'60vh'}}
-                rowKey={(columns) => columns.id}
+                rowKey={(record) => record.id}
                 size='small'
-                summary={(columns) => (
+                summary={() => (
                     <Table.Summary fixed>
                         <Table.Summary.Row>
                             <Table.Summary.Cell index={0}>
@@ -635,8 +643,44 @@ const NewFinancialData=(props:any)=>{
                 rowSelection={rowSelection}  // 添加选择功能配置
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-            <Modal open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOK} loading={spinning}>
-                <div>是否要删除？</div>
+            <Modal open={isOpen} onCancel={closeDelModal} onOk={onOK} loading={spinning} title='删除确认' width={1000}>
+                <div style={{marginBottom:'12px'}}>是否要删除以下财务数据？</div>
+                {
+                    delRecord ? (
+                        <Descriptions bordered size='small' column={2}>
+                            <Descriptions.Item label='日期'>
+                                {delRecord.orderDate ? dayjs(delRecord.orderDate).format('YYYY-MM-DD') : ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='财务单号'>
+                                {delRecord.number || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='报销单号'>
+                                {delRecord.number2 || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='类型'>
+                                {delRecord.moneyType==1?'收入':'支出'}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='公司名称'>
+                                {delRecord.company_name || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='项目名称'>
+                                {delRecord.project_name || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='账户名'>
+                                {delRecord.account_name || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='账户卡号'>
+                                {delRecord.account_card || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='供应商'>
+                                {delRecord.supplierName || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='总金额(元)'>
+                                {delRecord.totalAmount ?? ''}
+                            </Descriptions.Item>
+                        </Descriptions>
+                    ) : null
+                }
             </Modal>
             <Modal
                 width={1000}
@@ -659,11 +703,10 @@ const NewFinancialData=(props:any)=>{
         </Spin>
     )
 }
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
     return {
         count: state.NewFinancialData.count,
         SupplierList: state.Supplier.list,
-
     }
 };
 export default connect(mapStateToProps) (NewFinancialData)

@@ -60,7 +60,8 @@ const EditApplication=(props)=>{
             let newArr=data.ppList.map((item:any)=>{
                 return{
                     ...item,
-                    quantity:item.quantityTotal
+                    quantity:item.quantityTotal,
+                    productsId:item.id,
                 }
             })
             setGoods(newArr);
@@ -69,6 +70,46 @@ const EditApplication=(props)=>{
             message.error(res.Data);
             setSpinning(false);
         }
+    };
+    const normalizeUnitsListPrice = (product: any, baseUnitId?: number) => {
+        const unitsList = Array.isArray(product?.unitsList) ? product.unitsList : [];
+        if (!baseUnitId || unitsList.length === 0) {
+            return unitsList;
+        }
+
+        const normalized = unitsList.map((item: any) => ({ ...item, price: 0 }));
+        const basePrice = Number(product?.costPrice || product?.price || 0);
+        const unitPriceMap = new Map<number, number>();
+        const visited = new Set<number>();
+
+        const fillPrice = (currentUnitId: number, currentPrice: number) => {
+            if (visited.has(currentUnitId)) return;
+            visited.add(currentUnitId);
+            unitPriceMap.set(currentUnitId, currentPrice);
+
+            normalized.forEach((unit: any) => {
+                if (unit.from_unit_id === currentUnitId && unit.to_unit_id !== currentUnitId) {
+                    fillPrice(unit.to_unit_id, currentPrice / (unit.conversion_rate || 1));
+                }
+                if (unit.to_unit_id === currentUnitId && unit.from_unit_id !== currentUnitId) {
+                    fillPrice(unit.from_unit_id, currentPrice * (unit.conversion_rate || 1));
+                }
+            });
+        };
+
+        fillPrice(baseUnitId, basePrice);
+
+        return normalized.map((unit: any) => ({
+            ...unit,
+            price: Number(unitPriceMap.get(unit.from_unit_id) ?? 0),
+        }));
+    };
+
+    const getSelectedUnitPrice = (item: any, targetUnitId: number) => {
+        const selectedUnit = Array.isArray(item?.unitsList)
+            ? item.unitsList.find((unit: any) => unit.from_unit_id === targetUnitId)
+            : null;
+        return Number(selectedUnit?.price ?? item?.price ?? 0);
     };
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
@@ -80,77 +121,34 @@ const EditApplication=(props)=>{
         setGoods(goods.filter((item)=>item.id!==id));
     };
     // 处理物品选择变更 - 更新物品名称及相关信息
+        // 处理物品选择变更
     const handleProductSelect = (recordId, productId) => {
         const selectedProduct = props.thingList.find(item => item.id === productId);
-        console.log('物品详情',selectedProduct)
-        // if (!selectedProduct) return;
-        // let processedUnitsList = selectedProduct.unitsList || [];
-        // if (selectedProduct.isHs === 1 && processedUnitsList.length > 0) {
-        //     processedUnitsList = [...selectedProduct.unitsList];
-        //     const unitMap = processedUnitsList.reduce((map, unit) => {
-        //         map[unit.from_unit_id] = unit;
-        //         return map;
-        //     }, {});
-        //     const targetUnitId = selectedProduct.unitsId;
-        //     const targetUnit = unitMap[targetUnitId];
-        //     if (!targetUnit) return;
-        //     targetUnit.price = selectedProduct.costPrice || 0;
-        //     targetUnit.presalePrice = selectedProduct.presalePrice || 0;
-        //     targetUnit.retailPricce = selectedProduct.retailPricce || 0;
-        //     let currentUnit = targetUnit;
-        //     while (currentUnit.to_unit_id !== 0) {
-        //         const childUnit = unitMap[currentUnit.to_unit_id];
-        //         if (!childUnit) break;
-        //         childUnit.price = currentUnit.price / currentUnit.conversion_rate;
-        //         childUnit.presalePrice = currentUnit.presalePrice / currentUnit.conversion_rate;
-        //         childUnit.retailPricce = currentUnit.retailPricce / currentUnit.conversion_rate;
-        //         currentUnit = childUnit;
-        //     }
-        //     const parentMap = processedUnitsList.reduce((map, unit) => {
-        //         map[unit.to_unit_id] = unit;
-        //         return map;
-        //     }, {});
-        //     currentUnit = targetUnit;
-        //     while (parentMap[currentUnit.from_unit_id]) {
-        //         const parentUnit = parentMap[currentUnit.from_unit_id];
-        //         if (!parentUnit) break;
-        //         parentUnit.price = currentUnit.price * parentUnit.conversion_rate;
-        //         parentUnit.presalePrice = currentUnit.presalePrice * parentUnit.conversion_rate;
-        //         parentUnit.retailPricce = currentUnit.retailPricce * parentUnit.conversion_rate;
-        //         currentUnit = parentUnit;
-        //     }
-        // }
+        if (!selectedProduct) return;
+
+        const baseUnitId = selectedProduct.unitsId || selectedProduct.unitsList?.[0]?.from_unit_id || 0;
+        const normalizedUnits = normalizeUnitsListPrice(selectedProduct, baseUnitId);
+        const selectedUnit = normalizedUnits.find((item: any) => item.from_unit_id === baseUnitId) || normalizedUnits[0];
+        const newPrice = Number(selectedUnit?.price ?? selectedProduct.costPrice ?? selectedProduct.price ?? 0);
+
         setGoods(goods.map(item => {
             if (item.id === recordId) {
                 return {
                     ...item,
                     productsId: selectedProduct.id || 0,
-                    // productsImageBase64: selectedProduct.productsImageBase64 || '',
                     productsName: selectedProduct.productsName,
                     productsCode: selectedProduct.productsCode || '',
-                    // abbreviation: selectedProduct.abbreviation || '',
                     productsImage: selectedProduct.productsImage || '',
-                    // brandId: selectedProduct.brandId || 0,
-                    // groupId: selectedProduct.groupId || 0,
-                    // number: selectedProduct.number || 0,
-                    // presalePrice: selectedProduct.presalePrice || 0,
-                    // retailPricce: selectedProduct.retailPricce || 0,
-                    // costPrice: selectedProduct.costPrice || 0,
                     specifications: selectedProduct.specifications || '',
                     barcode: selectedProduct.barcode || '',
                     remark: selectedProduct.remark || '',
-                    // unitsId: selectedProduct.unitsId || 0,
                     quantity: selectedProduct.quantity || 0,
-                    price: selectedProduct.price || 0,
-                    // price: selectedProduct.isHs === 0
-                    //     ? (selectedProduct.costPrice || 0)
-                    //     : (selectedProduct.price || 0),
-                    // totalPrice: selectedProduct.quantity * (selectedProduct.isHs === 0
-                    //     ? (selectedProduct.costPrice || 0)
-                    //     : (selectedProduct.price || 0)) || 0,
-                    // unitsList: processedUnitsList,
-                    // isHs: selectedProduct.isHs || 0,
-                    // unitsName: selectedProduct.unitsName || '',
+                    unitsList: normalizedUnits,
+                    isHs: selectedProduct.isHs || 0,
+                    unitsId: baseUnitId,
+                    unitsName: selectedProduct.unitsName || '',
+                    price: newPrice,
+                    totalPrice: ((selectedProduct.quantity || 0) * newPrice).toFixed(2) * 1,
                 };
             }
             return item;
@@ -186,26 +184,22 @@ const EditApplication=(props)=>{
     };
     // 修改对应id 的单位id
     const changeUnitsId = (value, recordId) => {
-        // 使用函数式更新确保获取最新状态
         setGoods(prevGoods =>
             prevGoods.map(item => {
                 if (item.id === recordId) {
-                    // 1. 从当前物品的unitsList中找到选中单位（from_unit_id === value）
                     const selectedUnit = Array.isArray(item.unitsList)
                         ? item.unitsList.find(unit => unit.from_unit_id === value)
                         : null;
-                    // 2. 提取选中单位的price（默认0）
-                    const newPrice = selectedUnit?.price || 0;
-                    const presalePrice = selectedUnit?.presalePrice || 0;
-                    const retailPricce = selectedUnit?.retailPricce || 0;
-                    console.log('选中单位的单价:', newPrice);
+                    const newPrice = Number(selectedUnit?.price ?? 0);
+                    const presalePrice = Number(selectedUnit?.presalePrice ?? 0);
+                    const retailPricce = Number(selectedUnit?.retailPricce ?? 0);
                     return {
                         ...item,
-                        unitsId: value || 0, // 更新单位ID
-                        price: (newPrice.toFixed(2))*1, // 赋值单位对应的单价
+                        unitsId: value || 0,
+                        price: Number(newPrice.toFixed(2)),
                         presalePrice,
                         retailPricce,
-                        totalPrice: ((item.quantity * newPrice).toFixed(2))*1 // 联动更新总价（数量 × 新单价）
+                        totalPrice: ((item.quantity * newPrice).toFixed(2)) * 1
                     };
                 }
                 return item;
@@ -277,41 +271,40 @@ const EditApplication=(props)=>{
             title: '单位',
             dataIndex: 'unitsId',
             key: 'unitsId',
-            render: (text, record) => (
+             render: (text, record) => (
                 <div>
-                    <Select
-                        placeholder='单位'
-                        onChange={(value) => changeUnitsId(value, record.id)}
-                        showSearch
-                        value={record.unitsId}
-                        optionFilterProp="children"
-                        filterOption={(input, option) => {
-                            // 假设每个 option 都有一个与数据项对应的 value 属性
-                            const item = props.UnitSetting.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
-                            return item?.unitsName?.toLowerCase().includes(input.toLowerCase());
-                        }}
-                        options={Array.isArray(props.UnitSetting) && props.UnitSetting.length > 0
-                            ? props.UnitSetting.map((item:any)=>({
-                                label:item.unitsName,
-                                value:item.id,
-                            }))
-                            : []}
-                    />
-                    {/*{*/}
-                    {/*    record.isHs == 0 ? <span>{record.unitsName}</span> :*/}
-                    {/*        <Select*/}
-                    {/*            placeholder='选择单位'*/}
-                    {/*            disabled={record.isHs == 0}*/}
-                    {/*            style={{ width: 120 }}*/}
-                    {/*            options={Array.isArray(record.unitsList) && record.unitsList.length > 0*/}
-                    {/*                ? record.unitsList.map((item: any) => ({*/}
-                    {/*                    label: item.unitsName,*/}
-                    {/*                    value: item.from_unit_id,*/}
-                    {/*                }))*/}
-                    {/*                : []}*/}
-                    {/*            onChange={(value) => changeUnitsId(value, record.id)}*/}
-                    {/*        />*/}
-                    {/*}*/}
+                        {/*<Select*/}
+                        {/*    placeholder='单位'*/}
+                        {/*    onChange={(value) => changeUnitsId(value, record.id)}*/}
+                        {/*    showSearch*/}
+                        {/*    optionFilterProp="children"*/}
+                        {/*    filterOption={(input, option) => {*/}
+                        {/*        // 假设每个 option 都有一个与数据项对应的 value 属性*/}
+                        {/*        const item = props.UnitSetting.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程*/}
+                        {/*        return item?.unitsName?.toLowerCase().includes(input.toLowerCase());*/}
+                        {/*    }}*/}
+                        {/*    options={Array.isArray(props.UnitSetting) && props.UnitSetting.length > 0*/}
+                        {/*        ? props.UnitSetting.map((item:any)=>({*/}
+                        {/*            label:item.unitsName,*/}
+                        {/*            value:item.id,*/}
+                        {/*        }))*/}
+                        {/*        : []}*/}
+                        {/*/>*/}
+                    {
+                        record.isHs == 0 ? <span>{record.unitsName}</span> :
+                            <Select
+                                placeholder='选择单位'
+                                disabled={record.isHs == 0}
+                                style={{ width: 120 }}
+                                options={Array.isArray(record.unitsList) && record.unitsList.length > 0
+                                    ? record.unitsList.map((item: any) => ({
+                                        label: item.unitsName,
+                                        value: item.from_unit_id,
+                                    }))
+                                    : []}
+                                onChange={(value) => changeUnitsId(value, record.id)}
+                            />
+                    }
                 </div>
             )
         },
@@ -377,7 +370,7 @@ const EditApplication=(props)=>{
     const getThingList=()=>{
         props.dispatch({
             type:"ThingList/fetch",
-            payload:{page:1, code:'', name:'', pageSize:10000}
+            payload: { page: 1, code: '', name: '', pageSize: 10000,goodsTypeId:0 },
         })
     };
     useEffect(() => {

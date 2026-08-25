@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import {history} from "@@/core/history";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
+import * as Application from "@/services/application";
 
 const Purchase=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -14,12 +15,16 @@ const Purchase=(props)=>{
     const [supplierName,setSupplierName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseSupplierName')||0);// 供应商
     const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseStartDate')||'2000-01-01');// 开始时间
     const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseEndDate')||'2099-01-01');// 结束日期
-    const [orderStatus,setOrderStatus]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseOrderStatus')||2);// 订单状态 已审核/未审核
+    const [orderStatus,setOrderStatus]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseOrderStatus')||0);// 订单状态 已审核/未审核
     const [billStatus,setBillStatus]=useState(0);// 是否交完钱状态
     const [pageSize,setPageSize]=useState(50); // 每页数量
     const [orderType,setOrderType]=useState(1);// 订单类型
     const [dUid,setDUid]=useState(0);// 审核的ID
     const [dOpne,setDOpen]=useState(false);// 审核确认弹窗
+    const [list,setList]=useState([]);// 列表
+    const [count,setCount]=useState(0);// 总条数
+    const [paidAmountSum,setPaidAmountSum]=useState(0);// 已交金额总和
+    const [totalAmountSum,setTotalAmountSum]=useState(0);// 物品总价总和
     const [uName,setUName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','PurchaseUName')||'');// 采购人
     const columns=[
         {
@@ -81,7 +86,7 @@ const Purchase=(props)=>{
                 let statusInfo = {};
                 switch (text) {
                     case 1:
-                        statusInfo = { color: 'blue', text: '未审核' };
+                        statusInfo = { color: 'blue', text: '采购审核' };
                         break;
                     case 2:
                         statusInfo = { color: 'green', text: '已审核' };
@@ -117,15 +122,13 @@ const Purchase=(props)=>{
             render:(text,record)=>{
                 return(
                     <Space>
-                        {record.orderStatus==2&&record.iskc==0&&<>
-                           <Button type='primary' onClick={()=>toadd(record.id)}>入库</Button>
+                        {(record.orderStatus==2||record.orderStatus==3||record.orderStatus==4)&&record.iskc==0&&<>
+                           <Button type='primary' onClick={()=>toadd(record.id)}>入库单</Button>
                         </>}
+                        {/* {record.orderStatus==6&&<>
+                            <Button type="primary" onClick={()=>isCheckOpen(record.id)}>审核</Button>
+                        </>} */}
                     </Space>
-                    // <Space>
-                    //     {record.orderStatus==2&&<>
-                    //         {userQx()[91]=='1'?<Button type='primary' onClick={()=>toadd(record.id)}>入库</Button>:''}
-                    //     </>}
-                    // </Space>
                 )
             }
 
@@ -135,11 +138,22 @@ const Purchase=(props)=>{
     const toadd=(id:number)=>{
         history.push(`/warehouse/addPurchase?id=${id}`);
     };
+    const isCheckOpen=(id)=>{
+        setDUid(id);
+        setDOpen(true);
+    };
     // 列表信息
     const getList=()=>{
-        props.dispatch({
-            type:'Purchase/fetch',
-            payload:{page, pageSize, orderCode, warehouseName, supplierName, startDate, endDate, orderStatus, billStatus,orderType,uName}
+        Application.fetch({page, pageSize, orderCode, warehouseName, supplierName, startDate, endDate, orderStatus, billStatus,orderType,uName}).then((res:TypeErrorCode)=>{
+            console.log(res.Data);
+            if(res.ErrorCode===0){
+                setList(res.Data.data);
+                setCount(res.Data.count);
+                setPaidAmountSum(res.Data.paidAmountSum);
+                setTotalAmountSum(res.Data.totalAmountSum);
+            }else{
+                message.error(res.Data);
+            }
         })
     };
 
@@ -194,6 +208,20 @@ const Purchase=(props)=>{
     const getSupplierList=()=>{
         props.dispatch({
             type:"Supplier/fetch",
+        })
+    };
+    const checkOk=()=>{
+        setSpinning(true);
+        Application.check({uid:dUid,orderStatus:2}).then((res:TypeErrorCode)=>{
+            if(res.ErrorCode===0){
+                message.success('审核成功');
+                setDOpen(false);
+                setSpinning(false);
+                getList();
+            }else{
+                message.error(res.Data);
+                setSpinning(false);
+            }
         })
     };
     return(
@@ -280,6 +308,8 @@ const Purchase=(props)=>{
                                 value={orderStatus}
                                 onChange={changeOrderStatus}
                                 options={[
+                                    {label:'全部',value:0},
+                                    {label:'采购审核',value:1},
                                     {label:'已审核',value:2},
                                     {label:'已提交报销',value:3},
                                     {label:'已报销',value:4},
@@ -314,7 +344,7 @@ const Purchase=(props)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 scroll={{y:'60vh'}}
-                dataSource={props.list}
+                dataSource={list}
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (
@@ -324,19 +354,20 @@ const Purchase=(props)=>{
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
                             <Table.Summary.Cell index={4}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.paidAmountSum:0}</div></Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{props.count?props.count.totalAmountSum:0}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}><div style={{width:"100%",textAlign:'center'}}>{paidAmountSum}</div></Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}><div style={{width:"100%",textAlign:'center'}}>{totalAmountSum}</div></Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}
             />
-            {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
+            <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>
+            <Modal title="审核弹窗" open={dOpne} onOk={()=>checkOk()} onCancel={()=>setDOpen(false)} loading={spinning}>
+                是否要审核?
+            </Modal>
         </Spin>
     )
 }
 const mapStateToProps = (state: any) => ({
-    list: state.Purchase.list,
-    count: state.Purchase.count,
     SupplierList: state.Supplier.list,
 });
 export default connect(mapStateToProps)(Purchase)

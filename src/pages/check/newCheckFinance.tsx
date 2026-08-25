@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, type TableProps, Tag} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useRef, useState} from "react";
 import {connect,history} from "umi";
@@ -7,12 +7,20 @@ import {StaticInfo} from "@/StaticInfo";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import AllFinancialDataPrint from "@/components/AllFinancialDataPrint";
 import {useReactToPrint} from "react-to-print";
-const NewCheckFinance=(props:any)=>{
+import type { FinancialRecord, FinancialCount } from '@/ModelTypes/TypeFinancialData';
+import FinancialDataPrint from "@/components/FinancialDataPrint";
+interface NewCheckFinanceProps {
+    dispatch: (action: { type: string; payload?: any }) => any;
+    count?: FinancialCount;
+    list?: FinancialRecord[];
+    SupplierList?: any[];
+}
+const NewCheckFinance=(props: NewCheckFinanceProps)=>{
     // 展示total
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 账单列表
-    const [billList,setBillList]=useState([]);
+    const [billList,setBillList]=useState<FinancialRecord[]>([]);
     // 开始时间
     const [startDate,setBillBgeinTime]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDatastartDate')||'2000-01-01');
     // 结束时间
@@ -22,6 +30,7 @@ const NewCheckFinance=(props:any)=>{
     const [uid,setUid]=useState(0);
     const [foType,setFoType]=useState(2);
     const [supplierId,setSupplierId]=useState(0);
+    const [printProps,setPrintProps]=useState<FinancialRecord>({});
     // 账户卡号
     const [account_card,setaccount_card]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDataaccount_card')||'');
     const [moneyType,setMoneyType]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDatamoneyType')||0);
@@ -33,8 +42,8 @@ const NewCheckFinance=(props:any)=>{
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
     const [printModalOpen,setPrintModalOpen]=useState(false);
-    const [printList,setPrintList]=useState([]);
-    const printRef = useRef();
+    const [printList,setPrintList]=useState<FinancialRecord[]>([]);
+    const printRef = useRef<HTMLDivElement | null>(null);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     // 一键审核弹窗
     const [oneClickOpenModal,setOneClickOpenModal]=useState(false);
@@ -71,6 +80,7 @@ const NewCheckFinance=(props:any)=>{
                 message.success('审核成功')
                 setIsOpen(false);
                 setspinning(false);
+                getList();
             }else {
                 setspinning(false);
                 message.error(res.Data);
@@ -240,7 +250,7 @@ const NewCheckFinance=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        {record.orderStatus==1?<Button type='primary' onClick={()=>isCheck(record.id)}>审核</Button>:null}
+                        {record.orderStatus==1?<Button type='primary' onClick={()=>isCheck(record)}>审核</Button>:null}
                     </Space>
                 )
             }
@@ -281,15 +291,17 @@ const NewCheckFinance=(props:any)=>{
             payload:{page, pageSize, orderCode, company_name, account_card, startDate, endDate, orderStatus, moneyType,project_name,foType,supplierId,paidStatus,expenseCode}
         }).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
-                let newArr=newprocessBills(res.Data.data);
-                setBillList(res.Data);
+                const newArr = newprocessBills(res.Data.data) as { ErrorCode: number; Data: FinancialRecord[] };
+                // console.log('新数据列表',newArr);
+                setBillList(newArr.Data);
             }
             setspinning(false);
         })
     };
-    const isCheck=(e:number)=>{
-        setUid(e);
+    const isCheck=(e:FinancialRecord)=>{
+        setPrintProps(e);
         setIsOpen(true);
+        setUid(e.id);
     };
     const getSupplierList=()=>{
         props.dispatch({
@@ -302,14 +314,14 @@ const NewCheckFinance=(props:any)=>{
     useEffect(()=>{
         getList();
     },[page, pageSize])
-    const rowSelection = {
+    const rowSelection: TableProps<FinancialRecord>['rowSelection'] = {
         selectedRowKeys,
         onChange: (selectedKeys: React.Key[], selectedRows: any[]) => {
             setSelectedRowKeys(selectedKeys);
         },
-        type: 'checkbox',  // 复选框类型
+        type: 'checkbox' as any,  // 复选框类型
         // 根据iskc值控制复选框是否可用
-        getCheckboxProps: (record) => ({
+        getCheckboxProps: (record: FinancialRecord) => ({
             disabled: (record.number && record.number.includes('_')),
         }),
     };
@@ -340,7 +352,7 @@ const NewCheckFinance=(props:any)=>{
         setPaidStatus(e);
         updateSessionStorage('/enter/financialData/','NewFinancialDatapaidStatus',e);
     }
-    const isPrintModalOpen=()=>{
+     const isPrintModalOpen=()=>{
         if(selectedRowKeys.length===0){
             message.error('请选择要打印的财务数据');
             return;
@@ -362,7 +374,7 @@ const NewCheckFinance=(props:any)=>{
                 const neededCount = 7 - currentLength;
                 // 获取当前fdList中的最大ID，用于生成新记录ID
                 const maxId = currentLength > 0
-                    ? Math.max(...fdList.map(item => item.id))
+                    ? Math.max(...fdList.map((fdItem:any) => fdItem.id))
                     : 0;
 
                 // 生成补充的空记录
@@ -580,7 +592,7 @@ const NewCheckFinance=(props:any)=>{
                 style={{border:'1px solid #ddd',borderRadius:'4px'}}
                 pagination={false}
                 scroll={{y:'60vh'}}
-                dataSource={props.list}
+                dataSource={billList}
                 rowKey={(columns) => columns.id}
                 size='small'
                 summary={(columns) => (
@@ -613,8 +625,25 @@ const NewCheckFinance=(props:any)=>{
                 rowSelection={rowSelection}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-            <Modal open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOK} loading={spinning}>
+            <Modal open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOK} loading={spinning} width={1000}>
                 <div>是否要审核？</div>
+                 <FinancialDataPrint {...{
+                    orderCode:printProps.number,
+                    title:printProps.moneyType==1?'收入证明单':'支付证明单',
+                    goodsList:printProps.fdList,
+                    totalAmount:printProps.totalAmount,
+                    paidAmount:printProps.paidAmount,
+                    moneyType:printProps.moneyType,
+                    orderDate:printProps.orderDate,
+                    company_name:printProps.company_name,
+                    createUserName:printProps.createUserName,
+                    reviewerName:printProps.reviewerName,
+                    remark:printProps.remark,
+                    project_name:printProps.project_name,
+                    account_name:printProps.account_name,
+                    account_code:printProps.account_code,
+                    account_type:printProps.account_type,
+                 }} />
             </Modal>
             <Modal
                 width={1000}
@@ -637,6 +666,7 @@ const NewCheckFinance=(props:any)=>{
             <Modal open={oneClickOpenModal} onCancel={()=>setOneClickOpenModal(false)} title='是否一键审核' loading={spinning} onOk={onOneClick}>
                 <div>是否要一键审核?</div>
             </Modal>
+            
         </Spin>
     )
 }

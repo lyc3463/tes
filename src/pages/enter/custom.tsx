@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
+import {Button, DatePicker, Descriptions, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
 import {history,connect} from "umi";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
@@ -29,6 +29,8 @@ const Custom=(props:any)=>{
     const [did,setDid]=useState(0);
     // 删除的弹窗
     const [dopen,setDopen]=useState(false);
+    // 删除弹窗展示的记录信息
+    const [deleteRecord,setDeleteRecord]=useState<any>({});
     const [spinning,setspinning]=useState(false);
     // 用户权限
     const [uqx,setUqx]=useState([]);
@@ -334,7 +336,7 @@ const Custom=(props:any)=>{
                         <Space>
                             {record.custom_sattus==0?<>
                                     {uqx[155]=='1'?<Button type='primary' onClick={()=>toEdit(record.id)}>编辑</Button>:''}
-                                    {uqx[156]=='1'?<Button type='primary' danger onClick={()=>isdel(record.id)}>删除</Button>:''}
+                                    {uqx[156]=='1'?<Button type='primary' danger onClick={()=>isdel(record)}>删除</Button>:''}
                                     {uqx[342]=='1'?<Button type='primary' onClick={()=>onaddNum(record)}>增加到访次数</Button>:''}
                                 </>
                                 :''}
@@ -355,8 +357,9 @@ const Custom=(props:any)=>{
         history.push(`/enter/customInfo?id=${e}`)
     };
     // 删除的弹窗
-    const isdel=(e)=>{
-        setDid(e);
+    const isdel=(record:any)=>{
+        setDid(record.id);
+        setDeleteRecord(record);
         setDopen(true);
     };
     // 确定删除按钮
@@ -484,8 +487,18 @@ const Custom=(props:any)=>{
                 <Input.TextArea value={remark} onChange={(e)=>setRemark(e.target.value)}/>
             </Modal>
         {/*    删除的弹窗*/}
-            <Modal open={dopen} onOk={dopenOk} onCancel={()=>setDopen(false)} loading={spinning}>
-                是否要删除?
+            <Modal open={dopen} onOk={dopenOk} onCancel={()=>setDopen(false)} loading={spinning} title='删除客户'>
+                <Descriptions
+                    column={2}
+                    size="small"
+                    bordered
+                    labelStyle={{ width: 90, backgroundColor: '#fafafa' }}
+                >
+                    <Descriptions.Item label="日期">{deleteRecord.custom_date?dayjs(deleteRecord.custom_date).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                    <Descriptions.Item label="姓名">{deleteRecord.custom_name}</Descriptions.Item>
+                    <Descriptions.Item label="联系方式">{deleteRecord.custom_phone}</Descriptions.Item>
+                    <Descriptions.Item label="备注">{deleteRecord.remark}</Descriptions.Item>
+                </Descriptions>
             </Modal>
         </Spin>
     )

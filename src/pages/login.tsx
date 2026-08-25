@@ -266,12 +266,12 @@ export default function Login() {
         }
       }
     });
-  }
+  };
   let showWaitTimeout = setTimeout(() => { }, 1000);
   const shhowWait = () => {
     setMaskvsi(true);
     showWaitTimeout = setTimeout(showWaitChaoshi, 30000);
-  }
+  };
   const showWaitChaoshi = async () => {
     clearTimeout(showWaitTimeout);
     setMaskvsi(false);
@@ -281,14 +281,14 @@ export default function Login() {
       okText: '刷新'
     });
     window.location.replace(window.location.href);
-  }
+  };
   const hideWait = () => {
     clearTimeout(showWaitTimeout);
     setMaskvsi(false);
   }
   const setpwdVisible = (vsi: boolean) => {
     setPwdvisible(vsi);
-  }
+  };
   // const yzmcg = (code: any) => {
   //   setYzm(code);
   // }
@@ -371,7 +371,7 @@ export default function Login() {
         setIsyzmOpen(false);
         setmmOpen(true);
       }else {
-        message.error(res.Data)
+        message.error(res.Data);
       }
     })
   };
@@ -400,7 +400,7 @@ export default function Login() {
 
   // 设置4小时Cookie
   const setCookie=(deviceIdName:string, value:string)=> {
-    const time = new Date(Date.now() + 4 * 60 * 60 * 1000)
+    const time = new Date(Date.now() + 4 * 60 * 60 * 1000);
     document.cookie = `${encodeURIComponent(deviceIdName)}=${encodeURIComponent(value)};expires=${time.toUTCString()};path=/`
   };
   return (
@@ -413,7 +413,7 @@ export default function Login() {
           </div>
           {/*右侧图片*/}
           <div className={styles.rightBox}>
-            <p style={{fontSize:'30px',color:"#000",fontWeight:'600',textAlign:'center'}}>公司端系统</p>
+            <p style={{fontSize:'30px',color:"#000",fontWeight:'600',textAlign:'center'}}>物业公司端系统</p>
             <Form
                 name="loginForm"
                 form={form}

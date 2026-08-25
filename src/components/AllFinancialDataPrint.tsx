@@ -4,39 +4,12 @@ import { numberToRMB } from "@/utils/OpenTool";
 import {Modal} from "antd";
 
 interface PrintProps {
-    printList: Array<{
-        orderCode: string;
-        number:string;
-        orderDate: string;
-        createUserName: string;
-        reviewerName: string;
-        company_name: string;
-        project_name: string;
-        account_name: string;
-        account_code: string;
-        account_type: number,
-        paidAmount: number,
-        totalAmount: number,
-        moneyType: number,
-        remark?: string;
-        supplierName?: string;
-        personPhone?: string;
-        supplierAddress?: string;
-        personName?: string;
-        fdList: Array<{
-            id: string | number;
-            summary?: string;
-            subjectName?: string;
-            amount?: number;
-            quantity?: number;
-            unit?: string;
-            unitPrice?: number;
-        }>;
-    }>
+    printList: Record<string, any>[];
+    className?: string;
 }
 type PrintItemType = PrintProps['printList'][number];
 
-const AllFinancialDataPrint = React.forwardRef<HTMLDivElement, PrintProps>(({ printList }, ref) => {
+const AllFinancialDataPrint = React.forwardRef<HTMLDivElement, PrintProps>(({ printList, className }, ref) => {
     return (
         <div>
             <style>
@@ -56,7 +29,7 @@ const AllFinancialDataPrint = React.forwardRef<HTMLDivElement, PrintProps>(({ pr
                     }
                 `}
             </style>
-            <div ref={ref} className="print-only-content">
+            <div ref={ref} className={className ?? "print-only-content"}>
                 {
                     printList.map((item: PrintItemType, index: number) => {
                         return (
@@ -122,7 +95,7 @@ const AllFinancialDataPrint = React.forwardRef<HTMLDivElement, PrintProps>(({ pr
                                                     </thead>
                                                     <tbody>
                                                     {item.fdList.length > 0 ? (
-                                                        item.fdList.map((itemz, index) => {
+                                                        item.fdList.map((itemz: Record<string, any>, index: number) => {
                                                             const isLastRow = index === item.fdList.length - 1;
                                                             return (
                                                                 <tr key={itemz.id}>
@@ -244,7 +217,7 @@ const AllFinancialDataPrint = React.forwardRef<HTMLDivElement, PrintProps>(({ pr
                                                 </div>
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: "space-around", color: 'red', marginBottom: '20px' }}>
-                                                <span>负责人:<span style={{ color: '#000' }}>{item.createUserName}</span></span>
+                                                <span>经手人:<span style={{ color: '#000' }}>{item.createUserName}</span></span>
                                                 <span>会计</span>
                                                 <span>复核:<span style={{ color: '#000' }}>{item.reviewerName}</span></span>
                                                 <span>出纳</span>
@@ -312,7 +285,7 @@ const AllFinancialDataPrint = React.forwardRef<HTMLDivElement, PrintProps>(({ pr
                                                     </thead>
                                                     <tbody>
                                                     {item.fdList.length > 0 ? (
-                                                        item.fdList.map((itemz, index) => {
+                                                        item.fdList.map((itemz: Record<string, any>, index: number) => {
                                                             const isLastRow = index === item.fdList.length - 1;
                                                             return (
                                                                 <tr key={itemz.id}>

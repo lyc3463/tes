@@ -1,6 +1,7 @@
 import {
     Button,
     DatePicker,
+    Descriptions,
     Input,
     List,
     message,
@@ -9,7 +10,7 @@ import {
     Select,
     Space,
     Spin,
-    Table,
+    Table, type TableProps,
     Tag,
     Tooltip
 } from "antd";
@@ -19,9 +20,14 @@ import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 import RenewType from '@/ModelTypes/TypeRenew';
-import RenameType from "@/ModelTypes/TypeRename";
 
-const Renew=(props:any)=>{
+interface RenewProps {
+    dispatch: (action: { type: string; payload?: any }) => any;
+    RenewList?: RenewType[];
+    count?: { count: number };
+}
+
+const Renew=(props: RenewProps)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setpageSize]=useState(50);
@@ -37,8 +43,10 @@ const Renew=(props:any)=>{
     const [open,setOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
     const [tenant_name,setTenant_name]=useState('');
+    // 删除弹窗展示的记录信息
+    const [deleteRecord,setDeleteRecord]=useState<RenewType>({} as RenewType);
 
-    const columns =[
+    const columns: TableProps<RenewType>['columns'] =[
         {
             title: '单元名称',
             dataIndex: 'unitList',
@@ -177,7 +185,7 @@ const Renew=(props:any)=>{
         history.push("/enter/addRenew");
     };
     // 监听页数
-    const onChange=(page,pageSize)=>{
+    const onChange=(page:number,pageSize:number)=>{
         setPage(page);
         setpageSize(pageSize);
     };
@@ -192,7 +200,7 @@ const Renew=(props:any)=>{
         }
     };
     // 监听姓名
-    const changePhone=(e)=>{
+    const changePhone=(e: React.ChangeEvent<HTMLInputElement>)=>{
         setPhone(e.target.value);
         updateSessionStorage('/enter/afterSales/','renewPhone',e.target.value);
     };
@@ -219,6 +227,7 @@ const Renew=(props:any)=>{
     const isDelete=(e:RenewType)=>{
       setUid(e.id);
       setTenant_name(e.tenant_name);
+      setDeleteRecord(e);
       setOpen(true);
     };
     const onOK=()=>{
@@ -315,8 +324,20 @@ const Renew=(props:any)=>{
                 }
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>:''}
-            <Modal loading={spinning} open={open} onOk={onOK} onCancel={()=>setOpen(false)} title='删除'>
-                <div>是否要删除<span style={{color:'red'}}>{tenant_name}</span>的续租申请?</div>
+            <Modal loading={spinning} open={open} onOk={onOK} onCancel={()=>setOpen(false)} title='删除' width={1000}>
+                <Descriptions
+                    column={2}
+                    size="small"
+                    bordered
+                    labelStyle={{ width: 110, backgroundColor: '#fafafa' }}
+                >
+                    <Descriptions.Item label="申请日期">{deleteRecord.created?dayjs(deleteRecord.created).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                    <Descriptions.Item label="合同编号">{deleteRecord.identifier}</Descriptions.Item>
+                    <Descriptions.Item label="租户名字">{deleteRecord.tenant_name}</Descriptions.Item>
+                    <Descriptions.Item label="联系方式">{deleteRecord.tenant_phone}</Descriptions.Item>
+                    <Descriptions.Item label="续租开始时间">{deleteRecord.beginData?dayjs(deleteRecord.beginData).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                    <Descriptions.Item label="续租结束时间">{deleteRecord.endDate?dayjs(deleteRecord.endDate).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                </Descriptions>
             </Modal>
         </Spin>
     )

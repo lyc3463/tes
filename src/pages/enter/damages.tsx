@@ -1,6 +1,7 @@
 import {
     Button,
     DatePicker,
+    Descriptions,
     Input,
     List,
     message,
@@ -9,7 +10,7 @@ import {
     Select,
     Space,
     Spin,
-    Table,
+    Table, type TableProps,
     Tag,
     Tooltip
 } from "antd";
@@ -19,8 +20,13 @@ import {useEffect, useState} from "react";
 import * as DamagesService from "@/services/damages";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import DamagesType from "@/ModelTypes/TypeDamages";
 
-const Damages=(props)=>{
+interface DamagesProps {
+    dispatch?: (action: { type: string; payload?: any }) => any;
+}
+
+const Damages=(props: DamagesProps)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
@@ -35,12 +41,14 @@ const Damages=(props)=>{
     const [did,setDid]=useState(0);
     const [open,setOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
-    const [list,setList]=useState([]);
+    const [list,setList]=useState<DamagesType[]>([]);
     const [count,setCount]=useState(0);
+    // 删除弹窗展示的记录信息
+    const [deleteRecord,setDeleteRecord]=useState<DamagesType>({} as DamagesType);
     const toadd=()=>{
         history.push('/enter/addDamages')
     };
-    const columns =[
+    const columns: TableProps<DamagesType>['columns'] =[
         {
             title: '单元名称',
             dataIndex: 'unitList',
@@ -63,7 +71,7 @@ const Damages=(props)=>{
                 const limitedUnitList = record.unitList.slice(0, 2);
                 return(
                     <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
-                        {limitedUnitList.map((item, index) => (
+                        {limitedUnitList.map((item:any, index:number) => (
                             <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
                         ))}
                         {/* 如果 unitList 数组长度大于 2，则显示省略号或其他提示 */}
@@ -120,7 +128,7 @@ const Damages=(props)=>{
                     <Space>
                         {
                             record.renameStatus==2?'':<> <Button type='primary' onClick={()=>toedit(record.Id)}>编辑</Button>
-                                <Button type='primary' danger onClick={()=>IsDelOpen(record.Id)}>删除</Button></>
+                                <Button type='primary' danger onClick={()=>IsDelOpen(record)}>删除</Button></>
                         }
                     </Space>
                 )
@@ -149,7 +157,7 @@ const Damages=(props)=>{
         }
     };
     // 监听姓名
-    const changePhone=(e)=>{
+    const changePhone=(e: React.ChangeEvent<HTMLInputElement>)=>{
         setPhone(e.target.value);
         updateSessionStorage('/enter/afterSales/','damagesPhone',e.target.value);
     };
@@ -180,8 +188,9 @@ const Damages=(props)=>{
     const toedit=(e:number)=>{
         history.push(`/enter/editDamages?id=${e}`);
     };
-    const IsDelOpen=(e)=>{
-        setDid(e);
+    const IsDelOpen=(record: DamagesType)=>{
+        setDid(record.Id);
+        setDeleteRecord(record);
         setOpen(true);
     };
     const onOk=()=>{
@@ -243,10 +252,17 @@ const Damages=(props)=>{
                 }
             />
             <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
-            <Modal onOk={onOk} onCancel={()=>setOpen(false)} loading={spinning} open={open} title='是否要删除?'>
-                <div>
-                    是否要删除?
-                </div>
+            <Modal onOk={onOk} onCancel={()=>setOpen(false)} loading={spinning} open={open} title='是否要删除?' width={1000}>
+                <Descriptions
+                    column={1}
+                    size="small"
+                    bordered
+                    labelStyle={{ width: 110, backgroundColor: '#fafafa' }}
+                >
+                    <Descriptions.Item label="日期">{deleteRecord.created?dayjs(deleteRecord.created).format('YYYY-MM-DD'):''}</Descriptions.Item>
+                    <Descriptions.Item label="租户姓名">{deleteRecord.tenant_name}</Descriptions.Item>
+                    <Descriptions.Item label="联系方式">{deleteRecord.tenant_phone}</Descriptions.Item>
+                </Descriptions>
             </Modal>
         </Spin>
     )

@@ -141,7 +141,9 @@ const ServerList=(props:any)=>{
             render:(text:any,record:any)=>{
                 return(
                     <div>
-                        {record.billStatus==1?<Tag color='red'>未交</Tag>:<Tag>已交</Tag>}
+                        {record.billStatus === 1 && <Tag color="red">未交</Tag>}
+                        {record.billStatus === 2 && <Tag color="green">已交</Tag>}
+                        {record.billStatus === 3 && <Tag color="orange">退租</Tag>}
                     </div>
                 )
             }
@@ -211,6 +213,32 @@ const ServerList=(props:any)=>{
                                 日期:
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
+                        </Space.Compact>
+                         <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                defaultValue={stutes}
+                                onChange={(value)=>{
+                                    setstutes(value);
+                                }}
+                                options={[
+                                    { value: 1, label: '未交' },
+                                    { value: 3, label: '退租' },
+                                ]}  
+                            />
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

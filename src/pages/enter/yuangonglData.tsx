@@ -1,6 +1,7 @@
 import {
     Button,
     DatePicker,
+    Descriptions,
     Image,
     Input,
     List,
@@ -14,11 +15,19 @@ import {
     Tag
 } from "antd";
 import {history,connect} from "umi";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState, type ChangeEvent} from "react";
 import dayjs from "dayjs";
 import {checkSessionStorage, compressBase64, updateSessionStorage} from "@/utils/OpenTool";
 import {StaticInfo} from "@/StaticInfo";
-const YuangonglData=(props:any)=>{
+import type { EmployeeRecord, EmployeeResponse } from '@/ModelTypes/TypeEmp';
+
+interface YuangonglProps {
+    EmpList: EmployeeRecord[];
+    count?: EmployeeResponse;
+    dispatch: (action: { type: string; payload?: any }) => any;
+}
+
+const YuangonglData=(props: YuangonglProps)=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
@@ -38,8 +47,9 @@ const YuangonglData=(props:any)=>{
     const [uname,setUname]=useState('');
     const [spinning,setspinning]=useState(false);
     const [isOpen,setIsOpen]=useState(false);
+    const [delRecord,setDelRecord]=useState<EmployeeRecord | null>(null);
     // 用户权限
-    const [uqx,setUqx]=useState([]);
+    const [uqx,setUqx]=useState<string[]>([]);
     const [loadedImageIds, setLoadedImageIds] = useState<Set<string>>(new Set());
     // 行ref数组
     const rowRefs = useRef<HTMLDivElement[]>([]);
@@ -50,7 +60,7 @@ const YuangonglData=(props:any)=>{
             title: '登记日期',
             dataIndex: 'begintime',
             key: 'begintime',
-            render:(text:any,record:any,)=>{
+            render:(text:any,record:EmployeeRecord,)=>{
                 return(
                     <div>
                         {dayjs(record.begintime).format('YYYY-MM-DD')}
@@ -62,7 +72,7 @@ const YuangonglData=(props:any)=>{
             title: '到期时间',
             dataIndex: 'eendtime',
             key: 'eendtime',
-            render:(text:any,record:any,)=>{
+            render:(text:any,record:EmployeeRecord,)=>{
                 return(
                     <div>
                         {dayjs(record.eendtime).format('YYYY-MM-DD')}
@@ -85,7 +95,7 @@ const YuangonglData=(props:any)=>{
             dataIndex: 'avatarBase64',
             key: 'avatarBase64',
             ellipsis: true,
-            render: (text: string, record: any) => {
+            render: (text: string, record: EmployeeRecord) => {
                 const isImageLoaded = loadedImageIds.has(record.id.toString());
                 let imageUrl = '';
                 let bigImgUrl = '';
@@ -109,8 +119,12 @@ const YuangonglData=(props:any)=>{
                             // 原生懒加载属性（正确用法：字符串值 'lazy'）
                             loading="lazy"
                             // fallback 逻辑：图片加载失败时显示占位图
-                            onError={(e) => {
-                                e.target.src = 'https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片';
+                            onError={(e: any) => {
+                                try {
+                                    (e.target as HTMLImageElement).src = 'https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片';
+                                } catch (err) {
+                                    // ignore
+                                }
                             }}
                             preview={{
                                 src: bigImgUrl, // 弹窗预览图单独指定
@@ -146,7 +160,7 @@ const YuangonglData=(props:any)=>{
             title: '状态',
             dataIndex: 'emp_status',
             key: 'emp_status',
-            render:(text:any,record:any,)=>{
+            render:(text:any,record:EmployeeRecord,)=>{
                 return(
                     <div>
                         {record.emp_status==1?<Tag color='red'>未审核</Tag>:<Tag color='green'>已审核</Tag>}
@@ -163,7 +177,7 @@ const YuangonglData=(props:any)=>{
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',
-            render: (text:any, record:any) => {
+            render: (text:any, record:EmployeeRecord) => {
                 return(
                     <div>
                         {
@@ -196,17 +210,18 @@ const YuangonglData=(props:any)=>{
         }
         // 创建新的观察器：元素进入可视区域时加载图片
         observerRef.current = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        const rowId = entry.target.dataset.rowId;
-                        if (rowId && !loadedImageIds.has(rowId)) {
-                            // 标记为已加载，触发重新渲染
-                            setLoadedImageIds(prev => new Set(prev).add(rowId));
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            const target = entry.target as HTMLElement;
+                            const rowId = target.dataset ? target.dataset.rowId : undefined;
+                            if (rowId && !loadedImageIds.has(rowId)) {
+                                // 标记为已加载，触发重新渲染
+                                setLoadedImageIds(prev => new Set(prev).add(rowId));
+                            }
                         }
-                    }
-                });
-            },
+                    });
+                },
             {
                 root: document.querySelector('.ant-table-body'), // 表格滚动容器
                 rootMargin: '20px', // 提前20px加载（预加载）
@@ -229,10 +244,11 @@ const YuangonglData=(props:any)=>{
     const toedit=(e:number)=>{
         history.push(`/enter/editYuangong?id=${e}`);
     };
-    // 删除弹窗
-    const isDelete=(e:any)=>{
-        setUid(e.id);
-        setUname(e.name);
+    // 删除弹窗：接收 record，保存到 delRecord
+    const isDelete=(record: EmployeeRecord)=>{
+        setUid(record.id);
+        setUname(record.name);
+        setDelRecord(record);
         setIsOpen(true);
     };
     // 搜索
@@ -260,21 +276,21 @@ const YuangonglData=(props:any)=>{
         logFenye();
     }, [page,pageSize]);
     // 监听员工姓名
-    const changeName=(e)=>{
+    const changeName=(e: ChangeEvent<HTMLInputElement>)=>{
         setCname(e.target.value);
         updateSessionStorage('/enter/yuangonglData/','cname',e.target.value);
     };
     // 监听员工昵称
-    const changeNickname=(e)=>{
+    const changeNickname=(e: ChangeEvent<HTMLInputElement>)=>{
         setNickname(e.target.value);
         updateSessionStorage('/enter/yuangonglData/','nickname',e.target.value);
     };
     // 监听手机号
-    const changePhone=(e)=>{
+    const changePhone=(e: ChangeEvent<HTMLInputElement>)=>{
         setPhone(e.target.value);
         updateSessionStorage('/enter/yuangonglData/','phone',e.target.value);
     };
-    const changeCompanyName=(e)=>{
+    const changeCompanyName=(e: ChangeEvent<HTMLInputElement>)=>{
         setcompanyName(e.target.value);
         updateSessionStorage('/enter/yuangonglData/','companyName',e.target.value);
     };
@@ -288,6 +304,7 @@ const YuangonglData=(props:any)=>{
             if (res.ErrorCode==0){
                 message.success('删除成功');
                 setIsOpen(false);
+                setDelRecord(null);
                 setspinning(false);
                 logFenye();
             }else {
@@ -344,21 +361,40 @@ const YuangonglData=(props:any)=>{
                     rowKey={(columns) => columns.id}
                     size='small'
                     onRow={(record, index) => ({
-                        ref: (el) => {
-                            if (el) {
-                                el.dataset.rowId = record.id; // 存储行ID
-                                rowRefs.current[index] = el;
-                                // 观察该行元素
-                                observerRef.current?.observe(el);
+                        // 使用 any 绕过 AntD 的严格 onRow 返回类型限制，以便我们能设置行 ref
+                        ...( ((): any => ({
+                            ref: (el: any) => {
+                                if (el) {
+                                    el.dataset.rowId = String(record.id); // 存储行ID
+                                    if (typeof index === 'number') {
+                                        rowRefs.current[index] = el;
+                                    }
+                                    // 观察该行元素
+                                    observerRef.current?.observe(el);
+                                }
                             }
-                        },
-                    })}
+                        }))()),
+                    } as any)}
                 />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-            <Modal onOk={onOk} open={isOpen} title={'删除人脸'} onCancel={()=>setIsOpen(false)} loading={spinning}>
-                <div>
-                    <span>是否要删除：<span style={{color:"red"}}>{uname}</span></span>
-                </div>
+            <Modal onOk={onOk} open={isOpen} title={'删除人脸'} onCancel={()=>{setIsOpen(false); setDelRecord(null);}} loading={spinning} width={600}>
+                <div style={{marginBottom:12}}>确认删除以下记录？</div>
+                {delRecord ? (
+                    <Descriptions bordered size='small' column={2}>
+                        <Descriptions.Item label='登记日期'>
+                            {delRecord.begintime ? dayjs(delRecord.begintime).format('YYYY-MM-DD') : ''}
+                        </Descriptions.Item>
+                        <Descriptions.Item label='姓名'>
+                            {delRecord.name || ''}
+                        </Descriptions.Item>
+                        <Descriptions.Item label='公司'>
+                            {delRecord.companyName || ''}
+                        </Descriptions.Item>
+                        <Descriptions.Item label='手机号'>
+                            {delRecord.phone || ''}
+                        </Descriptions.Item>
+                    </Descriptions>
+                ) : null}
             </Modal>
         </Spin>
     )

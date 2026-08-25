@@ -11,7 +11,7 @@ import {
     Select,
     Space,
     Spin,
-    Table,
+    Table, type TableProps,
     Tag,
     Form, InputNumber, Tooltip
 } from "antd";
@@ -26,6 +26,7 @@ import {StaticInfo} from "@/StaticInfo";
 import * as processConfiguration from "@/services/processConfiguration";
 import ReimbursePrint from "@/components/MyReimbursePrint";
 import {QuestionCircleOutlined} from "@ant-design/icons";
+import type { FinancialRecord, FinancialCount, FinancialDataProps } from '@/ModelTypes/TypeFinancialData';
 const statusMap: any = {
     1: { text: '', color: 'orange',next: 3,btnText:'' },
     // 2: { text: '已入账', color: 'green'  },
@@ -43,12 +44,19 @@ const statusMap: any = {
     14: { text: '已入账', color: 'purple'},
     15: { text: '驳回', color: 'red'},
 }
-const OldCheckFinance=(props:any)=>{
+interface OldCheckFinanceProps {
+    dispatch: (action: { type: string; payload?: any }) => any;
+    count?: FinancialCount;
+    AccountList?: any[];
+    SupplierList?: any[];
+}
+
+const OldCheckFinance=(props: OldCheckFinanceProps)=>{
     // 展示total
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 账单列表
-    const [billList,setBillList]=useState([]);
+    const [billList,setBillList]=useState<FinancialRecord[]>([]);
     // 开始时间
     const [startDate,setBillBgeinTime]=useState(checkSessionStorage('/check/checkFinance/','OldCheckFinanceStartDate')||'2000-01-01');
     // 结束时间
@@ -74,8 +82,8 @@ const OldCheckFinance=(props:any)=>{
     const [printModalOpen,setPrintModalOpen]=useState(false);
     // 终止弹窗
     const [terminateOpen,setTerminateOpen]=useState(false);
-    const [printList,setPrintList]=useState([]);
-    const printRef = useRef();
+    const [printList,setPrintList]=useState<FinancialRecord[]>([]);
+    const printRef = useRef<HTMLDivElement | null>(null);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     // 缴费的弹窗
     const [paymentOpen,setPaymentOpen]=useState(false);
@@ -90,11 +98,11 @@ const OldCheckFinance=(props:any)=>{
     // 备注
     const [remark,setRemark]=useState('');
     // 报销单明细
-    const [fdList,setFdList]=useState([]);
+    const [fdList,setFdList]=useState<any[]>([]);
     const [accId,setAccId]=useState(0);
     const [checkUser,setCheckUser]=useState('');
-    const [checkInfo,setCheckInfo]=useState({});
-    const [goodsList,setGoodsList]=useState([]);
+    const [checkInfo,setCheckInfo]=useState<any>({});
+    const [goodsList,setGoodsList]=useState<Array<{id:number; subjectName:string; summary:string; amount:number; quantity:number; unit:string; unitPrice:number}>>([]);
     // 终止描述
     const [terminateTxt,setTerminateTxt]=useState('');
     // 驳回描述
@@ -239,7 +247,7 @@ const OldCheckFinance=(props:any)=>{
         },
     ];
     // 终止弹窗
-    const handleTerminateStatus=(e)=>{
+    const handleTerminateStatus=(e: FinancialRecord)=>{
         setUid(e.id);
         setTerminateOpen(true);
     };
@@ -272,15 +280,15 @@ const OldCheckFinance=(props:any)=>{
         }
     }, [goodsList]);
     // 3-4-5审核，6终止
-    const handleUpdateStatus = (record: any, status: number) => {
+    const handleUpdateStatus = (record: FinancialRecord, status: number) => {
         setUid(record.id);
         setStatus(status);
         setCheckInfo(record);
-        setGoodsList(record.fdList);
+        setGoodsList((record.fdList || []) as any[]);
         setIsOpen(true);
     };
     // 驳回弹窗
-    const handleReject=(record:any)=>{
+    const handleReject=(record: FinancialRecord)=>{
         setUid(record.id);
         setRejectOpen(true);
     };
@@ -301,7 +309,7 @@ const OldCheckFinance=(props:any)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-    const isDelOpen=(e)=>{
+    const isDelOpen=(e:number)=>{
         setIsOpen(true);
         setUid(e);
     };
@@ -393,7 +401,7 @@ const OldCheckFinance=(props:any)=>{
         getList();
     };
 
-    const updateStatusMap=(data)=> {
+    const updateStatusMap=(data: Record<string, string>)=> {
         const statusKeys = [1,3,4,5,6,7,8,9,10,11];
         // 先清空
         statusKeys.forEach(key => {
@@ -449,12 +457,12 @@ const OldCheckFinance=(props:any)=>{
     useEffect(()=>{
         getList();
     },[page, pageSize]);
-    const rowSelection = {
+    const rowSelection: TableProps<FinancialRecord>['rowSelection'] = {
         selectedRowKeys,
         onChange: (selectedKeys: React.Key[], selectedRows: any[]) => {
             setSelectedRowKeys(selectedKeys);
         },
-        type: 'checkbox',  // 复选框类型
+        type: 'checkbox' as any,  // 复选框类型
     };
     const isPrintModalOpen=()=>{
         if(selectedRowKeys.length===0){
@@ -508,13 +516,6 @@ const OldCheckFinance=(props:any)=>{
             type:'Account/fetch',
         })
     };
-    const changeAccountId=(e:any)=>{
-        const selected = props.AccountList.find((item: any) => item.id === e);
-        console.log('选择的账户id:', selected);
-        setAccId(selected.id);
-        setAccountName(selected.account_name+selected.account_card);
-        setAccountBalance(selected.balance);
-    };
     const getAuditSelectOptions = () => {
         // 你要的顺序（固定不变）
         const keys = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,15];
@@ -538,7 +539,7 @@ const OldCheckFinance=(props:any)=>{
         setsupplierId(e);
         updateSessionStorage('/check/checkFinance/','OldCheckFinancesupplierId',e);
     }
-    const checkAuditPermission = (status, auditObj) => {
+    const checkAuditPermission = (status: number, auditObj: any) => {
         const statusMap = {
             1: 1,
             3: 2,
@@ -552,7 +553,7 @@ const OldCheckFinance=(props:any)=>{
             11: 10,
         };
         // 2. 获取当前状态对应的审核人索引，不存在则直接无权限
-        const reviewerIndex = statusMap[status];
+        const reviewerIndex = statusMap[status as keyof typeof statusMap];
         if (!reviewerIndex) return false;
 
         // 3. 拼接对应的字段名 reviewer1 ~ reviewer11
@@ -669,9 +670,10 @@ const OldCheckFinance=(props:any)=>{
                                 placeholder='供应商'
                                 value={supplierId}
                                 filterOption={(input, option) => {
-                                    // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = props.SupplierList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
-                                    return item?.supplierName?.toLowerCase().includes(input.toLowerCase());
+                                    if (!option) return false;
+                                    const val = (option.value as any);
+                                    const item = Array.isArray(props.SupplierList) ? props.SupplierList.find((unit:any) => unit.id == val) : undefined;
+                                    return Boolean(item && item.supplierName && item.supplierName.toLowerCase().includes(input.toLowerCase()));
                                 }}
                                 options={
                                     [
