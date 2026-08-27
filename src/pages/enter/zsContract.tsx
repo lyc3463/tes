@@ -11,7 +11,7 @@ import {
     Select,
     Space,
     Spin,
-    Table,
+    Table, type TableProps,
     Tag,
     Tooltip
 } from "antd";
@@ -22,12 +22,17 @@ import * as StaffService from '@/services/staff';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import ZsContractType from "@/ModelTypes/TypeZsContract";
 
-const ZsContract=(props:any)=>{
+interface ZsContractProps {
+    dispatch: (action: { type: string; payload?: any }) => any;
+}
+
+const ZsContract=(props: ZsContractProps)=>{
     const [isDeltOpen,setIsDeleteOpen]=useState(false);
     const [uid,setUid]=useState(0);
     // 删除弹窗展示的记录信息
-    const [deleteRecord,setDeleteRecord]=useState<any>({});
+    const [deleteRecord,setDeleteRecord]=useState<ZsContractType>({} as ZsContractType);
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
@@ -44,7 +49,7 @@ const ZsContract=(props:any)=>{
     // 租户姓名
     const [name,setName]=useState(checkSessionStorage('/enter/staff/','name')||'');
     // 列表
-    const [staffList,setStaffList]=useState([]);
+    const [staffList,setStaffList]=useState<ZsContractType[]>([]);
     // 转圈
     const [spinning,setspinning]=useState(false);
     // 总页码
@@ -61,7 +66,7 @@ const ZsContract=(props:any)=>{
     const [manageFee,setmanageFee]=useState(0);
     // 用户权限
     const [uqx,setUqx]=useState([]);
-    const columns =[
+    const columns: TableProps<ZsContractType>['columns'] =[
         {
             title: '合同编号',
             dataIndex: 'identifier',
@@ -216,7 +221,7 @@ const ZsContract=(props:any)=>{
         history.push('/enter/addStaff/');
     };
     // 去详情页面
-    const toInfo=(e:any)=>{
+    const toInfo=(e: ZsContractType)=>{
         if (e.templateType==1){
             history.push(`/check/dingjinInfo?id=${e.id}`);
         }else if (e.templateType==2){
@@ -224,7 +229,7 @@ const ZsContract=(props:any)=>{
         }
     };
     // 编辑
-    const toedit=(e:any)=>{
+    const toedit=(e: ZsContractType)=>{
         if (e.templateType==1){
             history.push(`/enter/editDjContract?id=${e.id}`);
         }else if (e.templateType==2){
@@ -232,7 +237,7 @@ const ZsContract=(props:any)=>{
         }
     };
     // 删除弹窗
-    const isdelete=(record:any)=>{
+    const isdelete=(record: ZsContractType)=>{
         setUid(record.id);
         setDeleteRecord(record);
         setIsDeleteOpen(true);
@@ -243,7 +248,7 @@ const ZsContract=(props:any)=>{
         props.dispatch({
             type:'Staff/remove',
             payload:uid
-        }).then((res)=>{
+        }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('删除成功');
                 setIsDeleteOpen(false);
@@ -291,7 +296,7 @@ const ZsContract=(props:any)=>{
         logFenye();
     }, [page]);
     // 监听合同编号
-    const changeIdentifier=(e)=>{
+    const changeIdentifier=(e: React.ChangeEvent<HTMLInputElement>)=>{
         setIdentifier(e.target.value);
         updateSessionStorage('/enter/staff/','identifier',e.target.value);
     };
@@ -314,7 +319,7 @@ const ZsContract=(props:any)=>{
         }
     };
     // 下载页面
-    const toxiazai=(e)=>{
+    const toxiazai=(e: ZsContractType)=>{
         if (e.contractStatus==1&&e.templateType==1){
             history.push(`/check/nocheckDJcontractez?id=${e.id}`);
         }else if (e.contractStatus==1&&e.templateType==2){
@@ -329,7 +334,7 @@ const ZsContract=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
-    const changeName=(e)=>{
+    const changeName=(e: React.ChangeEvent<HTMLInputElement>)=>{
         setName(e.target.value);
         updateSessionStorage('/enter/staff/','name',e.target.value);
     };

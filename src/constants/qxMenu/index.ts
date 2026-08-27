@@ -486,7 +486,7 @@ export const qxTree: TypeMenu[] = [
     { id: 485, name: '采购审核',parentId: 447, authId: 485},
     { id: 484, name: '审核',parentId: 485, authId: 484},
     { id: 486, name: '采购入库',parentId: 447, authId: 486},
-    { id: 487, name: '入库',parentId: 486, authId: 487},
+    { id: 487, name: '添加入库单',parentId: 486, authId: 487},
     { id: 488, name: '库存明细',parentId: 448, authId: 488},
     { id: 489, name: '直接入库单',parentId: 447, authId: 489},
     { id: 490, name: '添加',parentId: 489, authId: 490},
@@ -558,4 +558,7 @@ export const qxTree: TypeMenu[] = [
     { id: 564, name: '导出物品',parentId: 560, authId: 564},
     { id: 565, name: '拆分',parentId: 488, authId: 565},
     { id: 566, name: '合并',parentId: 488, authId: 566},
+    { id: 567, name: '编辑入库单',parentId: 486, authId: 567},
+    { id: 568, name: '删除入库单',parentId: 486, authId: 568},
+    { id: 569, name: '审核入库单',parentId: 486, authId: 569},
 ]

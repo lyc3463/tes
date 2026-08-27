@@ -15,7 +15,7 @@ const AddRole=(props)=>{
     const navigate=useNavigate();
     const [spinning,setspinning]=useState(false);
     const treeData = buildTree(qxTree);
-    const [selected, setSelected] = useState<string[]>(Array(567).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(570).fill('0'));
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: TypeMenu[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void })=> {
         return (
             <ul>
@@ -36,7 +36,7 @@ const AddRole=(props)=>{
             </ul>
         );
     };
-    const  handleCheckboxChange=(id: number, isChecked: boolean)=> {
+     const  handleCheckboxChange=(id: number, isChecked: boolean)=> {
         // 创建一个新的数组来存储新的选中状态
         let newSelected = [...selected];
         // 更新指定 ID 的节点的选中状态
@@ -1313,6 +1313,9 @@ const AddRole=(props)=>{
             newSelected[560] = isChecked ? '1' : '0' ;
             newSelected[561] = isChecked ? '1' : '0' ;
             newSelected[562] = isChecked ? '1' : '0' ;
+            newSelected[567] = isChecked ? '1' : '0' ;
+            newSelected[568] = isChecked ? '1' : '0' ;
+            newSelected[569] = isChecked ? '1' : '0' ;
         }
         if (id === 442){
             newSelected[464] = isChecked ? '1' : '0' ;
@@ -1447,6 +1450,9 @@ const AddRole=(props)=>{
             newSelected[487] = isChecked ? '1' : '0' ;
             newSelected[489] = isChecked ? '1' : '0' ;
             newSelected[490] = isChecked ? '1' : '0' ;
+            newSelected[567] = isChecked ? '1' : '0' ;
+            newSelected[568] = isChecked ? '1' : '0' ;
+            newSelected[569] = isChecked ? '1' : '0' ;
         }
         if (id === 445){
             newSelected[526] = isChecked ? '1' : '0' ;

@@ -25,7 +25,7 @@ const EditUser=(props:any)=>{
     const [qyId,setqyId]=useState(0);
     const [park_id,setPark_id]=useState([]);
     const [oldpark_id,setOldpark_id]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(567).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(570).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -1349,6 +1349,9 @@ const EditUser=(props:any)=>{
             newSelected[560] = isChecked ? '1' : '0' ;
             newSelected[561] = isChecked ? '1' : '0' ;
             newSelected[562] = isChecked ? '1' : '0' ;
+            newSelected[567] = isChecked ? '1' : '0' ;
+            newSelected[568] = isChecked ? '1' : '0' ;
+            newSelected[569] = isChecked ? '1' : '0' ;
         }
         if (id === 442){
             newSelected[464] = isChecked ? '1' : '0' ;
@@ -1483,6 +1486,9 @@ const EditUser=(props:any)=>{
             newSelected[487] = isChecked ? '1' : '0' ;
             newSelected[489] = isChecked ? '1' : '0' ;
             newSelected[490] = isChecked ? '1' : '0' ;
+            newSelected[567] = isChecked ? '1' : '0' ;
+            newSelected[568] = isChecked ? '1' : '0' ;
+            newSelected[569] = isChecked ? '1' : '0' ;
         }
         if (id === 445){
             newSelected[526] = isChecked ? '1' : '0' ;

@@ -56,7 +56,7 @@ const EditWater=(props)=>{
         setIsSpinning(true);
         props.dispatch({
             type:'Watert/edit',
-            payload:{...values,uid}
+            payload:{...values,uid,unitid}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setIsSpinning(false);
@@ -167,6 +167,7 @@ const EditWater=(props)=>{
                     <Select
                         onChange={changeUnit}
                         showSearch
+                        value={unitid}
                         optionFilterProp="children"
                         filterOption={(input, option) => {
                             // 假设每个 option 都有一个与数据项对应的 value 属性
