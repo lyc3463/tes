@@ -5,7 +5,7 @@ import {
 } from 'umi';
 import _ from 'lodash';
 import { StaticInfo } from '@/StaticInfo';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { EventMgr } from '@/Event/EventMgr';
 import type { RadioChangeEvent } from 'antd';
 import {
@@ -43,6 +43,9 @@ const tailLayout = {
 
 const { TextArea } = Input;
 
+// 缓存key
+const CACHE_KEY = "Addgongsi_form_cache";
+
 function Addgongsi(props: any) {
   const navigate=useNavigate();
 
@@ -62,6 +65,77 @@ function Addgongsi(props: any) {
   const [count_method,setCountMethod]=useState(1);
   const [spinning,setspinning]=useState(false);
   const [form] = Form.useForm();
+
+  // 读取缓存
+  const loadCache = useCallback(() => {
+    const str = sessionStorage.getItem(CACHE_KEY);
+    if (!str) return null;
+    try {
+      return JSON.parse(str);
+    } catch (e) {
+      sessionStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+  }, []);
+
+  // 保存全部表单到缓存（独立state + antd Form 的字段）
+  const saveCache = useCallback(() => {
+    const data = {
+      itemType,
+      monthly_amount,
+      deduction_method,
+      item_interval,
+      price,
+      prepaidAmount,
+      count_method,
+      formValues: form.getFieldsValue(),
+    };
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  }, [itemType, monthly_amount, deduction_method, item_interval, price, prepaidAmount, count_method]);
+
+  // 清空缓存
+  const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+  // 页面初始化：加载缓存回填所有state与表单字段（必须声明在自动保存的useEffect之前）
+  useEffect(() => {
+    const cache = loadCache();
+    if (cache) {
+      setItemType(cache.itemType ?? 1);
+      setMonthly_amount(cache.monthly_amount ?? 1);
+      setDeduction_method(cache.deduction_method ?? 0);
+      setItem_interval(cache.item_interval ?? 0);
+      setPrice(cache.price ?? 0);
+      setPrepaidAmount(cache.prepaidAmount ?? 0);
+      setCountMethod(cache.count_method ?? 1);
+      if (cache.formValues) {
+        form.setFieldsValue(cache.formValues);
+      }
+    }
+  }, []);
+
+  // 【核心】任意表单字段变动，自动存入缓存
+  useEffect(() => {
+    saveCache();
+  }, [saveCache]);
+
+  // 仅输入框内容变化时（不触发上面state）也会立即保存
+  const handleFormChange = () => {
+    saveCache();
+  };
+
+  // 清空草稿：删除缓存并重置表单
+  const resetAllFormData = () => {
+    clearCache();
+    setItemType(1);
+    setMonthly_amount(1);
+    setDeduction_method(0);
+    setItem_interval(0);
+    setPrice(0);
+    setPrepaidAmount(0);
+    setCountMethod(1);
+    form.resetFields();
+  };
+
   // 收费类型
   const shoufeiType=(e:any)=>{
     setItemType(e.target.value)
@@ -85,6 +159,8 @@ function Addgongsi(props: any) {
     })
     if (res.ErrorCode==0){
       message.success('添加成功');
+      // 添加成功后清空草稿缓存
+      clearCache();
       history.push('/xiangmu/gongsiguanli');
       setspinning(false);
     }else {
@@ -118,13 +194,14 @@ function Addgongsi(props: any) {
         layout="horizontal"
         size={'large'}
         onFinish={onFinish}
+        onValuesChange={handleFormChange}
         style={{ marginTop: '1rem' }}
       >
         <Form.Item label='收费项目名称' name='item_name' rules={[{required: true, message: '请输入收费项目名称'}]}>
           <Input/>
         </Form.Item>
         <Form.Item label='收费类型'>
-          <Radio.Group onChange={shoufeiType} defaultValue={itemType}>
+          <Radio.Group onChange={shoufeiType} value={itemType}>
             <Radio value={1}>周期性收费</Radio>
             <Radio value={2}>一次性收费</Radio>
             <Radio value={3}>押金类收费</Radio>
@@ -132,7 +209,7 @@ function Addgongsi(props: any) {
         </Form.Item>
         {
           itemType==1?<><Form.Item label='收费间隔'>
-            每<InputNumber controls={false} defaultValue={item_interval} onChange={changeJianGe} min={0}/>天收费一次
+            每<InputNumber controls={false} value={item_interval} onChange={changeJianGe} min={0}/>天收费一次
             {/*<p style={{color:'#555',fontSize:'12px'}}>注意：下方单价和固定金额为每1天数额 。</p>*/}
           </Form.Item>
             {/*<Form.Item label='扣款方式'>*/}
@@ -150,7 +227,7 @@ function Addgongsi(props: any) {
         {/*  </Form.Item>:''*/}
         {/*}*/}
         <Form.Item label='月金额计算方式'>
-          <Radio.Group onChange={jierType} defaultValue={monthly_amount}>
+          <Radio.Group onChange={jierType} value={monthly_amount}>
             <Radio value={1}>固定金额</Radio>
             <Radio value={2}>按照单价计算</Radio>
             {itemType==1? '':<Radio value={3}> 每户手动输入</Radio>}
@@ -158,7 +235,7 @@ function Addgongsi(props: any) {
         </Form.Item>
         {
           monthly_amount==1?<Form.Item label='固定金额'>
-            <InputNumber onChange={changePrice} min={0}/>
+            <InputNumber value={price} onChange={changePrice} min={0}/>
           </Form.Item>:''
         }
         {
@@ -178,7 +255,7 @@ function Addgongsi(props: any) {
         {
           monthly_amount==2?
               <Form.Item label='单价(元)'>
-                <InputNumber onChange={changePrice}/>
+                <InputNumber value={price} onChange={changePrice}/>
               </Form.Item>:''
         }
         <Form.Item label='添加备注' name='remark' rules={[{required: true, message: '请输入备注'}]}>
@@ -192,6 +269,9 @@ function Addgongsi(props: any) {
            </Button>
            <Button type="primary" onClick={()=>navigate(-1)}>
              返回
+           </Button>
+           <Button danger onClick={resetAllFormData}>
+             清空草稿
            </Button>
          </Space>
         </Form.Item>

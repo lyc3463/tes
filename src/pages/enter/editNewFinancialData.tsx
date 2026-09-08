@@ -76,10 +76,10 @@ const EditNewFinancialData=(props:any)=>{
             title:'科目',
             dataIndex:'subject',
             key:'subject',
-            width:'200px',
+            width: 140,
             render: (text: string, record: any) => (
                 <Select
-                    style={{ width: '120px' }}
+                    style={{ width: '100%' }}
                     // 修改onChange，获取value和option对象，传递label
                     onChange={(value, option) => handleSubjectChange(record.id, value, option.label)}
                     showSearch
@@ -101,13 +101,14 @@ const EditNewFinancialData=(props:any)=>{
             title:'科目',
             dataIndex:'subjectName',
             key:'subjectName',
-            width:'200px',
+            width: 150,
+            ellipsis: true,
         },
         {
             title:'摘要',
             dataIndex:'summary',
             key:'summary',
-            width:'400px',
+            width: 300,
             align:'center',
             render: (text: string, record: any) => (
                 <Input
@@ -121,9 +122,11 @@ const EditNewFinancialData=(props:any)=>{
             title:'数量',
             dataIndex:'quantity',
             key:'quantity',
+            width: 110,
             render: (text: number, record: any) => (
                 <InputNumber
                     disabled={prohibit}
+                    style={{ width: '100%' }}
                     value={text}
                     min={0}
                     onChange={(value) =>{
@@ -140,9 +143,11 @@ const EditNewFinancialData=(props:any)=>{
             title:'单位',
             dataIndex:'unit',
             key:'unit',
+            width: 100,
             render: (text: number, record: any) => (
                 <Input
                     disabled={prohibit}
+                    style={{ width: '100%' }}
                     value={text}
                     onChange={(value) =>{
                         setGoodsList(prev =>
@@ -158,9 +163,11 @@ const EditNewFinancialData=(props:any)=>{
             title:'单价',
             dataIndex:'unitPrice',
             key:'unitPrice',
+            width: 120,
             render: (text: number, record: any) => (
                 <InputNumber
                     disabled={prohibit}
+                    style={{ width: '100%' }}
                     value={text}
                     min={0}
                     onChange={(value) =>{
@@ -177,9 +184,10 @@ const EditNewFinancialData=(props:any)=>{
             title:'金额(元)',
             dataIndex:'amount',
             key:'amount',
-            width:'200px',
+            width: 120,
             render: (text: number, record: any) => (
                 <InputNumber
+                    style={{ width: '100%' }}
                     value={text}
                     min={0}
                     onChange={(value) => handleAmountChange(record.id, value as number)}
@@ -189,7 +197,7 @@ const EditNewFinancialData=(props:any)=>{
         {
             title: '操作',
             key: 'action',
-            width: '100px',
+            width: 80,
             render: (_, record: any) => (
                 <Button
                     type="text"
@@ -367,10 +375,9 @@ const EditNewFinancialData=(props:any)=>{
         }));
 
         const filteredGoodsList = processedList.filter(item =>
-            (item.subjectName?.trim() !== '')
-            && item.amount > 0
+            item.amount > 0
         );
-        if (filteredGoodsList.length === 0) return message.error('报销明细科目不能为空,金额不能为0,请检查!');
+        if (filteredGoodsList.length === 0) return message.error('报销明细金额不能为0,请检查!');
         let jsonfd=JSON.stringify(filteredGoodsList);
         let jsonCaigou=JSON.stringify(caigou);
         let caigouFd={fd:jsonfd,caigou:jsonCaigou};
@@ -450,7 +457,7 @@ const EditNewFinancialData=(props:any)=>{
                     编辑
                 </Button>
             </Space>
-            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
+            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px',flexWrap:'wrap',rowGap:'10px'}}>
                 <Input addonBefore="单号:" placeholder='随机生成' style={{width:'300px'}} value={orderCode} disabled/>
                 <Space.Compact>
                     <div
@@ -513,7 +520,7 @@ const EditNewFinancialData=(props:any)=>{
                 </Space.Compact>
                 <Input addonBefore="备注:" placeholder='备注' value={remark} onChange={changeRemark}/>
             </Space>
-            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
+            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px',flexWrap:'wrap',rowGap:'10px'}}>
                 <Space.Compact>
                     <div
                         style={{
@@ -626,7 +633,7 @@ const EditNewFinancialData=(props:any)=>{
                 </Radio.Group>
 
             </Space>
-            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
+            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px',flexWrap:'wrap',rowGap:'10px'}}>
                 {moneyType==2?
                     <>
                         <Space.Compact>
@@ -671,7 +678,7 @@ const EditNewFinancialData=(props:any)=>{
                 rowKey={(record) => record.id} // 使用id作为唯一键
                 pagination={false}
                 size='small'
-                scroll={{y:'55vh'}}
+                scroll={{x: 'max-content', y:'55vh'}}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }

@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import {checkSessionStorage, getRandomNumber, updateSessionStorage} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
+import * as CableService from '@/services/cable';
 
 const Cable=(props:any)=>{
     const [page,setPage]=useState(1);
@@ -16,6 +17,7 @@ const Cable=(props:any)=>{
     const [remark,setremark]=useState(checkSessionStorage('/waterCableManage/cable','remark')||'');
     // 用户权限
     const [uqx,setUqx]=useState([]);
+
     const toedit=(e)=>{
         history.push(`/waterCableManage/editCable?id=${e}`);
     };

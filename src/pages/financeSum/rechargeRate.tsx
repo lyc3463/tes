@@ -81,13 +81,13 @@ const RechargeRate=(props)=>{
         },
         {
             title: '姓名',
-            dataIndex: 'user_name',
-            key: 'user_name',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.user_name}>
-                            {record.user_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.user_name}</span>}
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name==null?<span style={{color:'red'}} >未绑定租户</span>:<span >{record.tenant_name}</span>}
                         </Tooltip>
                     </div>
                 )
@@ -95,8 +95,8 @@ const RechargeRate=(props)=>{
         },
         {
             title: '手机号',
-            dataIndex: 'phone',
-            key: 'phone',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
         },
         {
             title: '类型',

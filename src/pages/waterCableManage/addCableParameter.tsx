@@ -1,9 +1,13 @@
 import {Button, Form, Input, InputNumber, message, Radio, Space, Spin} from "antd";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {connect, history,useNavigate} from "umi";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
+
+// 缓存key
+const CACHE_KEY = "AddCableParameter_form_cache";
+
 const AddCableParameter=(props:any)=>{
     const navigate=useNavigate();
     const we_type=2;
@@ -82,6 +86,102 @@ const AddCableParameter=(props:any)=>{
     const [minute_price,setMinute_price]=useState(0)
     const [form] = Form.useForm();
     const [spinning,setspinning]=useState(false);
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存全部state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            changeValue,
+            lossType,
+            fixed_fee,
+            base_price1,
+            additional_price1,
+            loss,
+            every_price,
+            base_price2,
+            additional_price2,
+            base_price3,
+            additional_price3,
+            base_price4,
+            additional_price4,
+            base_price5,
+            additional_price5,
+            step_value1,
+            base_price6,
+            additional_price6,
+            step_value2,
+            base_price7,
+            additional_price7,
+            step_value3,
+            base_price8,
+            additional_price8,
+            step_value4,
+            base_price9,
+            additional_price9,
+            minute_price,
+            formValues: form.getFieldsValue()
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    }, [
+        changeValue, lossType, fixed_fee,
+        base_price1, additional_price1, loss, every_price,
+        base_price2, additional_price2, base_price3, additional_price3,
+        base_price4, additional_price4, base_price5, additional_price5,
+        step_value1, base_price6, additional_price6,
+        step_value2, base_price7, additional_price7,
+        step_value3, base_price8, additional_price8,
+        step_value4, base_price9, additional_price9,
+        minute_price, form
+    ]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setChangeValue(3);
+        setLossType(1);
+        setFixed_fee(1);
+        setBase_price1(0);
+        setAdditional_price1(0);
+        setLoss(0);
+        setEvery_price(1);
+        setBase_price2(0);
+        setAdditional_price2(0);
+        setBase_price3(0);
+        setAdditional_price3(0);
+        setBase_price4(0);
+        setAdditional_price4(0);
+        setBase_price5(0);
+        setAdditional_price5(0);
+        setStep_value1(0);
+        setBase_price6(0);
+        setAdditional_price6(0);
+        setStep_value2(0);
+        setBase_price7(0);
+        setAdditional_price7(0);
+        setStep_value3(0);
+        setBase_price8(0);
+        setAdditional_price8(0);
+        setStep_value4(0);
+        setBase_price9(0);
+        setAdditional_price9(0);
+        setMinute_price(0);
+        form.resetFields();
+    };
+
     // 监听水价基础价
     const listenbasicPrice=(e)=>{
         setBase_price1(e)
@@ -222,6 +322,52 @@ const AddCableParameter=(props:any)=>{
         additional_price5,
     ])
 
+    // 页面初始化：加载缓存回填所有state与表单字段
+    useEffect(() => {
+        const cache = loadCache();
+        if (cache) {
+            setChangeValue(cache.changeValue ?? 3);
+            setLossType(cache.lossType ?? 1);
+            setFixed_fee(cache.fixed_fee ?? 1);
+            setBase_price1(cache.base_price1 ?? 0);
+            setAdditional_price1(cache.additional_price1 ?? 0);
+            setLoss(cache.loss ?? 0);
+            setEvery_price(cache.every_price ?? 1);
+            setBase_price2(cache.base_price2 ?? 0);
+            setAdditional_price2(cache.additional_price2 ?? 0);
+            setBase_price3(cache.base_price3 ?? 0);
+            setAdditional_price3(cache.additional_price3 ?? 0);
+            setBase_price4(cache.base_price4 ?? 0);
+            setAdditional_price4(cache.additional_price4 ?? 0);
+            setBase_price5(cache.base_price5 ?? 0);
+            setAdditional_price5(cache.additional_price5 ?? 0);
+            setStep_value1(cache.step_value1 ?? 0);
+            setBase_price6(cache.base_price6 ?? 0);
+            setAdditional_price6(cache.additional_price6 ?? 0);
+            setStep_value2(cache.step_value2 ?? 0);
+            setBase_price7(cache.base_price7 ?? 0);
+            setAdditional_price7(cache.additional_price7 ?? 0);
+            setStep_value3(cache.step_value3 ?? 0);
+            setBase_price8(cache.base_price8 ?? 0);
+            setAdditional_price8(cache.additional_price8 ?? 0);
+            setStep_value4(cache.step_value4 ?? 0);
+            setBase_price9(cache.base_price9 ?? 0);
+            setAdditional_price9(cache.additional_price9 ?? 0);
+            setMinute_price(cache.minute_price ?? 0);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
+    }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
+
     const onFinish = async (values: any) => {
         if (lossType==2&&fixed_fee<1) return message.warning('请输入正确的号数')
         if (lossType==2&&fixed_fee>28) return message.warning('请输入正确的号数')
@@ -262,6 +408,8 @@ const AddCableParameter=(props:any)=>{
         if (res.ErrorCode==0){
             setspinning(false);
             message.success('添加成功');
+            // 添加成功后清空草稿缓存
+            clearCache();
             history.push('/waterCableManage/parameter')
         }else {
             message.error(res.Data);
@@ -283,6 +431,7 @@ const AddCableParameter=(props:any)=>{
                 layout="horizontal"
                 size={'large'}
                 onFinish={onFinish}
+                onValuesChange={handleFormChange}
                 style={{ marginTop: '1rem' }}
             >
                 <Form.Item label='名称' name='price_name'>
@@ -300,9 +449,9 @@ const AddCableParameter=(props:any)=>{
                         <Form.Item label='价格'>
                             <InputNumber  style={{width:'80px'}} value={totalPrice}  disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>(元/kWh) =基础价
-                            <InputNumber style={{width:'80px'}} min={0} onChange={listenbasicPrice}/>+附加单价
-                            <InputNumber style={{width:'80px'}} min={0}  onChange={listenadditionalPrice}/>
-                            {/*(每<InputNumber step={1} precision={0} min={0} style={{width:'80px'}} onChange={changeMinute}/>小时收费一次)*/}
+                            <InputNumber style={{width:'80px'}} min={0} value={base_price1} onChange={listenbasicPrice}/>+附加单价
+                            <InputNumber style={{width:'80px'}} min={0} value={additional_price1} onChange={listenadditionalPrice}/>
+                            {/*(每<InputNumber step={1} precision={0} min={0} style={{width:'80px'}} value={minute_price} onChange={changeMinute}/>小时收费一次)*/}
                             <span style={{fontSize:'12px',color:'#555'}}>(每1小时收费一次)</span>
                         </Form.Item>
 
@@ -334,66 +483,66 @@ const AddCableParameter=(props:any)=>{
                         <Form.Item label='尖单价'>
                             <InputNumber  style={{width:'80px'}}  value={jianDanPrice} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                            (kWh) =基础价<InputNumber style={{width:'80px'}} onChange={changeJianJIchu}/>
-                            +附加单价<InputNumber style={{width:'80px'}} onChange={changeJianfujia}/>
+                            (kWh) =基础价<InputNumber style={{width:'80px'}} value={base_price2} onChange={changeJianJIchu}/>
+                            +附加单价<InputNumber style={{width:'80px'}} value={additional_price2} onChange={changeJianfujia}/>
                         </Form.Item>
                         <Form.Item label='峰单价'>
                             <InputNumber  style={{width:'80px'}} value={fengDanPrice} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                            (kWh) =基础价<InputNumber style={{width:'80px'}} onChange={changeFengJIchu}/>
-                            +附加单价<InputNumber style={{width:'80px'}} onChange={changeFengfujia}/>
+                            (kWh) =基础价<InputNumber style={{width:'80px'}} value={base_price3} onChange={changeFengJIchu}/>
+                            +附加单价<InputNumber style={{width:'80px'}} value={additional_price3} onChange={changeFengfujia}/>
                         </Form.Item>
                         <Form.Item label='平单价'>
                             <InputNumber  style={{width:'80px'}} value={pingDanPrice} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                            (kWh) =基础价<InputNumber style={{width:'80px'}} onChange={changePingJIchu}/>
-                            +附加单价<InputNumber style={{width:'80px'}} onChange={changePingfujia}/>
+                            (kWh) =基础价<InputNumber style={{width:'80px'}} value={base_price4} onChange={changePingJIchu}/>
+                            +附加单价<InputNumber style={{width:'80px'}} value={additional_price4} onChange={changePingfujia}/>
                         </Form.Item>
                         <Form.Item label='谷单价'>
                             <InputNumber  style={{width:'80px'}} value={guDanPrice} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                            (kWh) =基础价<InputNumber style={{width:'80px'}} onChange={changeGuJIchu}/>
-                            +附加单价<InputNumber style={{width:'80px'}} onChange={changeGufujia}/>
+                            (kWh) =基础价<InputNumber style={{width:'80px'}} value={base_price5} onChange={changeGuJIchu}/>
+                            +附加单价<InputNumber style={{width:'80px'}} value={additional_price5} onChange={changeGufujia}/>
                         </Form.Item>
                     </>:''
                 }
                 {
                     changeValue===5?<>
                         <Form.Item label='第一阶梯值(kWh)'>
-                            <InputNumber  style={{width:'80px'}} onChange={changeStep_value1}/>
+                            <InputNumber  style={{width:'80px'}} value={step_value1} onChange={changeStep_value1}/>
                         </Form.Item>
                         <Form.Item label='第一阶梯值(kWh)'>
                             <InputNumber value={stepPrice1} style={{width:'80px'}} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>(kWh) =基础价
-                            <InputNumber style={{width:'80px'}} onChange={setpListenbasicPrice1}/>+附加单价
-                            <InputNumber style={{width:'80px'}} onChange={setpListenadditionalPrice1}/>
+                            <InputNumber style={{width:'80px'}} value={base_price6} onChange={setpListenbasicPrice1}/>+附加单价
+                            <InputNumber style={{width:'80px'}} value={additional_price6} onChange={setpListenadditionalPrice1}/>
                         </Form.Item>
                         <Form.Item label='第二阶梯值(kWh)'>
-                            <InputNumber  style={{width:'80px'}} onChange={changeStep_value2}/>
+                            <InputNumber  style={{width:'80px'}} value={step_value2} onChange={changeStep_value2}/>
                         </Form.Item>
                         <Form.Item label='第二阶梯单价'>
                             <InputNumber value={stepPrice2} style={{width:'80px'}} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>(kWh) =基础价
-                            <InputNumber style={{width:'80px'}} onChange={setpListenbasicPrice2}/>+附加单价
-                            <InputNumber style={{width:'80px'}} onChange={setpListenadditionalPrice2}/>
+                            <InputNumber style={{width:'80px'}} value={base_price7} onChange={setpListenbasicPrice2}/>+附加单价
+                            <InputNumber style={{width:'80px'}} value={additional_price7} onChange={setpListenadditionalPrice2}/>
                         </Form.Item>
                         <Form.Item label='第三阶梯值(kWh)'>
-                            <InputNumber  style={{width:'80px'}} onChange={changeStep_value3}/>
+                            <InputNumber  style={{width:'80px'}} value={step_value3} onChange={changeStep_value3}/>
                         </Form.Item>
                         <Form.Item label='第三阶梯单价'>
                             <InputNumber  value={stepPrice3} style={{width:'80px'}} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>(kWh) =基础价
-                            <InputNumber style={{width:'80px'}} onChange={setpListenbasicPrice3}/>+附加单价
-                            <InputNumber style={{width:'80px'}} onChange={setpListenadditionalPrice3}/>
+                            <InputNumber style={{width:'80px'}} value={base_price8} onChange={setpListenbasicPrice3}/>+附加单价
+                            <InputNumber style={{width:'80px'}} value={additional_price8} onChange={setpListenadditionalPrice3}/>
                         </Form.Item>
                         <Form.Item label='第四阶梯值(kWh)'>
-                            <InputNumber  style={{width:'80px'}} onChange={changeStep_value4}/>
+                            <InputNumber  style={{width:'80px'}} value={step_value4} onChange={changeStep_value4}/>
                         </Form.Item>
                         <Form.Item label='第四阶梯单价'>
                             <InputNumber  value={stepPrice4} style={{width:'80px'}} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>(kWh) =基础价
-                            <InputNumber style={{width:'80px'}} onChange={setpListenbasicPrice4}/>+附加单价
-                            <InputNumber style={{width:'80px'}} onChange={setpListenadditionalPrice4}/>
+                            <InputNumber style={{width:'80px'}} value={base_price9} onChange={setpListenbasicPrice4}/>+附加单价
+                            <InputNumber style={{width:'80px'}} value={additional_price9} onChange={setpListenadditionalPrice4}/>
                         </Form.Item>
                     </>:''
                 }
@@ -413,6 +562,9 @@ const AddCableParameter=(props:any)=>{
                         </Button>
                         <Button type="primary" onClick={()=>navigate(-1)}>
                             返回
+                        </Button>
+                        <Button danger onClick={resetAllFormData}>
+                            清空草稿
                         </Button>
                     </Space>
                 </Form.Item>

@@ -15,7 +15,7 @@ import {
 } from "antd";
 import { filterAndUpdateList, phonePattern } from "@/utils/OpenTool";
 import { history, connect, useNavigate } from "umi";
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import * as StaffService from "@/services/staff";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import ImageUploadPng from "@/components/ImageUploadPng";
@@ -25,7 +25,11 @@ import html2pdf from "html2pdf.js";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
-const AddOutRent = (props) => {
+
+// 缓存key
+const CACHE_KEY = "AddOutRent_form_cache";
+
+const AddOutRent = (props:any) => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
 
@@ -53,6 +57,57 @@ const AddOutRent = (props) => {
     const [type, settype] = useState(2);
     const [imgB64, setImgB64] = useState<string[]>([]);
     const [imgName, setImgName] = useState<string[]>([]);
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            step,
+            downloadComplete,
+            oldName,
+            tenantId,
+            tenant_phone,
+            startDate,
+            type,
+            imgB64,
+            imgName,
+            formValues: form.getFieldsValue()
+        };
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch (e) {
+            console.warn('草稿保存失败：', e);
+        }
+    }, [step, downloadComplete, oldName, tenantId, tenant_phone, startDate, type, imgB64, imgName, form]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setStep(0);
+        setDownloadComplete(false);
+        setOldName('');
+        setTenantID(0);
+        settenant_phone('');
+        setStartDate('');
+        settype(2);
+        setImgB64([]);
+        setImgName([]);
+        form.resetFields();
+    };
 
     // 上一步
     const handlePrevStep = () => {
@@ -159,6 +214,8 @@ const AddOutRent = (props) => {
             if (res.ErrorCode == 0 || res.ErrorCode == 9038) {
                 setspinning(false);
                 message.success('提交成功');
+                // 添加成功后清空草稿缓存
+                clearCache();
                 history.push("/enter/afterSales");
             } else {
                 message.error(res.Data);
@@ -167,7 +224,7 @@ const AddOutRent = (props) => {
         })
     };
 
-    const change = (e) => {
+    const change = (e:number) => {
         setspinning(true);
         StaffService.one(e).then((res: any) => {
             if (res.ErrorCode == 0) {
@@ -203,10 +260,34 @@ const AddOutRent = (props) => {
     };
 
     useEffect(() => {
+        // 加载缓存：回填state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setStep(cache.step ?? 0);
+            setDownloadComplete(cache.downloadComplete ?? false);
+            setOldName(cache.oldName ?? '');
+            setTenantID(cache.tenantId ?? 0);
+            settenant_phone(cache.tenant_phone ?? '');
+            setStartDate(cache.startDate ?? '');
+            settype(cache.type ?? 2);
+            setImgB64(cache.imgB64 ?? []);
+            setImgName(cache.imgName ?? []);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
         getContntList();
     }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
 
-    const changeType = (e) => {
+    const changeType = (e:any) => {
         settype(e.target.value);
     };
 
@@ -294,6 +375,7 @@ const AddOutRent = (props) => {
                     size={'large'}
                     initialValues={{ reason: '' }}
                     onFinish={onFinish}
+                    onValuesChange={handleFormChange}
                     style={{ marginTop: '1rem' }}
                 >
                     <Form.Item label='选择合同' name='contractId'>
@@ -302,7 +384,7 @@ const AddOutRent = (props) => {
                             showSearch
                             optionFilterProp="children"
                             filterOption={(input, option) => {
-                                const item = hetongList.find(hetongID => hetongID.id == option?.value);
+                                const item = hetongList.find((hetongID:any) => hetongID.id == option?.value);
                                 return item?.tenant_name?.toLowerCase().includes(input.toLowerCase());
                             }}
                         >
@@ -352,6 +434,7 @@ const AddOutRent = (props) => {
                             <Button type="primary" onClick={() => navigate(-1)}>
                                 返回
                             </Button>
+                            <Button danger onClick={resetAllFormData}>清空草稿</Button>
                         </Space>
                     </Form.Item>
                 </Form>

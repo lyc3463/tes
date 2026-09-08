@@ -166,13 +166,13 @@ const NewAlljiaoyi=(props)=>{
         },
         {
             title: '姓名',
-            dataIndex: 'user_name',
-            key: 'user_name',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
         },
         {
             title: '手机号',
-            dataIndex: 'phone',
-            key: 'phone',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
         },
         {
             title: '类型',
@@ -256,8 +256,8 @@ const NewAlljiaoyi=(props)=>{
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.data.map(item => [
                         (dayjs(item.consumptionDate).format("YYYY-MM-DD HH:mm:ss")),
-                        item.user_name,
-                        item.phone,
+                        item.tenant_name,
+                        item.tenant_phone,
                         (() => {
                             switch (item.consumptionType) {
                                 case 1:

@@ -2,7 +2,7 @@ import {
     Button, Image, message, Select, Space, Spin, Table, Tag, Tooltip, Card, Row, Col, Input, InputNumber, Modal, Steps
 } from "antd";
 import ImageUpload from "@/components/ImageUploader";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import * as ArrearsBillService from "@/services/ArrearsBill";
 import * as ZuhuService from '@/services/zuhu';
 import * as DamagesService from '@/services/damages';
@@ -11,6 +11,9 @@ import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import html2pdf from "html2pdf.js";
 
+
+// 缓存key
+const CACHE_KEY = "AddDamages_form_cache";
 
 const AddDamages = () => {
     const navigate = useNavigate();
@@ -32,12 +35,61 @@ const AddDamages = () => {
     const [imgB64, setImgB64] = useState<string[]>([]);
     const [imgName, setImgName] = useState<string[]>([]);
     // 租户违约账单表格数据
-    const [dataSource, setDataSource] = useState([]);
+    const [dataSource, setDataSource] = useState<any[]>([]);
     const [remark, setRemark] = useState('');
     // 选中行id数组
     const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
     // 全选控制
     const [selectAll, setSelectAll] = useState(false);
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存state到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            step,
+            downloadComplete,
+            selectTenantId,
+            imgB64,
+            imgName,
+            dataSource,
+            remark,
+            selectedRowKeys,
+            selectAll
+        };
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch (e) {
+            console.warn('草稿保存失败：', e);
+        }
+    }, [step, downloadComplete, selectTenantId, imgB64, imgName, dataSource, remark, selectedRowKeys, selectAll]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setStep(0);
+        setDownloadComplete(false);
+        setSelectTenantId(null);
+        setImgB64([]);
+        setImgName([]);
+        setDataSource([]);
+        setRemark('');
+        setSelectedRowKeys([]);
+        setSelectAll(false);
+    };
     // 表格列配置
     const columns = [
         {
@@ -225,6 +277,8 @@ const AddDamages = () => {
             .then((res:TypeErrorCode) => {
                 if (res.ErrorCode === 0) {
                     message.success("提交成功");
+                    // 提交成功后清空草稿缓存
+                    clearCache();
                     navigate(-1);
                 } else {
                     message.error(res.Data || "提交失败");
@@ -255,8 +309,25 @@ const AddDamages = () => {
 
     // 页面初始化加载租户列表
     useEffect(() => {
+        // 加载缓存：回填state
+        const cache = loadCache();
+        if (cache) {
+            setStep(cache.step ?? 0);
+            setDownloadComplete(cache.downloadComplete ?? false);
+            setSelectTenantId(cache.selectTenantId ?? null);
+            setImgB64(cache.imgB64 ?? []);
+            setImgName(cache.imgName ?? []);
+            setDataSource(cache.dataSource ?? []);
+            setRemark(cache.remark ?? '');
+            setSelectedRowKeys(cache.selectedRowKeys ?? []);
+            setSelectAll(cache.selectAll ?? false);
+        }
         getTenantList();
     }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
     // 上一步
     const handlePrevStep = () => {
         setStep(prev => prev - 1);
@@ -430,6 +501,9 @@ const AddDamages = () => {
                                     </Button>
                                     <Button size="large" onClick={() => navigate(-1)}>
                                         返回
+                                    </Button>
+                                    <Button danger size="large" onClick={resetAllFormData}>
+                                        清空草稿
                                     </Button>
                                 </Space>
                             </Col>

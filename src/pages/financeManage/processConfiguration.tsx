@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Card, Input, message, Select, Spin} from 'antd';
+import {Button, Card, Input, InputNumber, message, Select, Spin} from 'antd';
 import {connect} from "umi";
 import * as processConfiguration from '@/services/processConfiguration';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -40,6 +40,17 @@ const ProcessConfiguration = (props:any) => {
 
     const [title10,setTitle10] = useState('审核人10')
     const [reviewer10,setReviewer10] = useState([])
+
+    const [amount1,setAmount1] = useState<number | string>('')
+    const [amount2,setAmount2] = useState<number | string>('')
+    const [amount3,setAmount3] = useState<number | string>('')
+    const [amount4,setAmount4] = useState<number | string>('')
+    const [amount5,setAmount5] = useState<number | string>('')
+    const [amount6,setAmount6] = useState<number | string>('')
+    const [amount7,setAmount7] = useState<number | string>('')
+    const [amount8,setAmount8] = useState<number | string>('')
+    const [amount9,setAmount9] = useState<number | string>('')
+    const [amount10,setAmount10] = useState<number | string>('')
 
     const [title11,setTitle11] = useState('发起人')
     const [reviewer11,setReviewer11] = useState([])
@@ -155,6 +166,36 @@ const ProcessConfiguration = (props:any) => {
                 if (res.Data.rpName10 !== null) {
                     setTitle10(res.Data.rpName10);
                 }
+                if (res.Data.amount1 !== undefined && res.Data.amount1 !== null && res.Data.amount1 !== '') {
+                    setAmount1(res.Data.amount1);
+                } else { setAmount1(''); }
+                if (res.Data.amount2 !== undefined && res.Data.amount2 !== null && res.Data.amount2 !== '') {
+                    setAmount2(res.Data.amount2);
+                } else { setAmount2(''); }
+                if (res.Data.amount3 !== undefined && res.Data.amount3 !== null && res.Data.amount3 !== '') {
+                    setAmount3(res.Data.amount3);
+                } else { setAmount3(''); }
+                if (res.Data.amount4 !== undefined && res.Data.amount4 !== null && res.Data.amount4 !== '') {
+                    setAmount4(res.Data.amount4);
+                } else { setAmount4(''); }
+                if (res.Data.amount5 !== undefined && res.Data.amount5 !== null && res.Data.amount5 !== '') {
+                    setAmount5(res.Data.amount5);
+                } else { setAmount5(''); }
+                if (res.Data.amount6 !== undefined && res.Data.amount6 !== null && res.Data.amount6 !== '') {
+                    setAmount6(res.Data.amount6);
+                } else { setAmount6(''); }
+                if (res.Data.amount7 !== undefined && res.Data.amount7 !== null && res.Data.amount7 !== '') {
+                    setAmount7(res.Data.amount7);
+                } else { setAmount7(''); }
+                if (res.Data.amount8 !== undefined && res.Data.amount8 !== null && res.Data.amount8 !== '') {
+                    setAmount8(res.Data.amount8);
+                } else { setAmount8(''); }
+                if (res.Data.amount9 !== undefined && res.Data.amount9 !== null && res.Data.amount9 !== '') {
+                    setAmount9(res.Data.amount9);
+                } else { setAmount9(''); }
+                if (res.Data.amount10 !== undefined && res.Data.amount10 !== null && res.Data.amount10 !== '') {
+                    setAmount10(res.Data.amount10);
+                } else { setAmount10(''); }
             }else {
                 message.error(res.Data);
             }
@@ -199,6 +240,8 @@ const ProcessConfiguration = (props:any) => {
             rpName8: title8,
             rpName9: title9,
             rpName10: title10,
+            amount1, amount2, amount3, amount4, amount5,
+            amount6, amount7, amount8, amount9, amount10,
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 getProcessConfiguration();
@@ -235,6 +278,8 @@ const ProcessConfiguration = (props:any) => {
             rpName8: title8,
             rpName9: title9,
             rpName10: title10,
+            amount1, amount2, amount3, amount4, amount5,
+            amount6, amount7, amount8, amount9, amount10,
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 getProcessConfiguration();
@@ -301,11 +346,13 @@ const ProcessConfiguration = (props:any) => {
                         <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
                             <Input value={title1} onChange={e=>setTitle1(e.target.value)} style={{ width:150, marginBottom:6 }}/>
                             <ReviewerSelect users={reviewer1} setUsers={setReviewer1}/>
+                            <InputNumber value={amount1} onChange={(v)=>setAmount1(v ?? '')} placeholder='金额' min={0} style={{ width:150, marginTop:6 }} addonAfter='元'/>
                         </div>
                         <div style={{ fontSize:28 }}>→</div>
                         <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
                             <Input value={title2} onChange={e=>setTitle2(e.target.value)} style={{ width:150, marginBottom:6 }}/>
                             <ReviewerSelect users={reviewer2} setUsers={setReviewer2}/>
+                            <InputNumber value={amount2} onChange={(v)=>setAmount2(v ?? '')} placeholder='金额' min={0} style={{ width:150, marginTop:6 }} addonAfter='元'/>
                         </div>
 
                         <div style={{ fontSize:28 }}>↓</div>
@@ -317,21 +364,25 @@ const ProcessConfiguration = (props:any) => {
                         <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
                             <Input value={title6} onChange={e=>setTitle6(e.target.value)} style={{ width:150, marginBottom:6 }}/>
                             <ReviewerSelect users={reviewer6} setUsers={setReviewer6}/>
+                            <InputNumber value={amount6} onChange={(v)=>setAmount6(v ?? '')} placeholder='金额' min={0} style={{ width:150, marginTop:6 }} addonAfter='元'/>
                         </div>
                         <div style={{ fontSize:28 }}>←</div>
                         <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
                             <Input value={title5} onChange={e=>setTitle5(e.target.value)} style={{ width:150, marginBottom:6 }}/>
                             <ReviewerSelect users={reviewer5} setUsers={setReviewer5}/>
+                            <InputNumber value={amount5} onChange={(v)=>setAmount5(v ?? '')} placeholder='金额' min={0} style={{ width:150, marginTop:6 }} addonAfter='元'/>
                         </div>
                         <div style={{ fontSize:28 }}>←</div>
                         <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
                             <Input value={title4} onChange={e=>setTitle4(e.target.value)} style={{ width:150, marginBottom:6 }}/>
                             <ReviewerSelect users={reviewer4} setUsers={setReviewer4}/>
+                            <InputNumber value={amount4} onChange={(v)=>setAmount4(v ?? '')} placeholder='金额' min={0} style={{ width:150, marginTop:6 }} addonAfter='元'/>
                         </div>
                         <div style={{ fontSize:28 }}>←</div>
                         <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
                             <Input value={title3} onChange={e=>setTitle3(e.target.value)} style={{ width:150, marginBottom:6 }}/>
                             <ReviewerSelect users={reviewer3} setUsers={setReviewer3}/>
+                            <InputNumber value={amount3} onChange={(v)=>setAmount3(v ?? '')} placeholder='金额' min={0} style={{ width:150, marginTop:6 }} addonAfter='元'/>
                         </div>
                     </div>
 
@@ -341,21 +392,25 @@ const ProcessConfiguration = (props:any) => {
                         <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
                             <Input value={title7} onChange={e=>setTitle7(e.target.value)} style={{ width:150, marginBottom:6 }}/>
                             <ReviewerSelect users={reviewer7} setUsers={setReviewer7}/>
+                            <InputNumber value={amount7} onChange={(v)=>setAmount7(v ?? '')} placeholder='金额' min={0} style={{ width:150, marginTop:6 }} addonAfter='元'/>
                         </div>
                         <div style={{ fontSize:28 }}>→</div>
                         <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
                             <Input value={title8} onChange={e=>setTitle8(e.target.value)} style={{ width:150, marginBottom:6 }}/>
                             <ReviewerSelect users={reviewer8} setUsers={setReviewer8}/>
+                            <InputNumber value={amount8} onChange={(v)=>setAmount8(v ?? '')} placeholder='金额' min={0} style={{ width:150, marginTop:6 }} addonAfter='元'/>
                         </div>
                         <div style={{ fontSize:28 }}>→</div>
                         <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
                             <Input value={title9} onChange={e=>setTitle9(e.target.value)} style={{ width:150, marginBottom:6 }}/>
                             <ReviewerSelect users={reviewer9} setUsers={setReviewer9}/>
+                            <InputNumber value={amount9} onChange={(v)=>setAmount9(v ?? '')} placeholder='金额' min={0} style={{ width:150, marginTop:6 }} addonAfter='元'/>
                         </div>
                         <div style={{ fontSize:28 }}>→</div>
                         <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
                             <Input value={title10} onChange={e=>setTitle10(e.target.value)} style={{ width:150, marginBottom:6 }}/>
                             <ReviewerSelect users={reviewer10} setUsers={setReviewer10}/>
+                            <InputNumber value={amount10} onChange={(v)=>setAmount10(v ?? '')} placeholder='金额' min={0} style={{ width:150, marginTop:6 }} addonAfter='元'/>
                         </div>
                     </div>
                     <div className="down">↓</div>

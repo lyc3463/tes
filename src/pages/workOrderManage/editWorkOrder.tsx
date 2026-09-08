@@ -47,7 +47,7 @@ const EditWorkOrderModal = (props: EditWorkOrderProps & any) => {
             type: "Goods/fetch",
         }).then((res: TypeErrorCode) => {
             if (res.ErrorCode === 0) {
-                setGoodsList(res.Data || []);
+                setGoodsList(res.Data.data || []);
             } else {
                 message.error(`${res.ErrorCode} ${res.Data}`);
             }

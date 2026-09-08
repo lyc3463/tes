@@ -49,9 +49,15 @@ const GoodsModel: GongsiInterface = {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(GongsiService.fetch, payload?payload:pl);
             if (res.ErrorCode == 0) {
+                console.log(res.Data);
+                
                 yield put({
                     type: 'list',
-                    payload: { list: res.Data },
+                    payload: { list: res.Data.data },
+                });
+                yield put({
+                    type: 'count',
+                    payload: { count: res.Data.count },
                 });
             } else {
                 message.error(res.ErrorCode + res.Data);

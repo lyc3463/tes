@@ -209,7 +209,7 @@ class MainPage extends Component<any> {
                 location.pathname = '/login';
             }
         })
-    }
+    };
     test1870=()=>{
         LoginService.test1870().then((res:any)=>{
             if (res.ErrorCode==0){
@@ -218,31 +218,31 @@ class MainPage extends Component<any> {
                 message.error(res.Data);
             }
         })
-    }
-  // editPawword=()=>{
-  //   UmiHistory.push('/EditPassword')
-  // };
-  getList=()=>{
-    CommonService.get1166(1,'','',0).then((res:any)=>{
-      if (res.ErrorCode==0){
-        this.setState({list:res.Data});
+    };
+    // editPawword=()=>{
+    //   UmiHistory.push('/EditPassword')
+    // };
+    getList=()=>{
+      CommonService.get1166(1,'','',0).then((res:any)=>{
+        if (res.ErrorCode==0){
+          this.setState({list:res.Data});
+        }
+      })
+    };
+    columns=[
+      {
+        title: '日期',
+        dataIndex: 'estarttime',
+        key: 'estarttime',
+        render:(text:any,record:any)=>{
+          return(
+              <div>
+                {dayjs(record.estarttime).format('YYYY-MM-DD')}
+              </div>
+          )
+        }
       }
-    })
-  };
-  columns=[
-    {
-      title: '日期',
-      dataIndex: 'estarttime',
-      key: 'estarttime',
-      render:(text:any,record:any)=>{
-        return(
-            <div>
-              {dayjs(record.estarttime).format('YYYY-MM-DD')}
-            </div>
-        )
-      }
-    }
-  ];
+    ];
     toHisYou=(e)=>{
         UmiHistory.push(`${e.route}`);
     };
@@ -267,16 +267,19 @@ class MainPage extends Component<any> {
     };
     changePark=(e:any,parkList:any)=>{
         CommonService.swPark(e).then((res:TypeErrorCode)=>{
+          console.log('信息',res);
+          
             if (res.ErrorCode==0){
                 StaticInfo.park_id=e;
                 StaticInfo.park_name=parkList.children;
-                StaticInfo.uqx=res.Data;
+                StaticInfo.uqx=res.Data.authority;
                 this.setState({park_id:e});
                 sessionStorage.setItem('park_id',e);
                 sessionStorage.setItem('park_id',e);
                 sessionStorage.setItem('park_name',parkList.children);
-                sessionStorage.setItem('uqx',res.Data);
+                sessionStorage.setItem('uqx',res.Data.authority);
                 UmiHistory.push('/');
+                sessionStorage.removeItem('AddInvoiceFinancialDala_form_cache');
             }else {
                 message.error(res.Data);
             }

@@ -1,31 +1,21 @@
-import {
-    Button,
-    DatePicker,
-    Form,
-    Image,
-    Input,
-    message,
-    Select,
-    Space,
-    Spin,
-    Steps,
-    Card,
-    Modal
-} from "antd";
+import {Button,DatePicker,Form,Image,Input,message,Select,Space,Spin,Steps,Card,Modal} from "antd";
 import { history, connect, useNavigate } from "umi";
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import * as StaffService from "@/services/staff";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
 import ImageUpload from "@/components/ImageUploader";
-
 import html2pdf from "html2pdf.js";
 import ImageUploadPng from "@/components/ImageUploadPng";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
-const AddRenew = (props) => {
+
+// 缓存key
+const CACHE_KEY = "AddRenew_form_cache";
+
+const AddRenew = (props:any) => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
 
@@ -58,6 +48,63 @@ const AddRenew = (props) => {
     const [isDate, setisDate] = useState(true);
     const [imgB64, setImgB64] = useState<string[]>([]);
     const [imgName, setImgName] = useState<string[]>([]);
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            step,
+            downloadComplete,
+            oldName,
+            oldPhone,
+            tenantId,
+            oldStartDate,
+            oldEndDate,
+            startDate,
+            endDate,
+            isDate,
+            imgB64,
+            imgName,
+            formValues: form.getFieldsValue()
+        };
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch (e) {
+            console.warn('草稿保存失败：', e);
+        }
+    }, [step, downloadComplete, oldName, oldPhone, tenantId, oldStartDate, oldEndDate, startDate, endDate, isDate, imgB64, imgName, form]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setStep(0);
+        setDownloadComplete(false);
+        setOldName('');
+        setOldPhone('');
+        setTenantID(0);
+        setoldStartDate('');
+        setoldEndDate('');
+        setStartDate('');
+        setEndDate('');
+        setisDate(true);
+        setImgB64([]);
+        setImgName([]);
+        form.resetFields();
+    };
 
     // 切换上一步
     const handlePrevStep = () => {
@@ -150,12 +197,13 @@ const AddRenew = (props) => {
                     )}
 
                     <Button onClick={() => navigate(-1)}>返回</Button>
+                    
                 </Space>
             </Card>
         );
     };
 
-    const addOneDayFromString = (dateString) => {
+    const addOneDayFromString = (dateString:string) => {
         const date = dayjs(dateString);
         if (!date.isValid()) {
             throw new Error("Invalid date string");
@@ -175,6 +223,8 @@ const AddRenew = (props) => {
             .then((res: TypeErrorCode) => {
                 if (res.ErrorCode == 0 || res.ErrorCode == 9038) {
                     message.success("提交成功");
+                    // 添加成功后清空草稿缓存
+                    clearCache();
                     history.push("/enter/afterSales");
                     setspinning(false);
                 } else {
@@ -184,7 +234,7 @@ const AddRenew = (props) => {
             });
     };
 
-    const change = (e) => {
+    const change = (e:number) => {
         setspinning(true);
         StaffService.one(e).then((res: any) => {
             if (res.ErrorCode == 0) {
@@ -227,8 +277,35 @@ const AddRenew = (props) => {
     };
 
     useEffect(() => {
+        // 加载缓存：回填state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setStep(cache.step ?? 0);
+            setDownloadComplete(cache.downloadComplete ?? false);
+            setOldName(cache.oldName ?? '');
+            setOldPhone(cache.oldPhone ?? '');
+            setTenantID(cache.tenantId ?? 0);
+            setoldStartDate(cache.oldStartDate ?? '');
+            setoldEndDate(cache.oldEndDate ?? '');
+            setStartDate(cache.startDate ?? '');
+            setEndDate(cache.endDate ?? '');
+            setisDate(cache.isDate ?? true);
+            setImgB64(cache.imgB64 ?? []);
+            setImgName(cache.imgName ?? []);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
         getContntList();
     }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
 
     // 图片base64
     const onImageUpload = (base64: any) => {
@@ -333,6 +410,7 @@ const AddRenew = (props) => {
                     layout="horizontal"
                     size={"large"}
                     onFinish={onFinish}
+                    onValuesChange={handleFormChange}
                     style={{ marginTop: "1rem" }}
                 >
                     <Form.Item label="选择合同" name="contractId">
@@ -341,7 +419,7 @@ const AddRenew = (props) => {
                             showSearch
                             optionFilterProp="children"
                             filterOption={(input, option) => {
-                                const item = hetongList.find((hetongID) => hetongID.id == option?.value);
+                                const item = hetongList.find((hetongID:any) => hetongID.id == option?.value);
                                 return item?.tenant_name?.toLowerCase().includes(input.toLowerCase());
                             }}
                         >
@@ -408,14 +486,15 @@ const AddRenew = (props) => {
                         </Space>
                     </Form.Item>
                     <Form.Item label="注意">
-            <span style={{ color: "red", fontSize: "12px" }}>
-              合同结束日期三个月内才允许续签
-            </span>
+                        <span style={{ color: "red", fontSize: "12px" }}>
+                            合同结束日期三个月内才允许续签
+                        </span>
                     </Form.Item>
                     <Form.Item {...tailLayout}>
                         <Space>
                             <Button type="primary" htmlType="submit">添加</Button>
                             <Button type="primary" onClick={() => navigate(-1)}>返回</Button>
+                            <Button danger onClick={resetAllFormData}>清空草稿</Button>
                         </Space>
                     </Form.Item>
                 </Form>

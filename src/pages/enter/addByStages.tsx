@@ -2,17 +2,20 @@ import {
     Button, DatePicker, Form, Input, InputNumber, message, Select, Space, Spin,
     Steps, Card, Modal, Image
 } from "antd";
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { connect, history, useNavigate } from "umi";
 import * as StaffService from "@/services/staff";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
 import html2pdf from "html2pdf.js";
-import ImageUploadPng from "@/components/ImageUploadPng";
+import ImageUpload from "@/components/ImageUploader";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
+
+// 缓存key
+const CACHE_KEY = "AddByStages_form_cache";
 
 const AddByStages = (props) => {
     const navigate = useNavigate();
@@ -51,6 +54,70 @@ const AddByStages = (props) => {
     const [hkEndDate, sethkEndDate] = useState('');
     const [imgB64, setImgB64] = useState<string[]>([]);
     const [imgName, setImgName] = useState<string[]>([]);
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            step,
+            downloadComplete,
+            oldName,
+            oldPhone,
+            tenantId,
+            zuMoney,
+            oldbeginTime,
+            oldendTime,
+            fqStartDate,
+            fqEndDate,
+            hkStartDate,
+            hkEndDate,
+            futureRent,
+            imgB64,
+            imgName,
+            formValues: form.getFieldsValue()
+        };
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch (e) {
+            console.warn('草稿保存失败：', e);
+        }
+    }, [step, downloadComplete, oldName, oldPhone, tenantId, zuMoney, oldbeginTime, oldendTime, fqStartDate, fqEndDate, hkStartDate, hkEndDate, futureRent, imgB64, imgName, form]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setStep(0);
+        setDownloadComplete(false);
+        setOldName('');
+        setOldPhone('');
+        setTenantID(0);
+        setZuMoney(0);
+        setbeginTime('2000-01');
+        setendTime('2099-01');
+        setFqStartDate('');
+        setfqEndDate('');
+        sethkStartDate('');
+        sethkEndDate('');
+        setfutureRent(0);
+        setImgB64([]);
+        setImgName([]);
+        form.resetFields();
+    };
+
     // 上一步切换
     const handlePrevStep = () => {
         setStep(prev => prev - 1);
@@ -155,6 +222,8 @@ const AddByStages = (props) => {
         }).then((res: TypeErrorCode) => {
             if (res.ErrorCode == 0 || res.ErrorCode == 9038) {
                 message.success('提交成功');
+                // 添加成功后清空草稿缓存
+                clearCache();
                 history.push("/enter/afterSales");
                 setspinning(false);
             } else {
@@ -180,8 +249,38 @@ const AddByStages = (props) => {
         })
     };
     useEffect(() => {
+        // 加载缓存：回填state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setStep(cache.step ?? 0);
+            setDownloadComplete(cache.downloadComplete ?? false);
+            setOldName(cache.oldName ?? '');
+            setOldPhone(cache.oldPhone ?? '');
+            setTenantID(cache.tenantId ?? 0);
+            setZuMoney(cache.zuMoney ?? 0);
+            setbeginTime(cache.oldbeginTime ?? '2000-01');
+            setendTime(cache.oldendTime ?? '2099-01');
+            setFqStartDate(cache.fqStartDate ?? '');
+            setfqEndDate(cache.fqEndDate ?? '');
+            sethkStartDate(cache.hkStartDate ?? '');
+            sethkEndDate(cache.hkEndDate ?? '');
+            setfutureRent(cache.futureRent ?? 0);
+            setImgB64(cache.imgB64 ?? []);
+            setImgName(cache.imgName ?? []);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
         getContntList();
     }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
 
     const change = (e) => {
         setspinning(true);
@@ -315,6 +414,7 @@ const AddByStages = (props) => {
                     layout="horizontal"
                     size={'large'}
                     onFinish={onFinish}
+                    onValuesChange={handleFormChange}
                     style={{ marginTop: '1rem' }}
                 >
                     <Form.Item label='选择合同' name='contractId'>
@@ -376,6 +476,7 @@ const AddByStages = (props) => {
                             <Button type="primary" onClick={() => navigate(-1)}>
                                 返回
                             </Button>
+                            <Button danger onClick={resetAllFormData}>清空草稿</Button>
                         </Space>
                     </Form.Item>
                 </Form>

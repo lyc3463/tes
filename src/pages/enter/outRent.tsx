@@ -46,7 +46,7 @@ const OutRent=(props: OutRentProps)=>{
     const [deleteRecord,setDeleteRecord]=useState<OutRentType>({} as OutRentType);
     const columns: TableProps<OutRentType>['columns'] =[
         {
-            title: '单元名称',
+            title: '全部单元',
             dataIndex: 'unitList',
             key: 'unitList',
             sorter: {
@@ -128,6 +128,41 @@ const OutRent=(props: OutRentProps)=>{
                     {dayjs(record.refundData).format("YYYY-MM-DD")}
                 </div>
             )
+        },
+        {
+            title: '退租单元',
+            dataIndex: 'delUnitList',
+            key: 'delUnitList',
+            sorter: {
+                compare: (a, b) => {
+                    // 获取 a 和 b 的 unitList 中第一个 unit_name
+                    const aUnitName = a.delUnitList[0]?.unit_name || '';
+                    const bUnitName = b.delUnitList[0]?.unit_name || '';
+
+                    // 比较 unit_name
+                    if (aUnitName < bUnitName) return -1;
+                    if (aUnitName > bUnitName) return 1;
+                    return 0;
+                },
+                multiple: 1,
+            },
+            width:200,
+            render: (text:any, record:any) => {
+                // delUnitList 为空或不存在时不显示
+                if (!Array.isArray(record.delUnitList) || record.delUnitList.length === 0) {
+                    return null;
+                }
+                const limitedUnitList = record.delUnitList.slice(0, 2);
+                return(
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                        {limitedUnitList.map((item:any, index:number) => (
+                            <span key={index}>{item.unit_name}{index < limitedUnitList.length - 1 ? ',' : ''}</span>
+                        ))}
+                        {/* 如果 delUnitList 数组长度大于 2，则显示省略号或其他提示 */}
+                        {record.delUnitList.length > 2 && <span>...</span>}
+                    </div>
+                )
+            }
         },
         {
             title: '类型',

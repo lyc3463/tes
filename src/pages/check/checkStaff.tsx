@@ -104,7 +104,6 @@ const CheckStaff=(props: CheckStaffProps)=>{
                         ? `${window.ServerConfig.imgServer}${textStr}`
                         : `${window.ServerConfig.imgServer}${textStr}.png`;
                 }
-
                 // 改用原生 img 标签（保留 AntD 的样式和 fallback 逻辑）
                 return (
                     <div style={{width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>

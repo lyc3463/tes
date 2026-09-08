@@ -32,7 +32,7 @@ export function reactCarNo(vals:any) {
 }
 // 开通月保
 export function adyuebao(itemID:string,useName:string,userId:string,carNum:number,phone:string,money:number,purchaseMonth:number,startDate:string,endDate:string,carID:number) {
-    return getData(1525, [itemID,useName,userId,carNum,phone,money,purchaseMonth,startDate,endDate,carID,2]);
+    return getData(1525, [itemID,useName,userId,carNum,phone,money,purchaseMonth,startDate,endDate,carID,2,0]);
 }
 // 月卡延期
 export function edityuebaoInfo(tcId:string,parkServiceId:string,purchaseMonth:number,startDate:string,endDate:string,money:number,appid:number,beginTime:string

@@ -1,5 +1,5 @@
 import {Button, Form, Select, DatePicker, Input, InputNumber, message, Image, Space, Tag, Spin} from "antd";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {connect,history} from "umi";
 import {addNewData, checkEndTime, splitDataByEndTimeAndRentPeriod, calculateTotalRentalDays, replaceEnglishCommasWithChinese, calculateTimePeriods, contractsDz, getHouseNameById, getNamesByIds, glmanageDz, getCurrentDate} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -11,6 +11,8 @@ import {PlusOutlined} from "@ant-design/icons";
 import './staff.less';
 import dayjs from "dayjs";
 
+// 缓存key
+const CACHE_KEY = "AddStaff_form_cache";
 
 const AddStaff=(props:any)=>{
     const [form] = Form.useForm();
@@ -86,15 +88,94 @@ const AddStaff=(props:any)=>{
     // 管理费列表
     const [manageFeeList,setManageFeeList]=useState([]);
 
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            disb, deposit, unitstutes, selectedPhone, houseName, manageFee, unitNamess,
+            formItems, mzformItems, unitarrList, remark, wupinList,
+            startDate, endDate, deliveryDate,
+            documentImages, b64, unitImages, xyimgnames, xyimgb64, unitB64,
+            contractType, contractTypeid, mzq, summzqDay, minzujin, mianji, dayDate,
+            house_id, unitStutes, zuMoney, manageFeeList,
+            formValues: form.getFieldsValue()
+        };
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch (e) {
+            // sessionStorage 容量超限时静默失败（图片base64可能过大）
+            console.warn('草稿保存失败：', e);
+        }
+    }, [
+        disb, deposit, unitstutes, selectedPhone, houseName, manageFee, unitNamess,
+        formItems, mzformItems, unitarrList, remark, wupinList,
+        startDate, endDate, deliveryDate,
+        documentImages, b64, unitImages, xyimgnames, xyimgb64, unitB64,
+        contractType, contractTypeid, mzq, summzqDay, minzujin, mianji, dayDate,
+        house_id, unitStutes, zuMoney, manageFeeList, form
+    ]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setdisb(true);
+        setdeposit(0);
+        setunitstutes(1);
+        setSelectedPhone('');
+        sethouseName('');
+        setManageFee(0);
+        setunitNamess('');
+        setFormItems([]);
+        setmzFormItems([]);
+        setUnitarrList([]);
+        setremark('');
+        setwupinList([{ key: 1,wupinName:null,wupininfo:null,wupinNuber:''}]);
+        setStartDate('');
+        setEndDate('');
+        setDeliveryDate(getCurrentDate());
+        setImgName([]);
+        setB64([]);
+        setunitImgName([]);
+        setxyimgnames([]);
+        setxyimgb64([]);
+        setuintB64([]);
+        setcontractType(0);
+        setcontractTypeid(0);
+        setMzq(0);
+        setsummzqDay(0);
+        setminzujin(0);
+        setmianji(0);
+        setDayDate('');
+        sethouse_id(0);
+        setunitStutes(true);
+        setzuMoney(0);
+        setManageFeeList([]);
+        form.resetFields();
+    };
+
     // 删除免租期
-    const removedzFormItemByKey = key => {
-        setmzFormItems(prevItems => prevItems.filter(item => item.id !== key));
+    const removedzFormItemByKey = (key:number) => {
+        setmzFormItems(prevItems => prevItems.filter((item:any) => item.id !== key));
     };
     // 删除物品表单项
-    const removeqingdan = key => {
-        setwupinList(prevItems => prevItems.filter(item => item.key !== key));
+    const removeqingdan = (key:number) => {
+        setwupinList(prevItems => prevItems.filter((item:any) => item.key !== key));
     };
-    const onFinish = async (values) => {
+    const onFinish = async (values:any) => {
         // 1. 通用参数
         const identifier = `${houseName}-${Date.now()}-${unitNamess}`;
         // 组装数据
@@ -144,6 +225,8 @@ const AddStaff=(props:any)=>{
                 // 结果判断
                 if (res.ErrorCode === 0) {
                     message.success('添加成功');
+                    // 添加成功后清空草稿缓存
+                    clearCache();
                     history.push('/enter/staff');
                 } else {
                     message.error(res.Data);
@@ -165,6 +248,8 @@ const AddStaff=(props:any)=>{
                 });
                 if (res.ErrorCode === 0) {
                     message.success('添加成功');
+                    // 添加成功后清空草稿缓存
+                    clearCache();
                     history.push('/enter/staff');
                 } else {
                     message.error(res.Data);
@@ -181,11 +266,58 @@ const AddStaff=(props:any)=>{
         }
     };
     useEffect(() => {
+        // 加载缓存：回填所有state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setdisb(cache.disb ?? true);
+            setdeposit(cache.deposit ?? 0);
+            setunitstutes(cache.unitstutes ?? 1);
+            setSelectedPhone(cache.selectedPhone ?? '');
+            sethouseName(cache.houseName ?? '');
+            setManageFee(cache.manageFee ?? 0);
+            setunitNamess(cache.unitNamess ?? '');
+            setFormItems(cache.formItems ?? []);
+            setmzFormItems(cache.mzformItems ?? []);
+            setUnitarrList(cache.unitarrList ?? []);
+            setremark(cache.remark ?? '');
+            if (cache.wupinList) setwupinList(cache.wupinList);
+            setStartDate(cache.startDate ?? '');
+            setEndDate(cache.endDate ?? '');
+            setDeliveryDate(cache.deliveryDate ?? getCurrentDate());
+            setImgName(cache.documentImages ?? []);
+            setB64(cache.b64 ?? []);
+            setunitImgName(cache.unitImages ?? []);
+            setxyimgnames(cache.xyimgnames ?? []);
+            setxyimgb64(cache.xyimgb64 ?? []);
+            setuintB64(cache.unitB64 ?? []);
+            setcontractType(cache.contractType ?? 0);
+            setcontractTypeid(cache.contractTypeid ?? 0);
+            setMzq(cache.mzq ?? 0);
+            setsummzqDay(cache.summzqDay ?? 0);
+            setminzujin(cache.minzujin ?? 0);
+            setmianji(cache.mianji ?? 0);
+            setDayDate(cache.dayDate ?? '');
+            sethouse_id(cache.house_id ?? 0);
+            setunitStutes(cache.unitStutes ?? true);
+            setzuMoney(cache.zuMoney ?? 0);
+            setManageFeeList(cache.manageFeeList ?? []);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
         getCheckCompanyList();
         getCtyList();
         getHouseList();
     }, []);
-    const changeData=(_,item)=>{
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
+    const changeData=(_:any,item:any)=>{
         setStartDate(item[0]);
         setEndDate(item[1]);
         let dataArr=calculateTimePeriods(item[0],item[1],zuMoney);
@@ -193,18 +325,18 @@ const AddStaff=(props:any)=>{
     };
     // 新增管理费
     const addManageFeeFromItem=()=>{
-        const newKey = manageFeeList.length ? Math.max(...manageFeeList.map(item => item.id)) + 1 : 1;
+        const newKey = manageFeeList.length ? Math.max(...manageFeeList.map((item:any) => item.id)) + 1 : 1;
         setManageFeeList([...manageFeeList, { id: newKey, contractId:0,beginTime: null,endTime:null,incremental:0}]);
     };
     // 更新免租期
-    const updatemz = (key, updates) => {
-        setmzFormItems(prevItems => prevItems.map(item => item.id === key ? { ...item, ...updates } : item));
+    const updatemz = (key:number, updates:any) => {
+        setmzFormItems(prevItems => prevItems.map((item:any) => item.id === key ? { ...item, ...updates } : item));
     };
      // 更新递增
-    const updatedz = (key, updates) => {
+    const updatedz = (key:number, updates:any) => {
         setFormItems(prevItems => {
             // 1. 更新对应的 item
-            const updatedItems = prevItems.map(item =>
+            const updatedItems = prevItems.map((item:any) =>
                 item.id === key ? { ...item, ...updates } : item
             );
             // 2. 计算 contractsDz
@@ -223,7 +355,7 @@ const AddStaff=(props:any)=>{
         if (startDate&&endDate){
             let isAdd=checkEndTime(formItems,endDate);
             if (isAdd){
-                const newKey = formItems.length ? Math.max(...formItems.map(item => item.key)) + 1 : 1;
+                const newKey = formItems.length ? Math.max(...formItems.map((item:any) => item.key)) + 1 : 1;
                 let FormItems=[...formItems, { key: newKey, beginTime: null, endTime: null, incremental:0}]
                 newArr(FormItems);
             }else {
@@ -235,10 +367,10 @@ const AddStaff=(props:any)=>{
     };
     // 新增免租期
     const addDzFromItem=()=>{
-        const newKey = mzformItems.length ? Math.max(...mzformItems.map(item => item.id)) + 1 : 1;
+        const newKey = mzformItems.length ? Math.max(...mzformItems.map((item:any) => item.id)) + 1 : 1;
         setmzFormItems([...mzformItems, { id: newKey,  rentBeginTime: null,rentEndTime:null}]);
     };
-    const newArr=(FormItems)=>{
+    const newArr=(FormItems:any[])=>{
         let arr=addNewData(FormItems,endDate);
         if (arr.bllo){
             setFormItems(arr.updatedData);
@@ -248,7 +380,7 @@ const AddStaff=(props:any)=>{
     };
     // 添加物品表单项
     const addwuping = () => {
-        const newKey = wupinList.length ? Math.max(...wupinList.map(item => item.key)) + 1 : 1;
+        const newKey = wupinList.length ? Math.max(...wupinList.map((item:any) => item.key)) + 1 : 1;
         setwupinList([...wupinList, { key: newKey,wupinName: null,wupininfo: null,wupinNuber: ''}]);
     };
     // 获取单元列表
@@ -274,7 +406,7 @@ const AddStaff=(props:any)=>{
         })
     };
     // 监听勾选的单元
-    const changeunit=(e)=>{
+    const changeunit=(e:any)=>{
         CheckCompanyService.companyorUnitList(e.join("|")).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setUnitarrList(e);
@@ -285,9 +417,9 @@ const AddStaff=(props:any)=>{
     };
     // 筛选过滤掉的租金跟面积
     const filterzuArea=(item:any)=>{
-        const filteredHouses = unitList.filter(house => item.includes(house.id));
-        const totalPrice = filteredHouses.reduce((accumulator, currentHouse) => accumulator + currentHouse.price, 0);
-        const totalrentable_area = filteredHouses.reduce((accumulator, currentHouse) => accumulator + currentHouse.rentable_area, 0);
+        const filteredHouses = unitList.filter((house:any) => item.includes(house.id));
+        const totalPrice = filteredHouses.reduce((accumulator:number, currentHouse:any) => accumulator + currentHouse.price, 0);
+        const totalrentable_area = filteredHouses.reduce((accumulator:number, currentHouse:any) => accumulator + currentHouse.rentable_area, 0);
         setminzujin(totalPrice);
         setmianji(totalrentable_area);
     };
@@ -338,23 +470,23 @@ const AddStaff=(props:any)=>{
         setuintB64(newB64);
     };
     // 更新管理费
-    const upManageFee = (key, updates) => {
-        setManageFeeList(prevItems => prevItems.map(item => item.id === key ? { ...item, ...updates } : item));
+    const upManageFee = (key:number, updates:any) => {
+        setManageFeeList(prevItems => prevItems.map((item:any) => item.id === key ? { ...item, ...updates } : item));
     };
     const changedeliveryDate=(_:any,item:any)=>{
       setDeliveryDate(item);
     };
     // 修改物品清单的数量
-    const updateMiber=(key, updates)=>{
-        setwupinList(prevItems => prevItems.map(item => item.key === key ? { ...item, ...updates } : item));
+    const updateMiber=(key:number, updates:any)=>{
+        setwupinList(prevItems => prevItems.map((item:any) => item.key === key ? { ...item, ...updates } : item));
     };
     // 修改物品清单的标准
-    const updatebiaozhun=(key, updates)=>{
-        setwupinList(prevItems => prevItems.map(item => item.key === key ? { ...item, ...updates } : item));
+    const updatebiaozhun=(key:number, updates:any)=>{
+        setwupinList(prevItems => prevItems.map((item:any) => item.key === key ? { ...item, ...updates } : item));
     };
     // 修改物品清单的名称
-    const updateName=(key, updates)=>{
-        setwupinList(prevItems => prevItems.map(item => item.key === key ? { ...item, ...updates } : item));
+    const updateName=(key:number, updates:any)=>{
+        setwupinList(prevItems => prevItems.map((item:any) => item.key === key ? { ...item, ...updates } : item));
     };
     // 补充协议图片名字
     const imgNames=(e:string)=>{
@@ -373,10 +505,10 @@ const AddStaff=(props:any)=>{
         newB64.splice(index, 1);
         setxyimgb64(newB64);
     };
-    function findById(array, id) {
-        return array.find(item => item.id === id);
+    function findById(array:any[], id:number) {
+        return array.find((item:any) => item.id === id);
     };
-    const changecontractType=(e)=>{
+    const changecontractType=(e:number)=>{
         let result=findById(ctyList,e);
         setcontractType(result.templateType);
         setcontractTypeid(result.id);
@@ -395,13 +527,13 @@ const AddStaff=(props:any)=>{
         })
     };
     // 限制开始时间
-    const disabledDate = (current) => {
+    const disabledDate = (current:any) => {
         return (
             current && (current.isBefore(startDate, "day") || current.isAfter(endDate, "day"))
         );
     };
     // 禁用日期函数
-    const disabledDate1 = (current) => {
+    const disabledDate1 = (current:any) => {
         // 禁用在起始日期之前或在结束日期之后的日期
         return current && (current < dayjs(startDate) || current > dayjs(endDate));
     };
@@ -409,12 +541,12 @@ const AddStaff=(props:any)=>{
     const onLikai=()=>{
         history.push('/enter/staff/');
     };
-    const changeremark=(e)=>{
+    const changeremark=(e:any)=>{
         let a=replaceEnglishCommasWithChinese(e.target.value);
         setremark(a);
     };
     // 监听房屋
-    const changeHouse=(e)=>{
+    const changeHouse=(e:number)=>{
         let retunName=getHouseNameById(houseList,e);
         sethouseName(retunName);
         sethouse_id(e);
@@ -425,13 +557,13 @@ const AddStaff=(props:any)=>{
     useEffect(() => {
         getUnitList();
     }, [house_id]);
-    const changeMoney=(e)=>{
+    const changeMoney=(e:number)=>{
       setzuMoney(e);
       setFormItems(contractsDz(e,formItems));
     };
-    const changeKehu=(e)=>{
+    const changeKehu=(e:number)=>{
         getcokuInfo(e);
-        const selectedCustomer = kehuList.find(item => item.id === e);
+        const selectedCustomer = kehuList.find((item:any) => item.id === e);
         setSelectedPhone(selectedCustomer.custom_phone);
     };
     const getcokuInfo=(e:number)=>{
@@ -460,10 +592,10 @@ const AddStaff=(props:any)=>{
         })
     };
     // 更新管理费递增
-    const managedz = (key, updates) => {
+    const managedz = (key:number, updates:any) => {
         setManageFeeList(prevItems => {
             // 1. 更新对应的 item
-            const updatedItems = prevItems.map(item =>
+            const updatedItems = prevItems.map((item:any) =>
                 item.id === key ? { ...item, ...updates } : item
             );
             // 2. 计算 manageDz
@@ -473,8 +605,8 @@ const AddStaff=(props:any)=>{
         });
     };
     // 删除管理费
-    const removedManageFeeFormItemByKey = key => {
-        setManageFeeList(prevItems => prevItems.filter(item => item.id !== key));
+    const removedManageFeeFormItemByKey = (key:number) => {
+        setManageFeeList(prevItems => prevItems.filter((item:any) => item.id !== key));
     };
     useEffect(() => {
         filterzuArea(unitarrList);
@@ -484,12 +616,14 @@ const AddStaff=(props:any)=>{
         <Spin spinning={spinning}>
             <div className="edit-staff-form-container">
                 <Form
+                    form={form}
                     initialValues={{
                         remark: '', prepayment: 0, decorationCost: 0, customCard: '',
                         depositFee: 0, dispatchName: '', dispatchCard: '', businessEntity: '',
                         businessScope: '', legalPerson: '',manageFeeRent:0
                     }}
                     onFinish={onFinish}
+                    onValuesChange={handleFormChange}
                     layout="horizontal"
                     size="large"
                     className="edit-staff-form"
@@ -869,6 +1003,7 @@ const AddStaff=(props:any)=>{
                         <Space size="large">
                             <Button type="primary" htmlType="submit" size="large">确定</Button>
                             <Button onClick={onLikai} size="large">返回列表</Button>
+                            <Button danger onClick={resetAllFormData} size="large">清空草稿</Button>
                         </Space>
                     </Form.Item>
                 </Form>

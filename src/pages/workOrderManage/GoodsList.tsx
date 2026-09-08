@@ -72,12 +72,6 @@ const GoodsList=(props)=>{
           payload:{userId,page,pageSize,tenantName,goodsName}
       })
     };
-    const getGoodsFY=()=>{
-        props.dispatch({
-            type:'Goods/fenye',
-            payload:{userId,pageSize,tenantName,goodsName}
-        })
-    };
     const onOK=()=>{
         setspinning(true);
         props.dispatch({
@@ -88,18 +82,16 @@ const GoodsList=(props)=>{
                 message.success('删除成功');
                 setspinning(false);
                 setDoepn(false);
+                getGoodsList();
             }else {
                 message.error(res.Data);
                 setspinning(false);
             }
         })
-    }
+    };
     useEffect(() => {
         getGoodsList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getGoodsFY();
-    }, []);
     const sousuo=()=>{
         setPage(1);
         getGoodsList();

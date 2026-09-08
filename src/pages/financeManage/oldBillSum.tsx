@@ -76,18 +76,17 @@ const OldBillSum=(props:any)=>{
             dataIndex: 'number',
             key: 'number',
             render:(text: any, record: any)=>{
-                // 判断：是否包含下划线
-                const hasUnderline = record.number && record.number.includes('_');
+                const hasUnderline = record.number && /_\d+$/.test(record.number);
                 return (
                     <span
                         style={{
-                            color: hasUnderline ? '#333' : '#1890FF', // 有下划线=黑色，无=蓝色
-                            cursor: hasUnderline ? 'default' : 'pointer' // 有下划线=无手型
+                            color: hasUnderline ? '#333' : '#1890FF', // 分期子单号=黑色，普通单号=蓝色
+                            cursor: hasUnderline ? 'default' : 'pointer' // 分期子单号=无手型
                         }}
                         onClick={() => {
-                            // 有下划线 → 不跳转
+                            // 分期子单号 → 不跳转
                             if (hasUnderline) return;
-                            // 没有下划线 → 跳转
+                            // 普通单号 → 跳转
                             history.push(`/enter/newFinancialDataInfo?id=${record.id}`);
                         }}
                     >
@@ -206,10 +205,10 @@ const OldBillSum=(props:any)=>{
             key: 'amount',
             render: (text: any, record: any) => {
                 // 🔥 核心逻辑：
-                // 1. 只要包含 _ → 不显示
-                // 2. 不包含 _ 并且 状态=1 → 才显示
+                // 1. 末尾为下划线+纯数字（如 JWZS..._1）=分期子单号 → 不显示
+                // 2. 普通单号（如 QSJ_HP...）并且 状态=1 → 才显示
                 const showPay =
-                    !(record.number && record.number.includes('_'))
+                    !(record.number && /_\d+$/.test(record.number))
                     && record.paidStatus === 1;
                 return (
                     <Space>

@@ -43,6 +43,7 @@ const statusMap: any = {
     13: { text: '终止', color: 'purple'},
     14: { text: '已入账', color: 'purple'},
     15: { text: '驳回', color: 'red'},
+    100: { text: '待提交', color: 'orange'},
 }
 interface OldCheckFinanceProps {
     dispatch: (action: { type: string; payload?: any }) => any;
@@ -528,6 +529,7 @@ const OldCheckFinance=(props: OldCheckFinanceProps)=>{
         // ✅ 在最前面插入一行：全部（value=0）
         return [
             { label: '全部', value: 0 },
+            { label: '待提交', value: 100 },
             ...options
         ];
     };

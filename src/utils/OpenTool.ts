@@ -1332,8 +1332,8 @@ export const userQx = () => StaticInfo.uqx.split('');
 export function newprocessBills(data) {
     // 深拷贝所有单据，防止污染外部原始数据
     const originBills = JSON.parse(JSON.stringify(data));
-    // 拆分两类单据
-    const pendingBills = originBills.filter(item => item.orderStatus === 1);
+    // 拆分两类单据（100=待提交也参与计算）
+    const pendingBills = originBills.filter(item => item.orderStatus === 1 || item.orderStatus === 100 || item.orderStatus === 15);
     const otherBills = originBills.filter(item => item.orderStatus === 2);
 
     // 复制一份副本用来反转分组核算，不改动pendingBills展示顺序

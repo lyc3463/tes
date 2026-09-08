@@ -1,15 +1,19 @@
 import {Button, DatePicker, Form, Image, Input, message, Select, Space, Tooltip} from "antd";
 import {phonePattern} from "@/utils/OpenTool";
 import {useNavigate} from "umi";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import * as ZuhuService from "@/services/zuhu";
 import * as WxService from "@/services/changeWeChat";
 import ImageUpload from "@/components/ImageUploader";
 import ImageUploadPng from "@/components/ImageUploadPng";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
+// 缓存key
+const CACHE_KEY = "AddChangeWeChat_form_cache";
+
 const AddChangeWeChat=(props)=>{
     const navigate=useNavigate();
+    const [form] = Form.useForm();
     // 加载中
     const [spinning, setSpinning] = useState(false);
     const [selectTenantId, setSelectTenantId] = useState<number | null>(null);
@@ -22,11 +26,55 @@ const AddChangeWeChat=(props)=>{
     // 上传图片存储
     const [imgB64, setImgB64] = useState<string[]>([]);
     const [imgName, setImgName] = useState<string[]>([]);
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            selectTenantId,
+            phoneOld,
+            imgB64,
+            imgName,
+            formValues: form.getFieldsValue()
+        };
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch (e) {
+            console.warn('草稿保存失败：', e);
+        }
+    }, [selectTenantId, phoneOld, imgB64, imgName, form]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setSelectTenantId(null);
+        setPhoneOld('');
+        setImgB64([]);
+        setImgName([]);
+        form.resetFields();
+    };
+
     const onFinish=(vals:any)=>{
         const imgList = imgName.join("|");
         WxService.add({...vals,selectTenantId,phoneOld,imgList}).then((res:TypeErrorCode)=>{
             if(res.ErrorCode===0){
                 message.success("添加成功");
+                // 提交成功后清空草稿缓存
+                clearCache();
                 navigate(-1);
             }else{
                 message.error(res.Data);
@@ -64,8 +112,27 @@ const AddChangeWeChat=(props)=>{
         }
     };
     useEffect(() => {
+        // 加载缓存：回填state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setSelectTenantId(cache.selectTenantId ?? null);
+            setPhoneOld(cache.phoneOld ?? '');
+            setImgB64(cache.imgB64 ?? []);
+            setImgName(cache.imgName ?? []);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
         getTenantList();
     }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
     // 图片上传回调
     const onImageUpload = (base64: string) => {
         setImgName([...imgName, base64]);
@@ -91,7 +158,9 @@ const AddChangeWeChat=(props)=>{
                 wrapperCol={{ span: 14 }}
                 layout="horizontal"
                 size={'large'}
+                form={form}
                 onFinish={onFinish}
+                onValuesChange={handleFormChange}
                 initialValues={{phoneReason: ''}}
                 style={{ marginTop: '1rem' }}
             >
@@ -154,6 +223,9 @@ const AddChangeWeChat=(props)=>{
                         </Button>
                         <Button type="primary" onClick={()=>navigate(-1)}>
                             返回
+                        </Button>
+                        <Button danger onClick={resetAllFormData}>
+                            清空草稿
                         </Button>
                     </Space>
                 </Form.Item>

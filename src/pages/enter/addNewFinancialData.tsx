@@ -46,11 +46,11 @@ const AddNewFinancialData=(props:any)=>{
             title:'科目',
             dataIndex:'subject',
             key:'subject',
-            width:'200px',
+            width: 140,
             render: (text: string, record: any) => (
                 <Select
                     disabled={prohibit}
-                    style={{ width: '120px' }}
+                    style={{ width: '100%' }}
                     // 修改onChange，获取value和option对象，传递label
                     onChange={(value, option) => handleSubjectChange(record.id, value, option.label)}
                     showSearch
@@ -72,13 +72,14 @@ const AddNewFinancialData=(props:any)=>{
             title:'科目',
             dataIndex:'subjectName',
             key:'subjectName',
-            width:'200px',
+            width: 150,
+            ellipsis: true,
         },
         {
             title:'摘要',
             dataIndex:'summary',
             key:'summary',
-            width:'400px',
+            width: 300,
             align:'center',
             render: (text: string, record: any) => (
                 <Input
@@ -93,9 +94,11 @@ const AddNewFinancialData=(props:any)=>{
             title:'数量',
             dataIndex:'quantity',
             key:'quantity',
+            width: 110,
             render: (text: number, record: any) => (
                 <InputNumber
                     disabled={prohibit}
+                    style={{ width: '100%' }}
                     value={text}
                     min={0}
                     onChange={(value) =>{
@@ -112,9 +115,11 @@ const AddNewFinancialData=(props:any)=>{
             title:'单位',
             dataIndex:'unit',
             key:'unit',
+            width: 100,
             render: (text: number, record: any) => (
                 <Input
                     disabled={prohibit}
+                    style={{ width: '100%' }}
                     value={text}
                     onChange={(value) =>{
                         setGoodsList(prev =>
@@ -130,9 +135,11 @@ const AddNewFinancialData=(props:any)=>{
             title:'单价',
             dataIndex:'unitPrice',
             key:'unitPrice',
+            width: 120,
             render: (text: number, record: any) => (
                 <InputNumber
                     disabled={prohibit}
+                    style={{ width: '100%' }}
                     value={text}
                     min={0}
                     onChange={(value) =>{
@@ -149,10 +156,11 @@ const AddNewFinancialData=(props:any)=>{
             title:'金额(元)',
             dataIndex:'amount',
             key:'amount',
-            width:'200px',
+            width: 120,
             render: (text: number, record: any) => (
                 <InputNumber
                     disabled={prohibit}
+                    style={{ width: '100%' }}
                     value={text}
                     min={0}
                     onChange={(value) => handleAmountChange(record.id, value as number)}
@@ -162,7 +170,7 @@ const AddNewFinancialData=(props:any)=>{
         {
             title: '操作',
             key: 'action',
-            width: '100px',
+            width: 80,
             render: (_, record: any) => (
                 <Button
                     type="text"
@@ -375,7 +383,7 @@ const AddNewFinancialData=(props:any)=>{
         getBillInfo();
         getSupplierList();
     }, []);
-    const onOK=()=>{
+    const onOK = (status: number) => {
         // console.log('供应商',supplierId);
         if (!orderDate) return  message.error('请选择日期');
         if (!accountId) return  message.error('请选择账户');
@@ -388,10 +396,9 @@ const AddNewFinancialData=(props:any)=>{
             quantity: !isNaN(Number(item.quantity)) ? Number(item.quantity) : 0,
         }));
         const filteredGoodsList = processedList.filter(item =>
-            (item.subjectName?.trim() !== '')
-            && item.amount > 0
+            item.amount > 0
         );
-        if (filteredGoodsList.length === 0) return message.error('报销明细科目不能为空,金额不能为0,请检查!');
+        if (filteredGoodsList.length === 0) return message.error('报销明细金额不能为0,请检查!');
         let jsonfd=JSON.stringify(filteredGoodsList);
         let jsonCaigou=JSON.stringify(caigou);
         let caigouFd={
@@ -402,7 +409,7 @@ const AddNewFinancialData=(props:any)=>{
         setSpinning(true);
         props.dispatch({
             type:'NewFinancialData/add',
-            payload:{orderCode, orderDate, accountId,projectId, companyId, paidAmount, totalAmount, moneyType, jsonData,remark,supplierId,imgUrl,bxId}
+            payload:{orderCode, orderDate, accountId,projectId, companyId, paidAmount,foType:2, totalAmount, moneyType, jsonData,remark,supplierId,imgUrl,bxId,status}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode == 0) {
                 message.success('添加成功');
@@ -436,11 +443,10 @@ const AddNewFinancialData=(props:any)=>{
                 <Button type="primary" onClick={()=>navigate(-1)}>
                     返回
                 </Button>
-                <Button type="primary" htmlType="submit" onClick={onOK}>
-                    确定
-                </Button>
+                <Button type="primary" onClick={() => onOK(100)}>保存</Button>
+                <Button type="primary" danger onClick={() => onOK(1)}>直接送审</Button>
             </Space>
-            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
+            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px',flexWrap:'wrap',rowGap:'10px'}}>
                 <Input addonBefore="单号:" placeholder='随机生成' style={{width:'300px'}} value={orderCode} disabled/>
                 <Space.Compact>
                     <div
@@ -503,7 +509,7 @@ const AddNewFinancialData=(props:any)=>{
                 </Space.Compact>
                 <Input addonBefore="备注:" placeholder='备注' value={remark} onChange={changeRemark} disabled={prohibit}/>
             </Space>
-            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
+            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px',flexWrap:'wrap',rowGap:'10px'}}>
                 <Space.Compact>
                     <div
                         style={{
@@ -617,7 +623,7 @@ const AddNewFinancialData=(props:any)=>{
                 {/*    <Radio value={0} style={{width:'80px'}}>私账</Radio>*/}
                 {/*</Radio.Group>*/}
             </Space>
-            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>
+            <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px',flexWrap:'wrap',rowGap:'10px'}}>
                 {moneyType==2?
                     <>
                         <Space.Compact>
@@ -662,7 +668,7 @@ const AddNewFinancialData=(props:any)=>{
                 rowKey={(record) => record.id} // 使用id作为唯一键
                 pagination={false}
                 size='small'
-                scroll={{y:'55vh'}}
+                scroll={{x: 'max-content', y:'55vh'}}
                 rowClassName={(record, index) =>
                     index % 2 === 1 ? 'tbodd' : 'tbeven'
                 }

@@ -19,32 +19,31 @@ const CheckLog=()=>{
          setSpinning(true);
          EditMagnificationService.checkLog({page,pageSize,name,startDate,endDate}).then((res:TypeErrorCode)=>{
              if (res.ErrorCode==0){
-                 setdataSource(res.Data);
+                console.log(res);
+                 setdataSource(res.Data.data);
                  setSpinning(false);
+                 setcount(res.Data.count);
              }else {
                  message.error(res.Data);
                  setSpinning(false);
              }
          })
      };
-    const getListfy=()=>{
-        setSpinning(true);
-        EditMagnificationService.checkLogFenye({pageSize,name,startDate,endDate}).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setcount(res.Data.count);
-                setSpinning(false);
-            }else {
-                message.error(res.Data);
-                setSpinning(false);
-            }
-        })
-    };
+    // const getListfy=()=>{
+    //     setSpinning(true);
+    //     EditMagnificationService.checkLogFenye({pageSize,name,startDate,endDate}).then((res:TypeErrorCode)=>{
+    //         if (res.ErrorCode==0){
+    //             setcount(res.Data.count);
+    //             setSpinning(false);
+    //         }else {
+    //             message.error(res.Data);
+    //             setSpinning(false);
+    //         }
+    //     })
+    // };
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getListfy();
-    }, []);
     const changeName=(e)=>{
         setName(e.target.value);
         updateSessionStorage('/logManage/logQuery/','checkLogName',e.target.value);

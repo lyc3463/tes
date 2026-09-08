@@ -233,10 +233,12 @@ const NewBillSum=(props)=>{
         setPage(1);
         getList();
     };
-    const getDcList=()=>{
+    const getDcList=async ()=>{
         setSpinning(true);
-        NewBillSumService.fetch({page, numBerOrder, company_name, account_card, project_name, startDate, endDate, moneyType, pageSize:1000,foType}).then((res:TypeErrorCode)=>{
+        try {
+            const res:TypeErrorCode = await NewBillSumService.fetch({page, numBerOrder, company_name, account_card, project_name, startDate, endDate, moneyType, pageSize:1000,foType,subjectName});
             if (res.ErrorCode==0){
+                console.log(res.Data);
                 let headers=['日期','单号','公司','项目','账户','账户卡号','科目','摘要','收入/支持','金额'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
@@ -262,17 +264,20 @@ const NewBillSum=(props)=>{
                         { v: '', t: 's' },
                         { v: '', t: 's' },
                         { v: '', t: 's' },
-                        { v: props.count?props.count.money.toFixed(2):'', t: 'n' },
+                        { v: res.Data.amountSum!=null?Number(res.Data.amountSum).toFixed(2):'', t: 'n' },
                         { v: '', t: 's' },
                     ]
                 ];
                 exportDataToExcel(ws_data);
-                setSpinning(false);
             }else {
                 message.error(res.Data);
-                setSpinning(false);
             }
-        })
+        } catch (error) {
+            console.error('导出失败:', error);
+            message.error('导出失败，请重试');
+        } finally {
+            setSpinning(false);
+        }
     };
     return(
         <Spin spinning={spinning}>
@@ -420,6 +425,8 @@ const NewBillSum=(props)=>{
                                 index={1}
                             >
                                 统计
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={0}>
                             </Table.Summary.Cell>

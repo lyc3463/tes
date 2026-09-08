@@ -130,20 +130,20 @@ const Zuhuguanlian=(props:any)=>{
                 )
             }
         },
-        {
-            title: '关联状态',
-            dataIndex: 'userId',
-            key: 'userId',
-            render: (text:any, record:any) => {
-                return(
-                    <Space>
-                        {
-                            record.userId?<Tag color='green'>已关联</Tag>:<Tag color='red'>用户未登录</Tag>
-                        }
-                    </Space>
-                )
-            }
-        },
+        // {
+        //     title: '关联状态',
+        //     dataIndex: 'userId',
+        //     key: 'userId',
+        //     render: (text:any, record:any) => {
+        //         return(
+        //             <Space>
+        //                 {
+        //                     record.userId?<Tag color='green'>已关联</Tag>:<Tag color='red'>用户未登录</Tag>
+        //                 }
+        //             </Space>
+        //         )
+        //     }
+        // },
         {
             title: '操作',
             dataIndex: 'caoz',

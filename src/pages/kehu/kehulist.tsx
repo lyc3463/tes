@@ -280,13 +280,6 @@ const Kehulist=(props:any)=>{
     const suosou=()=>{
         setPage(1);
         logFenye();
-        getFYInfo();
-    };
-    const getFYInfo=()=>{
-        props.dispatch({
-            type:'CheckCompany/fenye',
-            payload:{name,startDate,endDate,userId,pageSize}
-        })
     };
     // 监听名字
     const changeName=(e)=>{
@@ -321,10 +314,9 @@ const Kehulist=(props:any)=>{
     };
     useEffect(() => {
         logFenye();
+        console.log('详情',props);
+        
     }, [page,pageSize]);
-    useEffect(() => {
-        getFYInfo();
-    }, []);
     return (
         <div>
             <List>

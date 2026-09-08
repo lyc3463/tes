@@ -1,7 +1,6 @@
 import {connect,history,useNavigate} from 'umi'
 import {Button, Form, Input, InputNumber, message, Select, Space, Spin, Tag} from "antd";
-import {useEffect, useState} from "react";
-import {filterAndUpdateList} from "@/utils/OpenTool";
+import {useCallback, useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as CollectorService from '@/services/collector';
 import * as UnitService from '@/services/unit';
@@ -16,7 +15,11 @@ let defaultValues={
     status:0,
     house_id:0,
     pageSize:100000
-}
+};
+
+// 缓存key
+const CACHE_KEY = "AddCable_form_cache";
+
 const AddCable=(props:any)=>{
     const navigate=useNavigate();
     const [form] = Form.useForm();
@@ -37,6 +40,32 @@ const AddCable=(props:any)=>{
     const [unitList,setUnitList]=useState([]);
     // 单元id
     const [unitid,setUnitid]=useState(0);
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存表单字段+独立state到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            formValues: form.getFieldsValue(),
+            collectorid,
+            unitid
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    }, [form, collectorid, unitid]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
     const getUnitList=()=>{
         UnitService.fetch(defaultValues).then((res:TypeErrorCode)=>{
             console.log('res',res);
@@ -55,7 +84,9 @@ const AddCable=(props:any)=>{
         })
         if (res.ErrorCode==0){
             setspinning(false);
-            message.success('添加成功')
+            message.success('添加成功');
+            // 添加成功后清空草稿缓存
+            clearCache();
             history.push('/waterCableManage/cable')
         }
         else {
@@ -64,10 +95,34 @@ const AddCable=(props:any)=>{
         }
     };
     useEffect(() => {
+        // 加载缓存：回填独立state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setCollectorNuber(cache.collectorid ?? '');
+            setUnitid(cache.unitid ?? 0);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
         getPriceList();
         getCollectorList();
         getUnitList();
     }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setCollectorNuber('');
+        setUnitid(0);
+        form.resetFields();
+    };
     const ChangeOps=(e)=>{
         const selectedItem = collectorList.find(item => item.id === e);
         setCollectorNuber(selectedItem.collectorid)
@@ -109,6 +164,7 @@ const AddCable=(props:any)=>{
                 size={'large'}
                 initialValues={{rate:1}}
                 onFinish={onFinish}
+                onValuesChange={handleFormChange}
                 style={{ marginTop:'1rem'}}
             >
                 <Form.Item label='电表地址' name='address'>
@@ -190,6 +246,7 @@ const AddCable=(props:any)=>{
                 </Form.Item>
                 <Form.Item label='单元'>
                     <Select
+                        value={unitid || undefined}
                         onChange={changeUnit}
                         showSearch
                         optionFilterProp="children"
@@ -215,6 +272,9 @@ const AddCable=(props:any)=>{
                        </Button>
                        <Button type="primary" onClick={()=>navigate(-1)}>
                            返回
+                       </Button>
+                       <Button danger onClick={resetAllFormData}>
+                           清空草稿
                        </Button>
                    </Space>
                 </Form.Item>

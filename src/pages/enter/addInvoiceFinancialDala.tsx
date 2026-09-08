@@ -180,9 +180,10 @@ const AddInvoiceFinancialDala = (props: any) => {
             title: '科目',
             dataIndex: 'subject',
             key: 'subject',
+            width: 140,
             render: (text: string, record: any) => (
                 <Select
-                    style={{ width: '120px' }}
+                    style={{ width: '100%' }}
                     onChange={(value, option) => handleSubjectChange(record.id, value, option.label)}
                     showSearch
                     filterOption={(input, option) => {
@@ -195,12 +196,12 @@ const AddInvoiceFinancialDala = (props: any) => {
                 />
             )
         },
-        { title: '科目名称', dataIndex: 'subjectName', key: 'subjectName' },
+        { title: '科目名称', dataIndex: 'subjectName', key: 'subjectName', width: 150, ellipsis: true },
         {
             title: '用途',
             dataIndex: 'summary',
             key: 'summary',
-            width: '300px',
+            width: 300,
             align: 'center',
             render: (text: string, record: any) => (
                 <Input
@@ -214,8 +215,10 @@ const AddInvoiceFinancialDala = (props: any) => {
             title: '数量',
             dataIndex: 'quantity',
             key: 'quantity',
+            width: 110,
             render: (text: number, record: any) => (
                 <InputNumber
+                    style={{ width: '100%' }}
                     value={text}
                     min={0}
                     onChange={(value) => {
@@ -232,8 +235,10 @@ const AddInvoiceFinancialDala = (props: any) => {
             title: '单位',
             dataIndex: 'unit',
             key: 'unit',
+            width: 100,
             render: (text: string, record: any) => (
                 <Input
+                    style={{ width: '100%' }}
                     value={text}
                     onChange={(e) => handleUnitChange(record.id, e.target.value)}
                 />
@@ -243,8 +248,10 @@ const AddInvoiceFinancialDala = (props: any) => {
             title: '单价',
             dataIndex: 'unitPrice',
             key: 'unitPrice',
+            width: 120,
             render: (text: number, record: any) => (
                 <InputNumber
+                    style={{ width: '100%' }}
                     value={text}
                     min={0}
                     onChange={(value) => {
@@ -261,8 +268,10 @@ const AddInvoiceFinancialDala = (props: any) => {
             title: '金额(元)',
             dataIndex: 'amount',
             key: 'amount',
+            width: 120,
             render: (text: number, record: any) => (
                 <InputNumber
+                    style={{ width: '100%' }}
                     value={text}
                     min={0}
                     onChange={(value) => handleAmountChange(record.id, value as number)}
@@ -272,7 +281,7 @@ const AddInvoiceFinancialDala = (props: any) => {
         {
             title: '操作',
             key: 'action',
-            width: '100px',
+            width: 80,
             render: (_: any, record: any) => (
                 <Button
                     type="text"
@@ -357,7 +366,7 @@ const AddInvoiceFinancialDala = (props: any) => {
     const getSupplierList = () => props.dispatch({ type: "Supplier/fetch" });
 
     // 提交
-    const onOK = () => {
+    const onOK = (status: number) => {
         if (!orderDate) return message.error('请选择日期');
         if (!companyId) return message.error('请选择公司');
         if (!projectId) return message.error('请选择项目');
@@ -369,9 +378,9 @@ const AddInvoiceFinancialDala = (props: any) => {
             quantity: !isNaN(Number(item.quantity)) ? Number(item.quantity) : 0,
         }));
         const filteredGoodsList = processedList.filter(item =>
-            (item.subjectName?.trim() || item.summary?.trim()) && item.amount > 0
+            item.summary?.trim() && item.amount > 0
         );
-        if (filteredGoodsList.length === 0) return message.error('请完善明细科目、用途、金额字段');
+        if (filteredGoodsList.length === 0) return message.error('请完善明细用途、金额字段');
 
         const jsonfd = JSON.stringify(filteredGoodsList);
         const mapCaigou = caigou.map(item => ({ ...item, poId: item.id || 0, number: item.orderCode || '' }));
@@ -382,7 +391,7 @@ const AddInvoiceFinancialDala = (props: any) => {
         setSpinning(true);
         props.dispatch({
             type: 'Bill/add',
-            payload: { orderCode, orderDate, accountId, projectId, companyId, paidAmount, totalAmount, moneyType, jsonData, remark, supplierId, imgUrl, bxId: 0 }
+            payload: { orderCode, orderDate, accountId, projectId, companyId, paidAmount, totalAmount, moneyType, jsonData,foType:1, remark, supplierId, imgUrl, bxId: 0, status }
         }).then((res: TypeErrorCode) => {
             setSpinning(false);
             if (res.ErrorCode === 0 || res.ErrorCode === 9038) {
@@ -450,12 +459,13 @@ const AddInvoiceFinancialDala = (props: any) => {
         <Spin spinning={spinning}>
             <Space>
                 <Button type="primary" onClick={() => navigate(-1)}>返回</Button>
-                <Button type="primary" onClick={onOK}>确定</Button>
+                <Button type="primary" onClick={() => onOK(100)}>保存</Button>
+                <Button type="primary" danger onClick={() => onOK(1)}>直接送审</Button>
                 <Button danger onClick={() => {
                     resetAllFormData();
                 }}>清空草稿</Button>
             </Space>
-            <Space style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginTop: '10px' }}>
+            <Space style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginTop: '10px', flexWrap: 'wrap', rowGap: '10px' }}>
                 <Input addonBefore="单号:" placeholder='随机生成' style={{ width: '300px' }} value={orderCode} disabled />
                 <Space.Compact>
                     <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>日期:</div>
@@ -471,7 +481,7 @@ const AddInvoiceFinancialDala = (props: any) => {
                     <Button onClick={openInfoClick}>详情</Button>
                 </Badge>
             </Space>
-            <Space style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginTop: '10px' }}>
+            <Space style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginTop: '10px', flexWrap: 'wrap', rowGap: '10px' }}>
                 <Space.Compact>
                     <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>公司:</div>
                     <Select
@@ -616,7 +626,7 @@ const AddInvoiceFinancialDala = (props: any) => {
                 dataSource={goodsList}
                 rowKey="id"
                 pagination={false}
-                scroll={{ y: '55vh' }}
+                scroll={{ x: 'max-content', y: '55vh' }}
             />
             <Modal open={isOpenprocurement} title="采购单" width={1200} footer={null} onCancel={() => setIsOpenprocurement(false)}>
                 <FilteredProcurementList onSelectionChange={onSelectionChange} />

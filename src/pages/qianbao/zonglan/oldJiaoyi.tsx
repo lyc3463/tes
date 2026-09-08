@@ -172,13 +172,13 @@ const OldJiaoyi=(props)=>{
         },
         {
             title: '姓名',
-            dataIndex: 'user_name',
-            key: 'user_name',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
         },
         {
             title: '手机号',
-            dataIndex: 'phone',
-            key: 'phone',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
         },
         {
             title: '类型',

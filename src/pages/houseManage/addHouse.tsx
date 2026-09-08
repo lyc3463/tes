@@ -1,10 +1,14 @@
 import {Button, Form, Input, InputNumber, message, Space, Spin} from "antd";
 import {connect, history,useNavigate} from "umi";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
+
+// 缓存key
+const CACHE_KEY = "AddHouse_form_cache";
+
 const AddHouse=(props:any)=>{
     const navigate=useNavigate();
     const [form] = Form.useForm();
@@ -17,6 +21,42 @@ const AddHouse=(props:any)=>{
     const [price,setprice]=useState(0);
     // 不能低于租金
     const [noRents,setnoRents]=useState(0);
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            rentable_area,
+            residue_add_area,
+            price,
+            formValues: form.getFieldsValue()
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    }, [rentable_area, residue_add_area, price, form]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setrentable_area(0);
+        setresidue_add_area(0);
+        setprice(0);
+        form.resetFields();
+    };
+
     const onFinish=async (values:any)=>{
         setspinning(true);
         let res=await props.dispatch({
@@ -25,7 +65,9 @@ const AddHouse=(props:any)=>{
         })
         if (res.ErrorCode==0){
             setspinning(false);
-            message.success('添加成功')
+            message.success('添加成功');
+            // 添加成功后清空草稿缓存
+            clearCache();
             history.push('/houseManage/houseList')
         }else {
             message.error(res.Data);
@@ -41,6 +83,26 @@ const AddHouse=(props:any)=>{
         setprice(e);
     };
     useEffect(() => {
+        // 加载缓存：回填state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setrentable_area(cache.rentable_area ?? 0);
+            setresidue_add_area(cache.residue_add_area ?? 0);
+            setprice(cache.price ?? 0);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
+    }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
+    useEffect(() => {
         setnoRents(rentable_area*price);
     }, [rentable_area,price]);
     return(
@@ -52,6 +114,7 @@ const AddHouse=(props:any)=>{
                 layout="horizontal"
                 size={'large'}
                 onFinish={onFinish}
+                onValuesChange={handleFormChange}
                 style={{ marginTop: '1rem' }}
             >
                 <Form.Item label='房屋名称' name='house_name' rules={[{required: true, message: '请填写房屋名称'}]}>
@@ -98,6 +161,9 @@ const AddHouse=(props:any)=>{
                        </Button>
                        <Button type="primary" onClick={()=>navigate(-1)}>
                            返回
+                       </Button>
+                       <Button danger onClick={resetAllFormData}>
+                           清空草稿
                        </Button>
                    </Space>
                 </Form.Item>

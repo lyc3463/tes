@@ -46,7 +46,6 @@ const AppUserModels: AppUserInterface = {
         *fetch({ type, payload }, { put, call, select }): any {
             const res = yield call(AppUserService.fetch, payload?payload:pl);
             if (res.ErrorCode == 0) {
-                console.log('小程序列表',res);
                 yield put({
                     type: 'list',
                     payload: { list: res.Data.data },

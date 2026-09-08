@@ -142,13 +142,13 @@ const BackOrder=()=>{
         },
         {
             title: '到账人',
-            dataIndex: 'user_name',
-            key: 'user_name',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.user_name}>
-                            {record.user_name}
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name}
                         </Tooltip>
                     </div>
                 )
@@ -242,7 +242,7 @@ const BackOrder=()=>{
                             }
                         })(),
                         item.orderReason,
-                        item.user_name,
+                        item.tenant_name,
                         item.accountName,
                         item.backCard,
                     ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))),

@@ -1,12 +1,16 @@
 import {Button, Form, Modal, Pagination, Radio, Select, Table, Input, InputNumber, message, Spin, Space} from "antd";
 import {connect, history,useNavigate} from "umi";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import * as HouseListServer from "@/services/house";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
+
+// 缓存key
+const CACHE_KEY = "AddUnit_form_cache";
+
 const AddUnit=(props:any)=>{
     const navigate=useNavigate();
     const [form] = Form.useForm();
@@ -23,6 +27,43 @@ const AddUnit=(props:any)=>{
     const [zj,setzj]=useState(0);
     const [spinning,setspinning]=useState(false);
 
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            add_area,
+            floors,
+            rentable_area,
+            rent,
+            formValues: form.getFieldsValue()
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    }, [add_area, floors, rentable_area, rent, form]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setadd_area(0);
+        setfloors(0);
+        setrentable_area(0);
+        setrent(0);
+        form.resetFields();
+    };
+
     const onFinish=async (values:any)=>{
         setspinning(true);
         let res=await props.dispatch({
@@ -31,6 +72,8 @@ const AddUnit=(props:any)=>{
         });
         if (res.ErrorCode==0){
             message.success('添加成功');
+            // 添加成功后清空草稿缓存
+            clearCache();
             history.push('/houseManage/houseList');
             setspinning(false);
         }else {
@@ -50,8 +93,27 @@ const AddUnit=(props:any)=>{
         })
     };
     useEffect(() => {
+        // 加载缓存：回填state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setadd_area(cache.add_area ?? 0);
+            setfloors(cache.floors ?? 0);
+            setrentable_area(cache.rentable_area ?? 0);
+            setrent(cache.rent ?? 0);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
         getHouseList();
     }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
     // 选择楼层详情
     const changehouse=(e)=>{
         HouseListServer.one(e).then((res:TypeErrorCode)=>{
@@ -89,6 +151,7 @@ const AddUnit=(props:any)=>{
                 layout="horizontal"
                 size={'large'}
                 onFinish={onFinish}
+                onValuesChange={handleFormChange}
                 initialValues={{unit_type:1}}
                 style={{ marginTop: '1rem' }}
             >
@@ -150,6 +213,9 @@ const AddUnit=(props:any)=>{
                        </Button>
                        <Button type="primary" onClick={()=>navigate(-1)}>
                            返回
+                       </Button>
+                       <Button danger onClick={resetAllFormData}>
+                           清空草稿
                        </Button>
                    </Space>
                 </Form.Item>

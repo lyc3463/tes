@@ -9,9 +9,6 @@ import Byitem from "@/pages/kehu/byitem";
 import * as ZuhuService from '@/services/zuhu';
 import {StaticInfo} from '@/StaticInfo';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-const tailLayout = {
-    wrapperCol: { offset: 4 },
-};
 
 const Byzhuhu=(props:any)=>{
     // 路由参数
@@ -62,7 +59,7 @@ const Byzhuhu=(props:any)=>{
                     <Byitem id={uid}/>
                 </Tabs.TabPane>:''
                 }
-                {uqx[354]=='1'?  <Tabs.TabPane tab='解除关联' key='6'>
+                {/* {uqx[354]=='1'?  <Tabs.TabPane tab='解除关联' key='6'>
                     <Form
                         labelCol={{ span: 4 }}
                         wrapperCol={{ span: 14 }}
@@ -80,7 +77,7 @@ const Byzhuhu=(props:any)=>{
                         </Form.Item>
                     </Form>
                 </Tabs.TabPane>:''
-                }
+                } */}
             </Tabs>
             <Modal open={visible} onCancel={()=>setVisible(false)} onOk={onOK}>
                 <div>是否要解除关联!</div>

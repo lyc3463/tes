@@ -270,6 +270,7 @@ const CheckCustom=(props)=>{
             if (res.ErrorCode==0){
                 message.success('审核通过');
                 setIsOpen(false);
+                logFenye();
             }else {
                 message.error(res.Data);
                 setIsOpen(false);
@@ -290,14 +291,7 @@ const CheckCustom=(props)=>{
     // 搜索
     const suosou=()=>{
         setPage(1);
-        getFenye();
         logFenye();
-    };
-    const getFenye=()=>{
-        props.dispatch({
-            type:'CheckCustom/fenye',
-            payload:{customName,customBeginTime,customEndTime,customStatus,userId,pageSize}
-        })
     };
     // 监听名字
     const changeName=(e)=>{
@@ -341,7 +335,6 @@ const CheckCustom=(props)=>{
     useEffect(() => {
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
-        getFenye();
     }, []);
     return(
         <div>

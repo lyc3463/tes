@@ -123,7 +123,7 @@ const AddChongzhi=(props:any)=>{
             return;
         }
         // 缓存当前操作用户
-        setCurrentSelectUserId(item.userId);
+        setCurrentSelectUserId(item.tenantId);
         setCurrentUserInfo(item);
         setOpen(true);
     };

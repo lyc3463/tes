@@ -2,7 +2,7 @@ import {
     Button, DatePicker, Form, Input, InputNumber, message, Radio, Select, Space, Spin,
     Steps, Card, Modal, Image
 } from "antd";
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { connect, history, useNavigate } from "umi";
 import * as StaffService from "@/services/staff";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
@@ -13,7 +13,11 @@ import ImageUpload from "@/components/ImageUploader";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
-const AddPreferential = (props) => {
+
+// 缓存key
+const CACHE_KEY = "AddPreferential_form_cache";
+
+const AddPreferential = (props:any) => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
 
@@ -43,6 +47,64 @@ const AddPreferential = (props) => {
     const [discountMoney, setdiscountMoney] = useState(0);
     const [imgB64, setImgB64] = useState<string[]>([]);
     const [imgName, setImgName] = useState<string[]>([]);
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            step,
+            downloadComplete,
+            oldName,
+            oldPhone,
+            tenantId,
+            zuMoney,
+            youhuiType,
+            startDate,
+            endDate,
+            discountMoney,
+            imgB64,
+            imgName,
+            formValues: form.getFieldsValue()
+        };
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch (e) {
+            console.warn('草稿保存失败：', e);
+        }
+    }, [step, downloadComplete, oldName, oldPhone, tenantId, zuMoney, youhuiType, startDate, endDate, discountMoney, imgB64, imgName, form]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setStep(0);
+        setDownloadComplete(false);
+        setOldName('');
+        setOldPhone('');
+        setTenantID(0);
+        setmoney(0);
+        setyouhuiType(1);
+        setStartDate('');
+        setEndDate('');
+        setdiscountMoney(0);
+        setImgB64([]);
+        setImgName([]);
+        form.resetFields();
+    };
+
     // 上一步
     const handlePrevStep = () => {
         setStep(prev => prev - 1);
@@ -155,6 +217,8 @@ const AddPreferential = (props) => {
             if (res.ErrorCode == 0 || res.ErrorCode == 9038) {
                 setspinning(false);
                 message.success('提交成功');
+                // 添加成功后清空草稿缓存
+                clearCache();
                 history.push("/enter/afterSales")
             } else {
                 setspinning(false);
@@ -163,7 +227,7 @@ const AddPreferential = (props) => {
         })
     };
 
-    const change = (e) => {
+    const change = (e:number) => {
         setspinning(true);
         StaffService.one(e).then((res: any) => {
             if (res.ErrorCode == 0) {
@@ -196,10 +260,37 @@ const AddPreferential = (props) => {
         })
     };
     useEffect(() => {
+        // 加载缓存：回填state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setStep(cache.step ?? 0);
+            setDownloadComplete(cache.downloadComplete ?? false);
+            setOldName(cache.oldName ?? '');
+            setOldPhone(cache.oldPhone ?? '');
+            setTenantID(cache.tenantId ?? 0);
+            setmoney(cache.zuMoney ?? 0);
+            setyouhuiType(cache.youhuiType ?? 1);
+            setStartDate(cache.startDate ?? '');
+            setEndDate(cache.endDate ?? '');
+            setdiscountMoney(cache.discountMoney ?? 0);
+            setImgB64(cache.imgB64 ?? []);
+            setImgName(cache.imgName ?? []);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
         getContntList();
     }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
 
-    const onRadioChange = (e) => {
+    const onRadioChange = (e:any) => {
         setyouhuiType(e.target.value);
     };
     const changeDate = (_: any, date: any) => {
@@ -328,6 +419,7 @@ const AddPreferential = (props) => {
                     size={'large'}
                     initialValues={{ discountMoney: 0 }}
                     onFinish={onFinish}
+                    onValuesChange={handleFormChange}
                     style={{ marginTop: '1rem' }}
                 >
                     <Form.Item label='选择合同' name='contractId'>
@@ -336,7 +428,7 @@ const AddPreferential = (props) => {
                             showSearch
                             optionFilterProp="children"
                             filterOption={(input, option) => {
-                                const item = hetongList.find(hetongID => hetongID.id == option?.value);
+                                const item = hetongList.find((hetongID:any) => hetongID.id == option?.value);
                                 return item?.tenant_name?.toLowerCase().includes(input.toLowerCase());
                             }}
                         >
@@ -394,6 +486,7 @@ const AddPreferential = (props) => {
                             <Button type="primary" onClick={() => navigate(-1)}>
                                 返回
                             </Button>
+                            <Button danger onClick={resetAllFormData}>清空草稿</Button>
                         </Space>
                     </Form.Item>
                 </Form>

@@ -2,6 +2,7 @@ import {connect, history} from 'umi';
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
+import {StaticInfo} from "@/StaticInfo";
 import {
     Button, DatePicker,
     Dropdown, Form,
@@ -384,12 +385,10 @@ const UserCar=(props)=>{
     };
     // 开通
     const isActivate=(e,type)=>{
-        console.log('res',e);
-        
         setCarInfo(e.carNo);
         setTid(e.id);
         setAppId(e.id);
-        settenant_phone(e.phone);
+        settenant_phone('13245678910');
         settenant_name(e.user_name);
         setActivateOpen(true);
     };

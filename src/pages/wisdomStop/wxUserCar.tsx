@@ -77,14 +77,14 @@ const WxUserCar=(props:any)=>{
         },
         {
             title: '用户名',
-            dataIndex: 'user_name',
-            key: 'user_name',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
             align:'center',
         },
         {
             title: '手机号',
-            dataIndex: 'phone',
-            key: 'phone',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
             align:'center',
         },
         {

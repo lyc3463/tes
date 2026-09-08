@@ -1,5 +1,5 @@
 import {Button, Form, Input, message, Select, DatePicker, Upload, Radio, Image, Space, Spin} from "antd";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {connect,history,useNavigate} from "umi";
 import CmpImageUploader from "@/components/ImageUploader";
 import * as GroupingServer from "@/services/grouping";
@@ -9,6 +9,10 @@ import ImageUploadPng from "@/components/ImageUploadPng";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
+
+// 缓存key
+const CACHE_KEY = "AddYuangonglData_form_cache";
+
 const AddYuangonglData=(props:any)=>{
     const navigate=useNavigate();
     const [form] = Form.useForm();
@@ -23,10 +27,54 @@ const AddYuangonglData=(props:any)=>{
     // 闸机列表
     const [gateList,setGateList]=useState([]);
     // 选择闸机列表
-    const [obtain,setobtain]=useState([]);
+    const [obtain,setobtain]=useState<any[]>([]);
     // 转圈
     const [spinning,setspinning]=useState(false);
-    const onFinish= (values)=>{
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            estarttime,
+            eendtime,
+            fileBase64,
+            oldImgName,
+            obtain,
+            formValues: form.getFieldsValue()
+        };
+        try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch (e) {
+            console.warn('草稿保存失败：', e);
+        }
+    }, [estarttime, eendtime, fileBase64, oldImgName, obtain, form]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setEstarttime('');
+        seteendtime('');
+        setFileBase64('');
+        setOldImgName('');
+        setobtain([]);
+        form.resetFields();
+    };
+
+    const onFinish= (values:any)=>{
         let jsonObtain=obtain.join("|");
         setspinning(true);
         props.dispatch({
@@ -35,6 +83,8 @@ const AddYuangonglData=(props:any)=>{
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0||res.ErrorCode==9038){
                 message.success('添加成功');
+                // 添加成功后清空草稿缓存
+                clearCache();
                 setspinning(false);
                 history.push('/enter/yuangonglData');
             }else {
@@ -43,7 +93,7 @@ const AddYuangonglData=(props:any)=>{
             }
         });
     };
-    const changeData=(_,item)=>{
+    const changeData=(_:any,item:any)=>{
         setEstarttime(item[0]);
         seteendtime(item[1]);
     };
@@ -74,11 +124,31 @@ const AddYuangonglData=(props:any)=>{
         })
     };
     useEffect(() => {
+        // 加载缓存：回填state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setEstarttime(cache.estarttime ?? '');
+            seteendtime(cache.eendtime ?? '');
+            setFileBase64(cache.fileBase64 ?? '');
+            setOldImgName(cache.oldImgName ?? '');
+            setobtain(cache.obtain ?? []);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
         getGeteList();
         getGroupingList();
     }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
 
-    const changeGate=(e)=>{
+    const changeGate=(e:any)=>{
         setobtain(e);
     };
     // 选择闸机
@@ -107,6 +177,7 @@ const AddYuangonglData=(props:any)=>{
                 layout="horizontal"
                 size={'large'}
                 onFinish={onFinish}
+                onValuesChange={handleFormChange}
                 style={{ marginTop: '1rem' }}
             >
                 <Form.Item label='授权开始/结束时间' >
@@ -164,6 +235,9 @@ const AddYuangonglData=(props:any)=>{
                        </Button>
                        <Button type="primary" onClick={()=>navigate(-1)}>
                            返回
+                       </Button>
+                       <Button danger onClick={resetAllFormData}>
+                           清空草稿
                        </Button>
                    </Space>
                 </Form.Item>

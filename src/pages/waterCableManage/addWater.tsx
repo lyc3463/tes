@@ -1,6 +1,6 @@
 import {connect,history,useNavigate} from 'umi'
 import {Button, Form, Input, InputNumber, message, Select, Space, Spin, Tag} from "antd";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {filterAndUpdateList} from "@/utils/OpenTool";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as CollectorService from "@/services/collector";
@@ -17,6 +17,10 @@ let defaultValues={
     house_id:0,
     pageSize:100000
 }
+
+// 缓存key
+const CACHE_KEY = "AddWater_form_cache";
+
 const AddWater=(props:any)=>{
     const navigate=useNavigate();
     const [form] = Form.useForm();
@@ -38,6 +42,32 @@ const AddWater=(props:any)=>{
     const [unitList,setUnitList]=useState([]);
     // 单元id
     const [unitid,setUnitid]=useState(0);
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存表单字段+独立state到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            formValues: form.getFieldsValue(),
+            collectorid,
+            unitid
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    }, [form, collectorid, unitid]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
     const getUnitList=()=>{
         UnitService.fetch(defaultValues).then((res:TypeErrorCode)=>{
             console.log('res',res);
@@ -56,7 +86,9 @@ const AddWater=(props:any)=>{
         })
         if (res.ErrorCode==0){
             setspinning(false);
-            message.success('添加成功')
+            message.success('添加成功');
+            // 添加成功后清空草稿缓存
+            clearCache();
             history.push('/waterCableManage/water')
         }else {
             message.error(res.Data);
@@ -68,12 +100,36 @@ const AddWater=(props:any)=>{
         setCollectorNuber(selectedItem.collectorid)
     };
     useEffect(() => {
+        // 加载缓存：回填独立state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setCollectorNuber(cache.collectorid ?? '');
+            setUnitid(cache.unitid ?? 0);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
         getCollectorList();
         getPriceList();
         getUnitList();
         // filterAndUpdateList(props.CollectorList, 'collectorid', 'id', setCollectorList);
         // filterAndUpdateList(props.CableParameterList, 'price_name', 'id', setCable);
     }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setCollectorNuber('');
+        setUnitid(0);
+        form.resetFields();
+    };
     // 采集器列表
     const getCollectorList=()=>{
         CollectorService.fetchCtr().then((res:TypeErrorCode)=>{
@@ -111,6 +167,7 @@ const AddWater=(props:any)=>{
                 size={'large'}
                 initialValues={{remark:'',rate:1}}
                 onFinish={onFinish}
+                onValuesChange={handleFormChange}
                 style={{ marginTop: '1rem' }}
             >
                 <Form.Item label='水表地址/表号' name='address' rules={[{required: true, message: '必须填水表地址/表号'}]}>
@@ -180,6 +237,7 @@ const AddWater=(props:any)=>{
                 </Form.Item>
                 <Form.Item label='单元'>
                     <Select
+                        value={unitid || undefined}
                         onChange={changeUnit}
                         showSearch
                         optionFilterProp="children"
@@ -205,6 +263,9 @@ const AddWater=(props:any)=>{
                         </Button>
                         <Button type="primary" onClick={()=>navigate(-1)}>
                             返回
+                        </Button>
+                        <Button danger onClick={resetAllFormData}>
+                            清空草稿
                         </Button>
                     </Space>
                 </Form.Item>

@@ -6,6 +6,7 @@ import {checkSessionStorage, newprocessBills, processBills, updateSessionStorage
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import { useReactToPrint } from 'react-to-print';
 import AllFinancialDataPrint from "@/components/AllFinancialDataPrint";
+import * as BillService from '@/services/bill';
 import type { FinancialCount, FinancialDataProps, FinancialRecord, SupplierItem } from "@/ModelTypes/TypeFinancialData";
 
 interface RootState {
@@ -49,6 +50,9 @@ const NewFinancialData=(props: FinancialDataProps)=>{
     const [isOpen,setIsOpen]=useState(false);
     const [spinning,setspinning]=useState(false);
     const [delRecord,setDelRecord]=useState<FinancialRecord | null>(null);
+    // 送审弹窗
+    const [reviewOpen,setReviewOpen]=useState(false);
+    const [reviewRecord,setReviewRecord]=useState<FinancialRecord | null>(null);
     const [printModalOpen,setPrintModalOpen]=useState(false);
     const [printList,setPrintList]=useState<FinancialRecord[]>([]);
     const printRef = useRef<HTMLDivElement | null>(null);
@@ -85,7 +89,7 @@ const NewFinancialData=(props: FinancialDataProps)=>{
             key: 'number',
             // 👇 你原来的逻辑 100% 保留，完全不动
             render: (_, record) => {
-                const hasUnderline = record.number && record.number.includes('_');
+                const hasUnderline = record.number && /_\d+$/.test(record.number);
                 return (
                     <span
                         style={{
@@ -182,9 +186,16 @@ const NewFinancialData=(props: FinancialDataProps)=>{
             dataIndex: 'orderStatus',
             key: 'orderStatus',
             render:(text)=>{
-                return(
-                    <Tag color={text==1?'red':'green'}>
-                        {text==1?'未审核':'已审核'}
+                const map: Record<number, { color: string; label: string }> = {
+                    1: { color: 'red', label: '未审核' },
+                    2: { color: 'green', label: '已审核' },
+                    100: { color: 'orange', label: '待提交' },
+                    15: { color: 'red', label: '已驳回' },
+                };
+                const current = map[text] || { color: 'default', label: '未知' };
+                return (
+                    <Tag color={current.color}>
+                        {current.label}
                     </Tag>
                 )
             }
@@ -214,11 +225,12 @@ const NewFinancialData=(props: FinancialDataProps)=>{
                 return(
                     <Space>
                         {
-                            record.orderStatus==1?<>
-                                <Button type='primary' onClick={()=>{
+                            record.orderStatus==100|| record.orderStatus==15?<>
+                                <Button type='link' onClick={()=>{
                                     history.push(`/enter/editNewFinancialData?id=${record.id}`);
                                 }}>编辑</Button>
-                                <Button type='primary' danger onClick={()=>isDelOpen(record)}>删除</Button>
+                                <Button type='link' danger onClick={()=>isDelOpen(record)}>删除</Button>
+                                <Button type='link' danger onClick={()=>submitForReview(record)}>提交审核</Button>
                             </>:null
                         }
                     </Space>
@@ -249,6 +261,27 @@ const NewFinancialData=(props: FinancialDataProps)=>{
         setIsOpen(true);
         setUid(record.id);
         setDelRecord(record);
+    };
+    // 送审：打开弹窗
+    const submitForReview=(record: FinancialRecord)=>{
+        setReviewRecord(record);
+        setReviewOpen(true);
+    };
+    // 送审：确认提交
+    const onReviewOK=()=>{
+        if(!reviewRecord) return;
+        setspinning(true);
+        BillService.submitForReview(reviewRecord.id).then((res:TypeErrorCode)=>{
+            if(res.ErrorCode==0){
+                message.success('送审成功');
+                setReviewOpen(false);
+                setReviewRecord(null);
+                getList();
+            }else{
+                message.error(res.ErrorCode + res.Data);
+            }
+            setspinning(false);
+        })
     };
     // 删除确定按钮
     const onOK=()=>{
@@ -594,6 +627,8 @@ const NewFinancialData=(props: FinancialDataProps)=>{
                                     { value: 0, label: '全部' },
                                     { value: 1, label: '未审核' },
                                     { value: 2, label: '已审核' },
+                                    { value: 100, label: '待提交' },
+                                    { value: 15, label: '已驳回' },
                                 ]}
                             />
                         </Space.Compact>
@@ -677,6 +712,46 @@ const NewFinancialData=(props: FinancialDataProps)=>{
                             </Descriptions.Item>
                             <Descriptions.Item label='总金额(元)'>
                                 {delRecord.totalAmount ?? ''}
+                            </Descriptions.Item>
+                        </Descriptions>
+                    ) : null
+                }
+            </Modal>
+            {/* 送审弹窗 */}
+            <Modal open={reviewOpen} onCancel={()=>{setReviewOpen(false); setReviewRecord(null);}} onOk={onReviewOK} confirmLoading={spinning} title='送审确认' width={1000}>
+                <div style={{marginBottom:'12px'}}>确认要将以下数据提交审核吗？</div>
+                {
+                    reviewRecord ? (
+                        <Descriptions bordered size='small' column={2}>
+                            <Descriptions.Item label='日期'>
+                                {reviewRecord.orderDate ? dayjs(reviewRecord.orderDate).format('YYYY-MM-DD') : ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='财务单号'>
+                                {reviewRecord.number || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='报销单号'>
+                                {reviewRecord.number2 || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='类型'>
+                                {reviewRecord.moneyType==1?'收入':'支出'}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='公司名称'>
+                                {reviewRecord.company_name || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='项目名称'>
+                                {reviewRecord.project_name || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='账户名'>
+                                {reviewRecord.account_name || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='账户卡号'>
+                                {reviewRecord.account_card || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='供应商'>
+                                {reviewRecord.supplierName || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='总金额(元)'>
+                                {reviewRecord.totalAmount ?? ''}
                             </Descriptions.Item>
                         </Descriptions>
                     ) : null

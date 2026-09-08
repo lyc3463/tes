@@ -1,8 +1,12 @@
 import {Button, DatePicker, Form, Input, message, Select, Space, Spin, Tooltip} from "antd";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {connect, history,useNavigate} from "umi";
 import {getCurrentDate, phonePattern,replaceEnglishCommasWithChinese} from "@/utils/OpenTool";
 import dayjs from "dayjs";
+import React from "react";
+
+// 缓存key
+const CACHE_KEY = "AddCustom_form_cache";
 
 const AddCustom=(props:any)=>{
     const navigate=useNavigate();
@@ -24,11 +28,80 @@ const AddCustom=(props:any)=>{
     // 公司名称
     const [company_name,setcompany_name]=useState('');
 
-    useEffect(() => {
-        setCustom_date(getCurrentDate());
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
     }, []);
 
-    const onFinish=async (values)=>{
+    // 保存state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            custom_date,
+            visitor_channels,
+            visitor_type,
+            reason_lease,
+            required_area,
+            demands,
+            remark,
+            company_name,
+            formValues: form.getFieldsValue()
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    }, [custom_date, visitor_channels, visitor_type, reason_lease, required_area, demands, remark, company_name, form]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setCustom_date(getCurrentDate());
+        setvisitor_channels(1);
+        setvisitor_type(1);
+        setreason_lease(1);
+        setrequired_area(1);
+        setdemands(1);
+        setremarks('');
+        setcompany_name('');
+        form.resetFields();
+    };
+
+    useEffect(() => {
+        // 加载缓存：回填state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setCustom_date(cache.custom_date ?? getCurrentDate());
+            setvisitor_channels(cache.visitor_channels ?? 1);
+            setvisitor_type(cache.visitor_type ?? 1);
+            setreason_lease(cache.reason_lease ?? 1);
+            setrequired_area(cache.required_area ?? 1);
+            setdemands(cache.demands ?? 1);
+            setremarks(cache.remark ?? '');
+            setcompany_name(cache.company_name ?? '');
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        } else {
+            setCustom_date(getCurrentDate());
+        }
+    }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
+
+    const onFinish=async (values:any)=>{
         setDisp(true);
         setspinning(true);
         let res=await props.dispatch({
@@ -38,7 +111,9 @@ const AddCustom=(props:any)=>{
         if (res.ErrorCode==0){
             setDisp(false);
             setspinning(false);
-            message.success('添加成功')
+            message.success('添加成功');
+            // 添加成功后清空草稿缓存
+            clearCache();
             history.push('/enter/custom')
         }else {
             setDisp(false);
@@ -46,38 +121,38 @@ const AddCustom=(props:any)=>{
             message.error(res.Data);
         }
     }
-    const getDataInfo=(_,value)=>{
+    const getDataInfo=(_:any,value:any)=>{
         setCustom_date(value)
     };
     // 监听来访渠道
-    const changechannels=(e)=>{
+    const changechannels=(e:number)=>{
         setvisitor_channels(e);
     };
     // 监听客户类别
-    const  changevisitor_type=(e)=>{
+    const  changevisitor_type=(e:number)=>{
         setvisitor_type(e);
     };
     // 监听租赁原因
-    const changereason_lease=(e)=>{
+    const changereason_lease=(e:number)=>{
         setreason_lease(e);
     };
     // 监听需求面积
-    const changerequired_area=(e)=>{
+    const changerequired_area=(e:number)=>{
         setrequired_area(e);
     };
     // 监听产品需求
-    const changedemands=(e)=>{
+    const changedemands=(e:number)=>{
         setdemands(e);
     };
 
     // 监听输入的文本
-    const changeremarks=(e)=>{
+    const changeremarks=(e:any)=>{
         let a=replaceEnglishCommasWithChinese(e.target.value);
         setremarks(a);
     };
 
     // 截图同款块状单选按钮组件
-    const BlockRadio = ({ active, onClick, children }) => (
+    const BlockRadio = ({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) => (
         <button
             type="button"
             onClick={onClick}
@@ -104,6 +179,7 @@ const AddCustom=(props:any)=>{
                     layout="horizontal"
                     size={'large'}
                     onFinish={onFinish}
+                    onValuesChange={handleFormChange}
                 >
                     {/* ========== 01 职位基本信息 区块 ========== */}
                     <div style={{ border: '2px solid #4096ff', padding: '20px', borderRadius: '6px', marginBottom: '24px' }}>
@@ -230,6 +306,9 @@ const AddCustom=(props:any)=>{
                             </Button>
                             <Button onClick={() => navigate(-1)}>
                                 返回
+                            </Button>
+                            <Button danger onClick={resetAllFormData}>
+                                清空草稿
                             </Button>
                         </Space>
                     </Form.Item>

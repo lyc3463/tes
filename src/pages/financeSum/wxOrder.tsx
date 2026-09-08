@@ -48,6 +48,7 @@ const WxOrder=()=>{
     useEffect(() => {
         getPaymentLogList();
         getPaymentLogListfenye();
+        
     }, []);
     // 监听下一页页码
     const onChange=(e,pageSize:number)=>{
@@ -145,13 +146,13 @@ const WxOrder=()=>{
         },
         {
             title: '到账人',
-            dataIndex: 'user_name',
+            dataIndex: 'tenant_name',
             key: 'user_name',
             render: (text:any, record:any) => {
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.user_name}>
-                            {record.user_name}
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name}
                         </Tooltip>
                     </div>
                 )
@@ -161,7 +162,11 @@ const WxOrder=()=>{
             title: '充值人',
             dataIndex: 'appUserPhone',
             key: 'appUserPhone',
-
+            render: (text:any, record:any) => {
+                return(
+                    record.appUserPhone?'':record.appUserPhone
+                )
+            },
         },
     ];
     const sousuo=()=>{

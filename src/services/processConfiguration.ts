@@ -8,7 +8,9 @@ export function add(vals:any) {
         vals.reviewer10,vals.reviewer11,vals.rpName1,
         vals.rpName2,vals.rpName3,vals.rpName4,vals.rpName5,
         vals.rpName6,vals.rpName7,vals.rpName8,vals.rpName9,
-        vals.rpName10,vals.carbonCopy
+        vals.rpName10,vals.carbonCopy,
+        vals.amount1,vals.amount2,vals.amount3,vals.amount4,vals.amount5,
+        vals.amount6,vals.amount7,vals.amount8,vals.amount9,vals.amount10
     ]);
 }
 export function edit(vals:any) {
@@ -19,7 +21,9 @@ export function edit(vals:any) {
         vals.reviewer10,vals.reviewer11,vals.rpName1,
         vals.rpName2,vals.rpName3,vals.rpName4,vals.rpName5,
         vals.rpName6,vals.rpName7,vals.rpName8,vals.rpName9,
-        vals.rpName10,vals.carbonCopy
+        vals.rpName10,vals.carbonCopy,
+        vals.amount1,vals.amount2,vals.amount3,vals.amount4,vals.amount5,
+        vals.amount6,vals.amount7,vals.amount8,vals.amount9,vals.amount10
     ]);
 }
 

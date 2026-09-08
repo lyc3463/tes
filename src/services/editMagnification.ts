@@ -8,6 +8,7 @@ export function fenye(vals:any) {
 export function checkLog(vals:any) {
     return getData(1653, [vals.page,vals.name,vals.startDate,vals.endDate,vals.pageSize]);
 }
+// 财务数据/报销单数据日记
 export function checkLogFenye(vals:any) {
-    return getData(1654, [vals.name,vals.startDate,vals.endDate,vals.pageSize]);
+    return getData(1654, [vals.page,vals.name,vals.orderNo,vals.startDate,vals.endDate,vals.pageSize]);
 }

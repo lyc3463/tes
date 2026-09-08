@@ -8,6 +8,7 @@ import EditMagnification from "@/pages/logManage/editMagnification";
 import {StaticInfo} from "@/StaticInfo";
 import CheckLog from "@/pages/logManage/checkLog";
 import TenantLog from "@/pages/logManage/tenantLog";
+import FinanceLog from "@/pages/logManage/financeLog";
 const LogQuery=(props)=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('log1') || '1');
     const [uqx,setUqx]=useState([]);
@@ -35,6 +36,9 @@ const LogQuery=(props)=>{
                     </Tabs.TabPane>:""}
                 <Tabs.TabPane tab='租户绑定日志'  key='4'>
                     <TenantLog/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab='财务日志'  key='5'>
+                    <FinanceLog/>
                 </Tabs.TabPane>
             </Tabs>
         </>

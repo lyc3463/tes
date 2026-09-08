@@ -28,6 +28,8 @@ const NewCheckFinance=(props: NewCheckFinanceProps)=>{
     // 账单状态
     const [orderStatus,setBillStatus]=useState(checkSessionStorage('/check/checkFinance/','NewCheckFinancialDataorderStatus')||0);
     const [uid,setUid]=useState(0);
+    // 本次操作类型：2=审核 15=驳回（审核/驳回共用同一个方法）
+    const [auditStatus,setAuditStatus]=useState(2);
     const [foType,setFoType]=useState(2);
     const [supplierId,setSupplierId]=useState(0);
     const [printProps,setPrintProps]=useState<FinancialRecord>({});
@@ -74,10 +76,10 @@ const NewCheckFinance=(props: NewCheckFinanceProps)=>{
         setspinning(true);
         props.dispatch({
             type:'NewFinancialData/check',
-            payload:uid
+            payload:{id:uid,status:auditStatus}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                message.success('审核成功')
+                message.success(auditStatus==2?'审核成功':'驳回成功')
                 setIsOpen(false);
                 setspinning(false);
                 getList();
@@ -117,7 +119,7 @@ const NewCheckFinance=(props: NewCheckFinanceProps)=>{
             key: 'number',
             // 👇 你原来的逻辑 100% 保留，完全不动
             render: (text: any, record: any) => {
-                const hasUnderline = record.number && record.number.includes('_');
+                const hasUnderline = record.number && /_\d+$/.test(record.number);
                 return (
                     <span
                         style={{
@@ -214,14 +216,21 @@ const NewCheckFinance=(props: NewCheckFinanceProps)=>{
                 )
             }
         },
-        {
+       {
             title: '状态',
             dataIndex: 'orderStatus',
             key: 'orderStatus',
-            render:(text:any,record:any)=>{
-                return(
-                    <Tag color={text==1?'red':'green'}>
-                        {text==1?'未审核':'已审核'}
+            render:(text)=>{
+                const map: Record<number, { color: string; label: string }> = {
+                    1: { color: 'red', label: '未审核' },
+                    2: { color: 'green', label: '已审核' },
+                    100: { color: 'orange', label: '待提交' },
+                    15: { color: 'orange', label: '驳回' },
+                };
+                const current = map[text] || { color: 'default', label: '未知' };
+                return (
+                    <Tag color={current.color}>
+                        {current.label}
                     </Tag>
                 )
             }
@@ -250,7 +259,12 @@ const NewCheckFinance=(props: NewCheckFinanceProps)=>{
             render:(text:any,record:any)=>{
                 return(
                     <Space>
-                        {record.orderStatus==1?<Button type='primary' onClick={()=>isCheck(record)}>审核</Button>:null}
+                        {record.orderStatus==1?
+                        <Space>
+                            <Button type='primary' onClick={()=>isCheck(record,2)}>审核</Button>
+                            <Button type='danger' onClick={()=>isCheck(record,15)}>驳回</Button>
+                        </Space>
+                        :null}
                     </Space>
                 )
             }
@@ -298,10 +312,12 @@ const NewCheckFinance=(props: NewCheckFinanceProps)=>{
             setspinning(false);
         })
     };
-    const isCheck=(e:FinancialRecord)=>{
+    // 审核/驳回统一入口：status 2=审核 15=驳回
+    const isCheck=(e:FinancialRecord,status:number)=>{
         setPrintProps(e);
         setIsOpen(true);
         setUid(e.id);
+        setAuditStatus(status);
     };
     const getSupplierList=()=>{
         props.dispatch({
@@ -576,6 +592,8 @@ const NewCheckFinance=(props: NewCheckFinanceProps)=>{
                                     { value: 0, label: '全部' },
                                     { value: 1, label: '未审核' },
                                     { value: 2, label: '已审核' },
+                                    { value: 100, label: '待提交' },
+                                    { value: 15, label: '驳回' },
                                 ]}
                             />
                         </Space.Compact>
@@ -626,7 +644,7 @@ const NewCheckFinance=(props: NewCheckFinanceProps)=>{
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} onOk={onOK} loading={spinning} width={1000}>
-                <div>是否要审核？</div>
+                <div>是否要{auditStatus==2?'审核':'驳回'}？</div>
                  <FinancialDataPrint {...{
                     orderCode:printProps.number,
                     title:printProps.moneyType==1?'收入证明单':'支付证明单',

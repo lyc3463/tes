@@ -1,10 +1,13 @@
 import {Button, Form, Input, InputNumber, message, Radio, Space, Spin} from "antd";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {connect,history,useNavigate} from "umi";
 
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
+
+// 缓存key
+const CACHE_KEY = "AddWaterParameter_form_cache";
 
 const AddWaterParameter=(props:any)=>{
     const navigate=useNavigate();
@@ -50,6 +53,73 @@ const AddWaterParameter=(props:any)=>{
     const [fixed_fee,setFixed_fee]=useState(1)
     const [spinning,setspinning]=useState(false);
     const [form] = Form.useForm();
+
+    // 读取缓存
+    const loadCache = useCallback(() => {
+        const str = sessionStorage.getItem(CACHE_KEY);
+        if (!str) return null;
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }, []);
+
+    // 保存全部state+表单字段到缓存
+    const saveCache = useCallback(() => {
+        const data = {
+            changeValue,
+            base_price1,
+            additional_price1,
+            loss,
+            every_price,
+            base_price6,
+            additional_price6,
+            base_price7,
+            additional_price7,
+            base_price8,
+            additional_price8,
+            step_value2,
+            step_value3,
+            minute_price,
+            lossType,
+            fixed_fee,
+            formValues: form.getFieldsValue()
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    }, [
+        changeValue, base_price1, additional_price1, loss, every_price,
+        base_price6, additional_price6, base_price7, additional_price7,
+        base_price8, additional_price8, step_value2, step_value3,
+        minute_price, lossType, fixed_fee, form
+    ]);
+
+    // 清空缓存
+    const clearCache = () => sessionStorage.removeItem(CACHE_KEY);
+
+    // 清空草稿
+    const resetAllFormData = () => {
+        clearCache();
+        setChangeValue(1);
+        setBase_price1(0);
+        setAdditional_price1(0);
+        setLoss(0);
+        setEvery_price(0);
+        setBase_price6(0);
+        setAdditional_price6(0);
+        setBase_price7(0);
+        setAdditional_price7(0);
+        setBase_price8(0);
+        setAdditional_price8(0);
+        setStep_value2(0);
+        setStep_value3(0);
+        setMinute_price(0);
+        setLossType(1);
+        setFixed_fee(1);
+        form.resetFields();
+    };
+
     // 监听水价基础价
     const listenbasicPrice=(e)=>{
         setBase_price1(e)
@@ -102,6 +172,39 @@ const AddWaterParameter=(props:any)=>{
     const changeMinute=(e)=>{
         setMinute_price(e)
     }
+    useEffect(() => {
+        // 加载缓存：回填所有state与表单字段
+        const cache = loadCache();
+        if (cache) {
+            setChangeValue(cache.changeValue ?? 1);
+            setBase_price1(cache.base_price1 ?? 0);
+            setAdditional_price1(cache.additional_price1 ?? 0);
+            setLoss(cache.loss ?? 0);
+            setEvery_price(cache.every_price ?? 0);
+            setBase_price6(cache.base_price6 ?? 0);
+            setAdditional_price6(cache.additional_price6 ?? 0);
+            setBase_price7(cache.base_price7 ?? 0);
+            setAdditional_price7(cache.additional_price7 ?? 0);
+            setBase_price8(cache.base_price8 ?? 0);
+            setAdditional_price8(cache.additional_price8 ?? 0);
+            setStep_value2(cache.step_value2 ?? 0);
+            setStep_value3(cache.step_value3 ?? 0);
+            setMinute_price(cache.minute_price ?? 0);
+            setLossType(cache.lossType ?? 1);
+            setFixed_fee(cache.fixed_fee ?? 1);
+            if (cache.formValues) {
+                form.setFieldsValue(cache.formValues);
+            }
+        }
+    }, []);
+    // 任意state变动自动存缓存
+    useEffect(() => {
+        saveCache();
+    }, [saveCache]);
+    // 表单字段变动也立即存
+    const handleFormChange = () => {
+        saveCache();
+    };
     useEffect(()=>{
         // 计算水价价格  基础价+附加单价
         setTotalPrice(base_price1+additional_price1);
@@ -151,6 +254,8 @@ const AddWaterParameter=(props:any)=>{
         if (res.ErrorCode==0){
             setspinning(false);
             message.success('添加成功');
+            // 添加成功后清空草稿缓存
+            clearCache();
             history.push('/waterCableManage/parameter');
         }else {
             message.error(res.Data);
@@ -167,13 +272,14 @@ const AddWaterParameter=(props:any)=>{
                 layout="horizontal"
                 size={'large'}
                 onFinish={onFinish}
+                onValuesChange={handleFormChange}
                 style={{ marginTop: '1rem' }}
             >
                 <Form.Item label='水价参数名称' name='price_name'>
                     <Input placeholder='请输入名称' />
                 </Form.Item>
                 <Form.Item label='类型' name='price_type'>
-                    <Radio.Group  onChange={(e)=>{setChangeValue(e.target.value)}}>
+                    <Radio.Group value={changeValue} onChange={(e)=>{setChangeValue(e.target.value)}}>
                         <Radio value={1}>水价</Radio>
                         <Radio value={2}>阶梯水价</Radio>
                     </Radio.Group>
@@ -183,14 +289,14 @@ const AddWaterParameter=(props:any)=>{
                         <Form.Item label='价格'>
                             <Input value={totalPrice}  style={{width:'80px'}} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                            (元/m³) =基础价(元)<InputNumber style={{width:'80px'}} onChange={listenbasicPrice}/>
-                            +附加单价(元)<InputNumber onChange={listenadditionalPrice} style={{width:'80px'}}/>
-                            {/*(每<InputNumber step={1} precision={0} min={0} style={{width:'80px'}} onChange={changeMinute}/>小时收费一次)*/}
+                            (元/m³) =基础价(元)<InputNumber value={base_price1} style={{width:'80px'}} onChange={listenbasicPrice}/>
+                            +附加单价(元)<InputNumber value={additional_price1} onChange={listenadditionalPrice} style={{width:'80px'}}/>
+                            {/*(每<InputNumber step={1} precision={0} min={0} style={{width:'80px'}} value={minute_price} onChange={changeMinute}/>小时收费一次)*/}
                         </Form.Item>
                         {/*<Form.Item label='损耗'>*/}
-                        {/*    <InputNumber defaultValue={loss} style={{width:'80px'}} onChange={changeLoss}/>*/}
+                        {/*    <InputNumber value={loss} style={{width:'80px'}} onChange={changeLoss}/>*/}
                         {/*    (m³)<span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>*/}
-                        {/*    每<InputNumber style={{width:'80px'}} step={1} precision={0} min={0} onChange={changPrice}/>天收费一次*/}
+                        {/*    每<InputNumber style={{width:'80px'}} step={1} precision={0} min={0} value={every_price} onChange={changPrice}/>天收费一次*/}
                         {/*</Form.Item>*/}
                     </>
                     :''}
@@ -199,26 +305,26 @@ const AddWaterParameter=(props:any)=>{
                         <Form.Item label='第一阶梯单价'>
                             <InputNumber value={stepPrice1} style={{width:'80px'}} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                            (元/m³) =基础价<InputNumber style={{width:'80px'}} onChange={setpListenbasicPrice1}/>
-                            +附加单价<InputNumber style={{width:'80px'}} onChange={setpListenadditionalPrice1}/>
+                            (元/m³) =基础价<InputNumber value={base_price6} style={{width:'80px'}} onChange={setpListenbasicPrice1}/>
+                            +附加单价<InputNumber value={additional_price6} style={{width:'80px'}} onChange={setpListenadditionalPrice1}/>
                         </Form.Item>
                         <Form.Item label='第二阶梯起始值(m³)'>
-                            <InputNumber  style={{width:'80px'}} onChange={changeStep_value2}/>
+                            <InputNumber value={step_value2} style={{width:'80px'}} onChange={changeStep_value2}/>
                         </Form.Item>
                         <Form.Item label='第二阶梯单价'>
                             <InputNumber value={stepPrice2} style={{width:'80px'}} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                            (元/m³) =基础价<InputNumber style={{width:'80px'}} onChange={setpListenbasicPrice2}/>
-                            +附加单价<InputNumber style={{width:'80px'}} onChange={setpListenadditionalPrice2}/>
+                            (元/m³) =基础价<InputNumber value={base_price7} style={{width:'80px'}} onChange={setpListenbasicPrice2}/>
+                            +附加单价<InputNumber value={additional_price7} style={{width:'80px'}} onChange={setpListenadditionalPrice2}/>
                         </Form.Item>
                         <Form.Item label='第三阶梯起始值(m³)'>
-                            <InputNumber  style={{width:'80px'}} onChange={changeStep_value3}/>
+                            <InputNumber value={step_value3} style={{width:'80px'}} onChange={changeStep_value3}/>
                         </Form.Item>
                         <Form.Item label='第三阶梯单价'>
                             <InputNumber  value={stepPrice3} style={{width:'80px'}} disabled/>
                             <span style={{fontSize:"12px",color:'#999',fontStyle: 'italic'}}></span>
-                            (元/m³) =基础价<InputNumber style={{width:'80px'}} onChange={setpListenbasicPrice3}/>
-                            +附加单价<InputNumber style={{width:'80px'}} onChange={setpListenadditionalPrice3}/>
+                            (元/m³) =基础价<InputNumber value={base_price8} style={{width:'80px'}} onChange={setpListenbasicPrice3}/>
+                            +附加单价<InputNumber value={additional_price8} style={{width:'80px'}} onChange={setpListenadditionalPrice3}/>
                         </Form.Item>
                     </>:''
                 }
@@ -238,6 +344,9 @@ const AddWaterParameter=(props:any)=>{
                        </Button>
                        <Button type="primary" onClick={()=>navigate(-1)}>
                            返回
+                       </Button>
+                       <Button danger onClick={resetAllFormData}>
+                           清空草稿
                        </Button>
                    </Space>
                 </Form.Item>

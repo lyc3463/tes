@@ -156,6 +156,8 @@ const Wcxuserlist=(props:any)=>{
     const shousuo=()=>{
         setPage(1);
         getList();
+        console.log('props',props);
+        
     };
     const getList=()=>{
         props.dispatch({

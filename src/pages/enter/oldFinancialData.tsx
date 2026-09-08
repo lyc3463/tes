@@ -22,6 +22,7 @@ import {checkSessionStorage, newprocessBills, processBills, updateSessionStorage
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import { useReactToPrint } from 'react-to-print';
 import * as processConfiguration from '@/services/processConfiguration';
+import * as BillService from '@/services/bill';
 import AllFinancialDataPrint from "@/components/AllFinancialDataPrint";
 import {QuestionCircleOutlined} from "@ant-design/icons";
 import {StaticInfo} from "@/StaticInfo";
@@ -59,7 +60,8 @@ const statusMap: Record<number, StatusConfig> = {
     13: { text: '终止', color: 'purple'},
     14: { text: '已入账', color: 'purple'},
     15: { text: '驳回', color: 'red'},
-}
+    100: { text: '待提交', color: 'orange'},
+   }
 const OldFinancialData=(props: FinancialDataProps)=>{
     // 展示total
     const [page,setPage]=useState(1);
@@ -93,6 +95,9 @@ const OldFinancialData=(props: FinancialDataProps)=>{
     const [printModalOpen,setPrintModalOpen]=useState(false);
     const [printList,setPrintList]=useState<FinancialRecord[]>([]);
     const [delRecord,setDelRecord]=useState<FinancialRecord | null>(null);
+    // 送审弹窗
+    const [reviewOpen,setReviewOpen]=useState(false);
+    const [reviewRecord,setReviewRecord]=useState<FinancialRecord | null>(null);
     const printRef = useRef<HTMLDivElement | null>(null);
     const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
     const columns: TableProps<FinancialRecord>['columns'] =[
@@ -146,9 +151,7 @@ const OldFinancialData=(props: FinancialDataProps)=>{
                     2: { color: 'red', label: '支出' },
                     3: { color: 'blue', label: '报销' },
                 };
-
                 const current = map[text] || { color: 'default', label: '未知' };
-
                 return (
                     <Tag color={current.color}>
                         {current.label}
@@ -232,12 +235,13 @@ const OldFinancialData=(props: FinancialDataProps)=>{
                         return (
                             <Space>
                                 {
-                                    record.orderStatus==15||record.orderStatus==1 ? (
+                                    record.orderStatus==15||record.orderStatus==100 ? (
                                         <>
-                                            <Button type='primary' onClick={() => {
+                                            <Button type='link' onClick={() => {
                                                 history.push(`/enter/editInvoiceFinancialDala?id=${record.id}`);
                                             }}>编辑</Button>
-                                            <Button type='primary' danger onClick={() => isDelOpen(record)}>删除</Button>
+                                            <Button type='link' danger onClick={() => isDelOpen(record)}>删除</Button>
+                                            <Button type='link' danger onClick={() => submitForReview(record)}>提交审核</Button>
                                         </>
                                     ) : null
                                 }
@@ -271,6 +275,27 @@ const OldFinancialData=(props: FinancialDataProps)=>{
         setUid(record.id);
         setDelRecord(record);
     };
+    // 送审：打开弹窗
+    const submitForReview=(record: FinancialRecord)=>{
+        setReviewRecord(record);
+        setReviewOpen(true);
+    };
+    // 送审：确认提交
+    const onReviewOK=()=>{
+        if(!reviewRecord) return;
+        setspinning(true);
+        BillService.submitForReview(reviewRecord.id).then((res:TypeErrorCode)=>{
+            if(res.ErrorCode==0){
+                message.success('送审成功');
+                setReviewOpen(false);
+                setReviewRecord(null);
+                getList();
+            }else{
+                message.error(res.ErrorCode + res.Data);
+            }
+            setspinning(false);
+        })
+    };
     // 删除确定按钮
     const onOK=()=>{
         setspinning(true);
@@ -303,6 +328,7 @@ const OldFinancialData=(props: FinancialDataProps)=>{
             setspinning(false);
         })
     };
+    
     const changeOrderCode = (e:ChangeEvent<HTMLInputElement>) => {
         setOrderCode(e.target.value);
     };
@@ -446,6 +472,7 @@ const OldFinancialData=(props: FinancialDataProps)=>{
         // ✅ 在最前面插入一行：全部（value=0）
         return [
             { label: '全部', value: 0 },
+            { label: '待提交', value: 100 },
             ...options
         ];
     };
@@ -669,6 +696,34 @@ const OldFinancialData=(props: FinancialDataProps)=>{
                             </Descriptions.Item>
                             <Descriptions.Item label='总金额(元)'>
                                 {delRecord.totalAmount ?? ''}
+                            </Descriptions.Item>
+                        </Descriptions>
+                    ) : null
+                }
+            </Modal>
+            {/* 送审弹窗 */}
+            <Modal open={reviewOpen} onCancel={()=>{setReviewOpen(false); setReviewRecord(null);}} onOk={onReviewOK} confirmLoading={spinning} title='送审确认' width={1000}>
+                <div style={{marginBottom:'12px'}}>确认要将以下数据提交审核吗？</div>
+                {
+                    reviewRecord ? (
+                        <Descriptions bordered size='small' column={2}>
+                            <Descriptions.Item label='日期'>
+                                {reviewRecord.orderDate ? dayjs(reviewRecord.orderDate).format('YYYY-MM-DD') : ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='报销单号'>
+                                {reviewRecord.number || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='公司名称'>
+                                {reviewRecord.company_name || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='项目名称'>
+                                {reviewRecord.project_name || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='供应商'>
+                                {reviewRecord.supplierName || ''}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='总金额(元)'>
+                                {reviewRecord.totalAmount ?? ''}
                             </Descriptions.Item>
                         </Descriptions>
                     ) : null
