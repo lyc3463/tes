@@ -81,7 +81,7 @@ const OldFinancialData=(props: FinancialDataProps)=>{
     // 公司名称
     const [company_name,setCompany_name]=useState(checkSessionStorage('/enter/financialData/','OldFinancialDatacompany_name')||'');
     // 财务单号
-    const [orderCode,setOrderCode]=useState('');
+    const [orderCode,setOrderCode]=useState(checkSessionStorage('/enter/financialData/','OldFinancialDataorderCode')||'');
    // 报销单号
     const [expenseCode,setExpenseCode]=useState('');
     // 收入支出类型
@@ -331,6 +331,7 @@ const OldFinancialData=(props: FinancialDataProps)=>{
     
     const changeOrderCode = (e:ChangeEvent<HTMLInputElement>) => {
         setOrderCode(e.target.value);
+        updateSessionStorage('/enter/financialData/','OldFinancialDataorderCode',e.target.value);
     };
     const changeCompany_name = (e:ChangeEvent<HTMLInputElement>) => {
         setCompany_name(e.target.value);

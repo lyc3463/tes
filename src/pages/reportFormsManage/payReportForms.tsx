@@ -10,9 +10,9 @@ const PayReportForms=(props)=>{
             <Tabs.TabPane tab='租户报表'  key='1'>
                 <UserPayReportForms/>
             </Tabs.TabPane>
-            <Tabs.TabPane tab='用户报表'  key='2'>
+            {/* <Tabs.TabPane tab='用户报表'  key='2'>
                 <AppUserPayReportForms/>
-            </Tabs.TabPane>
+            </Tabs.TabPane> */}
         </Tabs>
     )
 }

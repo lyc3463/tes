@@ -66,6 +66,7 @@ const EditNewFinancialData=(props:any)=>{
                 setRemark(res.Data.remark);
                 setSupplierId(res.Data.supplierId);
                 setImgUrl(res.Data.foImage);
+                changeAccountId(res.Data.accountId);
             }else {
                 message.error(res.Data);
             }
