@@ -9,6 +9,15 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as AccountService from "@/services/account";
 import * as ProjectService from "@/services/project";
 import * as BillService from '@/services/bill';
+type GoodsItem = {
+    id: number;
+    subjectName: string;
+    summary: string;
+    quantity: number;
+    unit: string;
+    unitPrice: number;
+    amount: number;
+};
 const AddNewFinancialData=(props:any)=>{
     const [spinning, setSpinning] = useState(false);
     const [prohibit,setProhibit]=useState(false);
@@ -19,7 +28,7 @@ const AddNewFinancialData=(props:any)=>{
     // 订单号
     const [orderCode,setOrderCode]=useState('');
     // 添加的物品列表
-    const [goodsList,setGoodsList]=useState([]);
+    const [goodsList,setGoodsList]=useState<GoodsItem[]>([]);
     // 1公账，0私账
     const [accountType,setAccountType]=useState(0);
     // 总金额
@@ -437,6 +446,22 @@ const AddNewFinancialData=(props:any)=>{
     const changeSupplierId=(e)=>{
         setSupplierId(e);
     };
+    const batchPaste=()=>{
+        if (navigator.clipboard) {
+            navigator.clipboard.readText().then((text: string) => {
+                const rows = text.split('\n').map((row) => row.trim().split('\t')[0]);
+                const newRecords = goodsList.map((row, index) => {
+                    row.summary = rows[index] || '';
+                    return row;
+                });
+                setGoodsList([...newRecords]);
+            }
+            ).catch((err: any) => {
+                console.error('Failed to read clipboard contents: ', err);
+            }
+            );
+        }
+    };
     return(
         <Spin spinning={spinning}>
             <Space>
@@ -445,6 +470,7 @@ const AddNewFinancialData=(props:any)=>{
                 </Button>
                 <Button type="primary" onClick={() => onOK(100)}>保存</Button>
                 <Button type="primary" danger onClick={() => onOK(1)}>直接送审</Button>
+                <Button type="primary" onClick={() => batchPaste()}>批量粘贴摘要</Button>
             </Space>
             <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px',flexWrap:'wrap',rowGap:'10px'}}>
                 <Input addonBefore="单号:" placeholder='随机生成' style={{width:'300px'}} value={orderCode} disabled/>

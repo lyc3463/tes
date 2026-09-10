@@ -44,6 +44,6 @@ export function newbyzhuhu(vals:any) {
 export function newbyappuser(vals:any) {
     return getData(1423, [vals.uid,vals.tenant_phone]);
 }
-export function unbind(vals:any) {
-    return getData(1425, [vals]);
+export function editzuhuAuth(id:number, auth:string) {
+    return getData(1425, [id, auth]);
 }

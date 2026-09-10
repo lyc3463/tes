@@ -26,16 +26,16 @@ const Byzhuhu=(props:any)=>{
         let uq=StaticInfo.uqx.split('');
         setUqx(uq);
     }, []);
-    const onOK=()=>{
-        ZuhuService.unbind(uid).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                message.success('解绑成功');
-                history.push('/kehu/byzhuhu');
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
+    // const onOK=()=>{
+    //     ZuhuService.unbind(uid).then((res:TypeErrorCode)=>{
+    //         if (res.ErrorCode==0){
+    //             message.success('解绑成功');
+    //             history.push('/kehu/byzhuhu');
+    //         }else {
+    //             message.error(res.Data);
+    //         }
+    //     })
+    // };
     return(
         <Spin spinning={isSpinning}>
             <Tabs>
@@ -79,9 +79,9 @@ const Byzhuhu=(props:any)=>{
                 </Tabs.TabPane>:''
                 } */}
             </Tabs>
-            <Modal open={visible} onCancel={()=>setVisible(false)} onOk={onOK}>
+            {/* <Modal open={visible} onCancel={()=>setVisible(false)} onOk={onOK}>
                 <div>是否要解除关联!</div>
-            </Modal>
+            </Modal> */}
         </Spin>
     )
 }

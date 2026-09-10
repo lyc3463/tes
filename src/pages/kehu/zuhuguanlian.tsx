@@ -1,8 +1,10 @@
-import {Button, Form, Input, List, Pagination, Space, Table, Tag, Tooltip} from "antd";
+import {Button, Form, Input, List, Pagination, Space, Table, Tag, Tooltip, Modal, message} from "antd";
 import {connect,history,useLocation} from "umi";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
-import {calculateSums, checkSessionStorage, fuzzySearch, updateSessionStorage} from "@/utils/OpenTool";
+import {calculateSums, checkSessionStorage, fuzzySearch, updateSessionStorage, ensureArrayLength, buildTree} from "@/utils/OpenTool";
+import {qxTree} from '@/constants/qxMenu/wxMenu';
+import * as zuhuServie from "@/services/zuhu";
 
 const Zuhuguanlian=(props:any)=>{
     const location=useLocation();
@@ -30,6 +32,87 @@ const Zuhuguanlian=(props:any)=>{
     const [integralSum,setintegralSum]=useState(0);
     // 余额
     const [balanceSum,setbalanceSum]=useState(0);
+    // 小程序
+    const [appid,setAppid]=useState(0);
+    const [isOpen,setIsOpen]=useState(false);
+    const [selected, setSelected] = useState<string[]>(Array(562).fill('0'));
+    const [isSpinning,setIsSpinning]=useState(false);
+    const treeData = buildTree(qxTree);
+    const checkboxRelationMap = {
+        190: [209, 263],
+        275: [272],
+        271: [268, 404, 269],
+        392: [176],
+        369: [366, 368, 367, 365],
+        186: [307],
+        363: [366, 364],
+        225: [285],
+        230: [285],
+        233: [285],
+        236: [285],
+        239: [239],
+        60: [61, 355, 347, 336, 413, 400, 435],
+        399: [421, 422, 423, 424, 404],
+        110: [111],
+        426: [427, 428, 429, 430],
+    };
+    const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: qxTree[]; selected: string[]; setSelected: (newSelected: string[]) => void })=> {
+        return (
+            <ul>
+                {tree.map(node => (
+                    <li key={node.id}>
+                        <input
+                            type="checkbox"
+                            checked={selected[node.id] === '1'}
+                            onChange={e => handleCheckboxChange(node.id, e.target.checked)}
+                        />
+                        {node.name}
+                        {node.children && node.children.length > 0 && (
+                            <TreeMenu tree={node.children} selected={selected} setSelected={setSelected} />
+                        )}
+                    </li>
+                ))}
+            </ul>
+        );
+    };
+    const handleCheckboxChange = (id: number, isChecked: boolean) => {
+        const newSelected = [...selected];
+        // 设置当前项
+        newSelected[id] = isChecked ? '1' : '0';
+        // 如果当前是勾选，才自动关联其他选项
+        if (isChecked && checkboxRelationMap[id]) {
+            checkboxRelationMap[id].forEach(relatedId => {
+                newSelected[relatedId] = '1';
+            });
+        }
+        setSelected(newSelected);
+    };
+    const editInfo=(vla:any)=>{
+        setAppid(vla.id);
+        setIsOpen(true);
+        const authorityString = vla.authority;
+        const splitArray = authorityString.split('');
+        const adjustedArray = ensureArrayLength(splitArray, selected.length, '0');
+        setSelected(adjustedArray);
+    };
+    // 确定编辑权限
+    const onOk=()=>{
+        let joinqx=selected.join('');
+        setIsSpinning(true);
+        zuhuServie.editzuhuAuth(appid,joinqx)
+            .then((res:any)=>{
+                if (res.ErrorCode==0){
+                    message.success('修改成功');
+                    setIsSpinning(false);
+                    setIsOpen(false);
+                    logFenye();
+                }else {
+                    message.error(res.Data);
+                    setIsOpen(false);
+                    setIsSpinning(false);
+                }
+            })
+    };
     const columns =[
         {
             title: '单元名称',
@@ -153,6 +236,7 @@ const Zuhuguanlian=(props:any)=>{
                     <Space>
                         <Button type='primary' onClick={()=>toguanlian(record.id)}>关联</Button>
                         <Button type='primary' onClick={()=>toyajinlist(record.id)}>押金列表</Button>
+                        <Button type='primary' onClick={()=>editInfo(record)}>权限</Button>
                     </Space>
                 )
             }
@@ -290,6 +374,14 @@ const Zuhuguanlian=(props:any)=>{
                 )}
             />
             <Pagination showSizeChanger total={count} pageSize={pagecount} current={page}  onChange={onChange} pageSizeOptions={[50, 100, 500, 1000]}/>
+            {/*编辑权限弹窗*/}
+            <Modal open={isOpen} title={'编辑权限'} onCancel={()=>setIsOpen(false)} onOk={onOk} loading={isSpinning}>
+                <Space>
+                    <Button type='primary' onClick={()=>setSelected(Array(562).fill('1'))}>全选</Button>
+                    <Button type='primary' onClick={()=>setSelected(Array(562).fill('0'))}>反选</Button>
+                </Space>
+                <TreeMenu tree={treeData} selected={selected} setSelected={setSelected} />
+            </Modal>
         </div>
     )
 }
