@@ -6,6 +6,7 @@ import {history} from "@@/core/history";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
 import * as Application from "@/services/application";
+import { PurStatus, PUR_STATUS } from "@/utils/commonEnum";
 
 const Purchase=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -85,20 +86,32 @@ const Purchase=(props)=>{
                 // 定义状态颜色和文字
                 let statusInfo = {};
                 switch (text) {
-                    case 1:
-                        statusInfo = { color: 'blue', text: '采购审核' };
+                    case PurStatus.DRAFT:
+                        statusInfo = { color: PUR_STATUS[PurStatus.DRAFT].color, text: PUR_STATUS[PurStatus.DRAFT].text };
                         break;
-                    case 2:
-                        statusInfo = { color: 'green', text: '已审核' };
+                    case PurStatus.APPROVED:
+                        statusInfo = { color: PUR_STATUS[PurStatus.APPROVED].color, text: PUR_STATUS[PurStatus.APPROVED].text };
                         break;
-                    case 3:
-                        statusInfo = { color: 'orange', text: '已提交报销' };
+                    case PurStatus.PENDING_REIMBURSEMENT:
+                        statusInfo = { color: PUR_STATUS[PurStatus.PENDING_REIMBURSEMENT].color, text: PUR_STATUS[PurStatus.PENDING_REIMBURSEMENT].text };
                         break;
-                    case 4:
-                        statusInfo = { color: 'purple', text: '已报销' };
+                    case PurStatus.REIMBURSED:
+                        statusInfo = { color: PUR_STATUS[PurStatus.REIMBURSED].color, text: PUR_STATUS[PurStatus.REIMBURSED].text };
+                        break;
+                    case PurStatus.PENDING_INBOUND:
+                        statusInfo = { color: PUR_STATUS[PurStatus.PENDING_INBOUND].color, text: PUR_STATUS[PurStatus.PENDING_INBOUND].text };
+                        break;
+                    case PurStatus.INBOUNDED:
+                        statusInfo = { color: PUR_STATUS[PurStatus.INBOUNDED].color, text: PUR_STATUS[PurStatus.INBOUNDED].text };
+                        break;
+                    case PurStatus.REJECTED:
+                        statusInfo = { color: PUR_STATUS[PurStatus.REJECTED].color, text: PUR_STATUS[PurStatus.REJECTED].text };
+                        break;
+                    case PurStatus.AUDITING:
+                        statusInfo = { color: PUR_STATUS[PurStatus.AUDITING].color, text: PUR_STATUS[PurStatus.AUDITING].text };
                         break;
                     default:
-                        statusInfo = { color: 'default', text: '未知状态' };
+                        statusInfo = { color: PUR_STATUS[PurStatus.DEFAULT].color, text: PUR_STATUS[PurStatus.DEFAULT].text };
                 }
                 return (
                     <Space>
@@ -122,7 +135,10 @@ const Purchase=(props)=>{
             render:(text,record)=>{
                 return(
                     <Space>
-                        {(record.orderStatus==2||record.orderStatus==3||record.orderStatus==4)&&record.iskc==0&&<>
+                        {/* {(record.orderStatus==2||record.orderStatus==3||record.orderStatus==4)&&record.iskc==0&&<>
+                           <Button type='primary' onClick={()=>toadd(record.id)}>入库单</Button>
+                        </>} */}
+                        {(record.orderStatus==PurStatus.APPROVED||record.orderStatus==PurStatus.PENDING_REIMBURSEMENT||record.orderStatus==PurStatus.REIMBURSED)&&record.iskc==0&&<>
                            <Button type='primary' onClick={()=>toadd(record.id)}>入库单</Button>
                         </>}
                         {/* {record.orderStatus==6&&<>
@@ -309,10 +325,15 @@ const Purchase=(props)=>{
                                 onChange={changeOrderStatus}
                                 options={[
                                     {label:'全部',value:0},
-                                    {label:'采购审核',value:1},
-                                    {label:'已审核',value:2},
-                                    {label:'已提交报销',value:3},
-                                    {label:'已报销',value:4},
+                                    {label:PUR_STATUS[PurStatus.DRAFT].text, value:PurStatus.DRAFT},
+                                    {label:PUR_STATUS[PurStatus.AUDITING].text, value:PurStatus.AUDITING},
+                                    {label:PUR_STATUS[PurStatus.APPROVED].text, value:PurStatus.APPROVED},
+                                    {label:PUR_STATUS[PurStatus.REJECTED].text, value:PurStatus.REJECTED},
+                                    // {label:PUR_STATUS[PurStatus.PENDING_INBOUND].text, value:PurStatus.PENDING_INBOUND},
+                                    // {label:PUR_STATUS[PurStatus.INBOUNDED].text, value:PurStatus.INBOUNDED},
+                                    {label:PUR_STATUS[PurStatus.PENDING_REIMBURSEMENT].text, value:PurStatus.PENDING_REIMBURSEMENT},
+                                    {label:PUR_STATUS[PurStatus.REIMBURSED].text, value:PurStatus.REIMBURSED},
+                                    
                                 ]}
                             />
                         </Space.Compact>

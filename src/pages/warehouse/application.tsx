@@ -1,9 +1,12 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tabs, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tabs, Tag, Tooltip} from "antd";
 import {connect, history} from "umi";
 import React, {useEffect, useState} from "react";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import * as PuchaseService from "@/services/application";
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import {PurStatus, PUR_STATUS} from "@/utils/commonEnum";
 
 const Application=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -89,34 +92,46 @@ const Application=(props)=>{
             dataIndex: 'orderStatus',
             key: 'orderStatus',
             align: 'center',
-            render: (text) => {
+            render: (text, record) => {
                 // 定义状态颜色和文字
-                let statusInfo = {};
+                let statusInfo = {} as any;
                 switch (text) {
-                    case 1:
-                        statusInfo = { color: 'blue', text: '采购审核' };
+                    case PurStatus.DRAFT:
+                        statusInfo = { color: PUR_STATUS[PurStatus.DRAFT].color, text: PUR_STATUS[PurStatus.DRAFT].text };
                         break;
-                    case 2:
-                        statusInfo = { color: 'green', text: '已审核' };
+                    case PurStatus.APPROVED:
+                        statusInfo = { color: PUR_STATUS[PurStatus.APPROVED].color, text: PUR_STATUS[PurStatus.APPROVED].text };
                         break;
-                    case 3:
-                        statusInfo = { color: 'orange', text: '已提交报销' };
+                    case PurStatus.PENDING_REIMBURSEMENT:
+                        statusInfo = { color: PUR_STATUS[PurStatus.PENDING_REIMBURSEMENT].color, text: PUR_STATUS[PurStatus.PENDING_REIMBURSEMENT].text };
                         break;
-                    case 4:
-                        statusInfo = { color: 'purple', text: '已报销' };
+                    case PurStatus.REIMBURSED:
+                        statusInfo = { color: PUR_STATUS[PurStatus.REIMBURSED].color, text: PUR_STATUS[PurStatus.REIMBURSED].text };
                         break;
-                    case 5:
-                        statusInfo = { color: 'orange', text: '采购入库审核' };
+                    case PurStatus.PENDING_INBOUND:
+                        statusInfo = { color: PUR_STATUS[PurStatus.PENDING_INBOUND].color, text: PUR_STATUS[PurStatus.PENDING_INBOUND].text };
                         break;
-                    case 6:
-                        statusInfo = { color: 'orange', text: '入库审核' };
+                    case PurStatus.INBOUNDED:
+                        statusInfo = { color: PUR_STATUS[PurStatus.INBOUNDED].color, text: PUR_STATUS[PurStatus.INBOUNDED].text };
+                        break;
+                    case PurStatus.REJECTED:
+                        statusInfo = { color: PUR_STATUS[PurStatus.REJECTED].color, text: PUR_STATUS[PurStatus.REJECTED].text };
+                        break;
+                    case PurStatus.AUDITING:
+                        statusInfo = { color: PUR_STATUS[PurStatus.AUDITING].color, text: PUR_STATUS[PurStatus.AUDITING].text };
                         break;
                     default:
-                        statusInfo = { color: 'default', text: '未知状态' };
+                        statusInfo = { color: PUR_STATUS[PurStatus.DEFAULT].color, text: PUR_STATUS[PurStatus.DEFAULT].text };
                 }
+                const reason = record && (record.rejectReason || record.reject_reason || record.reject || record.rejectedReason || '');
                 return (
                     <Space>
                         <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
+                        {text === PurStatus.REJECTED && reason ? (
+                            <Tooltip title={reason} placement="topLeft">
+                                <QuestionCircleOutlined style={{ color: '#999', marginLeft: 4 }} />
+                            </Tooltip>
+                        ) : null}
                     </Space>
                 )
             }
@@ -127,12 +142,18 @@ const Application=(props)=>{
             key:'status',
             align:'center',
             fixed:'right',
+            width:200,
             render:(text,record)=>{
                 return(
                     <Space>
-                        {record.orderStatus !== 2 && record.orderStatus !== 3 && record.orderStatus !== 4 && <>
+                        {/* {record.orderStatus !== 2 && record.orderStatus !== 3 && record.orderStatus !== 4 && <>
                             <Button type="primary" onClick={()=>{history.push(`/warehouse/editApplication?id=${record.id}`);}}>编辑</Button>
                             <Button type="primary" danger onClick={()=>isDelOpen(record.id)}>删除</Button>
+                        </>} */}
+                        {(record.orderStatus == PurStatus.DRAFT || record.orderStatus == PurStatus.REJECTED) && <>
+                            <Button type="primary" size="small" onClick={()=>{history.push(`/warehouse/editApplication?id=${record.id}`);}}>编辑</Button>
+                            <Button type="primary" danger size="small" onClick={()=>isDelOpen(record.id)}>删除</Button>
+                            <Button type="primary" size="small" onClick={()=>sendCheck(record.id)}>直接送审</Button>
                         </>}
                     </Space>
                 )
@@ -239,6 +260,21 @@ const Application=(props)=>{
         updateSessionStorage('/warehouse/application','applicationUName',e.target.value);
     };
     
+    // 直接送审
+    const sendCheck=(e)=>{
+        setSpinning(true);
+        PuchaseService.sendCheck({uid:e}).then((res:TypeErrorCode)=>{
+            setSpinning(false);
+            if(res.ErrorCode===0){
+                message.success('送审成功');
+                getList();
+            }else{
+                message.error(res.Data);
+                setSpinning(false);
+            }
+        })
+    };
+        
     return(
         <Spin spinning={spinning}>
             <List>
@@ -322,12 +358,14 @@ const Application=(props)=>{
                                 onChange={changeOrderStatus}
                                 options={[
                                     {label:'全部',value:0},
-                                    {label:'采购审核',value:1},
-                                    {label:'已审核',value:2},
-                                    {label:'采购入库审核',value:5},
-                                    {label:'入库审核',value:6},
-                                    {label:'已提交报销',value:3},
-                                    {label:'已报销',value:4},
+                                    {label:PUR_STATUS[PurStatus.DRAFT].text, value:PurStatus.DRAFT},
+                                    {label:PUR_STATUS[PurStatus.AUDITING].text, value:PurStatus.AUDITING},
+                                    {label:PUR_STATUS[PurStatus.APPROVED].text, value:PurStatus.APPROVED},
+                                    {label:PUR_STATUS[PurStatus.REJECTED].text, value:PurStatus.REJECTED},
+                                    {label:PUR_STATUS[PurStatus.PENDING_INBOUND].text, value:PurStatus.PENDING_INBOUND},
+                                    {label:PUR_STATUS[PurStatus.INBOUNDED].text, value:PurStatus.INBOUNDED},
+                                    {label:PUR_STATUS[PurStatus.PENDING_REIMBURSEMENT].text, value:PurStatus.PENDING_REIMBURSEMENT},
+                                    {label:PUR_STATUS[PurStatus.REIMBURSED].text, value:PurStatus.REIMBURSED},
 
                                 ]}
                             />

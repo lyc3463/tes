@@ -6,6 +6,7 @@ import * as Application from "@/services/application";
 import dayjs from "dayjs";
 import { StaticInfo } from '@/StaticInfo';
 import { QuestionCircleOutlined } from "@ant-design/icons";
+import { InStatus, IN_STATUS } from "@/utils/commonEnum";
 
 function mergeByWoCode(data) {
     const map = new Map();
@@ -127,6 +128,86 @@ const AddPurchase=(props)=>{
             )
         );
     };
+    const columns = [
+        {
+            title: '物品图片',
+            dataIndex: 'productsImage',
+            ellipsis: true,
+            render: (text: string, record: any) => {
+                // 核心修复：先将text转为字符串，再做空值+后缀判断
+                // 步骤1：处理非字符串类型（如null/undefined/数字），转为空字符串
+                const textStr = String(text || '');
+
+                // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
+                const imageUrl = textStr && textStr.endsWith('.png')
+                    ? `${window.ServerConfig.imgServer}${textStr}`
+                    : `${window.ServerConfig.imgServer}${textStr}_min.png`;
+                // 步骤3：仅当字符串非空时渲染图片，否则返回空
+                return textStr ? (
+                    <Image
+                        src={imageUrl}
+                        style={{width:'50px',height:'50px'}}
+                        fallback="https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片"
+                        preview={{
+                            src: `${window.ServerConfig.imgServer}${record.productsImage}.png`, // 弹窗预览图单独指定
+                        }}
+                    />
+                ) : (
+                    ''
+                );
+            }
+        },
+        {
+            title: '物品名称',
+            dataIndex: 'productsName',
+            key:'productsName',
+        },
+        {
+            title: '物品编号',
+            dataIndex: 'productsCode',
+            key:'productsCode',
+        },
+        {
+            title: '单位',
+            dataIndex: 'unitsName',
+            key:'unitsName',
+        },
+        {
+            title: '单价(元)',
+            dataIndex: 'price',
+            key:'price',
+        },
+        {
+            title: '总价钱(元)',
+            dataIndex: 'totalPrice',
+            key:'totalPrice',
+        },
+        {
+            title: '采购数量',
+            dataIndex: 'quantityTotal',
+            key:'quantityTotal',
+        },
+        {
+            title: '送审数量',
+            dataIndex: 'submitQuantity',
+            key:'submitQuantity',
+        },
+        {
+            title: '已入库数量',
+            dataIndex: 'quantitySum',
+            key:'quantitySum',
+        },
+        {
+            title: '入库状态',
+            dataIndex: 'iskc',
+            key:'iskc',
+            render:(text, record) => (
+                <>
+                    <Tag color={text==0?'blue':'green'}>{text==0?'未入库':'已入库'}</Tag>
+                </>
+            )
+        },
+    ];
     const columnsz = [
         {
             title: '物品图片',
@@ -222,13 +303,25 @@ const AddPurchase=(props)=>{
             )
         },
         {
+            title: '送审数量',
+            dataIndex: 'submitQuantity',
+            key:'submitQuantity',
+            render:(text, record) => (
+                <InputNumber
+                    min={0}
+                    value={text}
+                    disabled
+                />
+            )
+        },
+        {
             title: '入库数量',
             dataIndex: 'quantity',
             key:'quantity',
             render:(text, record) => (
                 <InputNumber
                     min={0}
-                    max={record.quantityTotal-record.quantitySum}
+                    max={record.quantityTotal-record.quantitySum-record.submitQuantity}
                     value={record.quantity}
                     onChange={(value) => {
                         updateQuantity(record.ppId, value);
@@ -269,7 +362,7 @@ const AddPurchase=(props)=>{
         setAddOpen(true);
     };
     // 确定入库
-    const onOK=()=>{
+    const onOK=(orderStatus: number)=>{
         let newArr= goods.map((item:any) => ({
             ppId: item.ppId,
             quantity: item.quantity,
@@ -278,19 +371,29 @@ const AddPurchase=(props)=>{
             poId:uid,
             productsId:item.id,
             unitsId:item.unitsId,
-            remark:remarkInput
+            remark:remarkInput,
+            quantityTotal:item.quantityTotal,
+            quantitySum:item.quantitySum,
+            submitQuantity:item.submitQuantity
         }));
         const hasZeroQuantity = newArr.some((item: any) => item.quantity === 0);
         if (hasZeroQuantity) {
             message.warning('请输入入库数量');
             return;
         }
+        // 判断每条明细，如果入库数量大于可入库数量，则提示错误
+        // const hasExceededQuantity = newArr.some((item: any) => item.quantity > (item.quantityTotal - item.quantitySum - item.submitQuantity));
+        // if (hasExceededQuantity) {
+        //     message.warning('入库数量不能超过可入库数量');
+        //     return;
+        // }
         setSpinning(true);
-        Application.addWarehousing({jsonData: JSON.stringify(newArr)}).then((res:TypeErrorCode)=>{
+        Application.addWarehousing({orderStatus: orderStatus, jsonData: JSON.stringify(newArr)}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('入库订单已生成');
                 setAddOpen(false);
                 setSpinning(false);
+                setRemarkInput('');
                 getOne(uid);
             } else {
                 message.error(res.ErrorCode + res.Data);
@@ -489,10 +592,9 @@ const AddPurchase=(props)=>{
 
     const handleCommit = () => {
         setSpinning(true);
-        Application.warehousingInspection({
+        Application.warehousingSendCheck({
             checkWoCode,
-            checkStutes: modalStatus,
-            rejectReason: modalStatus === 4 ? '驳回原因' : ''
+            checkStutes: modalStatus    
         }).then((res:TypeErrorCode) => {
             if (res.ErrorCode === 0) {
                 message.success(modalStatus === 2 ? '提交成功，待审核' : '驳回成功');
@@ -547,7 +649,7 @@ const AddPurchase=(props)=>{
                 <Button type="primary" onClick={()=>navigate(-1)}>
                     返回
                 </Button>
-                <Button type="primary" onClick={addOrderOpen}>
+                <Button type="primary" onClick={()=>addOrderOpen()}>
                     添加入库单
                 </Button>
             </Space>
@@ -583,7 +685,7 @@ const AddPurchase=(props)=>{
                 <InputNumber addonBefore="总金额(元):" placeholder='总金额' min={0} value={totalAmount}/>
             </Space>
             <Table
-                columns={columnsz}
+                columns={columns}
                 rowKey={(columns) => columns.ppId}
                 pagination={false}
                 size='small'
@@ -608,9 +710,17 @@ const AddPurchase=(props)=>{
             <Modal
                 title={modalTitle}
                 open={orderModalOpen}
-                onOk={handleCommit}
+                // onOk={handleCommit}
                 onCancel={() => setOrderModalOpen(false)}
                 width={760}
+                footer={[
+                    <Button type="primary" danger onClick={()=>handleCommit()}>
+                        直接送审
+                    </Button>,
+                    <Button type="primary" onClick={() => setOrderModalOpen(false)}>
+                        关闭
+                    </Button>
+                ]}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div style={{ fontSize: 14, fontWeight: 600 }}>待处理入库商品</div>
@@ -708,7 +818,34 @@ const AddPurchase=(props)=>{
                     rowKey={(record:any, index?: number) => `${record.id || record.productsCode || 'del'}-${index ?? 0}`}
                 />
             </Modal>
-            <Modal title="添加入库单" open={addOpen} onOk={()=>{onOK()}} onCancel={()=>{setAddOpen(false)}} width={760}>
+            <Modal 
+                title="添加入库单" 
+                open={addOpen} 
+                onCancel={()=>{setAddOpen(false)}} 
+                width={1400}
+                footer={[
+                    <Button type="primary" onClick={()=>onOK(InStatus.PENDING_IN)}>
+                        保存草稿
+                    </Button>,
+                    <Button type="primary" danger onClick={() => onOK(InStatus.AUDITING)}>
+                        直接送审
+                    </Button>
+                ]}
+            >
+                <Table
+                    columns={columnsz}
+                    rowKey={(columns) => columns.ppId}
+                    pagination={false}
+                    size='small'
+                    scroll={{y:'55vh'}}
+                    dataSource={goods}
+                    rowClassName={(record, index) =>
+                        index % 2 === 1 ? 'tbodd' : 'tbeven'
+                    }
+                    // rowSelection={rowSelection}  // 添加选择功能配置
+                />
+                <br />
+                <br />
                 <Input.TextArea value={remarkInput} onChange={(e) => setRemarkInput(e.target.value)} placeholder="请输入备注" maxLength={50}/>
             </Modal>
         </Spin>

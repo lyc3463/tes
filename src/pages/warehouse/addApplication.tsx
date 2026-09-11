@@ -17,6 +17,7 @@ import { StaticInfo } from '@/StaticInfo'
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import { PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import {PurStatus, PUR_STATUS} from "@/utils/commonEnum";
 
 // 缓存唯一标识
 const CACHE_KEY = "AddApplication_draft_cache";
@@ -499,6 +500,65 @@ const AddApplication = (props) => {
     const changePayType = (e) => {
         setPayTypeId(e);
     };
+    // 保存表单
+    const onSave = () => {
+        const filteredGoods = goods.filter(item => item.productsName?.trim() !== '');
+        if (filteredGoods.length === 0) {
+            message.error('请至少添加一个物品');
+            return;
+        }
+        const hasInvalidItem = filteredGoods.some(item => {
+            const unitEmpty = item.unitsId <= 0;
+            const quantityEmpty = item.quantity <= 0;
+            return unitEmpty || quantityEmpty;
+        });
+        if (hasInvalidItem) {
+            message.error('请确保所有采购的入库数量大于0且已选择单位');
+            return;
+        }
+        if (warehouseId === 0) {
+            message.error('请选择入库仓库');
+            return;
+        }
+        if (supplierId === 0) {
+            message.error('请选择供应商');
+            return;
+        }
+        if (orderTime === '') {
+            message.error('请选择采购日期');
+            return;
+        }
+        if (pmId === 0) {
+            message.error('请选择支付方式');
+            return;
+        }
+        setSpinning(true);
+        let newFilteredData = filteredGoods.map((item:any)=>({
+            quantity: item.quantity,
+            unitsId: item.unitsId,
+            productsName: item.productsName,
+            abbreviation: item.abbreviation,
+            productsCode: item.productsCode,
+            productsImage: item.productsImage,
+            price: item.price,
+            totalPrice: item.totalPrice,
+            id: item.productsId,
+        }));
+        let jsonData = JSON.stringify(newFilteredData);
+        props.dispatch({
+            type: "Application/add",
+            payload: { orderCode, orderTime, warehouseId, supplierId, paidAmount, totalAmount, remark, jsonData, pmId, orderStatus: PurStatus.DRAFT },
+        }).then((res: TypeErrorCode) => {
+            setSpinning(false);
+            if (res.ErrorCode == 0) {
+                message.success('添加成功');
+                clearAllDraft(); // 提交成功清空草稿缓存
+                history.push('/warehouse/checkPurchaseRequest')
+            } else {
+                message.error(res.ErrorCode + res.Data);
+            }
+        })
+    };
 
     // 提交表单
     const onOk = () => {
@@ -547,7 +607,7 @@ const AddApplication = (props) => {
         let jsonData = JSON.stringify(newFilteredData);
         props.dispatch({
             type: "Application/add",
-            payload: { orderCode, orderTime, warehouseId, supplierId, paidAmount, totalAmount, remark, jsonData, pmId },
+            payload: { orderCode, orderTime, warehouseId, supplierId, paidAmount, totalAmount, remark, jsonData, pmId, orderStatus: PurStatus.AUDITING },
         }).then((res: TypeErrorCode) => {
             setSpinning(false);
             if (res.ErrorCode == 0) {
@@ -629,8 +689,11 @@ const AddApplication = (props) => {
                 <Button type="primary" onClick={() => navigate(-1)}>
                     返回
                 </Button>
-                <Button type="primary" onClick={onOk}>
-                    确定
+                <Button type="primary" onClick={onSave}>
+                    保存
+                </Button>
+                <Button type="primary" danger onClick={onOk}>
+                    直接送审
                 </Button>
                 <Button danger onClick={clearAllDraft}>清空草稿</Button>
             </Space>

@@ -9,7 +9,7 @@ export function fenye(vals:any) {
 }
 
 export function add(vals:any) {
-    return postData(1735, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.supplierId,vals.paidAmount,vals.totalAmount,vals.remark,vals.pmId],vals.jsonData);
+    return postData(1735, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.supplierId,vals.paidAmount,vals.totalAmount,vals.remark,vals.pmId,vals.orderStatus],vals.jsonData);
 }
 
 export function edit(vals:any) {
@@ -19,14 +19,20 @@ export function edit(vals:any) {
 export function remove(vals:any) {
     return getData(1737, [vals]);
 }
+// export function check(vals:any) {
+//     return getData(1741, [vals.uid,vals.orderStatus]);
+// }
 export function check(vals:any) {
-    return getData(1741, [vals.uid,vals.orderStatus]);
+    return getData(1741, [vals.uid,vals.orderStatus, vals.Reason]);
 }
 export function one(vals:any) {
     return getData(1738, [vals]);
 }
+// export function addWarehousing(vals:any) {
+//     return postData(1742, [vals.warehouseId],vals.jsonData);
+// }
 export function addWarehousing(vals:any) {
-    return postData(1742, [vals.warehouseId],vals.jsonData);
+    return postData(1742, [vals.orderStatus],vals.jsonData);
 }
 
 export function addOrType(vals:any) {
@@ -50,4 +56,12 @@ export function editOrder(vals:any) {
 // 删除入库单
 export function deleteOrder(vals:any) {
     return getData(2119, [vals.woCode]);
+}
+// 直接送审采购单
+export function sendCheck(vals:any) {
+    return postData(2120, [vals.uid], vals.jsonData);
+}
+// 入库单送审
+export function warehousingSendCheck(vals:any) {
+    return getData(2121, [vals.checkWoCode,vals.checkStutes]);
 }

@@ -6,6 +6,8 @@ import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 import * as Application from '@/services/application';
+import { InStatus, IN_STATUS } from "@/utils/commonEnum";
+
 function mergeByWoCode(data) {
     const map = new Map();
     data.forEach(item => {
@@ -55,6 +57,7 @@ const PurchaseReceiving=(props)=>{
     const [productsName,setProductsName]=useState(checkSessionStorage('/warehouse/checkPurchaseRequest','ReceivingProductsName')||'');// 物品名称
     const [dUid,setDUid]=useState(0);// 审核的ID
     const [dOpne,setDOpen]=useState(false);// 审核确认弹窗
+    const [dOpneNew,setDOpenNew]=useState(false);// 新审核确认弹窗
     const [list,setList]=useState([]);// 列表
     const [count,setCount]=useState(0);// 总条数
     const [quantitySum,setQuantitySum]=useState(0);// 物品数量总和
@@ -217,8 +220,9 @@ const PurchaseReceiving=(props)=>{
                         {
                             record.orderStatus === 2 && (
                                 <Space>
-                                    <Button type='primary' onClick={()=>isCheckOpen(record, 3)}>审核入库</Button>
-                                    <Button type='primary' onClick={()=>isCheckOpen(record, 4)}>驳回</Button>
+                                    {/* <Button type='primary' onClick={()=>isCheckOpen(record, 3)}>审核入库</Button>
+                                    <Button type='primary' onClick={()=>isCheckOpen(record, 4)}>驳回</Button> */}
+                                    <Button type="primary" onClick={() => isCheckOpenNew(record.id)}>审核</Button>
                                 </Space>
                             )
                         }
@@ -289,6 +293,40 @@ const PurchaseReceiving=(props)=>{
                 setSpinning(false);
                 getList();
             }else{
+                message.error(res.Data);
+                setSpinning(false);
+            }
+        })
+    };
+    const [reason, setReason] = useState('');
+    const { TextArea } = Input;
+    const checkOkNew = () => {
+        setSpinning(true);
+        let status = InStatus.APPROVED; // 默认状态为通过
+        Application.warehousingInspection({checkWoCode, status, rejectReason}).then((res: TypeErrorCode) => {
+            if (res.ErrorCode === 0) {
+                message.success('审核成功');
+                setReason('');
+                setDOpenNew(false);
+                setSpinning(false);
+                getList();
+            } else {
+                message.error(res.Data);
+                setSpinning(false);
+            }
+        })
+    };
+    const checkReturn = () => {
+        setSpinning(true);
+        let status = InStatus.REJECTED; // 设置状态为驳回
+        Application.warehousingInspection({checkWoCode, status, rejectReason}).then((res: TypeErrorCode) => {
+            if (res.ErrorCode === 0) {
+                message.success('驳回成功');
+                setReason('');
+                setDOpenNew(false);
+                setSpinning(false);
+                getList();
+            } else {
                 message.error(res.Data);
                 setSpinning(false);
             }
@@ -739,6 +777,54 @@ const PurchaseReceiving=(props)=>{
                 width={760}
             >
                 <GoodsInfoTable list={delOrderList} title="待删除入库商品"/>
+            </Modal>
+            <Modal
+                width={1000}
+                open={dOpneNew}
+                title="审核"
+                onCancel={() => setDOpenNew(false)}
+                loading={spinning}
+                footer={[
+                    <Button key="submit" type="primary" onClick={() => checkOkNew()}>
+                        通过
+                    </Button>,
+                    <Button key="return" type="primary" danger onClick={() => checkReturn()}>
+                        驳回
+                    </Button>,
+                    <Button key="cancel" onClick={() => setDOpenNew(false)}>
+                        关闭
+                    </Button>
+                ]}
+            >
+                <Table
+                    columns={columns}
+                    style={{border:'1px solid #ddd',borderRadius:'4px'} }
+                    pagination={false}
+                    scroll={{y:'60vh',x:1650}}
+                    dataSource={list}
+                    rowKey={(record,index) => `${record.woCode || record.id || 'row'}-${index}`}
+                    size='small'
+                    expandable={{
+                        expandedRowRender: (record:any) => (
+                            <div style={{ padding: '12px 16px', background: '#fafafa' }}>
+                                <div style={{ fontWeight: 600, marginBottom: 8 }}>物品明细</div>
+                                <Table
+                                    columns={detailColumns}
+                                    dataSource={record.productsList || []}
+                                    pagination={false}
+                                    size='small'
+                                    bordered
+                                    rowKey={(item:any, index:number) => `${record.woCode || record.id || 'detail'}-${item.id || item.productsCode || index}`}
+                                />
+                            </div>
+                        ),
+                        rowExpandable: (record:any) => Array.isArray(record.productsList) && record.productsList.length > 0,
+                    }}
+                />
+                <br />
+                <br />
+                审核意见
+                <TextArea rows={4} placeholder="请输入审核意见" value={reason} onChange={(e) => setReason(e.target.value)} />
             </Modal>
         </Spin>
     )
