@@ -25,7 +25,7 @@ const EditUser=(props:any)=>{
     const [qyId,setqyId]=useState(0);
     const [park_id,setPark_id]=useState([]);
     const [oldpark_id,setOldpark_id]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(570).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(572).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{

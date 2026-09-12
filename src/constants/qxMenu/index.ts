@@ -561,4 +561,6 @@ export const qxTree: TypeMenu[] = [
     { id: 567, name: '编辑入库单',parentId: 486, authId: 567},
     { id: 568, name: '删除入库单',parentId: 486, authId: 568},
     { id: 569, name: '审核入库单',parentId: 486, authId: 569},
+    { id: 570, name: '采购单送审',parentId: 479, authId: 570},
+    { id: 571, name: '入库单送审',parentId: 485, authId: 571},
 ]

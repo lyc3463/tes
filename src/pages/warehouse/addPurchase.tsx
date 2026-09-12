@@ -382,11 +382,11 @@ const AddPurchase=(props)=>{
             return;
         }
         // 判断每条明细，如果入库数量大于可入库数量，则提示错误
-        // const hasExceededQuantity = newArr.some((item: any) => item.quantity > (item.quantityTotal - item.quantitySum - item.submitQuantity));
-        // if (hasExceededQuantity) {
-        //     message.warning('入库数量不能超过可入库数量');
-        //     return;
-        // }
+        const hasExceededQuantity = newArr.some((item: any) => item.quantity > (item.quantityTotal - item.quantitySum - item.submitQuantity));
+        if (hasExceededQuantity) {
+            message.warning('入库数量不能超过可入库数量');
+            return;
+        }
         setSpinning(true);
         Application.addWarehousing({orderStatus: orderStatus, jsonData: JSON.stringify(newArr)}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
@@ -601,6 +601,7 @@ const AddPurchase=(props)=>{
                 setOrderModalOpen(false);
                 setSpinning(false);
                 getList(orderCode);
+                getOne(uid);
             } else {
                 message.error(res.Data);
                 setSpinning(false);
@@ -622,6 +623,7 @@ const AddPurchase=(props)=>{
                 setEditModalOpen(false);
                 setSpinning(false);
                 getList(orderCode);
+                getOne(uid);
             } else {
                 message.error(res.Data);
                 setSpinning(false);
@@ -637,6 +639,7 @@ const AddPurchase=(props)=>{
                 setDelModalOpen(false);
                 setSpinning(false);
                 getList(orderCode);
+                getOne(uid);
             } else {
                 message.error(res.Data);
                 setSpinning(false);

@@ -293,8 +293,8 @@ const PurchaseRequestCheck = (props) => {
     };
     const checkOk = () => {
         setSpinning(true);
-        let status = PurStatus.APPROVED; // 默认状态为通过
-        Application.check({ uid: dUid, status, Reason: reason }).then((res: TypeErrorCode) => {
+        let orderStatus = PurStatus.APPROVED; // 默认状态为通过
+        Application.check({ uid: dUid, orderStatus, Reason: reason }).then((res: TypeErrorCode) => {
             if (res.ErrorCode === 0) {
                 message.success('审核成功');
                 setReason('');
@@ -309,8 +309,8 @@ const PurchaseRequestCheck = (props) => {
     };
     const checkReturn = () => {
         setSpinning(true);
-        let status = PurStatus.REJECTED; // 设置状态为驳回
-        Application.check({ uid: dUid, status, Reason: reason }).then((res: TypeErrorCode) => {
+        let orderStatus = PurStatus.REJECTED; // 设置状态为驳回
+        Application.check({ uid: dUid, orderStatus, Reason: reason }).then((res: TypeErrorCode) => {
             if (res.ErrorCode === 0) {
                 message.success('驳回成功');
                 setReason('');

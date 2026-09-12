@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, InputNumber, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
+import {Button, DatePicker, Input, InputNumber, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag, Tooltip,Image} from "antd";
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import React, {useEffect, useState} from "react";
 import {connect,history} from "umi";
@@ -222,7 +222,7 @@ const PurchaseReceiving=(props)=>{
                                 <Space>
                                     {/* <Button type='primary' onClick={()=>isCheckOpen(record, 3)}>审核入库</Button>
                                     <Button type='primary' onClick={()=>isCheckOpen(record, 4)}>驳回</Button> */}
-                                    <Button type="primary" onClick={() => isCheckOpenNew(record.id)}>审核</Button>
+                                    <Button type="primary" onClick={() => isCheckOpenNew(record.id, record)}>审核</Button>
                                 </Space>
                             )
                         }
@@ -302,8 +302,8 @@ const PurchaseReceiving=(props)=>{
     const { TextArea } = Input;
     const checkOkNew = () => {
         setSpinning(true);
-        let status = InStatus.APPROVED; // 默认状态为通过
-        Application.warehousingInspection({checkWoCode, status, rejectReason}).then((res: TypeErrorCode) => {
+        let checkStutes = InStatus.APPROVED; // 默认状态为通过
+        Application.warehousingInspection({checkWoCode, checkStutes, rejectReason}).then((res: TypeErrorCode) => {
             if (res.ErrorCode === 0) {
                 message.success('审核成功');
                 setReason('');
@@ -318,8 +318,8 @@ const PurchaseReceiving=(props)=>{
     };
     const checkReturn = () => {
         setSpinning(true);
-        let status = InStatus.REJECTED; // 设置状态为驳回
-        Application.warehousingInspection({checkWoCode, status, rejectReason}).then((res: TypeErrorCode) => {
+        let checkStutes = InStatus.REJECTED; // 设置状态为驳回
+        Application.warehousingInspection({checkWoCode, checkStutes, rejectReason}).then((res: TypeErrorCode) => {
             if (res.ErrorCode === 0) {
                 message.success('驳回成功');
                 setReason('');
@@ -484,6 +484,74 @@ const PurchaseReceiving=(props)=>{
             message.error('删除失败');
         });
     };
+    const isCheckOpenNew = (id, record) => {
+        console.log('列表',record);
+        setCheckWoCode(record.woCode);
+        setDUid(id);
+        setDOpenNew(true);
+        setOpenOrderList(record.productsList || []);
+    };
+    const columnsz = [
+        {
+            title: '物品图片',
+            dataIndex: 'productsImage',
+            ellipsis: true,
+            render: (text: string, record: any) => {
+                // 核心修复：先将text转为字符串，再做空值+后缀判断
+                // 步骤1：处理非字符串类型（如null/undefined/数字），转为空字符串
+                const textStr = String(text || '');
+
+                // 步骤2：判断是否以.png结尾（仅当字符串非空时判断）
+                const imageUrl = textStr && textStr.endsWith('.png')
+                    ? `${window.ServerConfig.imgServer}${textStr}`
+                    : `${window.ServerConfig.imgServer}${textStr}_min.png`;
+                // 步骤3：仅当字符串非空时渲染图片，否则返回空
+                return textStr ? (
+                    <Image
+                        src={imageUrl}
+                        style={{width:'50px',height:'50px'}}
+                        fallback="https://placeholder.pics/svg/50x50/EEEEEE/999999/暂无图片"
+                        preview={{
+                            src: `${window.ServerConfig.imgServer}${record.productsImage}.png`, // 弹窗预览图单独指定
+                        }}
+                    />
+                ) : (
+                    ''
+                );
+            }
+        },
+        {
+            title: '物品名称',
+            dataIndex: 'productsName',
+            key:'productsName',
+        },
+        {
+            title: '物品编号',
+            dataIndex: 'productsCode',
+            key:'productsCode',
+        },
+        {
+            title: '单位',
+            dataIndex: 'unitsName',
+            key:'unitsName',
+        },
+        {
+            title: '单价(元)',
+            dataIndex: 'price',
+            key:'price',
+           
+        },
+       
+     
+       
+       
+        {
+            title: '入库数量',
+            dataIndex: 'quantity',
+            key:'quantity',
+        },
+      
+    ]
     return(
         <Spin spinning={spinning}>
             <List>
@@ -797,29 +865,15 @@ const PurchaseReceiving=(props)=>{
                 ]}
             >
                 <Table
-                    columns={columns}
-                    style={{border:'1px solid #ddd',borderRadius:'4px'} }
+                    columns={columnsz}
+                   rowKey={(record,index) => record.id}
                     pagination={false}
-                    scroll={{y:'60vh',x:1650}}
-                    dataSource={list}
-                    rowKey={(record,index) => `${record.woCode || record.id || 'row'}-${index}`}
                     size='small'
-                    expandable={{
-                        expandedRowRender: (record:any) => (
-                            <div style={{ padding: '12px 16px', background: '#fafafa' }}>
-                                <div style={{ fontWeight: 600, marginBottom: 8 }}>物品明细</div>
-                                <Table
-                                    columns={detailColumns}
-                                    dataSource={record.productsList || []}
-                                    pagination={false}
-                                    size='small'
-                                    bordered
-                                    rowKey={(item:any, index:number) => `${record.woCode || record.id || 'detail'}-${item.id || item.productsCode || index}`}
-                                />
-                            </div>
-                        ),
-                        rowExpandable: (record:any) => Array.isArray(record.productsList) && record.productsList.length > 0,
-                    }}
+                    scroll={{ y: '55vh' }}
+                    dataSource={openOrderList}
+                    rowClassName={(record, index) =>
+                        index % 2 === 1 ? 'tbodd' : 'tbeven'
+                    }
                 />
                 <br />
                 <br />
