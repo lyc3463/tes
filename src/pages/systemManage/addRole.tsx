@@ -15,7 +15,7 @@ const AddRole=(props)=>{
     const navigate=useNavigate();
     const [spinning,setspinning]=useState(false);
     const treeData = buildTree(qxTree);
-    const [selected, setSelected] = useState<string[]>(Array(572).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(578).fill('0'));
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: TypeMenu[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void })=> {
         return (
             <ul>
@@ -1453,6 +1453,14 @@ const AddRole=(props)=>{
             newSelected[567] = isChecked ? '1' : '0' ;
             newSelected[568] = isChecked ? '1' : '0' ;
             newSelected[569] = isChecked ? '1' : '0' ;
+            newSelected[570] = isChecked ? '1' : '0' ;
+            newSelected[571] = isChecked ? '1' : '0' ;
+            newSelected[572] = isChecked ? '1' : '0' ;
+            newSelected[573] = isChecked ? '1' : '0' ;
+            newSelected[574] = isChecked ? '1' : '0' ;
+            newSelected[575] = isChecked ? '1' : '0' ;
+            newSelected[576] = isChecked ? '1' : '0' ;
+            newSelected[577] = isChecked ? '1' : '0' ;
         }
         if (id === 445){
             newSelected[526] = isChecked ? '1' : '0' ;

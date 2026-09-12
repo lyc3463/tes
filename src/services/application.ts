@@ -35,11 +35,17 @@ export function addWarehousing(vals:any) {
     return postData(1742, [vals.orderStatus],vals.jsonData);
 }
 
+// export function addOrType(vals:any) {
+//     return postData(1745, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.supplierId,vals.paidAmount,vals.totalAmount,vals.remark,vals.pmId],vals.jsonData);
+// }
 export function addOrType(vals:any) {
-    return postData(1745, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.supplierId,vals.paidAmount,vals.totalAmount,vals.remark,vals.pmId],vals.jsonData);
+    return postData(1745, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.supplierId,vals.paidAmount,vals.totalAmount,vals.remark,vals.pmId, vals.orderStatus],vals.jsonData);
 }
+// export function checkOrType(vals:any) {
+//     return getData(1741, [vals.uid,vals.orderStatus]);
+// }
 export function checkOrType(vals:any) {
-    return getData(1741, [vals.uid,vals.orderStatus]);
+    return getData(1741, [vals.uid,vals.orderStatus, vals.Reason]);
 }
 // 入库审核
 export function warehousingInspection(vals:any) {

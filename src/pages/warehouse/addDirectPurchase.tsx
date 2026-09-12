@@ -449,7 +449,7 @@ const AddDirectPurchase = (props) => {
     };
 
     // 提交表单
-    const onOk = () => {
+    const onOk = (orderStatus:number) => {
         const filteredGoods = goods.filter(item => item.productsName?.trim() !== '');
         if (filteredGoods.length === 0) {
             message.error('请至少添加一个物品');
@@ -494,7 +494,7 @@ const AddDirectPurchase = (props) => {
         let jsonData = JSON.stringify(newFilteredData);
         props.dispatch({
             type: "DirectPurchase/add",
-            payload: { orderCode, orderTime, warehouseId, supplierId, paidAmount, totalAmount, remark, jsonData, pmId },
+            payload: { orderCode, orderTime, warehouseId, supplierId, paidAmount, totalAmount, remark, jsonData, pmId, orderStatus },
         }).then((res: TypeErrorCode) => {
             if (res.ErrorCode == 0) {
                 message.success('添加成功');
@@ -575,8 +575,11 @@ const AddDirectPurchase = (props) => {
                 <Button type="primary" onClick={() => navigate(-1)}>
                     返回
                 </Button>
-                <Button type="primary" onClick={onOk}>
+                <Button type="primary" onClick={()=>onOk(1)}>
                     确定
+                </Button>
+                <Button type="primary" danger onClick={()=>onOk(8)}>
+                    直接送审
                 </Button>
                 <Button danger onClick={clearAllDraft}>清空草稿</Button>
             </Space>

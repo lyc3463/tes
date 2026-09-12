@@ -1,4 +1,4 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
 import React, {useEffect, useState} from "react";
 import {connect} from "umi";
 import dayjs from "dayjs";
@@ -7,6 +7,8 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {updateSessionStorage, userQx} from "@/utils/OpenTool";
 import * as ApplicationService from "@/services/application";
 import * as Application from "@/services/application";
+import { QuestionCircleOutlined } from '@ant-design/icons';
+
 const DirectPurchase=(props)=>{
     const [spinning,setSpinning]=useState(false);
     const [page,setPage]=useState(1);  // 当前页数
@@ -83,12 +85,12 @@ const DirectPurchase=(props)=>{
             dataIndex: 'orderStatus',
             key: 'orderStatus',
             align: 'center',
-            render: (text) => {
+            render: (text, record) => {
                 // 定义状态颜色和文字
                 let statusInfo = {};
                 switch (text) {
                     case 1:
-                        statusInfo = { color: 'blue', text: '未审核' };
+                        statusInfo = { color: 'blue', text: '待送审' };
                         break;
                     case 2:
                         statusInfo = { color: 'green', text: '已审核' };
@@ -99,12 +101,24 @@ const DirectPurchase=(props)=>{
                     case 4:
                         statusInfo = { color: 'purple', text: '已报销' };
                         break;
+                    case 7:
+                        statusInfo = { color: 'red', text: '已驳回' };
+                        break;
+                    case 8:
+                        statusInfo = { color: 'orange', text: '已送审' };
+                        break;
                     default:
                         statusInfo = { color: 'default', text: '未知状态' };
                 }
+                const reason = record && (record.rejectReason || record.reject_reason || record.reject || record.rejectedReason || '');
                 return (
                     <Space>
                         <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
+                        {text === 7 && reason ? (
+                            <Tooltip title={reason} placement="topLeft">
+                                <QuestionCircleOutlined style={{ color: '#999', marginLeft: 4 }} />
+                            </Tooltip>
+                        ) : null}
                     </Space>
                 )
             }
@@ -122,12 +136,14 @@ const DirectPurchase=(props)=>{
             key:'status',
             align:'center',
             fixed:'right',
+            width:200,
             render:(text,record)=>{
                 return(
                     <Space>
-                        {record.orderStatus==1&&<>
-                            <Button type="primary" onClick={()=>isDelOpen(record.id)}>删除</Button>
-                            <Button type="primary" onClick={()=>{history.push(`/warehouse/editApplication?id=${record.id}`)}}>编辑</Button>
+                        {(record.orderStatus==1 || record.orderStatus==7)&&<>
+                            <Button type="primary" size="small" onClick={()=>isDelOpen(record.id)}>删除</Button>
+                            <Button type="primary" size="small" onClick={()=>{history.push(`/warehouse/editApplication?id=${record.id}`)}}>编辑</Button>
+                             <Button type="primary" danger size="small" onClick={()=>sendCheck(record.id)}>直接送审</Button>
                         </>}
                     </Space>
                 )
@@ -135,6 +151,20 @@ const DirectPurchase=(props)=>{
 
         },
     ];
+    // 直接送审
+    const sendCheck=(e)=>{
+        setSpinning(true);
+        ApplicationService.sendCheck({uid:e}).then((res:TypeErrorCode)=>{
+            setSpinning(false);
+            if(res.ErrorCode===0){
+                message.success('送审成功');
+                getList();
+            }else{
+                message.error(res.Data);
+                setSpinning(false);
+            }
+        })
+    };
     const isDelOpen=(id)=>{
         setDUid(id);
         setDOpen(true);
@@ -329,7 +359,10 @@ const DirectPurchase=(props)=>{
                                 onChange={changeOrderStatus}
                                 options={[
                                     {label:'全部',value:0},
+                                    {label:'待送审',value:1},
+                                    {label:'已送审',value:8},
                                     {label:'已审核',value:2},
+                                    {label:'已驳回',value:7},
                                     {label:'已提交报销',value:3},
                                     {label:'已报销',value:4},
                                 ]}
