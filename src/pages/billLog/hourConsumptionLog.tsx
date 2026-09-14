@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import MyTypeTag from "@/components/MyTypeTag";
+import ConsumptionTypeSelect from "@/components/MyConsumptionTypeSelect";
 
 const HourConsumptionLog=(props)=>{
     // 当前页数
@@ -62,13 +64,13 @@ const HourConsumptionLog=(props)=>{
         },
         {
             title: '姓名',
-            dataIndex: 'user_name',
-            key: 'user_name',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.user_name}>
-                            {record.user_name}
+                        <Tooltip title={record.tenant_name}>
+                            {record.tenant_name}
                         </Tooltip>
                     </div>
                 )
@@ -76,58 +78,17 @@ const HourConsumptionLog=(props)=>{
         },
         {
             title: '手机号',
-            dataIndex: 'phone',
-            key: 'phone',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
         },
-        {
+         {
             title: '类型',
             dataIndex: 'consumptionType',
             key: 'consumptionType',
             render:(_:any,item:any)=>{
-                let consumptionTypeText;
-                switch (item.consumptionType) {
-                    case 1:
-                        consumptionTypeText = <Tag style={{ color: '#4CAF50' }}>微信充值</Tag>;
-                        break;
-                    case 2:
-                        consumptionTypeText = <Tag style={{ color: '#F44336' }}>租金</Tag>;
-                        break;
-                    case 3:
-                        consumptionTypeText = <Tag style={{ color: '#2196F3' }}>电费</Tag>;
-                        break;
-                    case 4:
-                        consumptionTypeText = <Tag style={{ color: '#FFC107' }}>水费</Tag>;
-                        break;
-                    case 5:
-                        consumptionTypeText = <Tag style={{ color: '#9C27B0' }}>公共缴费</Tag>;
-                        break;
-                    case 6:
-                        consumptionTypeText = <Tag style={{ color: '#E91E63' }}>手动充值</Tag>;
-                        break;
-                    case 7:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>服务费</Tag>;
-                        break;
-                    case 8:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>违约金</Tag>;
-                        break;
-                    case 9:
-                        consumptionTypeText = <Tag style={{ color: '#795588' }}>月保</Tag>;
-                        break;
-                    case 10:
-                        consumptionTypeText = <Tag style={{ color: '#795548' }}>大额转账</Tag>;
-                        break;
-                    case 11:
-                        consumptionTypeText = <Tag style={{ color: '#795588' }}>报修</Tag>;
-                        break;
-                    case 12:
-                        consumptionTypeText = <Tag style={{ color: '#795588' }}>装修押金</Tag>;
-                        break;
-                    default:
-                        consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
-                }
-                return (
-                    consumptionTypeText
-                );
+                return(
+                    <MyTypeTag type={item.consumptionType}/>
+                )
             }
         },
         {
@@ -224,24 +185,9 @@ const HourConsumptionLog=(props)=>{
                             >
                                 类型:
                             </div>
-                            <Select
+                              <ConsumptionTypeSelect
+                                value={type}
                                 onChange={changeType}
-                                defaultValue={type}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value:0, label: '全部' },
-                                    // { value:1, label: '微信充值' },
-                                    { value:2, label: '租金' },
-                                    { value:3, label: '电费' },
-                                    { value:4, label: '水费' },
-                                    { value:5, label: '公共缴费' },
-                                    // { value:6, label: '手动充值' },
-                                    { value:7, label: '损耗' },
-                                    { value:8, label: '违约金' },
-                                    { value:9, label: '月保' },
-                                    { value:11, label: '报修' },
-                                    { value:12, label: '装修押金' },
-                                ]}
                             />
                         </Space.Compact>
                         <Space.Compact>

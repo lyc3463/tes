@@ -5,6 +5,9 @@ import {useEffect, useState} from "react";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, downloadFile, updateSessionStorage} from "@/utils/OpenTool";
 import * as ConsumptionLogService from "@/services/consumptionLog";
+import MyTypeTag from "@/components/MyTypeTag";
+import ConsumptionTypeSelect from "@/components/MyConsumptionTypeSelect";
+
 const OldConsumptionLog=(props)=>{
     // 当前页数
     const [page,setPage]=useState(1);
@@ -58,13 +61,13 @@ const OldConsumptionLog=(props)=>{
         },
         {
             title: '姓名',
-            dataIndex: 'user_name',
-            key: 'user_name',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
             render: (text:any, record:any) => {
                 return(
                     <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
                         <Tooltip title={record.user_name}>
-                            {record.user_name}
+                            {record.tenant_name}
                         </Tooltip>
                     </div>
                 )
@@ -72,8 +75,8 @@ const OldConsumptionLog=(props)=>{
         },
         {
             title: '手机号',
-            dataIndex: 'phone',
-            key: 'phone',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
         },
         {
             title: '类型',
@@ -229,24 +232,9 @@ const OldConsumptionLog=(props)=>{
                             >
                                 类型:
                             </div>
-                            <Select
+                            <ConsumptionTypeSelect
+                                value={type}
                                 onChange={changeType}
-                                defaultValue={type}
-                                style={{ width: 120 }}
-                                options={[
-                                    { value:0, label: '全部' },
-                                    // { value:1, label: '微信充值' },
-                                    { value:2, label: '租金' },
-                                    { value:3, label: '电费' },
-                                    { value:4, label: '水费' },
-                                    { value:5, label: '公共缴费' },
-                                    // { value:6, label: '手动充值' },
-                                    { value:7, label: '损耗' },
-                                    { value:8, label: '违约金' },
-                                    { value:9, label: '月保' },
-                                    { value:11, label: '报修' },
-                                    { value:12, label: '装修押金' },
-                                ]}
                             />
                         </Space.Compact>
                         <Space.Compact>
