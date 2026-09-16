@@ -16,7 +16,8 @@ const typeConfig = {
     11: { text: '报修', color: '#795548' },
     12: { text: '装修押金', color: '#795548' },
     13: { text: '管理费', color: '#795548' },
-    14: { text: '管理费违约金', color: '#795548' },
+    14: { text: '退款', color: '#795548' },
+    // 14: { text: '管理费违约金', color: '#795548' },
     default: { text: '未知类型', color: '#777777' }
 };
 

@@ -85,56 +85,56 @@ const Wcxuserlist=(props:any)=>{
             dataIndex: 'phone',
             key: 'phone',
         },
-        {
-            title: '余额(元)',
-            dataIndex: 'balance',
-            key: 'balance',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.balance.toFixed(2)}元
-                    </div>
-                )
-            }
-        },
-        {
-            title: '账单(元)',
-            dataIndex: 'billMoney',
-            key: 'billMoney',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.billMoney.toFixed(2)}元
-                    </div>
-                )
-            }
-        },
-        {
-            title: '积分',
-            dataIndex: 'integral',
-            key: 'integral',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>
-                        {record.integral.toFixed(2)}元
-                    </div>
-                )
-            }
-        },
-        {
-            title: '权限',
-            dataIndex: 'qx',
-            key: 'qx',
-            render:(text:any,record:any,)=>{
-                return(
-                    <Space>
-                        <Button type='primary' onClick={()=>editInfo(record)}>详情</Button>
-                        {/*<Button type='primary' onClick={()=>toChangePark(record)}>更改园区</Button>*/}
-                    </Space>
+        // {
+        //     title: '余额(元)',
+        //     dataIndex: 'balance',
+        //     key: 'balance',
+        //     render:(text:any,record:any,)=>{
+        //         return(
+        //             <div>
+        //                 {record.balance.toFixed(2)}元
+        //             </div>
+        //         )
+        //     }
+        // },
+        // {
+        //     title: '账单(元)',
+        //     dataIndex: 'billMoney',
+        //     key: 'billMoney',
+        //     render:(text:any,record:any,)=>{
+        //         return(
+        //             <div>
+        //                 {record.billMoney.toFixed(2)}元
+        //             </div>
+        //         )
+        //     }
+        // },
+        // {
+        //     title: '积分',
+        //     dataIndex: 'integral',
+        //     key: 'integral',
+        //     render:(text:any,record:any,)=>{
+        //         return(
+        //             <div>
+        //                 {record.integral.toFixed(2)}元
+        //             </div>
+        //         )
+        //     }
+        // },
+        // {
+        //     title: '权限',
+        //     dataIndex: 'qx',
+        //     key: 'qx',
+        //     render:(text:any,record:any,)=>{
+        //         return(
+        //             <Space>
+        //                 <Button type='primary' onClick={()=>editInfo(record)}>详情</Button>
+        //                 {/*<Button type='primary' onClick={()=>toChangePark(record)}>更改园区</Button>*/}
+        //             </Space>
 
-                )
-            }
-        },
+        //         )
+        //     }
+        // },
     ];
     // 监听数据变化，重置图片加载状态
     useEffect(() => {
@@ -246,15 +246,12 @@ const Wcxuserlist=(props:any)=>{
         setIsSpinning(true);
         AppUserService.fetch({page:1,name,phone,pageSize:100000,balance}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                let headers=['微信昵称','用户手机号','余额(元)','账单(元)','积分'];
+                let headers=['微信昵称','用户手机号'];
                 const ws_data = [
                     headers.map(header => ({ v: header, t: 's' })), // 表头
                     ...res.Data.map(item => [
                         item.appUser_name,
                         item.appUser_phone,
-                        item.balance.toFixed(2),
-                        item.billMoney.toFixed(2),
-                        item.integral.toFixed(2),
                     ].map(value => ({ v: value, t: typeof value === 'number' ? 'n' : 's' }))) // 数据行，根据值类型设置单元格类型
                 ];
                 exportDataToExcel(ws_data);
@@ -345,31 +342,31 @@ const Wcxuserlist=(props:any)=>{
                         }
                     },
                 })}
-                summary={(columns) => (
-                    <Table.Summary fixed>
-                        <Table.Summary.Row>
-                            <Table.Summary.Cell
-                                index={1}
-                            >
-                                统计
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell index={0}>
-                                总人数:{props.count?props.count.count:''}人
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell index={0}>
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}>
-                                {props.count?props.count.balanceSum.toFixed(2):''}元
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell index={7}>
-                                {props.count?props.count.billMoneySum.toFixed(2):''}元
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}>
-                                {props.count?props.count.integralSum.toFixed(2):''}分
-                            </Table.Summary.Cell>
-                        </Table.Summary.Row>
-                    </Table.Summary>
-                )}
+                // summary={(columns) => (
+                //     <Table.Summary fixed>
+                //         <Table.Summary.Row>
+                //             <Table.Summary.Cell
+                //                 index={1}
+                //             >
+                //                 统计
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={0}>
+                //                 总人数:{props.count?props.count.count:''}人
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={0}>
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={5}>
+                //                 {props.count?props.count.balanceSum.toFixed(2):''}元
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={7}>
+                //                 {props.count?props.count.billMoneySum.toFixed(2):''}元
+                //             </Table.Summary.Cell>
+                //             <Table.Summary.Cell index={6}>
+                //                 {props.count?props.count.integralSum.toFixed(2):''}分
+                //             </Table.Summary.Cell>
+                //         </Table.Summary.Row>
+                //     </Table.Summary>
+                // )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             {/*编辑权限弹窗*/}

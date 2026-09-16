@@ -29,4 +29,5 @@ export const qxTree: TypeMenu[] = [
     { id: 110, name: '招商信息',authId: 110},
     { id: 399, name: '放行条',authId: 399},
     { id: 426, name: '装修申请',authId: 426},
+    { id: 589, name: '退款申请', authId: 589},
 ]

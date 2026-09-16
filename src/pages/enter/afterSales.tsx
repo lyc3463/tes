@@ -9,6 +9,8 @@ import {useEffect, useState} from "react";
 import {StaticInfo} from "@/StaticInfo";
 import Damages from "@/pages/enter/damages";
 import ChangeWeChat from "@/pages/enter/changeWeChat";
+import RefundList from "@/pages/enter/refundList";
+
 import RequestARefund from "@/pages/enter/requestARefund";
 const AfterSales=()=>{
     const [activeKey, setActiveKey] = useState(sessionStorage.getItem('activeTabKey1') || '1');
@@ -50,6 +52,9 @@ const AfterSales=()=>{
 
             <Tabs.TabPane tab='更改微信号' key='8'>
                 <ChangeWeChat/>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab='退款申请录入' key='9'>
+                <RefundList/>
             </Tabs.TabPane>
         </Tabs>
     )

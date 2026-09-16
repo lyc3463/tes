@@ -1,12 +1,15 @@
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tabs, Tag, Tooltip} from "antd";
 import {connect, history} from "umi";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 import * as PuchaseService from "@/services/application";
-import { QuestionCircleOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, PrinterTwoTone } from '@ant-design/icons';
 import {PurStatus, PUR_STATUS} from "@/utils/commonEnum";
+import {useReactToPrint} from "react-to-print";
+import WarehousingPrint from "@/components/WarehousingPrint";
+import './print.less';
 
 const Application=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -25,6 +28,19 @@ const Application=(props)=>{
     const [uName,setUName]=useState(checkSessionStorage('/warehouse/application','applicationUName')||'');// 申请人
 
     const columns=[
+        {
+            title:'',
+            dataIndex:'print',
+            key:'print',
+            align:'center',
+            ellipsis:true,
+            width:50,
+            render:(text,record)=>{
+                return(
+                    <Button type='link' icon={<PrinterTwoTone />} onClick={()=>{isOpen(record)}}>{text}</Button>
+                )
+            }
+        },
         {
             title:'申请日期',
             dataIndex:'orderTime',
@@ -274,7 +290,109 @@ const Application=(props)=>{
             }
         })
     };
-        
+    const [printVisible,setPrintVisible]=useState(false);
+    const [printLoading,setPrintLoading]=useState(false);
+    // 当前打印的单据数据（基础信息取列表行 record，物品明细调详情接口）
+    const [printData,setPrintData]=useState<any>(null);
+    const printRef = useRef();
+    // 点击打印图标：先用行数据填充，再拉详情拿物品明细
+    const isOpen=async (record:any)=>{
+        setPrintVisible(true);
+        setPrintLoading(true);
+        setPrintData({
+            orderCode: record.orderCode,
+            warehouseName: record.warehouseName,
+            orderTime: record.orderTime,
+            totalAmount: Number(record.totalAmount) || 0,
+            paidAmount: Number(record.paidAmount) || 0,
+            user_name: record.user_name,
+            supplierName: record.supplierName,
+            goods: [],
+        });
+        try {
+            const res:any = await PuchaseService.one(record.id);
+            if(res.ErrorCode===0){
+                const data = res.Data || {};
+                // 详情接口返回的物品列表是 ppList，quantity 取 quantityTotal（同 infpApplication）
+                const goods = Array.isArray(data.ppList)
+                    ? data.ppList.map((item:any)=>({...item, quantity: item.quantityTotal}))
+                    : [];
+                setPrintData((prev:any)=>({
+                    ...prev,
+                    orderCode: data.orderCode ?? prev.orderCode,
+                    warehouseName: data.warehouseName ?? prev.warehouseName,
+                    orderTime: data.orderTime ?? prev.orderTime,
+                    totalAmount: Number(data.totalAmount ?? prev.totalAmount) || 0,
+                    paidAmount: Number(data.paidAmount ?? prev.paidAmount) || 0,
+                    user_name: data.user_name ?? prev.user_name,
+                    supplierName: data.supplierName ?? prev.supplierName,
+                    goods,
+                }));
+            }else{
+                message.error(res.Data);
+            }
+        } catch (error) {
+            console.error('获取采购单详情失败:', error);
+            message.error('获取打印数据失败，请重试');
+        } finally {
+            setPrintLoading(false);
+        }
+    };
+    const printProps = {
+        orderCode: printData?.orderCode || '',
+        warehouseName: printData?.warehouseName || '',
+        orderTime: printData?.orderTime || '',
+        totalAmount: printData?.totalAmount || 0,
+        paidAmount: printData?.paidAmount || 0,
+        user_name: printData?.user_name || '',
+        goods: printData?.goods || [],
+        title:'采购申请',
+        supplierName: printData?.supplierName || '',
+    };
+    // 自定义打印方法（处理内容隔离和样式）
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,  // 使用 content 而不是 contentRef
+        pageStyle: `
+        @page {
+            size: A4;
+            margin: 2mm 20mm;
+        }
+        @media print {
+            /* 分页样式 */
+            .page-break {
+                page-break-after: always;
+            }
+            /* 防止内容被分页截断 */
+            .no-break {
+                page-break-inside: avoid;
+            }
+            /* 隐藏 Modal 相关元素 */
+            .ant-modal-wrap,
+            .ant-modal-mask {
+                display: none !important;
+            }
+            .ant-modal {
+                position: static !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            .ant-modal-content {
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+            .ant-modal-header,
+            .ant-modal-footer {
+                display: none !important;
+            }
+            .ant-modal-body {
+                padding: 0 !important;
+            }
+            body *:not(.print-only-content):not(.print-only-content *) {
+                        visibility: hidden;
+                        }
+        }
+    `,
+    });
     return(
         <Spin spinning={spinning}>
             <List>
@@ -430,6 +548,21 @@ const Application=(props)=>{
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
             <Modal title="删除确认" open={dOpne} onOk={()=>delOk()} onCancel={()=>setDOpen(false)} loading={spinning}>
                 是否要删除?
+            </Modal>
+            <Modal
+                open={printVisible}
+                onCancel={()=>setPrintVisible(false)}
+                width={1200}
+                footer={[
+                    <Button key="print" type="primary" loading={printLoading} onClick={handlePrint}>打印</Button>,
+                    <Button key="cancel" onClick={()=>setPrintVisible(false)}>关闭</Button>
+                ]}
+            >
+                <Spin spinning={printLoading}>
+                    <div className="print-only-content" ref={printRef}>
+                        <WarehousingPrint {...printProps} className="print-only-content"/>
+                    </div>
+                </Spin>
             </Modal>
         </Spin>
     )

@@ -379,8 +379,8 @@ const InfpApplication=(props)=>{
                     <Button key="cancel" onClick={()=>setPrintVisible(false)}>关闭</Button>
                 ]}
             >
-                <div className="print-only-content">
-                    <WarehousingPrint {...printProps} ref={printRef} className="print-only-content"/>
+                <div className="print-only-content" ref={printRef}>
+                    <WarehousingPrint {...printProps} className="print-only-content"/>
                 </div>
             </Modal>
             {/*<Modal*/}

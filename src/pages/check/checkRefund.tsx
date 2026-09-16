@@ -76,7 +76,7 @@ const CheckRefund=()=>{
             }
         },
         {
-            title: '日期',
+            title: '申请日期',
             dataIndex: 'created',
             key: 'created',
             render:(_:any,record:any)=>(
@@ -86,23 +86,18 @@ const CheckRefund=()=>{
             )
         },
         {
-            title: '用户姓名',
-            dataIndex: 'user_name',
-            key: 'user_name',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div style={{width:'100px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                        <Tooltip title={record.user_name}>
-                            {record.user_name}
-                        </Tooltip>
-                    </div>
-                )
-            }
+            title: '申请人',
+            dataIndex: 'tenant_name',
+            key: 'tenant_name',
+            align: 'center',
+            ellipsis: true,
         },
         {
             title: '联系方式',
-            dataIndex: 'phone',
-            key: 'phone',
+            dataIndex: 'tenant_phone',
+            key: 'tenant_phone',
+            align: 'center',
+            ellipsis: true,
         },
         {
             title: '退款金额',
@@ -110,7 +105,7 @@ const CheckRefund=()=>{
             key: 'applyAmount',
         },
         {
-            title: '描述',
+            title: '退款原因',
             dataIndex: 'applyReason',
             key: 'applyReason',
         },
@@ -118,10 +113,28 @@ const CheckRefund=()=>{
             title: '状态',
             dataIndex: 'renameStatus',
             key: 'renameStatus',
-            render:(text:any,record:any,)=>{
-                return(
-                    <div>{record.renameStatus==2?<Tag color='green'>已审核</Tag>:<Tag color='red'>未审核</Tag>}</div>
-                )
+            render: (text, record) => {
+                // 定义状态颜色和文字
+                let statusInfo = {};
+                switch (text) {
+                    case 1:
+                        statusInfo = { color: 'blue', text: '待送审' };
+                        break;
+                    case 4:
+                        statusInfo = { color: 'orange', text: '已送审' };
+                        break;
+                    case 3:
+                        statusInfo = { color: 'red', text: '已驳回' };
+                        break;
+                    case 2:
+                        statusInfo = { color: 'green', text: '已审核' };
+                        break;
+                    default:
+                        statusInfo = { color: 'default', text: '未知状态' };
+                }
+                return (
+                    <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
+                );
             }
         },
         {
@@ -129,14 +142,11 @@ const CheckRefund=()=>{
             dataIndex: 'cx',
             key: 'cx',
             render:(text:any,record:any,)=>{
-                return(
+                return (
                     <Space>
-                        {
-                            record.renameStatus==2?'':<>
-                                {/*<Button type='primary' onClick={()=>toedit(record.id)}>详情</Button>*/}
-                                <Button type='primary' danger onClick={()=>IsDelOpen(record)}>审核</Button>
-                            </>
-                        }
+                        {record.renameStatus == 4 && <>
+                            <Button type='primary' onClick={()=>IsDelOpen(record)}>审核</Button>
+                        </>}
                     </Space>
                 )
             }
@@ -200,19 +210,38 @@ const CheckRefund=()=>{
         setUid(e.id);
         setApplyAmount(e.applyAmount);
         setOpen(true);
+        setOrderNum(e.orderNum);
     };
+    const [orderNum,setOrderNum] = useState('');
     const onOk=()=>{
         setspinning(true);
-        RefundService.check({uid,auditRefundAmount,serviceCharge}).then((res:TypeErrorCode)=>{
+        RefundService.check({uid,auditRefundAmount,serviceCharge,orderNum,reason,renameStatus:2}).then((res:TypeErrorCode)=>{
             if(res.ErrorCode==0){
                 message.success("审核成功");
+                setReason('');
                 setOpen(false);
                 logFenye();
+                setspinning(false);
             }else{
                 message.error(res.Data || "审核失败");
             }
         })
         setspinning(false);
+    };
+    const checkReturn = () => {
+        setspinning(true);
+        RefundService.refundReturn({ id: uid, reason: reason}).then((res: TypeErrorCode) => {
+            if (res.ErrorCode === 0) {
+                message.success('驳回成功');
+                setReason('');
+                setOpen(false);
+                logFenye();
+                setspinning(false);
+            } else {
+                message.error(res.Data);
+                setspinning(false);
+            }
+        })
     };
     const changeServiceCharge=(e:number)=>{
         setServiceCharge(e);
@@ -220,6 +249,8 @@ const CheckRefund=()=>{
     useEffect(() => {
         setAuditRefundAmount(Number((applyAmount-(applyAmount*serviceCharge/100)).toFixed(3)));
     }, [serviceCharge,applyAmount]);
+    const TextArea = Input.TextArea;
+    const [reason,setReason] = useState('');
     return(
         <Spin spinning={spinning}>
             <List>
@@ -269,6 +300,8 @@ const CheckRefund=()=>{
                             >
                                 <Select.Option value={0}>全部</Select.Option>
                                 <Select.Option value={1}>未审核</Select.Option>
+                                <Select.Option value={4}>已送审</Select.Option>
+                                <Select.Option value={3}>已驳回</Select.Option>
                                 <Select.Option value={2}>已审核</Select.Option>
                             </Select>
                         </Space.Compact>
@@ -290,7 +323,24 @@ const CheckRefund=()=>{
                 }
             />
             <Pagination total={count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50]}/>
-            <Modal onOk={onOk} onCancel={()=>setOpen(false)} loading={spinning} open={open} title='是否要审核?'>
+            <Modal
+                width={1000}
+                open={open}
+                title="审核"
+                onCancel={() => setOpen(false)}
+                loading={spinning}
+                footer={[
+                    <Button key="submit" type="primary" onClick={() => onOk()}>
+                        通过
+                    </Button>,
+                    <Button key="return" type="primary" danger onClick={() => checkReturn()}>
+                        驳回
+                    </Button>,
+                    <Button key="cancel" onClick={() => setOpen(false)}>
+                        关闭
+                    </Button>
+                ]}
+            >
                 <Form layout="vertical">
                     <Form.Item
                         label="申请退款金额"
@@ -325,7 +375,47 @@ const CheckRefund=()=>{
                         />%
                     </Form.Item>
                 </Form>
+                <br />
+                <br />
+                审核意见
+                <TextArea rows={4} placeholder="请输入审核意见" value={reason} onChange={(e) => setReason(e.target.value)} />
             </Modal>
+            {/* <Modal onOk={onOk} onCancel={()=>setOpen(false)} loading={spinning} open={open} title='是否要审核?'>
+                <Form layout="vertical">
+                    <Form.Item
+                        label="申请退款金额"
+                    >
+                        <InputNumber
+                            style={{ width: '100%' }}
+                            placeholder="请输入数字"
+                            disabled
+                            value={applyAmount}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        label="实际退款金额"
+                    >
+                        <InputNumber
+                            style={{ width: '100%' }}
+                            placeholder="请输入数字"
+                            value={auditRefundAmount}
+                            min={0}
+                            disabled
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        label="服务费"
+                    >
+                        <InputNumber
+                            style={{ width: '200px' }}
+                            placeholder="请输入数字"
+                            min={0}
+                            value={serviceCharge}
+                            onChange={changeServiceCharge}
+                        />%
+                    </Form.Item>
+                </Form>
+            </Modal> */}
         </Spin>
     )
 }

@@ -27,18 +27,18 @@ const CheckPurchaseRequest=()=>{
                 {userQx()[486]=='1'?<Tabs.TabPane tab='采购入库' key='3'>
                     <Purchase/>
                 </Tabs.TabPane>:''}
-                {userQx()[486]=='1'?<Tabs.TabPane tab='入库审核' key='6'>
+                {userQx()[572]=='1'?<Tabs.TabPane tab='入库审核' key='6'>
                     <PurchaseReceiving/>
                 </Tabs.TabPane>:''}
                 {userQx()[489]=='1'?<Tabs.TabPane tab='直接入库单' key='4'>
                     <DirectPurchase/>
                 </Tabs.TabPane>:''}
-                {userQx()[489]=='1'?<Tabs.TabPane tab='审核直接入库' key='7'>
+                {userQx()[573]=='1'?<Tabs.TabPane tab='审核直接入库' key='7'>
                     <ReceivingDirectPurchase/>
                 </Tabs.TabPane>:''}
-                <Tabs.TabPane tab='入库明细' key='5'>
+                {userQx()[578]=='1'?<Tabs.TabPane tab='入库明细' key='5'>
                     <PurchaseInDetail/>
-                </Tabs.TabPane>
+                </Tabs.TabPane>:''} 
             </Tabs>
         </div>
     )

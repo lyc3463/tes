@@ -35,7 +35,7 @@ const Zuhuguanlian=(props:any)=>{
     // 小程序
     const [appid,setAppid]=useState(0);
     const [isOpen,setIsOpen]=useState(false);
-    const [selected, setSelected] = useState<string[]>(Array(562).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(595).fill('0'));
     const [isSpinning,setIsSpinning]=useState(false);
     const treeData = buildTree(qxTree);
     const checkboxRelationMap = {
@@ -55,6 +55,7 @@ const Zuhuguanlian=(props:any)=>{
         399: [421, 422, 423, 424, 404],
         110: [111],
         426: [427, 428, 429, 430],
+        589: [590, 591,594,64]
     };
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: qxTree[]; selected: string[]; setSelected: (newSelected: string[]) => void })=> {
         return (
@@ -99,6 +100,8 @@ const Zuhuguanlian=(props:any)=>{
     const onOk=()=>{
         let joinqx=selected.join('');
         setIsSpinning(true);
+        console.log(joinqx);
+        
         zuhuServie.editzuhuAuth(appid,joinqx)
             .then((res:any)=>{
                 if (res.ErrorCode==0){

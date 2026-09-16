@@ -1,5 +1,5 @@
 import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag,Image} from "antd";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {connect} from "umi";
 import dayjs from "dayjs";
 import {history} from "@@/core/history";
@@ -7,6 +7,10 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {updateSessionStorage, userQx} from "@/utils/OpenTool";
 import * as ApplicationService from "@/services/application";
 import {checkOrType} from "@/services/application";
+import {PrinterTwoTone} from "@ant-design/icons";
+import {useReactToPrint} from "react-to-print";
+import WarehousingPrint from "@/components/WarehousingPrint";
+import './print.less';
 
 const ReceivingDirectPurchase=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -25,6 +29,19 @@ const ReceivingDirectPurchase=(props)=>{
     const [productsName,setProductsName]=useState('');// 物品名称
     const [uName,setUName]=useState('');// 采购人
     const columns=[
+        {
+            title:'',
+            dataIndex:'print',
+            key:'print',
+            align:'center',
+            ellipsis:true,
+            width:50,
+            render:(text,record)=>{
+                return(
+                    <Button type='link' icon={<PrinterTwoTone />} onClick={()=>{openPrint(record)}}>{text}</Button>
+                )
+            }
+        },
         {
             title:'申请日期',
             dataIndex:'orderTime',
@@ -313,6 +330,79 @@ const ReceivingDirectPurchase=(props)=>{
             message.error(res.Data);
         }
     };
+    /* ======================= 打印 ======================= */
+    const [printVisible,setPrintVisible]=useState(false);
+    const [printLoading,setPrintLoading]=useState(false);
+    const [printData,setPrintData]=useState<any>(null);
+    const printRef = useRef();
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,
+        pageStyle: `
+        @page { size: A4; margin: 2mm 20mm; }
+        @media print {
+            .page-break { page-break-after: always; }
+            .no-break { page-break-inside: avoid; }
+            .ant-modal-wrap, .ant-modal-mask { display: none !important; }
+            .ant-modal { position: static !important; width: 100% !important; margin: 0 !important; }
+            .ant-modal-content { box-shadow: none !important; background: transparent !important; }
+            .ant-modal-header, .ant-modal-footer { display: none !important; }
+            .ant-modal-body { padding: 0 !important; }
+            body *:not(.print-only-content):not(.print-only-content *) { visibility: hidden; }
+        }
+        `,
+    });
+    const openPrint = async (record:any) => {
+        setPrintVisible(true);
+        setPrintLoading(true);
+        setPrintData({
+            orderCode: record.orderCode,
+            warehouseName: record.warehouseName,
+            orderTime: record.orderTime,
+            totalAmount: Number(record.totalAmount) || 0,
+            paidAmount: Number(record.paidAmount) || 0,
+            user_name: record.user_name,
+            supplierName: record.supplierName,
+            goods: [],
+        });
+        try {
+            const res:any = await ApplicationService.one(record.id);
+            if (res.ErrorCode === 0) {
+                const data = res.Data || {};
+                const goods = Array.isArray(data.ppList)
+                    ? data.ppList.map((item:any) => ({...item, quantity: item.quantityTotal}))
+                    : [];
+                setPrintData((prev:any) => ({
+                    ...prev,
+                    orderCode: data.orderCode ?? prev.orderCode,
+                    warehouseName: data.warehouseName ?? prev.warehouseName,
+                    orderTime: data.orderTime ?? prev.orderTime,
+                    totalAmount: Number(data.totalAmount ?? prev.totalAmount) || 0,
+                    paidAmount: Number(data.paidAmount ?? prev.paidAmount) || 0,
+                    user_name: data.user_name ?? prev.user_name,
+                    supplierName: data.supplierName ?? prev.supplierName,
+                    goods,
+                }));
+            } else {
+                message.error(res.Data);
+            }
+        } catch (error) {
+            console.error('获取详情失败:', error);
+            message.error('获取打印数据失败，请重试');
+        } finally {
+            setPrintLoading(false);
+        }
+    };
+    const printProps = {
+        orderCode: printData?.orderCode || '',
+        warehouseName: printData?.warehouseName || '',
+        orderTime: printData?.orderTime || '',
+        totalAmount: printData?.totalAmount || 0,
+        paidAmount: printData?.paidAmount || 0,
+        user_name: printData?.user_name || '',
+        goods: printData?.goods || [],
+        title: '直接入库',
+        supplierName: printData?.supplierName || '',
+    };
     return(
         <Spin spinning={spinning}>
             <List>
@@ -490,6 +580,21 @@ const ReceivingDirectPurchase=(props)=>{
                 <br />
                 审核意见
                 <TextArea rows={4} placeholder="请输入审核意见" value={reason} onChange={(e) => setReason(e.target.value)} />
+            </Modal>
+            <Modal
+                open={printVisible}
+                onCancel={()=>setPrintVisible(false)}
+                width={1200}
+                footer={[
+                    <Button key="print" type="primary" loading={printLoading} onClick={handlePrint}>打印</Button>,
+                    <Button key="cancel" onClick={()=>setPrintVisible(false)}>关闭</Button>
+                ]}
+            >
+                <Spin spinning={printLoading}>
+                    <div className="print-only-content" ref={printRef}>
+                        <WarehousingPrint {...printProps} className="print-only-content"/>
+                    </div>
+                </Spin>
             </Modal>
         </Spin>
     )
