@@ -1279,33 +1279,48 @@ const Contractez = () => {
                       <p className={styles.linheP}  >
                         日期：
                     </p>
-                      <p className={styles.linheP}  style={{   textAlign: 'center' }}>
+                      <p style={{marginLeft:'50px',textAlign:'center'}}>
                         <h2>
-                            代缴服务费确认书
+                            设备使用及线路维护费确认书<span style={{fontSize:'16px'}}>(简称服务费)</span>
                         </h2>
                     </p>
-                      <p className={styles.linheP}  >
-
+                    <p style={{marginLeft:'50px'}}>
+                        致{companyName}：
                     </p>
-                      <p className={styles.linheP}  >
-                        根据贵我双方所签订的《租赁合同》约定，我方承租贵方位于{rentAddress}{unit_name}房号的房地产（下称“租赁房地产”）
+                    <p style={{marginLeft:'50px'}}>
+                        根据贵我双方所签订的《租赁合同》约定，我方承租贵方位于{rentAddress}的房地产（下称“租赁房地产”）。
                     </p>
-                      <p className={styles.linheP}  >
-                        我方确认，租赁期间，我方每月须按照按每度 {eleloss} 元向贵方缴纳设备服务费、维护费。前述设备服务费、维护费与我方每月应缴纳的物业管理费、水费、电费同时缴纳，如我方逾期支付的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
+                    <p style={{marginLeft:'50px'}}>
+                        一、我方确认，在租赁期间，贵方将向我方提供如下设备及服务：
                     </p>
-                      <p className={styles.linheP}  >
-                        我方确认，前述设备服务费、维护费为贵方统筹协调租赁房地产综合管理所应收取的对价，在任何情况下我方均不以设备服务费、维护费畸高或不合理为由要求调整。
+                     <p style={{marginLeft:'50px'}}>
+                        1、【变压器、稳压器】；
                     </p>
-                      <p className={styles.linheP}  style={{ marginLeft: '70px', fontSize: '24px' }}>
+                     <p style={{marginLeft:'50px'}}>
+                        2、贵方提供租赁房地产内及公区线路日常巡检、维护。
+                    </p>
+                     <p style={{marginLeft:'50px'}}>
+                       二、基于贵方所提供至设备及服务，我方同意按照如下第<span style={{marginRight:'20px'}}></span>项标准向贵方支付设备使用及线路维护费：
+                    </p>
+                      <p style={{marginLeft:'50px'}}>
+                       1、租赁期间，每月按照我方用电度数及每度<InputNumber min={0} value={eleloss} onChange={(e)=>seteleloss(e)}/>元的标准支付；
+                    </p>
+                     <p style={{marginLeft:'50px'}}>
+                        2、租赁期间，每月按照<span style={{marginRight:'20px'}}>【</span>】元至<span style={{marginRight:'20px'}}>【</span>】元支付。一年内每月平均数(<span style={{marginRight:'80px'}}></span>)
+                    </p>
+                    <p style={{marginLeft:'50px'}}>
+                        前述费用与次月租金同时支付，逾期支付的，承担与逾期缴纳租金同等责任。
+                    </p>
+                    <p style={{marginLeft:'50px'}}>
+                        三、我方确认，前述费用为贵方提供设备及线路维护所收取的对价，在任何情况下，我方均不以费用过高或不合理为由要求调整；如我方拒绝缴纳的，贵方可按《租赁合同》约定标准上浮20%计收租金。
+                    </p>
+                    <p style={{marginLeft:'70px',fontSize:'24px'}}>
                         特此确认！
                     </p>
-                      <p className={styles.linheP}  >
-                        物业位置：{rentAddress}{unit_name}房号
-                    </p>
-                      <p className={styles.linheP}  >
+                    <p style={{marginLeft:'50px'}}>
                         确认人：
                     </p>
-                      <p className={styles.linheP}  >
+                    <p style={{marginLeft:'50px'}}>
                         日期：
                     </p>
                 </p>
@@ -2377,30 +2392,48 @@ const Contractez = () => {
                           <p style={{height:'1030px'}}>
                               <p className={styles.linheP}  style={{   textAlign: 'center'}}>
                                   <h2>
-                                      代缴服务费确认书
+                                      设备使用及线路维护费确认书<span style={{fontSize:'16px'}}>(简称服务费)</span>
                                   </h2>
                               </p>
+                            <p className={styles.linheP}   >
+                                致{companyName}：
+                               </p>
                               <p className={styles.linheP}   >
-                                  根据贵我双方所签订的《租赁合同》约定，我方承租贵方位于{rentAddress}{unit_name}房号的房地产（下称“租赁房地产”）
+                                    根据贵我双方所签订的《租赁合同》约定，我方承租贵方位于{rentAddress}的房地产（下称“租赁房地产”）。
                               </p>
-                              <p className={styles.linheP}  >
-                                  我方确认，租赁期间，我方每月须按照按每度 {eleloss} 元向贵方缴纳设备服务费、维护费。前述设备服务费、维护费与我方每月应缴纳的物业管理费、水费、电费同时缴纳，如我方逾期支付的，贵方可参照租赁合同中拖欠租金的相关条款追究我方违约责任。
+                               <p className={styles.linheP}   >
+                                      一、我方确认，在租赁期间，贵方将向我方提供如下设备及服务：
+                              </p>
+                                <p className={styles.linheP}   >
+                                     1、【变压器、稳压器】；
+                              </p>
+                                <p className={styles.linheP}   >
+                                    2、贵方提供租赁房地产内及公区线路日常巡检、维护。
+                              </p>
+                                <p className={styles.linheP}   >
+                                    二、基于贵方所提供至设备及服务，我方同意按照如下第<span style={{marginRight:'20px'}}></span>项标准向贵方支付设备使用及线路维护费：
                               </p>
                               <p className={styles.linheP}   >
-                                  我方确认，前述设备服务费、维护费为贵方统筹协调租赁房地产综合管理所应收取的对价，在任何情况下我方均不以设备服务费、维护费畸高或不合理为由要求调整。
+                                1、租赁期间，每月按照我方用电度数及每度{eleloss}元的标准支付；
                               </p>
-                              <p className={styles.linheP}  style={{ marginLeft: '70px', fontSize: '24px' }}>
-                                  特此确认！
+                            <p className={styles.linheP}   >
+                                2、租赁期间，每月按照<span style={{marginRight:'20px'}}>【</span>】元至<span style={{marginRight:'20px'}}>【</span>】元支付。一年内每月平均数(<span style={{marginRight:'80px'}}></span>)
                               </p>
-                              <p className={styles.linheP}   >
-                                  物业位置：{rentAddress}{unit_name}房号
-                              </p>
-                              <p className={styles.linheP}  >
-                                  确认人：
-                              </p>
-                              <p className={styles.linheP}  >
-                                  日期：
-                              </p>
+                            <p className={styles.linheP} >
+                                前述费用与次月租金同时支付，逾期支付的，承担与逾期缴纳租金同等责任。
+                            </p>
+                            <p className={styles.linheP} >
+                                三、我方确认，前述费用为贵方提供设备及线路维护所收取的对价，在任何情况下，我方均不以费用过高或不合理为由要求调整；如我方拒绝缴纳的，贵方可按《租赁合同》约定标准上浮20%计收租金。
+                            </p>
+                            <p className={styles.linheP} style={{marginLeft:'70px',fontSize:'24px'}}>
+                                特此确认！
+                            </p>
+                            <p className={styles.linheP} >
+                                确认人：
+                            </p>
+                            <p className={styles.linheP} >
+                                日期：
+                            </p>
                           </p>
                     </p>
                 </p>
