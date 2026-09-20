@@ -519,7 +519,7 @@ const AddInvoiceFinancialDala = (props: any) => {
                         onChange={changeSupplierId}
                         filterOption={(input, option) => {
                             const item = props.SupplierList.find(u => u.id === option.value);
-                            return item?.supplier_name?.toLowerCase().includes(input.toLowerCase());
+                            return item?.supplierName?.toLowerCase().includes(input.toLowerCase());
                         }}
                         options={Array.isArray(props.SupplierList) ? props.SupplierList.map(i => ({ label: i.supplierName, value: i.id })) : []}
                     />

@@ -15,6 +15,8 @@ type TypeZsContract = {
     contractType: number;
     templateType: number;
     contractStatus: number;
+    reason?: string;
+    rejectReason?: string;
     beginTime: string;
     endTime: string;
     tenantId: number;

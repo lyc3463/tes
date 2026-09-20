@@ -22,6 +22,11 @@ const UserManage=(props:any)=>{
             key: 'user_name',
         },
         {
+            title: '用户角色',
+            dataIndex: 'role_name',
+            key: 'role_name',
+        },
+        {
             title: '联系方式',
             dataIndex: 'phone',
             key: 'phone',

@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import html2pdf from "html2pdf.js";
 import {connect} from 'umi';
 import {numberToRMB, getUnitNamesByIds, getUserNamesById} from "@/utils/OpenTool";
+import * as CheckCompanyService from "@/services/checkCompany";
 
 const NocheckDJcontractez=(props)=>{
     const templateType=1;
@@ -119,14 +120,21 @@ const NocheckDJcontractez=(props)=>{
     };
     // 获取客户列表
     const getCheckCompanyList=()=>{
-        props.dispatch({
-            type:'CheckCompany/fetch'
-        }).then((res:TypeErrorCode)=>{
+        // props.dispatch({
+        //     type:'CheckCompany/fetch'
+        // }).then((res:TypeErrorCode)=>{
+        //     if (res.ErrorCode==0){
+        //         console.log('客户列表',res);
+        //         setclientList(res.Data);
+        //     }
+        // });
+        CheckCompanyService.companyList({name:''}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                console.log('客户列表',res);
                 setclientList(res.Data);
+            }else {
+                message.error(res.Data);
             }
-        });
+        })
     };
     // 下载pdf
     const onOk = async () => {

@@ -5,10 +5,10 @@ export function fetch(vals:any) {
 }
 
 export function addzs(vals:any) {
-    return postData(1235, [vals.identifier,vals.clientId,vals.customCard,vals.unit_id,vals.zuMoney,vals.manageFee,vals.deposit,vals.contractTypeid,vals.startDate,vals.endDate,vals.businessEntity,vals.businessScope,vals.deliveryDate,vals.decorationCost,vals.documentImage,vals.dispatchName,vals.dispatchCard,vals.unitImage,vals.imgs,vals.remark,vals.manageFeeRent,vals.house_id,vals.prepayment,vals.depositFee,vals.legalPerson],vals.jsonDate);
+    return postData(1235, [vals.identifier,vals.clientId,vals.customCard,vals.unit_id,vals.zuMoney,vals.manageFee,vals.deposit,vals.contractTypeid,vals.startDate,vals.endDate,vals.businessEntity,vals.businessScope,vals.deliveryDate,vals.decorationCost,vals.documentImage,vals.dispatchName,vals.dispatchCard,vals.unitImage,vals.imgs,vals.remark,vals.manageFeeRent,vals.house_id,vals.prepayment,vals.depositFee,vals.legalPerson,vals.contractStatus],vals.jsonDate);
 }
 export function adddj(vals:any) {
-    return getData(1413, [vals.identifier,vals.clientId,vals.unit_id,vals.zuMoney,vals.deposit,vals.dayDate,vals.house_id,vals.contractType]);
+    return getData(1413, [vals.identifier,vals.clientId,vals.unit_id,vals.zuMoney,vals.deposit,vals.dayDate,vals.house_id,vals.contractType,vals.contractStatus]);
 }
 
 export function editzs(vals:any) {
@@ -27,6 +27,12 @@ export function one(vals:any) {
 }
 export function check(vals:any) {
     return getData(1241, [vals.uid,vals.templateType]);
+}
+export function submit(vals:any) {
+    return getData(1247, [vals.uid,vals.contractStatus]);
+}
+export function reject(vals:any) {
+    return getData(1240, [vals.uid,vals.contractStatus,vals.rejectReason]);
 }
 export function fenye(vals:any) {
     return getData(1240, [vals.identifier,vals.contractType,vals.contractStatus,vals.startDate,vals.endDate,vals.name,vals.pageSize]);
@@ -61,6 +67,12 @@ export function getdJContractListfy(vals:any) {
 export function removedj(vals:any) {
     return getData(1558, [vals]);
 }
-export function checkDjContract(uid:number,stutes:number) {
-    return getData(1559, [uid,stutes]);
+export function checkDjContract(uid:number,stutes:number,reason:string = '') {
+    return getData(1559, [uid,stutes,reason]);
+}
+export function sendDjContract(uid:number,stutes:number) {
+    return getData(1881, [uid,stutes]);
+}
+export function returnDjContract(uid:number,stutes:number,reason:string = '') {
+    return getData(1882, [uid,stutes,reason]);
 }

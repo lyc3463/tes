@@ -2,8 +2,11 @@ import {useEffect, useState} from "react";
 import * as StaffService from '@/services/staff';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import dayjs from "dayjs";
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
+import {QuestionCircleOutlined} from "@ant-design/icons";
 import {history} from "umi";
+import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
+import {userQx} from "@/utils/OpenTool";
 
 const DjContract=()=>{
     const [isDeltOpen,setIsDeleteOpen]=useState(false);
@@ -11,8 +14,8 @@ const DjContract=()=>{
     // 当前页数
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
-    // 审核状态 0全部  1未审核 2已审核
-    const [contractStatus,setContractStatus]=useState(1);
+    // 审核状态 0全部  1未送审 2已审核 3已取消 5已送审 6已驳回。
+    const [contractStatus,setContractStatus]=useState(checkSessionStorage('/enter/staff/','DjContracteStatus')||1);
     // 开始时间
     const [startDate,setStartDate]=useState(sessionStorage.getItem('enterStaffDjContractStartDate')||'2000-01-01');
     // 结束时间
@@ -85,16 +88,32 @@ const DjContract=()=>{
                 let consumptionTypeText;
                 switch (record.contractStatus) {
                     case 1:
-                        consumptionTypeText = <Tag color='blue'>未审核</Tag>;
+                        consumptionTypeText = <Tag color='blue'>未送审</Tag>;
                         break;
                     case 2:
                         consumptionTypeText = <Tag color='green'>已审核</Tag>;
+                        break;
+                    case 3:
+                        consumptionTypeText = <Tag color='orange'>已取消</Tag>;
+                        break;
+                    case 5:
+                        consumptionTypeText = <Tag color='orange'>已送审</Tag>;
+                        break;
+                    case 6:
+                        consumptionTypeText = <Tag color='red'>已驳回</Tag>;
                         break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
                 return (
-                    consumptionTypeText
+                    <Space>
+                        {consumptionTypeText}
+                        {record.contractStatus === 6 && (record.reason || record.rejectReason) ? (
+                            <Tooltip title={record.reason || record.rejectReason} placement="topLeft">
+                                <QuestionCircleOutlined style={{ color: '#999' }} />
+                            </Tooltip>
+                        ) : null}
+                    </Space>
                 );
 
             }
@@ -115,14 +134,16 @@ const DjContract=()=>{
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',
+            width: 250,
             render: (text:any, record:any) => {
                 return(
                    <Space>
-                       {record.contractStatus==1?
+                       {record.contractStatus==1||record.contractStatus==6?
                            <>
-                               <Button type='primary' onClick={()=>toedit(record)}>编辑</Button>
-                               <Button type='primary' danger onClick={()=>isdelete(record.id)}>删除</Button>
-                               <Button type='primary' onClick={()=>toInfo(record)}>详情</Button>
+                               <Button type='primary' size="small" onClick={()=>toedit(record)}>编辑</Button>
+                               <Button type='primary' size="small" danger onClick={()=>isdelete(record.id)}>删除</Button>
+                               {userQx()[597]=='1'?<Button type='primary' size="small" onClick={()=>sendCheck(record.id)}>直接送审</Button>:null}
+                               <Button type='primary' size="small" onClick={()=>toInfo(record)}>详情</Button>
                            </>:
                            ''
                        }
@@ -149,27 +170,45 @@ const DjContract=()=>{
         history.push(`/check/nocheckDJcontractez?id=${e.id}`);
     };
     // 获取列表
+    // fenye的后端方法修改，getList方法已经包含分页逻辑，因此不再单独调用logFenye
     const getList=()=>{
         StaffService.getdJContractList({page,pageSize,contractStatus,name,startDate,endDate}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setStaffList(res.Data);
+                setcount(res.Data.count);
+                setzuMoney(res.Data.data.zuMoney);
+                setdeposit(res.Data.data.deposit);
+                setStaffList(res.Data.data);
+            }else {
+                message.error(res.Data.data);
+            }
+        })
+    };
+    // 直接送审
+    const sendCheck=(id:number)=>{
+        setspinning(true);
+        StaffService.sendDjContract(id, 5).then((res:TypeErrorCode)=>{
+            setspinning(false);
+            if (res.ErrorCode === 0){
+                message.success('送审成功');
+                getList();
+                // getListfenye();
             }else {
                 message.error(res.Data);
             }
-        })
+        });
     };
     // 获取分页信息
-    const getListfenye=()=>{
-        StaffService.getdJContractListfy({pageSize,contractStatus,name,startDate,endDate}).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setcount(res.Data.count);
-                setzuMoney(res.Data.zuMoney);
-                setdeposit(res.Data.deposit);
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
+    // const getListfenye=()=>{
+    //     StaffService.getdJContractListfy({pageSize,contractStatus,name,startDate,endDate}).then((res:TypeErrorCode)=>{
+    //         if (res.ErrorCode==0){
+    //             setcount(res.Data.count);
+    //             setzuMoney(res.Data.data.zuMoney);
+    //             setdeposit(res.Data.data.deposit);
+    //         }else {
+    //             message.error(res.Data.data);
+    //         }
+    //     })
+    // };
     const onChange=(e:number,pageSize:number)=>{
         setPage(e);
         setPageSize(pageSize);
@@ -191,14 +230,14 @@ const DjContract=()=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getListfenye();
+        // getListfenye();
     };
     useEffect(() => {
         getList();
     }, [page,pageSize]);
-    useEffect(() => {
-        getListfenye();
-    }, []);
+    // useEffect(() => {
+    //     getListfenye();
+    // }, []);
     const onOK=()=>{
         StaffService.removedj(uid).then((res:TypeErrorCode)=>{
             setspinning(true);
@@ -219,10 +258,15 @@ const DjContract=()=>{
         setName(e.target.value);
         sessionStorage.setItem('enterStaffDjContractName',e.target.value);
     };
+    // 监听状态
+    const changeStutes=(e:number)=>{
+        setContractStatus(e);
+        updateSessionStorage('/enter/staff/','DjContracteStatus',e);
+    };
     return(
         <Spin spinning={spinning}>
             <List>
-                <List.Item>
+                <List.Item> 
                     <Space>
                         <Input
                             onChange={changeName}
@@ -246,6 +290,33 @@ const DjContract=()=>{
                                 签订日期:
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
+                        </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={changeStutes}
+                                value={contractStatus}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '未送审' },
+                                    { value:5, label: '已送审' },
+                                    { value:6, label: '已驳回' },
+                                ]}
+                            />
                         </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索

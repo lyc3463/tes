@@ -15,7 +15,7 @@ const AddRole=(props)=>{
     const navigate=useNavigate();
     const [spinning,setspinning]=useState(false);
     const treeData = buildTree(qxTree);
-    const [selected, setSelected] = useState<string[]>(Array(595).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(599).fill('0'));
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: TypeMenu[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void })=> {
         return (
             <ul>
@@ -238,7 +238,7 @@ const AddRole=(props)=>{
             newSelected[206] = isChecked ? '1' : '0';
             newSelected[207] = isChecked ? '1' : '0';
             newSelected[387] = isChecked ? '1' : '0';
-            newSelected[388] = isChecked ? '1' : '0';
+            // newSelected[388] = isChecked ? '1' : '0';
             newSelected[389] = isChecked ? '1' : '0';
             newSelected[390] = isChecked ? '1' : '0';
             newSelected[39] = '1';
@@ -247,6 +247,8 @@ const AddRole=(props)=>{
             newSelected[246] = '1';
             newSelected[153] = '1';
             newSelected[246] = '1';
+            newSelected[595] = isChecked ? '1' : '0';
+            newSelected[597] = isChecked ? '1' : '0';
         }
         if (id === 43){
             newSelected[153] = isChecked ? '1' : '0';
@@ -355,6 +357,10 @@ const AddRole=(props)=>{
             newSelected[71] = '1';
             newSelected[208] = isChecked ? '1' : '0';
             newSelected[206] = '1';
+            newSelected[387] = '1';
+            newSelected[596] = isChecked ? '1' : '0';
+            newSelected[598] = isChecked ? '1' : '0';
+            newSelected[388] = isChecked ? '1' : '0';
         }
         if (id === 75){
             newSelected[71] = '1';
@@ -593,6 +599,9 @@ const AddRole=(props)=>{
             newSelected[437] =  isChecked ? '1' : '0' ;
             newSelected[436] =  isChecked ? '1' : '0' ;
             newSelected[435] =  isChecked ? '1' : '0' ;
+            newSelected[596] =  isChecked ? '1' : '0' ;
+            newSelected[388] =  isChecked ? '1' : '0' ;
+            newSelected[598] =  isChecked ? '1' : '0' ;
         }
         if (id === 438){
             newSelected[437] =  isChecked ? '1' : '0' ;
@@ -1600,6 +1609,24 @@ const AddRole=(props)=>{
         if (id === 452){
             newSelected[552] = isChecked ? '1' : '0' ;
             newSelected[553] = isChecked ? '1' : '0' ;
+        }
+        if (id === 206){
+            newSelected[205] = isChecked ? '1' : '0' ;
+            newSelected[207] = isChecked ? '1' : '0' ;
+            newSelected[595] = isChecked ? '1' : '0' ;
+        }
+        if (id === 387){
+            newSelected[389] = isChecked ? '1' : '0' ;
+            newSelected[390] = isChecked ? '1' : '0' ;
+            newSelected[597] = isChecked ? '1' : '0' ;
+        }
+        if (id === 208){
+            newSelected[206] = '1' ;
+            newSelected[596] = isChecked ? '1' : '0' ;
+        }
+        if (id === 388){
+            newSelected[387] = '1' ;
+            newSelected[598] = isChecked ? '1' : '0' ;
         }
         // 设置新的选中状态
         setSelected(newSelected);

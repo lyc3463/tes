@@ -23,6 +23,7 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {StaticInfo} from "@/StaticInfo";
 import {checkSessionStorage, updateSessionStorage} from "@/utils/OpenTool";
 import ZsContractType from "@/ModelTypes/TypeZsContract";
+import {QuestionCircleOutlined} from "@ant-design/icons";
 
 interface ZsContractProps {
     dispatch: (action: { type: string; payload?: any }) => any;
@@ -37,7 +38,7 @@ const ZsContract=(props: ZsContractProps)=>{
     const [page,setPage]=useState(1);
     const [pageSize,setPageSize]=useState(50);
     // 审核状态 0全部  1未审核 2已审核
-    const [contractStatus,setContractStatus]=useState(0);
+    const [contractStatus,setContractStatus]=useState(checkSessionStorage('/enter/staff/','zsContracteStatus')||0);
     // 合同编号
     const [identifier,setIdentifier]=useState(checkSessionStorage('/enter/staff/','identifier')||'');
     // 合同类型
@@ -164,7 +165,7 @@ const ZsContract=(props: ZsContractProps)=>{
                 let consumptionTypeText;
                 switch (record.contractStatus) {
                     case 1:
-                        consumptionTypeText = <Tag color='blue'>未审核</Tag>;
+                        consumptionTypeText = <Tag color='blue'>未送审</Tag>;
                         break;
                     case 2:
                         consumptionTypeText = <Tag color='green'>已审核</Tag>;
@@ -175,11 +176,24 @@ const ZsContract=(props: ZsContractProps)=>{
                     case 4:
                         consumptionTypeText = <Tag color='orange'>续租</Tag>;
                         break;
+                    case 5:
+                        consumptionTypeText = <Tag color='orange'>已送审</Tag>;
+                        break;
+                    case 6:
+                        consumptionTypeText = <Tag color='red'>已驳回</Tag>;
+                        break;
                     default:
                         consumptionTypeText = <Tag style={{ color: '#777777' }}>未知类型</Tag>;
                 }
                 return (
-                    consumptionTypeText
+                    <Space>
+                        {consumptionTypeText}
+                        {record.contractStatus === 6 && (record.reason || record.rejectReason) ? (
+                            <Tooltip title={record.reason || record.rejectReason} placement="topLeft">
+                                <QuestionCircleOutlined style={{ color: '#999' }} />
+                            </Tooltip>
+                        ) : null}
+                    </Space>
                 );
 
             }
@@ -191,7 +205,7 @@ const ZsContract=(props: ZsContractProps)=>{
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        <Button type='primary' onClick={()=>{toxiazai(record)}}>下载</Button>
+                        <Button type='primary' size="small" onClick={()=>{toxiazai(record)}}>下载</Button>
                     </Space>
                 )
             }
@@ -200,17 +214,18 @@ const ZsContract=(props: ZsContractProps)=>{
             title: '操作',
             dataIndex: 'cao',
             key: 'cao',
+            width: 250,
             render: (text:any, record:any) => {
                 return(
                     <Space>
-                        {record.contractStatus==1||record.contractStatus==4?
+                        {record.contractStatus==1||record.contractStatus==6?
                             <>
-                                {uqx[205]=='1'?<Button type='primary' onClick={()=>toedit(record)}>编辑</Button> :''}
-                                {uqx[207]=='1'?<Button type='primary' danger onClick={()=>isdelete(record)}>删除</Button>:''}
-
-                                <Button type='primary' onClick={()=>toInfo(record)}>详情</Button>
+                                {uqx[205]=='1'?<Button type='primary' size="small" onClick={()=>toedit(record)}>编辑</Button> :''}
+                                {uqx[207]=='1'?<Button type='primary' danger size="small" onClick={()=>isdelete(record)}>删除</Button>:''}
+                                <Button type='primary' size="small" onClick={()=>sendCheck(record)}>直接送审</Button>
+                                <Button type='primary' size="small" onClick={()=>toInfo(record)}>详情</Button>
                             </>:
-                            <Button type='primary' onClick={()=>{toxiazai(record)}}>详情</Button>
+                            <Button type='primary' size="small" onClick={()=>{toxiazai(record)}}>详情</Button>
                         }
                     </Space>
                 )
@@ -243,58 +258,114 @@ const ZsContract=(props: ZsContractProps)=>{
         setIsDeleteOpen(true);
     };
     // 确定删除按钮
+    // fenye的后端方法修改，model的remove执行后立刻执行fenye方法
+    // 因此不再执行model的remove方法，改成直接执行remove
     const onOk=()=>{
         setspinning(true);
-        props.dispatch({
-            type:'Staff/remove',
-            payload:uid
-        }).then((res:TypeErrorCode)=>{
+        // props.dispatch({
+        //     type:'Staff/remove',
+        //     payload:uid
+        // }).then((res:TypeErrorCode)=>{
+        //     if (res.ErrorCode==0){
+        //         message.success('删除成功');
+        //         setIsDeleteOpen(false);
+        //         setspinning(false);
+        //         logFenye();
+        //     }else {
+        //         message.error(res.Data);
+        //         setIsDeleteOpen(false);
+        //         setspinning(false);
+        //     }
+        // })
+        StaffService.remove(uid).then((res:TypeErrorCode)=>{
+            setspinning(false);
             if (res.ErrorCode==0){
                 message.success('删除成功');
                 setIsDeleteOpen(false);
                 setspinning(false);
-                logFenye();
+                // logFenye();
+                getList();
             }else {
                 message.error(res.Data);
                 setIsDeleteOpen(false);
                 setspinning(false);
             }
-        })
+        });
+    };
+    // 直接送审
+    const sendCheck=(record: ZsContractType)=>{
+        setspinning(true);
+        const request = record.templateType === 1
+            ? StaffService.sendDjContract(record.id, 5)
+            : StaffService.submit({uid: record.id, contractStatus: 5});
+        request.then((res:TypeErrorCode)=>{
+            setspinning(false);
+            if (res.ErrorCode === 0){
+                message.success('送审成功');
+                // logFenye();
+                getList();
+            }else {
+                message.error(res.Data);
+            }
+        });
     };
 
     // 搜索
     const sousuo=()=>{
         setPage(1);
-        logFenye();
+        // logFenye();
+        getList();
     };
-    // 分页
-    const logFenye=()=>{
+    // 获取列表
+    // fenye的后端方法修改，getList方法已经包含分页逻辑，因此不再单独调用logFenye
+    const getList=()=>{
         setspinning(true);
         StaffService.getHT({page,identifier,contractType,contractStatus,startDate,endDate,name,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 console.log('res',res)
-                setStaffList(res.Data);
+                setStaffList(res.Data?.data);
+                setcount(res.Data?.count);
+                setzuMoney(res.Data?.zuMoney);
+                setdeposit(res.Data?.deposit);
+                setprepayment(res.Data?.prepayment);
+                setdepositFee(res.Data?.depositFee);
+                setmanageFee(res.Data?.manageFee);
                 setspinning(false);
-                // setcount(res.Data.count);
-                // setzuMoney(res.Data.zuMoney);
-                // setdeposit(res.Data.deposit);
-                // setprepayment(res.Data.prepayment);
-                // setdepositFee(res.Data.depositFee);
-                // setmanageFee(res.Data.manageFee);
             }else {
                 setspinning(false);
                 message.error(res.Data);
             }
         })
     };
+    // 分页
+    // const logFenye=()=>{
+    //     setspinning(true);
+    //     StaffService.getHT({page,identifier,contractType,contractStatus,startDate,endDate,name,pageSize}).then((res:TypeErrorCode)=>{
+    //         if (res.ErrorCode==0){
+    //             console.log('res',res)
+    //             setStaffList(res.Data);
+    //             setspinning(false);
+    //             // setcount(res.Data.count);
+    //             // setzuMoney(res.Data.zuMoney);
+    //             // setdeposit(res.Data.deposit);
+    //             // setprepayment(res.Data.prepayment);
+    //             // setdepositFee(res.Data.depositFee);
+    //             // setmanageFee(res.Data.manageFee);
+    //         }else {
+    //             setspinning(false);
+    //             message.error(res.Data);
+    //         }
+    //     })
+    // };
     // 监听页数
     const onChange=(e:number,pageSize:number)=>{
         setPage(e);
         setPageSize(pageSize);
     };
     useEffect(() => {
-        logFenye();
-    }, [page]);
+        // logFenye();
+        getList();
+    }, [page, pageSize]);
     // 监听合同编号
     const changeIdentifier=(e: React.ChangeEvent<HTMLInputElement>)=>{
         setIdentifier(e.target.value);
@@ -318,16 +389,23 @@ const ZsContract=(props: ZsContractProps)=>{
             updateSessionStorage('/enter/staff/','endDate',data[1]);
         }
     };
+    // 监听状态
+    const changeStutes=(e:number)=>{
+        setContractStatus(e);
+        updateSessionStorage('/enter/staff/','zsContracteStatus',e);
+    };
     // 下载页面
+    // 之前状态1是已送审，现在1是草稿，5是已送审，6是已驳回
+    // 因此1、5、6都可以下载
     const toxiazai=(e: ZsContractType)=>{
-        if (e.contractStatus==1&&e.templateType==1){
+        if ((e.contractStatus==1 || e.contractStatus==5 || e.contractStatus==6) && e.templateType==1){
             history.push(`/check/nocheckDJcontractez?id=${e.id}`);
-        }else if (e.contractStatus==1&&e.templateType==2){
+        }else if ((e.contractStatus==1 || e.contractStatus==5 || e.contractStatus==6) &&e.templateType==2){
             history.push(`/check/nocheckZScontractez?id=${e.id}`);
         } else if (e.templateType==2){
-            history.push(`/check/contractez?id=${e.id}`);
+            history.push(`/check/contractez?id=${e.id}&templateType=${e.templateType}`);
         }else {
-            history.push(`/check/checkdingjin?id=${e.id}`);
+            history.push(`/check/checkdingjin?id=${e.id}&templateType=${e.templateType}`);
         }
     };
     useEffect(() => {
@@ -342,9 +420,9 @@ const ZsContract=(props: ZsContractProps)=>{
         <Spin spinning={spinning}>
             <List>
                 <List.Item>
-                    <div>
+                    {/* <div>
                         {uqx[204]=='1'?<Button type="primary" onClick={toadd}>合同录入</Button>:''}
-                    </div>
+                    </div> */}
                     <Space>
                         <Input
                             onChange={changeIdentifier}
@@ -374,6 +452,35 @@ const ZsContract=(props: ZsContractProps)=>{
                             </div>
                             {startDate=='2000-01-01'&&endDate=='2099-01-01'?<DatePicker.RangePicker onChange={changeDate}/>:<DatePicker.RangePicker onChange={changeDate} defaultValue={[dayjs(startDate),dayjs(endDate)]}/>}
                         </Space.Compact>
+                        <Space.Compact>
+                            <div
+                                style={{
+                                    borderRadius: '6px',
+                                    borderStartEndRadius: 0,
+                                    borderEndEndRadius: 0,
+                                    padding: '0 11px',
+                                    border: '1px solid #d9d9d9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderInlineEnd: 0,
+                                }}
+                            >
+                                状态:
+                            </div>
+                            <Select
+                                onChange={changeStutes}
+                                value={contractStatus}
+                                style={{ width: 120 }}
+                                options={[
+                                    { value:0, label: '全部' },
+                                    { value:1, label: '未送审' },
+                                    // { value:5, label: '已送审' },
+                                    { value:6, label: '已驳回' },
+                                    { value:3, label: '已退租' },
+                                    { value:4, label: '续租中' },
+                                ]}
+                            />
+                        </Space.Compact>
                         <Button type="primary" onClick={sousuo}>
                             搜索
                         </Button>
@@ -395,11 +502,11 @@ const ZsContract=(props: ZsContractProps)=>{
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={2}></Table.Summary.Cell>
                             <Table.Summary.Cell index={3}></Table.Summary.Cell>
-                            <Table.Summary.Cell index={4}>{zuMoney.toFixed(2)}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={5}>{deposit.toFixed(2)}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}>{manageFee.toFixed(2)}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={7}>{prepayment.toFixed(2)}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={8}>{depositFee.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}>{zuMoney?.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>{deposit?.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={6}>{manageFee?.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={7}>{prepayment?.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={8}>{depositFee?.toFixed(2)}元</Table.Summary.Cell>
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}

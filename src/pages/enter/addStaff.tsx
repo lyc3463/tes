@@ -10,6 +10,7 @@ import * as UnitService from '@/services/unit';
 import {PlusOutlined} from "@ant-design/icons";
 import './staff.less';
 import dayjs from "dayjs";
+import * as StaffService from '@/services/staff';
 
 // 缓存key
 const CACHE_KEY = "AddStaff_form_cache";
@@ -77,7 +78,7 @@ const AddStaff=(props:any)=>{
     // 面积
     const [mianji,setmianji]=useState(0);
     // 签订日期
-    const [dayDate,setDayDate]=useState('');
+    const [dayDate,setDayDate]=useState(getCurrentDate());
     const [spinning,setspinning]=useState(false);
     // 房屋id
     const [house_id,sethouse_id]=useState(0);
@@ -159,7 +160,7 @@ const AddStaff=(props:any)=>{
         setsummzqDay(0);
         setminzujin(0);
         setmianji(0);
-        setDayDate('');
+        setDayDate(getCurrentDate());
         sethouse_id(0);
         setunitStutes(true);
         setzuMoney(0);
@@ -175,7 +176,7 @@ const AddStaff=(props:any)=>{
     const removeqingdan = (key:number) => {
         setwupinList(prevItems => prevItems.filter((item:any) => item.key !== key));
     };
-    const onFinish = async (values:any) => {
+    const onFinish = async (values:any, contractStatus = 1) => {
         // 1. 通用参数
         const identifier = `${houseName}-${Date.now()}-${unitNamess}`;
         // 组装数据
@@ -184,6 +185,7 @@ const AddStaff=(props:any)=>{
         });
         setspinning(true);
         try {
+            // 正式合同
             if (contractType === 2) {
                 // 校验：免租期天数是否一致
                 const actualFreeDays = calculateTotalRentalDays(mzformItems);
@@ -220,7 +222,7 @@ const AddStaff=(props:any)=>{
                 // 提交
                 const res = await props.dispatch({
                     type: 'Staff/addzs',
-                    payload: {...values, deposit, manageFee, identifier, endDate, startDate, deliveryDate, documentImage, unitImage, imgs, contractTypeid, unit_id:'', remark, house_id, zuMoney, jsonDate},
+                    payload: {...values, deposit, manageFee, identifier, endDate, startDate, deliveryDate, documentImage, unitImage, imgs, contractTypeid, unit_id:'', remark, house_id, zuMoney, jsonDate, contractStatus},
                 });
                 // 结果判断
                 if (res.ErrorCode === 0) {
@@ -232,28 +234,52 @@ const AddStaff=(props:any)=>{
                     message.error(res.Data);
                 }
             }
+            // 定金合同
+            // fenye的后端方法修改，model的adddj执行后立刻执行fenye方法
+            // 因此不再执行model的adddj方法，改成直接执行adddj
             else if (contractType === 1) {
-                const res = await props.dispatch({
-                    type: 'Staff/adddj',
-                    payload: {
-                        ...values,
-                        identifier,
-                        deposit,
-                        dayDate,
-                        contractTypeid,
-                        unit_id,
-                        house_id,
-                        zuMoney,
-                    },
+                // const res = await props.dispatch({
+                //     type: 'Staff/adddj',
+                //     payload: {
+                //         ...values,
+                //         identifier,
+                //         deposit,
+                //         dayDate,
+                //         contractTypeid,
+                //         unit_id,
+                //         house_id,
+                //         zuMoney,
+                //         contractStatus,
+                //     },
+                // });
+                // if (res.ErrorCode === 0) {
+                //     message.success('添加成功');
+                //     // 添加成功后清空草稿缓存
+                //     clearCache();
+                //     history.push('/enter/staff');
+                // } else {
+                //     message.error(res.Data);
+                // }
+                StaffService.adddj({
+                    ...values,
+                    identifier,
+                    deposit,
+                    dayDate,
+                    contractTypeid,
+                    unit_id,
+                    house_id,
+                    zuMoney,
+                    contractStatus,
+                }).then((res:TypeErrorCode)=>{
+                    if (res.ErrorCode === 0) {
+                        message.success('添加成功');
+                        // 添加成功后清空草稿缓存
+                        clearCache();
+                        history.push('/enter/staff');
+                    } else {
+                        message.error(res.Data);
+                    }
                 });
-                if (res.ErrorCode === 0) {
-                    message.success('添加成功');
-                    // 添加成功后清空草稿缓存
-                    clearCache();
-                    history.push('/enter/staff');
-                } else {
-                    message.error(res.Data);
-                }
             }
             else {
                 message.warning('请选择合同类型进行填写数据');
@@ -296,7 +322,7 @@ const AddStaff=(props:any)=>{
             setsummzqDay(cache.summzqDay ?? 0);
             setminzujin(cache.minzujin ?? 0);
             setmianji(cache.mianji ?? 0);
-            setDayDate(cache.dayDate ?? '');
+            setDayDate(cache.dayDate ?? getCurrentDate());
             sethouse_id(cache.house_id ?? 0);
             setunitStutes(cache.unitStutes ?? true);
             setzuMoney(cache.zuMoney ?? 0);
@@ -664,6 +690,13 @@ const AddStaff=(props:any)=>{
                                     </Select>
                                 </Form.Item>
                             </div>
+                            {contractType == 1 && (
+                                <div className="form-item-group">
+                                    <Form.Item label="签订日期">
+                                        <DatePicker onChange={changeDayDate} value={dayjs(dayDate)} style={{ width: 180 }} />
+                                    </Form.Item>
+                                </div>
+                            )}
                             {contractType == 2 && (
                                 <div className="form-item-group">
                                     <Form.Item label="租户身份证" name="customCard" rules={[{ required: true }]}>
@@ -1001,7 +1034,8 @@ const AddStaff=(props:any)=>{
                     {/* 按钮 */}
                     <Form.Item style={{ textAlign: 'center', marginTop: 32 }}>
                         <Space size="large">
-                            <Button type="primary" htmlType="submit" size="large">确定</Button>
+                            <Button type="primary" htmlType="submit" size="large">保存草稿</Button>
+                            <Button type="primary" size="large" danger onClick={() => form.validateFields().then((values) => onFinish(values, 5))}>直接送审</Button>
                             <Button onClick={onLikai} size="large">返回列表</Button>
                             <Button danger onClick={resetAllFormData} size="large">清空草稿</Button>
                         </Space>

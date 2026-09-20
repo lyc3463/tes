@@ -37,6 +37,7 @@ const Staff=(props:any)=>{
 
     return(
         <>
+            {uqx[204]=='1'?<Button type="primary" onClick={()=>history.push('/enter/addStaff/')}>合同录入</Button>:''}
             <Tabs activeKey={activeKey} onChange={onChange}>
                 <Tabs.TabPane tab='正式合同'  key='1'>
                     <ZsContract/>

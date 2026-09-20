@@ -24,7 +24,7 @@ const CheckContracte=(props:any)=> {
             <Tabs.TabPane tab='正式合同' key='1'>
                 <CheckZsContracte/>
             </Tabs.TabPane>
-            {uqx[387] == '1' ? <Tabs.TabPane tab='定金合同' key='2'>
+            {uqx[388] == '1' ? <Tabs.TabPane tab='定金合同' key='2'>
                 <CheckDjContracte/>
             </Tabs.TabPane> : ''
             }

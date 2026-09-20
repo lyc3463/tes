@@ -83,14 +83,38 @@ const OutZu=(props:any)=>{
             dataIndex: 'tenantPhone',
             key: 'tenantPhone',
         },
+        // {
+        //     title: '租金/管理费',
+        //     dataIndex: 'rentAmount',
+        //     key: 'rentAmount',
+        //     render:(text:any,record:any)=>{
+        //         return(
+        //             <div>
+        //                 {record.rentAmount}元
+        //             </div>
+        //         )
+        //     }
+        // },
         {
-            title: '租金/管理费',
+            title: '租金',
             dataIndex: 'rentAmount',
             key: 'rentAmount',
             render:(text:any,record:any)=>{
                 return(
                     <div>
                         {record.rentAmount}元
+                    </div>
+                )
+            }
+        },
+        {
+            title: '管理费',
+            dataIndex: 'managementAmount',
+            key: 'managementAmount',
+            render:(text:any,record:any)=>{
+                return( 
+                    <div>
+                        {record.managementAmount}元
                     </div>
                 )
             }
