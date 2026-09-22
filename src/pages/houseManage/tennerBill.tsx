@@ -1,6 +1,6 @@
 import { useNavigate } from "umi";
 import dayjs from "dayjs";
-import { Button, List, Space, Table, Tag } from "antd";
+import { Button, List, Space, Table, Tag, Typography } from "antd";
 
 // 账单表格单项类型（你 Table 里渲染的每一行）
 export interface BillItem {
@@ -37,6 +37,7 @@ export interface ContractInfo {
 }
 
 const TenantBill = ({ contractInfo }: { contractInfo: ContractInfo }) => {
+    const navigate = useNavigate();
 
     // 没传对象 → 不渲染
     if (!contractInfo) return null;
@@ -113,12 +114,22 @@ const TenantBill = ({ contractInfo }: { contractInfo: ContractInfo }) => {
             title: "当月账单",
             dataIndex: "billMoney",
             key: "billMoney",
-            render: (t: any, record: BillItem) =>
-                record.billMoney === 0 ? (
-                    <Tag color="magenta">{record.billMoney} 元</Tag>
+            // render: (t: any, record: BillItem) =>
+            //     record.billMoney === 0 ? (
+            //         <Tag color="magenta">{record.billMoney} 元</Tag>
+            //     ) : (
+            //         <Tag color="blue">{record.billMoney} 元</Tag>
+            //     ),
+            // 当月账单 = 应收租金 + 管理费 - 预付费
+            // 保留2位小数
+            render: (t: any, record: BillItem) => {
+                const billMoney = parseFloat((record.payRent + record.manageFee - record.prepayment).toFixed(2));
+                return billMoney === 0 ? (
+                    <Tag color="magenta">{billMoney} 元</Tag>
                 ) : (
-                    <Tag color="blue">{record.billMoney} 元</Tag>
-                ),
+                    <Tag color="blue">{billMoney} 元</Tag>
+                );
+            },
         },
         {
             title: "缴费状态",
@@ -140,7 +151,12 @@ const TenantBill = ({ contractInfo }: { contractInfo: ContractInfo }) => {
                 <List.Item>
                     <Space size="large" wrap>
                         <span style={{ fontWeight: 600 }}>租户姓名: {contractInfo.tenant_name}</span>
-                        <span style={{ fontWeight: 600 }}>合同编号: {contractInfo.identifier}</span>
+                        <Typography.Link
+                            style={{ fontWeight: 600 }}
+                            onClick={() => navigate(`/check/contractez?id=${contractInfo.contractId}&templateType=2`)}
+                        >
+                            合同编号: {contractInfo.identifier}
+                        </Typography.Link>
                         <span style={{ fontWeight: 600 }}>初始租金: {contractInfo.rent} 元</span>
                         <span style={{ fontWeight: 600 }}>初始管理费: {contractInfo.manageFee} 元</span>
                         <span style={{ fontWeight: 600 }}>管理费递增: {contractInfo.manageFeeRent || 0} %</span>

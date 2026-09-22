@@ -11,3 +11,5 @@
 # Build output
 dist/
 gongsiduan1/
+gongsiduan*
+gongsiduanTest*

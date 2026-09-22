@@ -389,9 +389,13 @@ const AddInvoiceFinancialDala = (props: any) => {
         const allFileList = [...imgList, ...pdfFileName];
         const imgUrl = allFileList.join("|");
         setSpinning(true);
+        // 提交之前把明细的金额合计起来，确保 totalAmount 的值是正确的
+        const calculatedTotalAmount = filteredGoodsList.reduce((sum, item) => sum + item.amount, 0);
+        console.log('Calculated Total Amount:', calculatedTotalAmount);
+        setTotalAmount(calculatedTotalAmount);
         props.dispatch({
             type: 'Bill/add',
-            payload: { orderCode, orderDate, accountId, projectId, companyId, paidAmount, totalAmount, moneyType, jsonData,foType:1, remark, supplierId, imgUrl, bxId: 0, status }
+            payload: { orderCode, orderDate, accountId, projectId, companyId, paidAmount, totalAmount: calculatedTotalAmount, moneyType, jsonData,foType:1, remark, supplierId, imgUrl, bxId: 0, status }
         }).then((res: TypeErrorCode) => {
             setSpinning(false);
             if (res.ErrorCode === 0 || res.ErrorCode === 9038) {
