@@ -234,7 +234,7 @@ const AddTransferForm=(props)=>{
     const changeWarehouse2=(e)=>{
         setWarehouseId2(e);
     };
-    const onOK=()=>{
+    const onOK=(orderStatus = 1)=>{
         if (orderTime==='') return message.warning('请选择申请时间');
         if (warehouseId2===0) return message.warning('请选择入库仓库');
         const filteredData = displayData.filter(item => item.productsCode !== '' && item.unitsId > 0);
@@ -262,7 +262,7 @@ const AddTransferForm=(props)=>{
         setSpinning(true);
         props.dispatch({
             type:'TransferForm/add',
-            payload:{warehouseId, orderCode, orderTime, jsonData, remark,warehouseId2}
+            payload:{warehouseId, orderCode, orderTime, jsonData, remark,warehouseId2,orderStatus}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('添加成功');
@@ -438,8 +438,11 @@ const AddTransferForm=(props)=>{
                 <Button type="primary" onClick={()=>navigate(-1)}>
                     返回
                 </Button>
-                <Button type="primary" onClick={onOK}>
-                    确定
+                <Button type="primary" onClick={() => onOK(1)}>
+                    保存草稿
+                </Button>
+                <Button type="primary" danger onClick={()=>onOK(5)}>
+                    直接送审
                 </Button>
             </Space>
             <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>

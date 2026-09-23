@@ -516,9 +516,7 @@ const NewCheckFinance=(props: NewCheckFinanceProps)=>{
                                 placeholder='供应商'
                                 value={supplierId}
                                 filterOption={(input, option) => {
-                                    // 假设每个 option 都有一个与数据项对应的 value 属性
-                                    const item = props.SupplierList.find(unit => unit.id == option.value); // 您可能需要优化这个查找过程
-                                    return item?.supplier_name?.toLowerCase().includes(input.toLowerCase());
+                                    return option?.label?.toLowerCase().includes(input.toLowerCase());
                                 }}
                                 options={
                                     [

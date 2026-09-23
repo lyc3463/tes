@@ -16,7 +16,7 @@ export function addReturn(vals:any) {
 }
 // 添加调拨单
 export function addTransfer(vals:any) {
-    return postData(1763, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.remark,vals.warehouseId2],vals.jsonData);
+    return postData(1763, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.remark,vals.warehouseId2,vals.orderStatus ?? 1],vals.jsonData);
 }
 // 添加损耗单
 export function addDamage(vals:any) {
@@ -44,7 +44,7 @@ export function payment(vals:any) {
 }
 // 添加跨店调拨单
 export function addCrossStoreTransfer(vals:any) {
-    return postData(1792, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.remark,vals.warehouseId2,vals.parkIdDB],vals.jsonData);
+    return postData(1792, [vals.orderCode,vals.orderTime,vals.warehouseId,vals.remark,vals.warehouseId2,vals.parkIdDB,vals.orderStatus ?? 1],vals.jsonData);
 }
 // 出库单送审
 export function sendCheck(vals:any) {

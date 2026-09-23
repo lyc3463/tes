@@ -19,7 +19,7 @@ const AddUser=(props:any)=>{
     const navigate=useNavigate();
     const treeData = buildTree(qxTree);
     const [roleList,setRoleList]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(603).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(610).fill('0'));
     const [isTask,setisTask]=useState([0]);
     const [qyList,setqyList]=useState([]);
     const [qyId,setqyId]=useState(0);
@@ -1402,6 +1402,27 @@ const AddUser=(props:any)=>{
             newSelected[567] = isChecked ? '1' : '0' ;
             newSelected[568] = isChecked ? '1' : '0' ;
             newSelected[569] = isChecked ? '1' : '0' ;
+            newSelected[563] = isChecked ? '1' : '0' ;
+            newSelected[570] = isChecked ? '1' : '0' ;
+            newSelected[571] = isChecked ? '1' : '0' ;
+            newSelected[572] = isChecked ? '1' : '0' ;
+            newSelected[573] = isChecked ? '1' : '0' ;
+            newSelected[574] = isChecked ? '1' : '0' ;
+            newSelected[575] = isChecked ? '1' : '0' ;
+            newSelected[576] = isChecked ? '1' : '0' ;
+            newSelected[577] = isChecked ? '1' : '0' ;
+            newSelected[578] = isChecked ? '1' : '0' ;
+            newSelected[599] = isChecked ? '1' : '0' ;
+            newSelected[600] = isChecked ? '1' : '0' ;
+            newSelected[601] = isChecked ? '1' : '0' ;
+            newSelected[602] = isChecked ? '1' : '0' ;
+            newSelected[603] = isChecked ? '1' : '0' ;
+            newSelected[604] = isChecked ? '1' : '0' ;
+            newSelected[605] = isChecked ? '1' : '0' ;
+            newSelected[606] = isChecked ? '1' : '0' ;
+            newSelected[607] = isChecked ? '1' : '0' ;
+            newSelected[608] = isChecked ? '1' : '0' ;
+            newSelected[609] = isChecked ? '1' : '0' ;
         }
         if (id === 442){
             newSelected[464] = isChecked ? '1' : '0' ;
@@ -1588,15 +1609,30 @@ const AddUser=(props:any)=>{
             newSelected[496] ='1' ;
             newSelected[495] ='1' ;
             newSelected[502] ='1' ;
+            newSelected[563] = isChecked ? '1' : '0' ;
+            newSelected[603] = isChecked ? '1' : '0' ;
+            newSelected[604] = isChecked ? '1' : '0' ;
+            newSelected[605] = isChecked ? '1' : '0' ;
+            newSelected[606] = isChecked ? '1' : '0' ;
+            newSelected[607] = isChecked ? '1' : '0' ;
+            newSelected[608] = isChecked ? '1' : '0' ;
+            newSelected[609] = isChecked ? '1' : '0' ;
         }
         if (id === 533){
             newSelected[534] = isChecked ? '1' : '0' ;
             newSelected[535] = isChecked ? '1' : '0' ;
             newSelected[536] = isChecked ? '1' : '0' ;
+            newSelected[603] = isChecked ? '1' : '0' ;
             newSelected[498] ='1' ;
             newSelected[496] ='1' ;
             newSelected[495] ='1' ;
             newSelected[502] ='1' ;
+        }
+        if (id === 563){
+            newSelected[604] = isChecked ? '1' : '0' ;
+            newSelected[605] = isChecked ? '1' : '0' ;
+            newSelected[606] = isChecked ? '1' : '0' ;
+            newSelected[607] = isChecked ? '1' : '0' ;
         }
         if (id === 537){
             newSelected[538] = isChecked ? '1' : '0' ;

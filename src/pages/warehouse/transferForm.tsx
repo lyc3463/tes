@@ -1,10 +1,12 @@
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Select, Space, Spin, Table, Tag, Tooltip} from "antd";
 import {useEffect, useState} from "react";
 import {connect, history} from "umi";
 import {getData} from "@/network/http";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
+import * as RequisitionFormService from '@/services/requisitionForm';
+import {QuestionCircleOutlined} from '@ant-design/icons';
 
 const TransferForm=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -68,20 +70,30 @@ const TransferForm=(props)=>{
             dataIndex: 'orderStatus',
             ellipsis: true,
             align:'center',
-            render: (text: any) => {
-                return <Tag color={text==2?'green':'red'}>{text==2?'已审核':'未审核'}</Tag>
+            render: (text: any, record: any) => {
+                const statusMap: Record<number, {color: string; text: string}> = {
+                    1: {color: 'blue', text: '待送审'},
+                    2: {color: 'green', text: '已审核'},
+                    5: {color: 'orange', text: '已送审'},
+                    6: {color: 'red', text: '已驳回'},
+                };
+                const status = statusMap[Number(text)] || {color: 'default', text: '未知状态'};
+                const reason = record.rejectReason || record.reject_reason || record.rejectedReason || record.reason || record.Reason;
+                return <Space><Tag color={status.color}>{status.text}</Tag>{Number(text)===6 && reason?<Tooltip title={reason}><QuestionCircleOutlined /></Tooltip>:null}</Space>
             },
         },
         {
             title: '操作',
             align:'center',
             dataIndex: 'operation',
+            width: '200px',
             render: (_: any, record: any) => (
                 <Space size="small">
-                    {record.orderStatus==1?
+                    {[1,6].includes(record.orderStatus)?
                         <>
-                            <Button type="primary" onClick={()=>{isDleOpen(record.id)}} danger>删除</Button>
-                            <Button type="primary" onClick={()=>{history.push(`/warehouse/editTransferForm?id=${record.id}`)}}>编辑</Button>
+                            <Button type="primary" size='small' onClick={()=>{isDleOpen(record.id)}} danger>删除</Button>
+                            <Button type="primary" size='small' onClick={()=>{history.push(`/warehouse/editTransferForm?id=${record.id}`)}}>编辑</Button>
+                            {userQx()[603] == '1' && <Button type="primary" size='small' onClick={()=>sendCheck(record.id)}>直接送审</Button>}
                         </>
                         :
                         null
@@ -136,6 +148,18 @@ const TransferForm=(props)=>{
                 setDOpen(false);
             }
         })
+    };
+    const sendCheck=(id:number)=>{
+        setSpinning(true);
+        RequisitionFormService.sendCheck({uid:id, orderStatus:5}).then((res:TypeErrorCode)=>{
+            setSpinning(false);
+            if(res.ErrorCode===0){
+                message.success('送审成功');
+                getList();
+            }else{
+                message.error(res.Data);
+            }
+        });
     };
     const changeWarehouseName=(e)=>{
         updateSessionStorage('/warehouse/thingStock','transferFormWarehouseName',e.target.value);
@@ -232,8 +256,10 @@ const TransferForm=(props)=>{
                                 onChange={changeOrderStatus}
                                 options={[
                                     {label:'全部',value:0},
-                                    {label:'待审核',value:1},
+                                    {label:'待送审',value:1},
                                     {label:'已审核',value:2},
+                                    {label:'已送审',value:5},
+                                    {label:'已驳回',value:6},
                                 ]}
                             />
                         </Space.Compact>

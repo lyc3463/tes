@@ -30,30 +30,33 @@ const ServerList=(props:any)=>{
     const sousuo=()=>{
         setPage(1);
         getzujinList();
-        logFenye();
+        // logFenye();
     };
     // 查看租金缴费列表
     const getzujinList=()=>{
         ArrearsBillService.sunhaoList({page,name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setdataSource(res.Data);
+                setdataSource(res.Data.data);
+                setcount(res.Data.data.count);
+                setmoneySum(res.Data.data.moneySum);
+                setNotBillSum(res.Data.data.NotBillSum);
             }else {
                 message.error(res.Data);
             }
         })
     };
     // 分页
-    const logFenye=()=>{
-        ArrearsBillService.sunhaoListFenye({name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setcount(res.Data.count);
-                setmoneySum(res.Data.moneySum);
-                setNotBillSum(res.Data.NotBillSum);
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
+    // const logFenye=()=>{
+    //     ArrearsBillService.sunhaoListFenye({name,phone,startDate,endDate,tenandId,stutes,pageSize}).then((res:TypeErrorCode)=>{
+    //         if (res.ErrorCode==0){
+    //             setcount(res.Data.count);
+    //             setmoneySum(res.Data.moneySum);
+    //             setNotBillSum(res.Data.NotBillSum);
+    //         }else {
+    //             message.error(res.Data);
+    //         }
+    //     })
+    // };
     const columns =[
         {
             title: '日期',
@@ -168,9 +171,9 @@ const ServerList=(props:any)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-    useEffect(() => {
-        logFenye();
-    }, []);
+    // useEffect(() => {
+    //     logFenye();
+    // }, []);
     useEffect(() => {
         getzujinList();
     }, [page,pageSize]);

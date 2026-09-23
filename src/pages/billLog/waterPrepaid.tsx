@@ -52,7 +52,10 @@ const WaterPrepaidList=()=>{
         dateWaterService.fetch(page,cid,name,startDate,endDate,tenantId,recordStatus,'',pageSize).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 setspinning(false);
-                setwaterRateList(res.Data);
+                setwaterRateList(res.Data.data);
+                setcount(res.Data.data.count);
+                setmoneySum(res.Data.data.moneySum);
+                setenergyUsage(res.Data.data.energyUsage);
             }else {
                 setspinning(false);
                 message.error(res.Data);
@@ -60,31 +63,31 @@ const WaterPrepaidList=()=>{
         })
     };
     // 获取水表扣费记录分页
-    const getwaterFenye=()=>{
-        dateWaterService.fenye(cid,name,startDate,endDate,tenantId,recordStatus,'',pageSize).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setcount(res.Data.count);
-                setmoneySum(res.Data.moneySum);
-                setenergyUsage(res.Data.energyUsage);
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
+    // const getwaterFenye=()=>{
+    //     dateWaterService.fenye(cid,name,startDate,endDate,tenantId,recordStatus,'',pageSize).then((res:TypeErrorCode)=>{
+    //         if (res.ErrorCode==0){
+    //             setcount(res.Data.count);
+    //             setmoneySum(res.Data.moneySum);
+    //             setenergyUsage(res.Data.energyUsage);
+    //         }else {
+    //             message.error(res.Data);
+    //         }
+    //     })
+    // };
     // 搜索
     const sousuo=()=>{
         setPage(1);
         getwaterRateList();
-        getwaterFenye();
+        // getwaterFenye();
     };
     // 监听页数
     const onChange=(e:number,pageSize:number)=>{
         setPage(e);
         setPageSize(pageSize);
     };
-    useEffect(() => {
-        getwaterFenye();
-    }, []);
+    // useEffect(() => {
+    //     getwaterFenye();
+    // }, []);
     useEffect(() => {
         getwaterRateList();
     }, [page,pageSize]);

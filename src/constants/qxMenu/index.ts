@@ -594,4 +594,11 @@ export const qxTree: TypeMenu[] = [
     { id: 600, name: '退货送审',parentId: 503, authId: 600},
     { id: 601, name: '报损送审',parentId: 509, authId: 601},
     { id: 602, name: '销售送审',parentId: 526, authId: 602},
+    { id: 603, name: '调拨送审',parentId: 533, authId: 603},
+    { id: 604, name: '跨店调拨送审',parentId: 563, authId: 604},
+    { id: 605, name: '添加',parentId: 563, authId: 605},
+    { id: 606, name: '编辑',parentId: 563, authId: 606},
+    { id: 607, name: '删除',parentId: 563, authId: 607},
+    { id: 608, name: '审核跨店调拨',parentId: 448, authId: 608},
+    { id: 609, name: '审核',parentId: 608, authId: 609},
 ]
