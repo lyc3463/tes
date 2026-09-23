@@ -19,7 +19,7 @@ const AddUser=(props:any)=>{
     const navigate=useNavigate();
     const treeData = buildTree(qxTree);
     const [roleList,setRoleList]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(599).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(603).fill('0'));
     const [isTask,setisTask]=useState([0]);
     const [qyList,setqyList]=useState([]);
     const [qyId,setqyId]=useState(0);
@@ -1488,6 +1488,9 @@ const AddUser=(props:any)=>{
             newSelected[512] = isChecked ? '1' : '0' ;
             newSelected[513] = isChecked ? '1' : '0' ;
             newSelected[514] = isChecked ? '1' : '0' ;
+            newSelected[599] = isChecked ? '1' : '0' ;
+            newSelected[600] = isChecked ? '1' : '0' ;
+            newSelected[601] = isChecked ? '1' : '0' ;
         }
         if (id === 491){
             newSelected[492] ='1' ;
@@ -1496,6 +1499,7 @@ const AddUser=(props:any)=>{
             newSelected[493] = isChecked ? '1' : '0' ;
             newSelected[494] = isChecked ? '1' : '0' ;
             newSelected[497] = isChecked ? '1' : '0' ;
+            newSelected[599] = isChecked ? '1' : '0' ;
         }
         if (id === 500){
             newSelected[501] = isChecked ? '1' : '0' ;
@@ -1505,6 +1509,7 @@ const AddUser=(props:any)=>{
             newSelected[504] = isChecked ? '1' : '0' ;
             newSelected[505] = isChecked ? '1' : '0' ;
             newSelected[506] = isChecked ? '1' : '0' ;
+            newSelected[600] = isChecked ? '1' : '0' ;
             newSelected[498] ='1' ;
             newSelected[488] ='1' ;
         }
@@ -1518,6 +1523,7 @@ const AddUser=(props:any)=>{
             newSelected[510] = isChecked ? '1' : '0' ;
             newSelected[511] = isChecked ? '1' : '0' ;
             newSelected[512] = isChecked ? '1' : '0' ;
+            newSelected[601] = isChecked ? '1' : '0' ;
         }
         if (id === 513){
             newSelected[514] = isChecked ? '1' : '0' ;
@@ -1557,6 +1563,7 @@ const AddUser=(props:any)=>{
             newSelected[530] = isChecked ? '1' : '0' ;
             newSelected[531] = isChecked ? '1' : '0' ;
             newSelected[532] = isChecked ? '1' : '0' ;
+            newSelected[602] = isChecked ? '1' : '0' ;
             newSelected[496] ='1' ;
             newSelected[498] ='1' ;
             newSelected[488] ='1' ;
@@ -1780,6 +1787,13 @@ const AddUser=(props:any)=>{
                         <Select.Option value={16}>水电发票</Select.Option>
                         <Select.Option value={17}>业主信息</Select.Option>
                         <Select.Option value={18}>押金消息</Select.Option>
+                        <Select.Option value={19}>违约金消息</Select.Option>
+                        <Select.Option value={20}>变更手机号</Select.Option>
+                        <Select.Option value={21}>退款申请</Select.Option>
+                        <Select.Option value={22}>采购申请</Select.Option>
+                        <Select.Option value={23}>入库单</Select.Option>
+                        <Select.Option value={24}>直接入库单</Select.Option>
+                        <Select.Option value={25}>出库单</Select.Option>
                         <Select.Option value={0}>不接收消息</Select.Option>
                     </Select>
                 </Form.Item>

@@ -521,7 +521,7 @@ const addSalesList = (props) => {
     };
 
     // 提交保存
-    const onOK = () => {
+    const onOK = (orderStatus = 1) => {
         if (orderTime === '') return message.warning('请选择申请时间');
         if (customerId === 0) return message.warning('请选择客户');
         if (pmId === 0) return message.warning('请选择支付类型');
@@ -551,7 +551,7 @@ const addSalesList = (props) => {
         setSpinning(true);
         props.dispatch({
             type: 'SalesList/add',
-            payload: { warehouseId, orderCode, orderTime, jsonData, paidAmount, totalAmount, discountPrice, remark, pmId, customerId, discountRate, salesperson }
+            payload: { warehouseId, orderCode, orderTime, jsonData, paidAmount, totalAmount, discountPrice, remark, pmId, customerId, discountRate, salesperson, orderStatus }
         }).then((res: TypeErrorCode) => {
             setSpinning(false);
             if (res.ErrorCode == 0) {
@@ -744,8 +744,11 @@ const addSalesList = (props) => {
                 <Button type="primary" onClick={() => navigate(-1)}>
                     返回
                 </Button>
-                <Button type="primary" onClick={onOK}>
-                    确定
+                <Button type="primary" onClick={() => onOK(1)}>
+                    保存草稿
+                </Button>
+                <Button type="primary" danger onClick={() => onOK(5)}>
+                    直接送审
                 </Button>
                 <Button danger onClick={clearAllDraft}>清空草稿</Button>
             </Space>

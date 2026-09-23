@@ -1,10 +1,10 @@
 import { connect } from 'umi';
-import { Button, DatePicker, Input, List, message, Pagination, Space, Spin, Table } from 'antd';
+import { Button, Input, List, message, Pagination, Space, Spin, Table } from 'antd';
 import dayjs from 'dayjs';
 import { checkSessionStorage, exportDataToExcel, updateSessionStorage } from '@/utils/OpenTool';
 import * as PrepaymentReportFormsService from '@/services/prepaymentReportForms';
 import TypeErrorCode from '@/ModelTypes/TypeErrorCode';
-import TypeTenantBill from '@/ModelTypes/TypeTenantBill';
+import TypeTenantBill, { TenantBillList } from '@/ModelTypes/TypeTenantBill';
 import { useEffect, useState } from 'react';
 
 const PrepaymentReportForms = (props:any) => {
@@ -13,16 +13,12 @@ const PrepaymentReportForms = (props:any) => {
     const [spinning, setSpinning] = useState(false);
     const [phone, setPhone] = useState(checkSessionStorage('/reportFormsManage/payReportForms/', 'prepaymentPhone') || '');
     const [name, setName] = useState(checkSessionStorage('/reportFormsManage/payReportForms/', 'prepaymentName') || '');
-    const [startDate, setStartDate] = useState(checkSessionStorage('/reportFormsManage/payReportForms/', 'prepaymentStartDate') || '2000-01-01');
-    const [endDate, setEndDate] = useState(checkSessionStorage('/reportFormsManage/payReportForms/', 'prepaymentEndDate') || '2099-01-01');
 
     const getParams = (targetPage = page, targetPageSize = pageSize) => ({
         page: targetPage,
         pageSize: targetPageSize,
         name,
         phone,
-        startDate,
-        endDate: dayjs(endDate).add(1, 'day').format('YYYY-MM-DD'),
     });
 
     const loadData = (targetPage = page, targetPageSize = pageSize) => {
@@ -52,21 +48,6 @@ const PrepaymentReportForms = (props:any) => {
         loadData();
     }, []);
 
-    const changeDate = (_: any, dates: string[]) => {
-        const [nextStartDate, nextEndDate] = dates;
-        if (!nextStartDate && !nextEndDate) {
-            setStartDate('2000-01-01');
-            setEndDate('2099-01-01');
-            updateSessionStorage('/reportFormsManage/payReportForms/', 'prepaymentStartDate', '2000-01-01');
-            updateSessionStorage('/reportFormsManage/payReportForms/', 'prepaymentEndDate', '2099-01-01');
-            return;
-        }
-        setStartDate(nextStartDate);
-        setEndDate(nextEndDate);
-        updateSessionStorage('/reportFormsManage/payReportForms/', 'prepaymentStartDate', nextStartDate);
-        updateSessionStorage('/reportFormsManage/payReportForms/', 'prepaymentEndDate', nextEndDate);
-    };
-
     const changeName = (event: React.ChangeEvent<HTMLInputElement>) => {
         setName(event.target.value);
         updateSessionStorage('/reportFormsManage/payReportForms/', 'prepaymentName', event.target.value);
@@ -85,15 +66,15 @@ const PrepaymentReportForms = (props:any) => {
                 message.error(res.Data);
                 return;
             }
-            const headers = ['单元', '租户', '手机号', '账单开始时间', '账单结束时间', '租金(元)', '预付费(元)'];
+            const headers = ['租户', '手机号', '合同编号', '单元', '预付费(元)', '未使用预付费(元)', '账单明细'];
             const data: (string | number)[][] = res.Data.data.map((item: TypeTenantBill) => [
-                item.unitList?.map(unit => unit.unit_name).join(', ') || '',
                 item.tenant_name,
                 item.tenant_phone,
-                dayjs(item.monthBeginDate).format('YYYY-MM-DD'),
-                dayjs(item.monthEndDate).format('YYYY-MM-DD'),
-                item.rent,
+                item.identifier,
+                item.unitList?.map(unit => unit.unit_name).join(', ') || '',
                 item.prepayment,
+                item.unusedPrepayment,
+                (item.tenantBillList || []).map(bill => `${dayjs(bill.monthBeginDate).format('YYYY-MM-DD')}~${dayjs(bill.monthEndDate).format('YYYY-MM-DD')} 预付费:${Number(bill.prepayment || 0).toFixed(2)}`).concat(`预付费使用合计: ${Number((item.tenantBillList || []).reduce((sum, bill) => sum + Number(bill.prepayment || 0), 0)).toFixed(2)}`).join('\n'),
             ]);
             exportDataToExcel([
                 headers.map(header => ({ v: header, t: 's' })),
@@ -103,31 +84,15 @@ const PrepaymentReportForms = (props:any) => {
     };
 
     const columns = [
+        { title: '租户', dataIndex: 'tenant_name', key: 'tenant_name' },
+        { title: '手机号', dataIndex: 'tenant_phone', key: 'tenant_phone' },
+        { title: '合同编号', dataIndex: 'identifier', key: 'identifier', width: '300px' },
         {
             title: '单元',
             dataIndex: 'unitList',
             key: 'unitList',
+            width: '300px',
             render: (unitList: TypeTenantBill['unitList']) => unitList?.map(item => item.unit_name).join(', ') || '',
-        },
-        { title: '租户', dataIndex: 'tenant_name', key: 'tenant_name' },
-        { title: '手机号', dataIndex: 'tenant_phone', key: 'tenant_phone' },
-        {
-            title: '账单开始时间',
-            dataIndex: 'monthBeginDate',
-            key: 'monthBeginDate',
-            render: (value: string) => dayjs(value).format('YYYY-MM-DD'),
-        },
-        {
-            title: '账单结束时间',
-            dataIndex: 'monthEndDate',
-            key: 'monthEndDate',
-            render: (value: string) => dayjs(value).format('YYYY-MM-DD'),
-        },
-        {
-            title: '租金(元)',
-            dataIndex: 'rent',
-            key: 'rent',
-            render: (value: number) => Number(value || 0).toFixed(2),
         },
         {
             title: '预付费(元)',
@@ -135,12 +100,42 @@ const PrepaymentReportForms = (props:any) => {
             key: 'prepayment',
             render: (value: number) => Number(value || 0).toFixed(2),
         },
+        {
+            title: '未使用预付费(元)',
+            dataIndex: 'unusedPrepayment',
+            key: 'unusedPrepayment',
+            render: (value: number) => Number(value || 0).toFixed(2),
+        },
+        {
+            title: '账单明细',
+            dataIndex: 'tenantBillList',
+            key: 'tenantBillList',
+            width: '400px',
+            render: (billList: TenantBillList[]) => (
+                <div style={{ minWidth: '720px', whiteSpace: 'normal' }}>
+                    {(billList || []).map((bill, index) => (
+                        <div key={bill.id || index} style={{ padding: '4px 0', borderBottom: index < billList.length - 1 ? '1px solid #f0f0f0' : undefined }}>
+                            {dayjs(bill.monthBeginDate).format('YYYY-MM-DD')} ~ {dayjs(bill.monthEndDate).format('YYYY-MM-DD')}
+                            {/* {' | 租金 '}{Number(bill.rent || 0).toFixed(2)}元
+                            {' | 免租天数 '}{Number(bill.rentFreeDay || 0).toFixed(2)}天
+                            {' | 管理费 '}{Number(bill.manageFee || 0).toFixed(2)}元
+                            {' | 应交租金 '}{Number(bill.payRent || 0).toFixed(2)}元 */}
+                            {' | 预付费 '}{Number(bill.prepayment || 0).toFixed(2)}元
+                            {/* {' | 当月账单 '}{Number((bill.payRent || 0) + (bill.manageFee || 0) - (bill.prepayment || 0)).toFixed(2)}元 */}
+                        </div>
+                    ))}
+                    <div style={{ padding: '4px 0', fontWeight: 'bold' }}>
+                        预付费使用合计: {Number((billList || []).reduce((sum, bill) => sum + Number(bill.prepayment || 0), 0)).toFixed(2)}元
+                    </div>
+                </div>
+            ),
+        },
     ];
 
     const currentList: TypeTenantBill[] = props.PrepaymentReportFormsList || [];
     const visibleList = currentList.slice((page - 1) * pageSize, page * pageSize);
-    const rentSum = visibleList.reduce((sum, item) => sum + Number(item.rent || 0), 0);
     const prepaymentSum = visibleList.reduce((sum, item) => sum + Number(item.prepayment || 0), 0);
+    const unusedPrepaymentSum = visibleList.reduce((sum, item) => sum + Number(item.unusedPrepayment || 0), 0);
 
     return (
         <Spin spinning={spinning}>
@@ -149,12 +144,6 @@ const PrepaymentReportForms = (props:any) => {
                     <Space>
                         <Input addonBefore="租户姓名:" onChange={changeName} value={name} />
                         <Input addonBefore="联系方式:" onChange={changePhone} value={phone} />
-                        <Space.Compact>
-                            <div style={{ borderRadius: '6px', borderStartEndRadius: 0, borderEndEndRadius: 0, padding: '0 11px', border: '1px solid #d9d9d9', display: 'flex', flexWrap: 'wrap', alignItems: 'center', borderInlineEnd: 0 }}>
-                                日期:
-                            </div>
-                            <DatePicker.RangePicker onChange={changeDate} defaultValue={startDate == '2000-01-01' && endDate == '2099-01-01' ? undefined : [dayjs(startDate), dayjs(endDate)]} />
-                        </Space.Compact>
                         <Button type="primary" onClick={search}>搜索</Button>
                         <Button type="primary" onClick={exportToExcel}>导出</Button>
                     </Space>
@@ -162,10 +151,10 @@ const PrepaymentReportForms = (props:any) => {
             </List>
             <Table
                 columns={columns}
-                rowKey={record => record.id}
+                rowKey={record => record.id ?? record.contractId}
                 pagination={false}
                 size="small"
-                scroll={{ y: '55vh' }}
+                scroll={{ y: '55vh', x: 1400 }}
                 dataSource={visibleList}
                 rowClassName={(_, index) => index % 2 === 1 ? 'tbodd' : 'tbeven'}
                 summary={() => (
@@ -175,9 +164,9 @@ const PrepaymentReportForms = (props:any) => {
                             <Table.Summary.Cell index={1} />
                             <Table.Summary.Cell index={2} />
                             <Table.Summary.Cell index={3} />
-                            <Table.Summary.Cell index={4} />
-                            <Table.Summary.Cell index={5}>{rentSum.toFixed(2)}元</Table.Summary.Cell>
-                            <Table.Summary.Cell index={6}>{prepaymentSum.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={4}>{prepaymentSum.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={5}>{unusedPrepaymentSum.toFixed(2)}元</Table.Summary.Cell>
+                            <Table.Summary.Cell index={6} />
                         </Table.Summary.Row>
                     </Table.Summary>
                 )}

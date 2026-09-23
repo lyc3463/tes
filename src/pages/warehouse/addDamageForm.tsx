@@ -299,7 +299,7 @@ const addDamageForm = (props) => {
     };
 
     // 提交表单
-    const onOK = () => {
+    const onOK = (orderStatus = 1) => {
         if (orderTime === '') return message.warning('请选择申请时间');
         const filteredData = displayData.filter(item => item.productsCode !== '' && item.unitsId > 0);
         console.log('displayData',filteredData)
@@ -327,7 +327,7 @@ const addDamageForm = (props) => {
         setSpinning(true);
         props.dispatch({
             type: 'DamageForm/add',
-            payload: { warehouseId, orderCode, orderTime, jsonData, paidAmount, totalAmount, remark, warehouseId2: 0, customerType: 0, customerId: 0 }
+            payload: { warehouseId, orderCode, orderTime, jsonData, paidAmount, totalAmount, remark, warehouseId2: 0, customerType: 0, customerId: 0, orderStatus }
         }).then((res: TypeErrorCode) => {
             setSpinning(false);
             if (res.ErrorCode == 0) {
@@ -504,8 +504,11 @@ const addDamageForm = (props) => {
                 <Button type="primary" onClick={() => navigate(-1)}>
                     返回
                 </Button>
-                <Button type="primary" onClick={onOK}>
-                    确定
+                <Button type="primary" onClick={() => onOK(1)}>
+                    保存草稿
+                </Button>
+                <Button type="primary" danger onClick={() => onOK(5)}>
+                    直接送审
                 </Button>
                 <Button danger onClick={clearAllDraft}>清空草稿</Button>
             </Space>

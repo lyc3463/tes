@@ -15,7 +15,7 @@ const AddRole=(props)=>{
     const navigate=useNavigate();
     const [spinning,setspinning]=useState(false);
     const treeData = buildTree(qxTree);
-    const [selected, setSelected] = useState<string[]>(Array(599).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(603).fill('0'));
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: TypeMenu[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void })=> {
         return (
             <ul>
@@ -1427,6 +1427,9 @@ const AddRole=(props)=>{
             newSelected[512] = isChecked ? '1' : '0' ;
             newSelected[513] = isChecked ? '1' : '0' ;
             newSelected[514] = isChecked ? '1' : '0' ;
+            newSelected[599] = isChecked ? '1' : '0' ;
+            newSelected[600] = isChecked ? '1' : '0' ;
+            newSelected[601] = isChecked ? '1' : '0' ;
         }
         if (id === 491){
             newSelected[492] ='1' ;
@@ -1435,6 +1438,7 @@ const AddRole=(props)=>{
             newSelected[493] = isChecked ? '1' : '0' ;
             newSelected[494] = isChecked ? '1' : '0' ;
             newSelected[497] = isChecked ? '1' : '0' ;
+            newSelected[599] = isChecked ? '1' : '0' ;
         }
         if (id === 500){
             newSelected[501] = isChecked ? '1' : '0' ;
@@ -1444,6 +1448,7 @@ const AddRole=(props)=>{
             newSelected[504] = isChecked ? '1' : '0' ;
             newSelected[505] = isChecked ? '1' : '0' ;
             newSelected[506] = isChecked ? '1' : '0' ;
+            newSelected[600] = isChecked ? '1' : '0' ;
             newSelected[498] ='1' ;
             newSelected[488] ='1' ;
         }
@@ -1457,6 +1462,7 @@ const AddRole=(props)=>{
             newSelected[510] = isChecked ? '1' : '0' ;
             newSelected[511] = isChecked ? '1' : '0' ;
             newSelected[512] = isChecked ? '1' : '0' ;
+            newSelected[601] = isChecked ? '1' : '0' ;
         }
         if (id === 513){
             newSelected[514] = isChecked ? '1' : '0' ;
@@ -1496,6 +1502,7 @@ const AddRole=(props)=>{
             newSelected[530] = isChecked ? '1' : '0' ;
             newSelected[531] = isChecked ? '1' : '0' ;
             newSelected[532] = isChecked ? '1' : '0' ;
+            newSelected[602] = isChecked ? '1' : '0' ;
             newSelected[496] ='1' ;
             newSelected[498] ='1' ;
             newSelected[488] ='1' ;

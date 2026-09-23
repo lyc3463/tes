@@ -590,4 +590,8 @@ export const qxTree: TypeMenu[] = [
     { id: 596, name: '驳回正式合同',parentId: 208, authId: 596},
     { id: 597, name: '定金合同送审',parentId: 387, authId: 597},
     { id: 598, name: '驳回定金合同',parentId: 388, authId: 598},
+    { id: 599, name: '领用送审',parentId: 491, authId: 599},
+    { id: 600, name: '退货送审',parentId: 503, authId: 600},
+    { id: 601, name: '报损送审',parentId: 509, authId: 601},
+    { id: 602, name: '销售送审',parentId: 526, authId: 602},
 ]

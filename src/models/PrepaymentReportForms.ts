@@ -10,8 +10,6 @@ let pl = {
     page: 1,
     name: '',
     phone: '',
-    startDate: '2000-01-01',
-    endDate: '2099-01-01',
     pageSize: 50,
 };
 

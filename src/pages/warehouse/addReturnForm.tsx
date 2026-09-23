@@ -420,7 +420,7 @@ const addReturnForm = (props) => {
     };
 
     // 提交表单
-    const onOK = () => {
+    const onOK = (orderStatus = 1) => {
         if (orderTime === '') return message.warning('请选择申请时间');
         if (pmId === 0) return message.warning('请选择支付方式');
         const filteredData = displayData.filter(item => item.productsCode !== '' && item.unitsId > 0);
@@ -447,7 +447,7 @@ const addReturnForm = (props) => {
         setSpinning(true);
         props.dispatch({
             type: 'ReturnForm/add',
-            payload: { warehouseId, orderCode, orderTime, jsonData, paidAmount, totalAmount, remark, pmId }
+            payload: { warehouseId, orderCode, orderTime, jsonData, paidAmount, totalAmount, remark, pmId, orderStatus }
         }).then((res: TypeErrorCode) => {
             setSpinning(false);
             if (res.ErrorCode == 0) {
@@ -551,8 +551,11 @@ const addReturnForm = (props) => {
                 <Button type="primary" onClick={() => navigate(-1)}>
                     返回
                 </Button>
-                <Button type="primary" onClick={onOK}>
-                    确定
+                <Button type="primary" onClick={() => onOK(1)}>
+                    保存草稿
+                </Button>
+                <Button type="primary" danger onClick={() => onOK(5)}>
+                    直接送审
                 </Button>
                 <Button danger onClick={clearAllDraft}>清空草稿</Button>
             </Space>

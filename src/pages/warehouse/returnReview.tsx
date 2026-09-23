@@ -19,6 +19,8 @@ const ReturnReview=(props)=>{
     const [orderType,setOrderType]=useState(2);// 订单类型
     const [dOpen,setDOpen]=useState(false);// 审核弹窗是否打开
     const [dId,setDId]=useState(0);// 审核的id
+    const [goods,setGoods]=useState<any[]>([]);
+    const [reason,setReason]=useState('');
     const [uName,setUName]=useState(checkSessionStorage('/warehouse/outbound','returnReviewFormUName') || '');// 申请人
     const columns = [
         {
@@ -47,7 +49,9 @@ const ReturnReview=(props)=>{
             dataIndex: 'orderStatus',
             ellipsis: true,
             render: (text: any) => {
-                return <Tag color={text==2?'green':'red'}>{text==2?'已审核':'未审核'}</Tag>
+                const statusMap = {1: ['blue', '待送审'], 2: ['green', '已审核'], 5: ['orange', '已送审'], 6: ['red', '已驳回']};
+                const status = statusMap[text] || ['default', '未知状态'];
+                return <Tag color={status[0]}>{status[1]}</Tag>
             },
         },
         {
@@ -83,7 +87,7 @@ const ReturnReview=(props)=>{
             dataIndex: 'operation',
             render: (_: any, record: any) => (
                 <Space size="small">
-                    {record.orderStatus==1?
+                    {record.orderStatus==5?
                         <>
                             <Button type="primary" onClick={()=>isCheckOpen(record.id)}>审核</Button>
                         </>
@@ -98,6 +102,16 @@ const ReturnReview=(props)=>{
     const isCheckOpen=(e:number)=>{
         setDId(e);
         setDOpen(true);
+        setReason('');
+        getOne(e);
+    };
+    const getOne=async (id:number)=>{
+        const res:any=await getData(1749,[id]);
+        if(res.ErrorCode===0){
+            setGoods(res.Data?.ppList || []);
+        }else{
+            message.error(res.Data);
+        }
     };
     const getList=()=>{
         props.dispatch({
@@ -113,16 +127,22 @@ const ReturnReview=(props)=>{
         setPage(page);
         setPageSize(pageSize);
     };
-    const onOK=()=>{
+    const check= (orderStatus:number)=>{
+        if(orderStatus===6 && !reason.trim()){
+            message.warning('请输入驳回原因');
+            return;
+        }
         setSpinning(true);
         props.dispatch({
             type:'ReturnReview/check',
-            payload:dId
+            payload:{uid:dId, orderStatus, Reason:reason}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                message.success('审核成功');
+                message.success(orderStatus===2?'审核通过':'驳回成功');
                 setSpinning(false);
                 setDOpen(false);
+                setReason('');
+                getList();
             }else {
                 message.error(res.ErrorCode + res.Data);
                 setSpinning(false);
@@ -228,8 +248,10 @@ const ReturnReview=(props)=>{
                                 onChange={changeOrderStatus}
                                 options={[
                                     {label:'全部',value:0},
-                                    {label:'待审核',value:1},
+                                    {label:'待送审',value:1},
                                     {label:'已审核',value:2},
+                                    {label:'已送审',value:5},
+                                    {label:'已驳回',value:6},
                                 ]}
                             />
                         </Space.Compact>
@@ -264,8 +286,31 @@ const ReturnReview=(props)=>{
                 )}
             />
             {props.count?<Pagination total={props.count.count} showSizeChanger pageSize={pageSize} current={page}  onChange={onChange} pageSizeOptions={[50,100,500,1000,10000]}/>:''}
-            <Modal title='审核' onOk={onOK} loading={spinning} open={dOpen} onCancel={()=>{setDOpen(false)}}>
-                <p>确定审核吗？</p>
+            <Modal
+                title='审核'
+                width={900}
+                open={dOpen}
+                confirmLoading={spinning}
+                onCancel={()=>setDOpen(false)}
+                footer={[
+                    <Button key='pass' type='primary' onClick={()=>check(2)}>通过</Button>,
+                    <Button key='reject' danger onClick={()=>check(6)}>驳回</Button>,
+                    <Button key='close' onClick={()=>setDOpen(false)}>关闭</Button>,
+                ]}
+            >
+                <Table
+                    size='small'
+                    pagination={false}
+                    dataSource={goods}
+                    rowKey={(record:any)=>record.ppId || record.id}
+                    columns={[
+                        {title:'物料名称',dataIndex:'productsName'},
+                        {title:'物料编号',dataIndex:'productsCode'},
+                        {title:'单位',dataIndex:'unitsName'},
+                        {title:'数量',dataIndex:'quantity'},
+                    ]}
+                />
+                <Input.TextArea rows={4} placeholder='请输入审核意见或驳回原因' value={reason} onChange={e=>setReason(e.target.value)} style={{marginTop:16}} />
             </Modal>
         </Spin>
     )

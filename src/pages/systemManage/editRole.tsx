@@ -17,7 +17,7 @@ const EditRole=(props)=>{
     const location=useLocation();
     const [spinning,setspinning]=useState(false);
     const formRef =useRef();
-    const [selected, setSelected] = useState<string[]>(Array(599).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(603).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -1450,6 +1450,9 @@ const EditRole=(props)=>{
             newSelected[512] = isChecked ? '1' : '0' ;
             newSelected[513] = isChecked ? '1' : '0' ;
             newSelected[514] = isChecked ? '1' : '0' ;
+            newSelected[599] = isChecked ? '1' : '0' ;
+            newSelected[600] = isChecked ? '1' : '0' ;
+            newSelected[601] = isChecked ? '1' : '0' ;
         }
         if (id === 491){
             newSelected[492] ='1' ;
@@ -1458,6 +1461,7 @@ const EditRole=(props)=>{
             newSelected[493] = isChecked ? '1' : '0' ;
             newSelected[494] = isChecked ? '1' : '0' ;
             newSelected[497] = isChecked ? '1' : '0' ;
+            newSelected[599] = isChecked ? '1' : '0' ;
         }
         if (id === 500){
             newSelected[501] = isChecked ? '1' : '0' ;
@@ -1467,6 +1471,7 @@ const EditRole=(props)=>{
             newSelected[504] = isChecked ? '1' : '0' ;
             newSelected[505] = isChecked ? '1' : '0' ;
             newSelected[506] = isChecked ? '1' : '0' ;
+            newSelected[600] = isChecked ? '1' : '0' ;
             newSelected[498] ='1' ;
             newSelected[488] ='1' ;
         }
@@ -1480,6 +1485,7 @@ const EditRole=(props)=>{
             newSelected[510] = isChecked ? '1' : '0' ;
             newSelected[511] = isChecked ? '1' : '0' ;
             newSelected[512] = isChecked ? '1' : '0' ;
+            newSelected[601] = isChecked ? '1' : '0' ;
         }
         if (id === 513){
             newSelected[514] = isChecked ? '1' : '0' ;
@@ -1519,6 +1525,7 @@ const EditRole=(props)=>{
             newSelected[530] = isChecked ? '1' : '0' ;
             newSelected[531] = isChecked ? '1' : '0' ;
             newSelected[532] = isChecked ? '1' : '0' ;
+            newSelected[602] = isChecked ? '1' : '0' ;
             newSelected[496] ='1' ;
             newSelected[498] ='1' ;
             newSelected[488] ='1' ;
