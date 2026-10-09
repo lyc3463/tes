@@ -41,7 +41,8 @@ export function edit(vals:any) {
         vals.required_area,
         vals.remark,
         vals.intermediary_company,
-        vals.intermediary_phone
+        vals.intermediary_phone,
+        vals.isExamine1124,
     ]);
 }
 
@@ -50,6 +51,10 @@ export function remove(vals:any) {
 }
 export function one(vals:any) {
     return getData(1126, [vals]);
+}
+// 根据手机号查询所有园区客户
+export function getByPhone(phone:string) {
+    return getData(1128, [phone]);
 }
 export function check(vals:any) {
     return getData(1234, [vals]);

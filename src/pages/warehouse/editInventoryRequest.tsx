@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as InventoryRequestServices from "@/services/inventoryRequest";
 import {PlusOutlined} from "@ant-design/icons";
+import * as ThingListService from "@/services/thingList";
 
 const EditInventoryRequest=(props)=>{
     const navigate=useNavigate();
@@ -38,6 +39,7 @@ const EditInventoryRequest=(props)=>{
     const [displayData, setDisplayData] = useState([]);
     // 库存的物品
     const [thingStockInfoList,setThingStockInfoList]=useState([]);
+    const [catalogProducts,setCatalogProducts]=useState<any[]>([]);
     const [uid,setUid]=useState(0);
     // 修复：创建行ref数组，直接引用每一行的DOM，避免操作表格实例
     const rowRefs = useRef<HTMLDivElement[]>([]);
@@ -165,16 +167,15 @@ const EditInventoryRequest=(props)=>{
                     optionFilterProp="children" // 搜索选项的哪个属性
                     placeholder="搜索物品名称"
                     style={{ width: 120 }}
-                    value={text || undefined} // 当前选中值
+                    value={record.productsId || undefined}
                     // 选择变更时更新状态
                     onChange={(value) => handleProductSelect(record.id, value)}
                     filterOption={(input, option) => {
                         // 1. 边界处理：如果thingList不是数组或为空，直接返回false
-                        if (!Array.isArray(thingStockInfoList) || thingStockInfoList.length === 0) {
+                        if (!Array.isArray(catalogProducts) || catalogProducts.length === 0) {
                             return false;
                         }
-                        // 2. 根据选项value查找对应的物品数据
-                        const item = thingStockInfoList.find(unit => unit.id == option.value);
+                        const item = catalogProducts.find(unit => unit.id == option.value);
                         if (!item) return false; // 未找到对应物品，不匹配
                         // 3. 同时搜索productsName和abbreviation（不区分大小写）
                         const searchInput = input.toLowerCase();
@@ -183,8 +184,8 @@ const EditInventoryRequest=(props)=>{
                         return nameMatch ;
                     }}
                     // 下拉选项来自thingList
-                    options={Array.isArray(thingStockInfoList)
-                        ? thingStockInfoList.map(item => ({
+                    options={Array.isArray(catalogProducts)
+                        ? catalogProducts.map(item => ({
                             label: `${item.productsName}(${item.unitsName})`, // 显示名称
                             value: item.id // 选项值（物品ID）
                         }))
@@ -252,7 +253,14 @@ const EditInventoryRequest=(props)=>{
     };
     useEffect(() => {
         getWarehouseList();
+        getCatalogProducts();
     }, []);
+
+    const getCatalogProducts=async ()=>{
+        const res:TypeErrorCode=await ThingListService.fetch({page:1,name:'',code:'',pageSize:10000,goodsTypeId:0});
+        if (res.ErrorCode===0) setCatalogProducts(res.Data.data || []);
+        else message.error(res.Data);
+    };
     const onOK=()=>{
         if (stockTime==='') return message.warning('请选择申请时间');
         // 可选：添加未选择项的提示
@@ -262,7 +270,7 @@ const EditInventoryRequest=(props)=>{
         setSpinning(true);
         props.dispatch({
             type:'InventoryRequest/edit',
-            payload:{uid,warehouseId, stockCode, stockTime, jsonData, remark}
+            payload:{uid,warehouseId, stockCode, stockTime, jsonData, remark, stockStatus:1}
         }).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
                 message.success('添加成功');
@@ -281,8 +289,11 @@ const EditInventoryRequest=(props)=>{
     // 处理物品选择变更 - 更新物品名称及相关信息
     const handleProductSelect = (recordId, productId) => {
         // 查找选中的物品信息
-        const selectedProduct = props.ThingStockInfoList.find(item => item.id === productId);
+        const selectedProduct = catalogProducts.find(item => Number(item.id) === Number(productId));
         if (!selectedProduct) return;
+        const stockRow = thingStockInfoList.find(item =>
+            Number(item.productsId) === Number(selectedProduct.id) && Number(item.unitsId) === Number(selectedProduct.unitsId),
+        );
         // 更新goods状态中对应记录的信息
         setDisplayData(displayData.map(item => {
             if (item.id === recordId) {
@@ -294,16 +305,17 @@ const EditInventoryRequest=(props)=>{
                     barcode: selectedProduct.barcode || '', // 同步物品条码
                     costPrice: selectedProduct.costPrice || 0, // 同步物品成本价
                     groupId: selectedProduct.groupId || 0, // 物品分组
-                    inventoryId: selectedProduct.id || 0, // 物品id
+                    inventoryId: stockRow?.id || 0,
+                    productsId: selectedProduct.id,
                     number: selectedProduct.number || 0, // 警告数量
                     presalePrice: selectedProduct.presalePrice || 0, // 警告数量
                     price: selectedProduct.price || 0, // 零售价(元)
-                    priceKc: selectedProduct.priceKc || 0, // 零售价(元)
+                    priceKc: stockRow?.price || 0,
                     productsCode: selectedProduct.productsCode || '', // 物品编号
                     productsImage: selectedProduct.productsImage || '', // 物品图片名称
                     productsName: selectedProduct.productsName || '', // 物品名称
                     quantity: 0, // 出库数量
-                    quantityKc: selectedProduct.quantity || 0, // 库存数量
+                    quantityKc: stockRow?.quantity || 0,
                     retailPricce: selectedProduct.retailPricce || 0,
                     specifications: selectedProduct.specifications || '',
                     totalPrice: selectedProduct.totalPrice || 0,

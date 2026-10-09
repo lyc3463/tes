@@ -17,7 +17,7 @@ let pl={
     pageSize:10,
     startDate:'2000-01-01',
     endDate:'2099-01-01',
-    orderStatus:1,
+    orderStatus:0,
     uName:'',
 }
 export interface StaffCountState {

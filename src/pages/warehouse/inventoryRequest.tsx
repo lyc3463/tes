@@ -1,9 +1,10 @@
 import {useEffect, useState} from "react";
 import {history,connect} from "umi";
-import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag} from "antd";
+import {Button, DatePicker, Input, List, message, Modal, Pagination, Space, Spin, Table, Tag, Tooltip} from "antd";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import {checkSessionStorage, updateSessionStorage, userQx} from "@/utils/OpenTool";
+import {QuestionCircleOutlined} from '@ant-design/icons';
 
 const InventoryRequest=(props)=>{
     const [spinning,setSpinning]=useState(false);
@@ -12,7 +13,7 @@ const InventoryRequest=(props)=>{
     const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/outbound','returnReviewFormWarehouseName') || '');// 仓库名称
     const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/inventory','inventoryRequestStartDate') || '2000-01-01');// 开始日期
     const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/inventory','inventoryRequestEndDate') || '2099-01-01');// 结束日期
-    const [orderStatus,setOrderStatus]=useState(1);// 订单状态
+    const [orderStatus,setOrderStatus]=useState(0);// 默认查看全部盘点状态
     const [pageSize,setPageSize]=useState(10);// 每页数量
     const [dOpen,setDOpen]=useState(false);// 删除弹窗是否打开
     const [dId,setDId]=useState(0);// 删除的id
@@ -54,9 +55,20 @@ const InventoryRequest=(props)=>{
             dataIndex:'stockStatus',
             key:'stockStatus',
             ellipsis:true,
-            render:(text)=>{
-                return <Tag color={text==2?'green':'red'}>{text==2?'已审核':'未审核'}</Tag>
-            }
+            // render:(text)=>{
+            //     return <Tag color={text==2?'green':'red'}>{text==2?'已审核':'未审核'}</Tag>
+            // }
+            render: (text: any, record: any) => {
+                const statusMap: Record<number, {color: string; text: string}> = {
+                    1: {color: 'blue', text: '未审核'},
+                    2: {color: 'green', text: '已审核'},
+                    3: {color: 'orange', text: '已送审'},
+                    4: {color: 'red', text: '已驳回'},
+                };
+                const status = statusMap[Number(text)] || {color: 'default', text: '未知状态'};
+                const reason = record.rejectReason || record.reject_reason || record.rejectedReason || record.reason || record.Reason;
+                return <Space><Tag color={status.color}>{status.text}</Tag>{Number(text) === 4 && reason?<Tooltip title={reason}><QuestionCircleOutlined /></Tooltip>:null}</Space>
+            },
         },
         {
             title:'备注',
@@ -72,7 +84,7 @@ const InventoryRequest=(props)=>{
             render:(text,record)=>{
                 return <Space>
                     {
-                        record.stockStatus==1?<>
+                        (record.stockStatus==1 || record.stockStatus==4)?<>
                           <Button type='primary' onClick={()=>{history.push(`/warehouse/editInventoryRequest?id=${record.id}`)}}>编辑</Button>
                           <Button type='primary' danger onClick={()=>isDelOpen(record.id)}>删除</Button>
                         </>:''

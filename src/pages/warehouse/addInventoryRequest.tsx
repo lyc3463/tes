@@ -1,10 +1,13 @@
-import {Button, DatePicker, Form, Input, message, Select, Space, Spin, Table} from "antd";
+import {Button, DatePicker, Form, Input, message, Modal, Select, Space, Spin, Table} from "antd";
 import { useNavigate, history, connect } from "umi";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { generate, getCurrentDate } from "@/utils/OpenTool";
 import { StaticInfo } from "@/StaticInfo";
 import dayjs from "dayjs";
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
+import * as InventoryRequestServices from "@/services/inventoryRequest";
+import * as ThingListService from "@/services/thingList";
+import { createInventoryRequestProduct } from "@/utils/inventoryWorkflow";
 
 // 缓存唯一key，区分页面，不和销售单冲突
 const CACHE_KEY = "AddInventoryRequest_draft_cache";
@@ -32,6 +35,9 @@ const AddInventoryRequest = (props) => {
     const [warehouseId, setWarehouseId] = useState(0);
     // 物品表格数据源
     const [displayData, setDisplayData] = useState([]);
+    const [catalogProducts, setCatalogProducts] = useState<any[]>([]);
+    const [addProductOpen, setAddProductOpen] = useState(false);
+    const [selectedCatalogProductId, setSelectedCatalogProductId] = useState<number>();
     // 表格勾选key
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     // 图片懒加载标记
@@ -62,7 +68,7 @@ const AddInventoryRequest = (props) => {
             stockTime,
             warehouseId,
             displayData,
-            selectedRowKeys
+            selectedRowKeys,
         };
         sessionStorage.setItem(CACHE_KEY, JSON.stringify(draft));
     }, [stockCode, remark, stockTime, warehouseId, displayData, selectedRowKeys]);
@@ -90,8 +96,14 @@ const AddInventoryRequest = (props) => {
             setRemark(cache.remark);
             setOrderTime(cache.stockTime);
             setWarehouseId(cache.warehouseId);
-            setDisplayData(cache.displayData);
-            setSelectedRowKeys(cache.selectedRowKeys);
+            const cachedData = (cache.displayData || []).map((item: any) => ({
+                ...item,
+                requestRowKey: item.requestRowKey || `inventory-${item.id}`,
+            }));
+            setDisplayData(cachedData);
+            setSelectedRowKeys((cache.selectedRowKeys || []).map((key: React.Key) =>
+                cachedData.find((item: any) => item.id === key)?.requestRowKey || key,
+            ));
             // 如果缓存有仓库ID，自动拉取该仓库物品列表
             if (cache.warehouseId > 0) {
                 getList(cache.warehouseId);
@@ -102,6 +114,7 @@ const AddInventoryRequest = (props) => {
         }
         // 基础仓库下拉接口
         getWarehouseList();
+        getCatalogProducts();
     }, [loadCache]);
 
     // 任意状态变化自动持久化缓存
@@ -152,7 +165,7 @@ const AddInventoryRequest = (props) => {
             dataIndex: 'productsImage',
             ellipsis: true,
             render: (text: string, record: any) => {
-                const isImageLoaded = loadedImageIds.has(record.id.toString());
+                const isImageLoaded = loadedImageIds.has(record.requestRowKey);
                 let imageUrl = '';
                 if (isImageLoaded && text) {
                     const textStr = String(text || '');
@@ -208,6 +221,7 @@ const AddInventoryRequest = (props) => {
             if (res.ErrorCode == 0) {
                 const newArr = res.Data.data.map((item: any) => ({
                     ...item,
+                    requestRowKey: `inventory-${item.id}`,
                     isZk: 1,
                     inventoryId: item.id,
                     discountRateDp: 100,
@@ -220,6 +234,44 @@ const AddInventoryRequest = (props) => {
                 message.error(res.Data);
             }
         })
+    };
+
+    const getCatalogProducts = async () => {
+        const res: TypeErrorCode = await ThingListService.fetch({
+            page: 1,
+            pageSize: 10000,
+            name: '',
+            code: '',
+            goodsTypeId: 0,
+        });
+        if (res.ErrorCode === 0) {
+            setCatalogProducts(res.Data.data || []);
+        } else {
+            message.error(res.Data);
+        }
+    };
+
+    const addCatalogProduct = (productId = selectedCatalogProductId) => {
+        if (!productId) return;
+        const product = catalogProducts.find(item => Number(item.id) === Number(productId));
+        if (!product) return;
+        const alreadyAdded = displayData.some(item =>
+            Number(item.productsId) === Number(product.id) && Number(item.unitsId) === Number(product.unitsId),
+        );
+        if (alreadyAdded) {
+            message.warning('该物品已在申请列表中');
+            return;
+        }
+        const requestProduct = createInventoryRequestProduct(product, displayData);
+        setDisplayData(current => [...current, {
+            ...requestProduct,
+            requestRowKey: `catalog-${product.id}-${product.unitsId}`,
+            isZk: 1,
+            discountRateDp: 100,
+            discountPriceDp: 0,
+        }]);
+        setSelectedCatalogProductId(undefined);
+        setAddProductOpen(false);
     };
 
     // 获取仓库下拉列表
@@ -272,7 +324,7 @@ const AddInventoryRequest = (props) => {
 
     // 快速搜索物品滚动定位
     const changeProductID = useCallback((selectedId) => {
-        const targetIndex = displayData.findIndex(item => item.inventoryId == selectedId);
+        const targetIndex = displayData.findIndex(item => item.requestRowKey === selectedId);
         if (targetIndex === -1) {
             message.warning('未找到匹配的物品');
             return;
@@ -280,7 +332,7 @@ const AddInventoryRequest = (props) => {
         const targetRow = rowRefs.current[targetIndex];
         if (targetRow) {
             targetRow.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-            setLoadedImageIds(prev => new Set(prev).add(selectedId.toString()));
+            setLoadedImageIds(prev => new Set(prev).add(targetRow.dataset.rowId || ''));
             targetRow.style.backgroundColor = '#e6f7ff';
             setTimeout(() => {
                 targetRow.style.backgroundColor = '';
@@ -328,29 +380,29 @@ const AddInventoryRequest = (props) => {
                 <Input placeholder='备注' value={remark} onChange={changeRemark} maxLength={50} showCount />
                 <Space.Compact>
                     <div style={{ borderRadius: '6px 0 0 6px', padding: '0 11px', border: '1px solid #d9d9d9', borderRight: 0, display: 'flex', alignItems: 'center' }}>
-                        快速查询物品:
+                        新增物品:
                     </div>
                     <Select
-                        placeholder='请选择物品'
-                        onChange={changeProductID}
+                        placeholder='从商品档案选择'
+                        onChange={addCatalogProduct}
                         showSearch
                         optionFilterProp="children"
-                        filterOption={(input, option) => {
-                            const item = displayData.find(unit => unit.id == option.value);
-                            return item?.productsName?.toLowerCase().includes(input.toLowerCase());
-                        }}
-                        options={Array.isArray(displayData) && displayData.length > 0
-                            ? displayData.map((item: any) => ({
+                        filterOption={(input, option) => String(option?.label || '').toLowerCase().includes(input.toLowerCase())}
+                        disabled={warehouseId === 0}
+                        options={catalogProducts
+                            .filter(product => !displayData.some(item =>
+                                Number(item.productsId) === Number(product.id) && Number(item.unitsId) === Number(product.unitsId),
+                            ))
+                            .map((item: any) => ({
                                 label: `${item.productsName}(${item.unitsName})`,
                                 value: item.id,
-                            }))
-                            : []}
+                            }))}
                     />
                 </Space.Compact>
             </Space>
             <Table
                 columns={columnsz}
-                rowKey="id"
+                rowKey="requestRowKey"
                 pagination={false}
                 size='small'
                 scroll={{ y: '55vh' }}
@@ -360,7 +412,7 @@ const AddInventoryRequest = (props) => {
                 onRow={(record, index) => ({
                     ref: (el) => {
                         if (el) {
-                            el.dataset.rowId = record.id;
+                            el.dataset.rowId = record.requestRowKey;
                             rowRefs.current[index] = el;
                             observerRef.current?.observe(el);
                         }

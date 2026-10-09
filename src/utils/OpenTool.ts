@@ -53,6 +53,62 @@ export function buildTree(items: TypeMenu[]): TypeMenu[] {
     return Array.from(map.values()).filter(item => item.parentId === undefined);
 }
 
+type PermissionTreeNode = TypeMenu & { children?: PermissionTreeNode[] };
+
+export function selectPermissionTree(
+    selected: string[],
+    tree: PermissionTreeNode[],
+    id: number,
+    isChecked: boolean,
+): string[] {
+    const parentById = new Map<number, number>();
+    const nodeById = new Map<number, PermissionTreeNode>();
+    const visit = (nodes: PermissionTreeNode[], parentId?: number) => {
+        nodes.forEach(node => {
+            nodeById.set(node.id, node);
+            if (parentId !== undefined) {
+                parentById.set(node.id, parentId);
+            }
+            visit(node.children || [], node.id);
+        });
+    };
+    visit(tree);
+
+    const result = [...selected];
+    const node = nodeById.get(id);
+    if (!isChecked) {
+        result[id] = '0';
+        let parentId = parentById.get(id);
+        while (parentId !== undefined) {
+            const parent = nodeById.get(parentId);
+            const hasSelectedChild = (parent?.children || []).some(
+                child => result[child.id] === '1',
+            );
+            if (hasSelectedChild) {
+                break;
+            }
+            result[parentId] = '0';
+            parentId = parentById.get(parentId);
+        }
+        return result;
+    }
+
+    const markDescendants = (node: PermissionTreeNode) => {
+        result[node.id] = '1';
+        (node.children || []).forEach(markDescendants);
+    };
+    if (node) {
+        markDescendants(node);
+    }
+
+    let parentId = parentById.get(id);
+    while (parentId !== undefined) {
+        result[parentId] = '1';
+        parentId = parentById.get(parentId);
+    }
+    return result;
+}
+
 
 // 获取当前时间类型  yyyy-MM-DD
 export function getCurrentDate() {

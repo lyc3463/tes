@@ -2,7 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {connect,useLocation,history,useNavigate} from "umi";
 import {Button, Form, Input, message, Select, Space} from "antd";
 import * as UsersService from '@/services/users';
-import {buildTree, ensureArrayLength, filterAndUpdateList, mmPattern, phonePattern} from "@/utils/OpenTool";
+import {buildTree, ensureArrayLength, filterAndUpdateList, mmPattern, phonePattern, selectPermissionTree} from "@/utils/OpenTool";
 import {qxTree} from "@/constants/qxMenu";
 import TypeMenu from "@/ModelTypes/TypeMenu";
 import {StaticInfo} from "@/StaticInfo";
@@ -1707,8 +1707,7 @@ const EditUser=(props:any)=>{
             newSelected[387] = '1' ;
             newSelected[598] = isChecked ? '1' : '0' ;
         }
-        // 设置新的选中状态
-        setSelected(newSelected);
+        setSelected(selectPermissionTree(newSelected, treeData, id, isChecked));
     };
     const onFinish=(value:any)=>{
         let joinqx=selected.join('');

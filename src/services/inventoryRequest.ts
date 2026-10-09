@@ -12,7 +12,7 @@ export function add(vals:any) {
 }
 
 export function edit(vals:any) {
-    return postData(1756, [vals.uid,vals.stockCode,vals.stockTime,vals.warehouseId,vals.remark],vals.jsonData);
+    return postData(1756, [vals.uid,vals.stockCode,vals.stockTime,vals.warehouseId,vals.remark,vals.stockStatus],vals.jsonData);
 }
 
 export function remove(vals:any) {
@@ -22,6 +22,10 @@ export function one(vals:any) {
     return getData(1758, [vals]);
 }
 export function check(vals:any) {
-    return getData(1761, [vals,2]);
+    return getData(1761, [vals.id, vals.status, vals.rejectReason || '']);
+}
+
+export function submit(id:number) {
+    return getData(2123, [id, 3]);
 }
 

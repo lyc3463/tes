@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
     Button,
     DatePicker, Form,
@@ -18,6 +18,14 @@ import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import { PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import {PurStatus, PUR_STATUS} from "@/utils/commonEnum";
+import * as ThingListvice from "@/services/thingList";
+import {
+    getPurchaseQuantityUpdate,
+    getPurchaseUnitName,
+    hasPurchaseUnitConversions,
+    mergePurchaseProductDetails,
+    preservePurchaseUnitSelection,
+} from "@/utils/purchaseUnitConversion";
 
 // 缓存唯一标识
 const CACHE_KEY = "AddApplication_draft_cache";
@@ -54,6 +62,7 @@ const AddApplication = (props) => {
     // 订单物品列表
     const [goods, setGoods] = useState([]);
     const [pmId, setPayTypeId] = useState(0);
+    const productSelectionIds = useRef(new Map<number, number>());
 
     // ====================== 缓存工具函数 ======================
     // 读取缓存
@@ -228,33 +237,72 @@ const AddApplication = (props) => {
     };
 
     // 处理物品选择变更
-    const handleProductSelect = (recordId, productId) => {
+    const handleProductSelect = async (recordId, productId) => {
         const selectedProduct = props.thingList.find(item => item.id === productId);
         if (!selectedProduct) return;
+        console.log('props.UnitSetting:', props.thingList);
+        console.log('props.UnitSetting:', props.UnitSetting);
+        productSelectionIds.current.set(recordId, productId);
+        const listUnitId = Number(selectedProduct.unitsId || selectedProduct.unitsList?.[0]?.from_unit_id || 0);
+        const listUnitName = getPurchaseUnitName(
+            listUnitId,
+            props.UnitSetting,
+            selectedProduct.unitsName || '',
+        );
 
-        const baseUnitId = selectedProduct.unitsId || selectedProduct.unitsList?.[0]?.from_unit_id || 0;
-        const normalizedUnits = normalizeUnitsListPrice(selectedProduct, baseUnitId);
+        setGoods(prevGoods => prevGoods.map(item => item.id === recordId ? {
+            ...item,
+            productsId: selectedProduct.id || 0,
+            productsName: selectedProduct.productsName,
+            productsCode: selectedProduct.productsCode || '',
+            productsImage: selectedProduct.productsImage || '',
+            unitsId: listUnitId,
+            unitsName: listUnitName,
+            unitsList: Array.isArray(selectedProduct.unitsList) ? selectedProduct.unitsList : [],
+            isHs: selectedProduct.isHs || 0,
+            quantity: selectedProduct.quantity || 0,
+            price: Number(selectedProduct.costPrice || selectedProduct.price || 0),
+            totalPrice: Number((Number(selectedProduct.quantity || 0) * Number(selectedProduct.costPrice || selectedProduct.price || 0)).toFixed(2)),
+        } : item));
+
+        const detailResponse: any = await ThingListvice.one(productId);
+        if (productSelectionIds.current.get(recordId) !== productId) return;
+        if (detailResponse?.ErrorCode !== 0 || !detailResponse.Data) {
+            message.error(detailResponse?.Data || '获取物品单位换算信息失败');
+            return;
+        }
+
+        const product = mergePurchaseProductDetails(selectedProduct, detailResponse.Data);
+        const baseUnitId = product.unitsId || product.unitsList?.[0]?.from_unit_id || 0;
+        const normalizedUnits = normalizeUnitsListPrice(product, baseUnitId);
         const selectedUnit = normalizedUnits.find((item: any) => item.from_unit_id === baseUnitId) || normalizedUnits[0];
-        const newPrice = Number(selectedUnit?.price ?? selectedProduct.costPrice ?? selectedProduct.price ?? 0);
+        const newPrice = Number(selectedUnit?.price ?? product.costPrice ?? product.price ?? 0);
 
-        setGoods(goods.map(item => {
+        setGoods(prevGoods => prevGoods.map(item => {
             if (item.id === recordId) {
+                const currentSelection = preservePurchaseUnitSelection(
+                    item,
+                    normalizedUnits,
+                    baseUnitId,
+                );
+
                 return {
                     ...item,
-                    productsId: selectedProduct.id || 0,
-                    productsName: selectedProduct.productsName,
-                    productsCode: selectedProduct.productsCode || '',
-                    productsImage: selectedProduct.productsImage || '',
-                    specifications: selectedProduct.specifications || '',
-                    barcode: selectedProduct.barcode || '',
-                    remark: selectedProduct.remark || '',
-                    quantity: selectedProduct.quantity || 0,
+                    productsId: product.id || 0,
+                    productsName: product.productsName,
+                    productsCode: product.productsCode || '',
+                    productsImage: product.productsImage || '',
+                    specifications: product.specifications || '',
+                    barcode: product.barcode || '',
+                    remark: product.remark || '',
                     unitsList: normalizedUnits,
-                    isHs: selectedProduct.isHs || 0,
-                    unitsId: baseUnitId,
-                    unitsName: selectedProduct.unitsName || '',
-                    price: newPrice,
-                    totalPrice: ((selectedProduct.quantity || 0) * newPrice).toFixed(2) * 1,
+                    isHs: product.isHs || 0,
+                    ...currentSelection,
+                    unitsName: getPurchaseUnitName(
+                        currentSelection.unitsId,
+                        props.UnitSetting,
+                        product.unitsName || selectedProduct.unitsName || '',
+                    ),
                 };
             }
             return item;
@@ -264,13 +312,19 @@ const AddApplication = (props) => {
     // 修改采购数量
     const changproductsNum = (value, recordId) => {
         setGoods(prevGoods =>
-            prevGoods.map(item =>
-                item.id === recordId ? {
-                    ...item,
-                    quantity: value || 0,
-                    totalPrice: ((value || 0) * item.price).toFixed(2) * 1
-                } : item
-            )
+            prevGoods.map(item => {
+                if (item.id !== recordId) return item;
+
+                const updatedItem = getPurchaseQuantityUpdate(item, value);
+                const selectedUnit = props.UnitSetting?.find(
+                    (unit: any) => Number(unit.id) === updatedItem.unitsId
+                );
+
+                return {
+                    ...updatedItem,
+                    unitsName: selectedUnit?.unitsName || item.unitsName,
+                };
+            })
         );
     };
 
@@ -300,8 +354,10 @@ const AddApplication = (props) => {
                     return {
                         ...item,
                         unitsId: value || 0,
+                        quantity: 0,
                         price: nextPrice,
-                        totalPrice: ((item.quantity || 0) * nextPrice).toFixed(2) * 1,
+                        // totalPrice: ((item.quantity || 0) * nextPrice).toFixed(2) * 1,
+                        totalPrice: 0,
                     };
                 }
                 return item;
@@ -387,16 +443,23 @@ const AddApplication = (props) => {
                         {/*        : []}*/}
                         {/*/>*/}
                     {
-                        record.isHs == 0 ? <span>{record.unitsName}</span> :
+                        !hasPurchaseUnitConversions(record.isHs, record.unitsList)
+                            ? <span>{record.unitsName}</span> :
                             <Select
                                 placeholder='选择单位'
                                 disabled={record.isHs == 0}
                                 style={{ width: 120 }}
-                                options={Array.isArray(record.unitsList) && record.unitsList.length > 0
-                                    ? record.unitsList.map((item: any) => ({
-                                        label: item.unitsName,
-                                        value: item.from_unit_id,
-                                    }))
+                                value={record.unitsId || undefined}
+                                options={Array.isArray(props.UnitSetting) && Array.isArray(record.unitsList)
+                                    ? props.UnitSetting
+                                        .filter((unit: any) => record.unitsList.some((conversion: any) =>
+                                            Number(conversion.from_unit_id) === Number(unit.id)
+                                            || Number(conversion.to_unit_id) === Number(unit.id)
+                                        ))
+                                        .map((unit: any) => ({
+                                            label: unit.unitsName,
+                                            value: unit.id,
+                                        }))
                                     : []}
                                 onChange={(value) => changeUnitsId(value, record.id)}
                             />
@@ -532,6 +595,17 @@ const AddApplication = (props) => {
             message.error('请选择支付方式');
             return;
         }
+        // 单价截取两位小数
+        filteredGoods.forEach(item => {
+            item.price = Math.trunc(item.price * 100) / 100;
+        });
+        console.log('filteredGoods after rounding price', filteredGoods);
+        // 检查每个单价小于0.01
+        const hasInvalidPrice = filteredGoods.some(item => item.price < 0.01);
+        if (hasInvalidPrice) {
+            message.error('请确保所有物品的单价大于0.01');
+            return;
+        }
         setSpinning(true);
         let newFilteredData = filteredGoods.map((item:any)=>({
             quantity: item.quantity,
@@ -544,7 +618,11 @@ const AddApplication = (props) => {
             totalPrice: item.totalPrice,
             id: item.productsId,
         }));
+        console.log('1231',newFilteredData);
         let jsonData = JSON.stringify(newFilteredData);
+        console.log('jsonData', jsonData);
+        // 保存前重新计算一遍总金额
+        const totalAmount = newFilteredData.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
         props.dispatch({
             type: "Application/add",
             payload: { orderCode, orderTime, warehouseId, supplierId, paidAmount, totalAmount, remark, jsonData, pmId, orderStatus: PurStatus.DRAFT },
@@ -590,6 +668,16 @@ const AddApplication = (props) => {
         }
         if (pmId === 0) {
             message.error('请选择支付方式');
+            return;
+        }
+        // 单价只保留2位
+        filteredGoods.forEach(item => {
+            item.price = Math.trunc(item.price * 100) / 100;
+        });
+        // 检查每个单价小于0.01
+        const hasInvalidPrice = filteredGoods.some(item => item.price < 0.01);
+        if (hasInvalidPrice) {
+            message.error('请确保所有物品的单价大于0.01');
             return;
         }
         setSpinning(true);

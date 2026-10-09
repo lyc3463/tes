@@ -1,5 +1,5 @@
 import {Button, Form, Input, message, Space, Spin} from "antd";
-import {buildTree} from "@/utils/OpenTool";
+import {buildTree, selectPermissionTree} from "@/utils/OpenTool";
 import {qxTree} from "@/constants/qxMenu";
 import {useState} from "react";
 import {history,connect,useNavigate} from "umi";
@@ -1671,8 +1671,7 @@ const AddRole=(props)=>{
             newSelected[387] = '1' ;
             newSelected[598] = isChecked ? '1' : '0' ;
         }
-        // 设置新的选中状态
-        setSelected(newSelected);
+        setSelected(selectPermissionTree(newSelected, treeData, id, isChecked));
     };
 
     const onFinish= (values)=>{

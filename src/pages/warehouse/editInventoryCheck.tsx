@@ -118,15 +118,24 @@ const EditInventoryCheck=(props)=>{
         getOne(id);
     }, []);
     // 确定修改
-    const onOK=()=>{
+    const onOK=(submitForReview = false)=>{
         setSpinning(true);
         let jsonData=JSON.stringify(displayData);
         props.dispatch({
             type:'InventoryEntry/edit',
-            payload:{uid,warehouseId, stockCode, stockTime, jsonData, remark}
-        }).then((res:TypeErrorCode)=>{
+            payload:{uid,warehouseId, stockCode, stockTime, jsonData, remark, stockStatus:1}
+        }).then(async (res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                message.success('修改成功');
+                if (submitForReview) {
+                    const submitRes:TypeErrorCode = await InventoryRequest.submit(Number(uid));
+                    if (submitRes.ErrorCode!==0) {
+                        message.warning('盘点数据已保存，但送审失败');
+                        setSpinning(false);
+                        history.push('/warehouse/inventory');
+                        return;
+                    }
+                }
+                message.success(submitForReview ? '盘点数据已送审' : '盘点数据已保存');
                 setSpinning(false);
                 history.push('/warehouse/inventory');
             }else {
@@ -141,8 +150,11 @@ const EditInventoryCheck=(props)=>{
                 <Button type="primary" onClick={()=>navigate(-1)}>
                     返回
                 </Button>
-                <Button type="primary" onClick={onOK}>
-                    确定修改
+                <Button type="primary" onClick={()=>onOK(false)}>
+                    保存盘点数据
+                </Button>
+                <Button type="primary" danger onClick={()=>onOK(true)}>
+                    保存并送审
                 </Button>
             </Space>
             <Space style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginTop:'10px'}}>

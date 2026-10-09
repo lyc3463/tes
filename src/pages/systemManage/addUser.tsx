@@ -1,7 +1,7 @@
 import {connect,history,useNavigate} from 'umi'
 import {Button, Form, Input, InputNumber, message, Radio, Select, Space} from "antd";
 import CryptoUtils from '@/utils/Crypto';
-import {mmPattern, phonePattern, buildTree, filterAndUpdateList, ensureArrayLength, pwdPattern} from "@/utils/OpenTool";
+import {mmPattern, phonePattern, buildTree, filterAndUpdateList, ensureArrayLength, pwdPattern, selectPermissionTree} from "@/utils/OpenTool";
 import {qxTree} from "@/constants/qxMenu";
 import {useEffect, useState} from "react";
 import { StaticInfo } from '@/StaticInfo';
@@ -1732,8 +1732,7 @@ const AddUser=(props:any)=>{
             newSelected[387] = '1' ;
             newSelected[598] = isChecked ? '1' : '0' ;
         }
-        // 设置新的选中状态
-        setSelected(newSelected);
+        setSelected(selectPermissionTree(newSelected, treeData, id, isChecked));
     };
     // 下拉选择角色获取角色权限
     const change=(e)=>{

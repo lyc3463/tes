@@ -115,6 +115,10 @@ const InAndOutDetails=(props)=>{
                         return '合并入';
                     case 14:
                         return '合并出';
+                    case 15:
+                        return '盘盈';
+                    case 16:
+                        return '盘亏';
                     default:
                         return '未知类型';
                 }

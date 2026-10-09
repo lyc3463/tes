@@ -11,7 +11,7 @@ const InventoryEntry=(props)=>{
     const [warehouseName,setWarehouseName]=useState(checkSessionStorage('/warehouse/inventory','inventoryEntryWarehouseName') || '');// 仓库名称
     const [startDate,setStartDate]=useState(checkSessionStorage('/warehouse/inventory','inventoryEntryStartDate') || '2000-01-01');// 开始日期
     const [endDate,setEndDate]=useState(checkSessionStorage('/warehouse/inventory','inventoryEntryEndDate') || '2099-01-01');// 结束日期
-    const [orderStatus,setOrderStatus]=useState(1);// 订单状态
+    const [orderStatus,setOrderStatus]=useState(0);// 查询全部状态，包含已驳回单据
     const [pageSize,setPageSize]=useState(10);// 每页数量
     const [dOpen,setDOpen]=useState(false);// 删除弹窗是否打开
     const [dId,setDId]=useState(0);// 删除的id
@@ -46,7 +46,14 @@ const InventoryEntry=(props)=>{
             key:'stockStatus',
             ellipsis:true,
             render:(text)=>{
-                return <Tag color={text==2?'green':'red'}>{text==2?'已审核':'未审核'}</Tag>
+                const statusMap: Record<number, {color: string; text: string}> = {
+                    1: {color: 'blue', text: '未审核'},
+                    2: {color: 'green', text: '已审核'},
+                    3: {color: 'orange', text: '已送审'},
+                    4: {color: 'red', text: '已驳回'},
+                };
+                const status = statusMap[Number(text)] || {color: 'default', text: '未知状态'};
+                return <Tag color={status.color}>{status.text}</Tag>
             }
         },
         {
@@ -62,7 +69,7 @@ const InventoryEntry=(props)=>{
             render:(text,record)=>{
                 return(
                     <>
-                        {record.stockStatus==1? <Button onClick={()=>isCheckOpen(record.id)} type='primary'>盘点数据</Button>:null}
+                        {(record.stockStatus==1 || record.stockStatus==4)? <Button onClick={()=>isCheckOpen(record.id)} type='primary'>盘点数据</Button>:null}
                     </>
                 )
             }

@@ -26,6 +26,8 @@ const EditCustom=(props)=>{
     const [disp,setDisp]=useState(false);
     const [spinning,setspinning]=useState(false);
     const [remark,setremark]=useState('');
+    // 客户审核状态
+    const [examineStatus,setExamineStatus]=useState(0);
     // 获取单个信息详情
     const getOneCustom=async (id:string)=>{
         let res:any=await  CustomServer.one(id);
@@ -38,6 +40,7 @@ const EditCustom=(props)=>{
             setrequired_area(res.Data.required_area);
             setdemands(res.Data.demands);
             setremark(res.Data.remark);
+            setExamineStatus(res.Data.custom_sattus);
             setCustom_date(dayjs(data.custom_date).format('YYYY-MM-DD'))
         }else {
             message.error(res.Data);
@@ -48,7 +51,7 @@ const EditCustom=(props)=>{
         setspinning(true);
         let res=await props.dispatch({
             type:'Custom/edit',
-            payload:{...values,custom_date,uid,visitor_channels,visitor_type,reason_lease,required_area,demands,remark}
+            payload:{...values,custom_date,uid,visitor_channels,visitor_type,reason_lease,required_area,demands,remark,isExamine1124:examineStatus}
         })
         if (res.ErrorCode==0){
             setDisp(false);
