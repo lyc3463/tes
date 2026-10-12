@@ -105,6 +105,13 @@ const PurchaseReceiving=(props)=>{
             align:'center',
             width:150,
         },
+        {
+            title:'供应商',
+            dataIndex:'supplierName',
+            key:'supplierName',
+            align:'center',
+            width:150,
+        },
          {
             title:'备注',
             dataIndex:'remark',

@@ -53,7 +53,7 @@ export function warehousingInspection(vals:any) {
 }
 // 生成入库订单列表
 export function orderList(vals:any) {
-    return getData(2117, [vals.page,vals.orderCode,vals.woCode,vals.productsName,vals.startDate,vals.endDate,vals.unitsId,vals.warehouseId,vals.orderStatus,vals.pageSize,vals.userId]);
+    return getData(2117, [vals.page,vals.orderCode,vals.woCode,vals.productsName,vals.startDate,vals.endDate,vals.unitsId,vals.warehouseId,vals.orderStatus,vals.pageSize,vals.userId, vals.supplierName]);
 }
 // 编辑入库单
 export function editOrder(vals:any) {
