@@ -96,7 +96,7 @@ const AddPurchase=(props)=>{
     };
      // 列表信息
     const getList=(e:string)=>{
-        Application.orderList({page:1, pageSize:1000, orderCode:e, unitsId:0,warehouseId:0, supplierName:'', startDate:'2000-01-01', endDate:'2099-01-01', orderStatus:0,woCode:'',productsName:'',userId:StaticInfo.userId}).then((res:TypeErrorCode)=>{
+        Application.orderList({page:1, pageSize:1000, orderCode:e, unitsId:0,warehouseId:0, supplierName:0, startDate:'2000-01-01', endDate:'2099-01-01', orderStatus:0,woCode:'',productsName:'',userId:StaticInfo.userId}).then((res:TypeErrorCode)=>{
             console.log(res.Data);
             if(res.ErrorCode===0){
                 console.log('入库列表',res.Data);

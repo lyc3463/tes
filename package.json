@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
+    "@ant-design/charts": "^2.6.7",
+    "@ant-design/plots": "^2.6.8",
     "@fingerprintjs/fingerprintjs": "^5.2.0",
     "antd": "5.20.1",
     "compression-webpack-plugin": "11.1.0",

@@ -261,8 +261,8 @@ const NewCheckFinance=(props: NewCheckFinanceProps)=>{
                     <Space>
                         {record.orderStatus==1?
                         <Space>
-                            <Button type='primary' onClick={()=>isCheck(record,2)}>审核</Button>
-                            <Button type='danger' onClick={()=>isCheck(record,15)}>驳回</Button>
+                            {userQx()[610]=='1' && <Button type='primary' onClick={()=>isCheck(record,2)}>审核</Button>}
+                            {userQx()[610]=='1' && <Button danger onClick={()=>isCheck(record,15)}>驳回</Button>}
                         </Space>
                         :null}
                     </Space>

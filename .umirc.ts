@@ -29,5 +29,5 @@ export default defineConfig({
   plugins:['@umijs/plugins/dist/dva'],
   dva:{},
   mako: {},
-  title: '物业公司端',
+  title: '茶馆管理系统',
 });

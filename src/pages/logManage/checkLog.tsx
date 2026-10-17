@@ -64,7 +64,7 @@ const CheckLog=()=>{
     const sousuo=()=>{
         setPage(1);
         getList();
-        getListfy();
+        // getListfy();
     };
     const onChange=(page:number,pageSize:number)=>{
         setPage(page);

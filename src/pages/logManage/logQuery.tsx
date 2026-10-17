@@ -26,17 +26,17 @@ const LogQuery=(props)=>{
                 <Tabs.TabPane tab='修改权限'  key='1'>
                     <PermissionLog/>
                 </Tabs.TabPane>
-                {uqx[391]=='1'?
+                {/* {uqx[391]=='1'?
                 <Tabs.TabPane tab='修改电表倍率'  key='2'>
                     <EditMagnification/>
-                </Tabs.TabPane>:""}
+                </Tabs.TabPane>:""} */}
                 {uqx[432]=='1'?
                     <Tabs.TabPane tab='审核日志'  key='3'>
                         <CheckLog/>
                     </Tabs.TabPane>:""}
-                <Tabs.TabPane tab='租户绑定日志'  key='4'>
+                {/* <Tabs.TabPane tab='租户绑定日志'  key='4'>
                     <TenantLog/>
-                </Tabs.TabPane>
+                </Tabs.TabPane> */}
                 <Tabs.TabPane tab='财务日志'  key='5'>
                     <FinanceLog/>
                 </Tabs.TabPane>

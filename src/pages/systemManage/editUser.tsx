@@ -25,7 +25,7 @@ const EditUser=(props:any)=>{
     const [qyId,setqyId]=useState(0);
     const [park_id,setPark_id]=useState([]);
     const [oldpark_id,setOldpark_id]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(610).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(611).fill('0'));
     // 路由参数
     const [uid,setUid]=useState<string|undefined>();
     useEffect(()=>{
@@ -1798,7 +1798,7 @@ const EditUser=(props:any)=>{
                 <Form.Item label="管理员手机号" name="phone" rules={[{required: true, message: '请输入管理员手机号'},{pattern: phonePattern, message: '请输入有效的手机号'}]}>
                     <Input/>
                 </Form.Item>
-                <Form.Item label='接收消息'>
+                {/* <Form.Item label='接收消息'>
                     <Select onChange={changeIsTask} value={isTask}  mode="multiple">
                         <Select.Option value={1}>抬头消息</Select.Option>
                         <Select.Option value={2}>发票消息</Select.Option>
@@ -1827,7 +1827,7 @@ const EditUser=(props:any)=>{
                         <Select.Option value={25}>出库单</Select.Option>
                         <Select.Option value={0}>不接收消息</Select.Option>
                     </Select>
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item label='选择角色' name='role_id'>
                     <Select onChange={change}>
                         {roleList.map((item:any,index:any)=>{

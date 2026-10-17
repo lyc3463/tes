@@ -306,7 +306,7 @@ class MainPage extends Component<any> {
                 justifyContent: 'center',
               }}
             >
-              物业管理后台
+              管理后台
             </div>
             <Menu theme="dark" mode="inline"
               defaultSelectedKeys={[UmiHistory.location.pathname]}
@@ -451,10 +451,10 @@ class MainPage extends Component<any> {
                   {/*  {this.state.list.length}*/}
                   {/*  <AlertFilled />*/}
                   {/*</Button>*/}
-                    <span>
+                    {/* <span>
                         园区有效期:{`${dayjs(StaticInfo.beginTime).format('YYYY-MM-DD')}至${dayjs(StaticInfo.endTime).format('YYYY-MM-DD')}`}
                         <Button style={{border:'none',padding:'0',margin:'0'}} onClick={this.toOpen}><QuestionCircleOutlined/></Button>
-                    </span>
+                    </span> */}
                     <Popconfirm
                         title="园区即将到期"
                         description="该园区即将到期请及时续费"
@@ -467,7 +467,7 @@ class MainPage extends Component<any> {
                         用户姓名:{StaticInfo.username}
                     </span>
                     <span>
-                       当前园区:<Select placeholder="请选择园区" style={{ width: 200 }} value={this.state.park_id} onChange={(e,parkList)=>this.changePark(e,parkList)}>
+                       当前门店:<Select placeholder="请选择门店" style={{ width: 200 }} value={this.state.park_id} onChange={(e,parkList)=>this.changePark(e,parkList)}>
                             {Array.isArray(StaticInfo.parkList) && StaticInfo.parkList.map(park => (
                                 <Select.Option
                                     key={park.parkId}

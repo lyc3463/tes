@@ -215,7 +215,7 @@ const OldCheckFinance=(props: OldCheckFinanceProps)=>{
                 return(
                     <Space>
                         {
-                            record.orderStatus !== 15 && isCok?<Space>
+                            record.orderStatus !== 15 && userQx()[202]=='1' && isCok?<Space>
                                 {[1,2,3,4,5,6,7,8,9,10,11].includes(record.orderStatus) && (
                                     <a
                                         onClick={() => handleUpdateStatus(record, current.next)}
@@ -224,7 +224,7 @@ const OldCheckFinance=(props: OldCheckFinanceProps)=>{
                                     </a>
                                 )}
                                 {/* 终止按钮（所有流程中都可以点） */}
-                                {[1,2,3,4,5,6,7,8,9,10,11].includes(record.orderStatus) && (
+                                {[1,2,3,4,5,6,7,8,9,10,11].includes(record.orderStatus) && userQx()[202]=='1' && (
                                     <a
                                         style={{ color: 'red' }}
                                         onClick={() => handleTerminateStatus(record)}
@@ -232,7 +232,7 @@ const OldCheckFinance=(props: OldCheckFinanceProps)=>{
                                         终止
                                     </a>
                                 )}
-                                {record.orderStatus !== 12 && record.orderStatus !== 13 && record.orderStatus !== 14 && (
+                                {record.orderStatus !== 12 && record.orderStatus !== 13 && record.orderStatus !== 14 && userQx()[202]=='1' && (
                                     <a
                                         style={{ color: '#1890ff' }}
                                         onClick={() => handleReject(record)}

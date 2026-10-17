@@ -12,9 +12,9 @@ const Allpz=()=>{
     return(
         <div>
             <Tabs  activeKey={activeKey} onChange={onChange}>
-                <Tabs.TabPane tab='手动充值配置' key='1'>
+                {/* <Tabs.TabPane tab='手动充值配置' key='1'>
                     <RechargeSetUp/>
-                </Tabs.TabPane>
+                </Tabs.TabPane> */}
                 <Tabs.TabPane tab='配置企业ID' key='2'>
                     <ConfigurationWxId/>
                 </Tabs.TabPane>

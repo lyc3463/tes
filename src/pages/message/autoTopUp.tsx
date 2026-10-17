@@ -28,26 +28,27 @@ const AutoTopUp=()=>{
     const getPaymentLogList=()=>{
         PaymentLogService.fetch({page,orderNum,startDate,endDate,type,stutes,pageSize}).then((res:TypeErrorCode)=>{
             if (res.ErrorCode==0){
-                setdataSource(res.Data);
+                setdataSource(res.Data?.data);
+                setcount(res.Data?.count);
             }else {
                 message.error(res.Data);
             }
         })
     };
     // 订单列表分页信息
-    const getPaymentLogListfenye=()=>{
-        PaymentLogService.fenye({orderNum,startDate,endDate,type,stutes,pageSize}).then((res:TypeErrorCode)=>{
-            if (res.ErrorCode==0){
-                setcount(res.Data.count);
-                setmoneySum(res.Data.moneySum);
-            }else {
-                message.error(res.Data);
-            }
-        })
-    };
+    // const getPaymentLogListfenye=()=>{
+    //     PaymentLogService.fenye({orderNum,startDate,endDate,type,stutes,pageSize}).then((res:TypeErrorCode)=>{
+    //         if (res.ErrorCode==0){
+    //             setcount(res.Data.count);
+    //             setmoneySum(res.Data.moneySum);
+    //         }else {
+    //             message.error(res.Data);
+    //         }
+    //     })
+    // };
     useEffect(() => {
         getPaymentLogList();
-        getPaymentLogListfenye();
+        // getPaymentLogListfenye();
     }, []);
     // 监听下一页页码
     const onChange=(e,pageSize:number)=>{
@@ -144,7 +145,7 @@ const AutoTopUp=()=>{
     ];
     const sousuo=()=>{
         setPage(1);
-        getPaymentLogListfenye();
+        // getPaymentLogListfenye();
         getPaymentLogList();
     };
     // 监听日期

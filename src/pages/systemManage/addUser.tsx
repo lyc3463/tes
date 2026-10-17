@@ -9,6 +9,7 @@ import TypeMenu from "@/ModelTypes/TypeMenu";
 import * as RoleService from '@/services/role';
 import TypeErrorCode from "@/ModelTypes/TypeErrorCode";
 import * as AppPzService from '@/services/appPz';
+import {userQx} from "@/utils/OpenTool";
 const tailLayout = {
     wrapperCol: { offset: 4 },
 };
@@ -19,7 +20,7 @@ const AddUser=(props:any)=>{
     const navigate=useNavigate();
     const treeData = buildTree(qxTree);
     const [roleList,setRoleList]=useState([]);
-    const [selected, setSelected] = useState<string[]>(Array(610).fill('0'));
+    const [selected, setSelected] = useState<string[]>(Array(611).fill('0'));
     const [isTask,setisTask]=useState([0]);
     const [qyList,setqyList]=useState([]);
     const [qyId,setqyId]=useState(0);
@@ -47,6 +48,7 @@ const AddUser=(props:any)=>{
             }
          })
     };
+    // 添加用户只能选择角色，不能再修改权限，除非有编辑角色权限才能修改
     const TreeMenu=({ tree, selected,disabled, setSelected }: { tree: TypeMenu[]; selected: string[];disabled:number[], setSelected: (newSelected: string[]) => void }) =>{
         return (
             <ul>
@@ -54,7 +56,8 @@ const AddUser=(props:any)=>{
                     <li key={node.id}>
                         <input
                             type="checkbox"
-                            disabled={disabled[node.id]==0}
+                            // disabled={disabled[node.id]==0}
+                            disabled={(userQx()[293] =='1') ? disabled[node.id]==0 : true}
                             checked={selected[node.id] === '1'}
                             onChange={e => handleCheckboxChange(node.id, e.target.checked)}
                         />
@@ -1802,7 +1805,7 @@ const AddUser=(props:any)=>{
                         ))}
                     </Select>
                 </Form.Item>
-                <Form.Item label='接收消息'>
+                {/* <Form.Item label='接收消息'>
                     <Select onChange={changeIsTask} value={isTask}  mode="multiple">
                         <Select.Option value={1}>抬头消息</Select.Option>
                         <Select.Option value={2}>发票消息</Select.Option>
@@ -1831,7 +1834,7 @@ const AddUser=(props:any)=>{
                         <Select.Option value={25}>出库单</Select.Option>
                         <Select.Option value={0}>不接收消息</Select.Option>
                     </Select>
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item label='选择公司'>
                     <Select onChange={changeQyId} value={qyId}>
                         <Select.Option value={0}>暂不选择</Select.Option>
