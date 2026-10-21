@@ -1686,14 +1686,6 @@ const EditRole=(props)=>{
             newSelected[390] = isChecked ? '1' : '0' ;
             newSelected[597] = isChecked ? '1' : '0' ;
         }
-        if (id === 208){
-            newSelected[206] = '1' ;
-            newSelected[596] = isChecked ? '1' : '0' ;
-        }
-        if (id === 388){
-            newSelected[387] = '1' ;
-            newSelected[598] = isChecked ? '1' : '0' ;
-        }
         setSelected(selectPermissionTree(newSelected, treeData, id, isChecked));
     };
     const onFinish=(value:any)=>{

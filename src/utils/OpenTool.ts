@@ -78,18 +78,18 @@ export function selectPermissionTree(
     const node = nodeById.get(id);
     if (!isChecked) {
         result[id] = '0';
-        let parentId = parentById.get(id);
-        while (parentId !== undefined) {
-            const parent = nodeById.get(parentId);
-            const hasSelectedChild = (parent?.children || []).some(
-                child => result[child.id] === '1',
-            );
-            if (hasSelectedChild) {
-                break;
-            }
-            result[parentId] = '0';
-            parentId = parentById.get(parentId);
-        }
+        // let parentId = parentById.get(id);
+        // while (parentId !== undefined) {
+        //     const parent = nodeById.get(parentId);
+        //     const hasSelectedChild = (parent?.children || []).some(
+        //         child => result[child.id] === '1',
+        //     );
+        //     if (hasSelectedChild) {
+        //         break;
+        //     }
+        //     result[parentId] = '0';
+        //     parentId = parentById.get(parentId);
+        // }
         return result;
     }
 

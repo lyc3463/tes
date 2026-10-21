@@ -1707,6 +1707,12 @@ const EditUser=(props:any)=>{
             newSelected[387] = '1' ;
             newSelected[598] = isChecked ? '1' : '0' ;
         }
+        if (id === 215){
+            newSelected[295] = '1' ;
+        }
+        if (id === 216){
+            newSelected[295] = '1' ;
+        }
         setSelected(selectPermissionTree(newSelected, treeData, id, isChecked));
     };
     const onFinish=(value:any)=>{
